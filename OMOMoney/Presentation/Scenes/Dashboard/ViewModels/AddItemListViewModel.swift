@@ -154,10 +154,16 @@ final class AddItemListViewModel {
         if selectedGroup == nil {
             selectedGroup = defaultGroup
         }
-        self.availableGroups = availableGroups.isEmpty ? [defaultGroup] : availableGroups
+        let configuredGroups = availableGroups.isEmpty ? [defaultGroup] : availableGroups
+        if configuredGroups.contains(where: { $0.id == defaultGroup.id }) {
+            self.availableGroups = configuredGroups
+        } else {
+            self.availableGroups = [defaultGroup] + configuredGroups
+        }
     }
 
     func loadOptionsForSelectedGroup() async {
+        await ensureAvailableGroupsLoaded()
         guard let groupId = selectedGroup?.id else { return }
         let shouldRestoreEditSelections = isEditMode && !hasLoadedFormData
         await loadOptions(forGroupId: groupId, restoringEditSelections: shouldRestoreEditSelections)
@@ -482,6 +488,27 @@ final class AddItemListViewModel {
     }
 
     // MARK: - Private Methods
+
+    private func ensureAvailableGroupsLoaded() async {
+        guard availableGroups.count <= 1 else { return }
+
+        do {
+            guard let currentUser = try await getCurrentUserUseCase.execute() else { return }
+            let fetchedGroups = try await fetchGroupsForUserUseCase.execute(userId: currentUser.id)
+            guard !fetchedGroups.isEmpty else { return }
+
+            availableGroups = fetchedGroups
+
+            if let selectedGroup,
+               let refreshedSelectedGroup = fetchedGroups.first(where: { $0.id == selectedGroup.id }) {
+                self.selectedGroup = refreshedSelectedGroup
+            } else if let firstGroup = fetchedGroups.first {
+                selectedGroup = firstGroup
+            }
+        } catch {
+            // Keep the existing local groups if fetching all groups fails.
+        }
+    }
 
     private func correctPriceInput(_ input: String) -> String {
         HeroAmountInputSanitizer.sanitize(input)

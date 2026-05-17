@@ -578,43 +578,51 @@ struct AddItemListGroupCard: View {
     let onSelect: (SDGroup) -> Void
 
     var body: some View {
-        Menu {
-            ForEach(availableGroups, id: \.id) { group in
-                Button {
-                    onSelect(group)
-                } label: {
-                    if group.id == activeGroup.id {
-                        Label(group.name, systemImage: "checkmark")
-                    } else {
-                        Text(group.name)
+        HStack(spacing: 12) {
+            Image(systemName: "person.2.fill")
+                .foregroundStyle(Color.accentColor)
+                .frame(width: 20)
+
+            Text(LocalizationKey.Group.singularTitle.localized)
+                .foregroundStyle(.secondary)
+                .font(.subheadline)
+                .fontWeight(.semibold)
+
+            Spacer()
+
+            if availableGroups.count > 1 {
+                Menu {
+                    ForEach(availableGroups, id: \.id) { group in
+                        Button {
+                            onSelect(group)
+                        } label: {
+                            if group.id == activeGroup.id {
+                                Label(group.name, systemImage: "checkmark")
+                            } else {
+                                Text(group.name)
+                            }
+                        }
                     }
-                }
-            }
-        } label: {
-            HStack(spacing: 12) {
-                Image(systemName: "person.2.fill")
-                    .foregroundStyle(Color.accentColor)
-                    .frame(width: 20)
-                Text(LocalizationKey.Group.singularTitle.localized)
-                    .foregroundStyle(.secondary)
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                Spacer()
-                HStack(spacing: 4) {
-                    Text(activeGroup.name)
-                        .font(.subheadline)
-                        .foregroundStyle(.primary)
-                    if availableGroups.count > 1 {
+                } label: {
+                    HStack(spacing: 4) {
+                        Text(activeGroup.name)
+                            .font(.subheadline)
+                            .foregroundStyle(.primary)
                         Image(systemName: "chevron.up.chevron.down")
-                            .font(.caption2)
+                            .font(.caption.weight(.semibold))
                             .foregroundStyle(.tertiary)
                     }
+                    .contentShape(Rectangle())
                 }
+            } else {
+                Text(activeGroup.name)
+                    .font(.subheadline)
+                    .foregroundStyle(.primary)
             }
-            .padding(AppConstants.UserInterface.padding)
-            .background(Color(.secondarySystemGroupedBackground))
-            .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
         }
+        .padding(AppConstants.UserInterface.padding)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
         .buttonStyle(.plain)
     }
 }

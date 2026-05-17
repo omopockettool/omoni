@@ -63,6 +63,8 @@ Models  Models    Models      Models       (single source of truth)
 | **Data** (Repositories) | ModelContext, SD* models, Domain protocols | Presentation layer |
 
 - **Views render; ViewModels decide.** Keep derived UI state, display-state mapping, and business/presentation rules out of SwiftUI views. If a view needs conditions like "neutral vs paid vs partial", compute that in the ViewModel (or a dedicated presentation mapper) and pass the result in.
+- **NO logic in Views.** Views must not fetch, orchestrate, repair, bootstrap, or "complete" state after presentation. If the screen needs data, fallback loading, selection recovery, async coordination, or flow decisions, that belongs in the ViewModel or below.
+- **No quick fixes.** We are building a premium product, not patching demos. Do not solve issues with local hacks, view-side band-aids, duplicated loading paths, or special-case glue code. Prefer the robust architectural fix at the correct layer.
 
 ### 3. Dependency Injection (MANDATORY)
 ```swift
@@ -92,6 +94,7 @@ struct MyView: View {
 - **Initialize structural UI state up front.** Things like edit-mode expansion, initial detent intent, and default selected context should be decided in `init` or by the ViewModel before the view starts reacting.
 - **Prefer one clear loading flow.** For sheets and forms, aim for a single standard loading path instead of several competing async triggers.
 - **No rush fixes.** We optimize for stable architecture and predictable SwiftUI data flow, not quick patches. If a flow feels too clever, simplify it.
+- **Premium product standard.** Every form/edit flow should feel intentional, maintainable, and production-grade. If a change only "makes it work" but weakens architecture, it is not done.
 
 ### 6. View Lifecycle Rule (APPLE-LIKE BY DEFAULT)
 - **Views should open light.** Opening a sheet, push view, or modal should not trigger heavy UI-side orchestration. A screen should appear because its state already makes sense, not because the view is racing to repair itself after render.
@@ -99,6 +102,7 @@ struct MyView: View {
 - **Do not put heavy startup logic in `body` modifiers.** Avoid mixing multiple `.task`, `onAppear`, `onChange`, focus reactions, keyboard toolbars, alerts, and animations when a screen is first mounting. If startup behavior feels busy, move the logic down into the ViewModel or simplify the feature.
 - **One responsibility per trigger.** If a screen needs initial data, use one clear load path. If it needs to react to identity changes like `group.id`, use one standard reload path. Do not stack several reactive mechanisms for the same concern.
 - **Stability first, polish second.** Keyboard accessories, focus animations, suggestion engines, and similar enhancements should only be layered on top once the base screen is already stable.
+- **If you feel tempted to add logic in the View, stop.** Re-check the architecture first and move the responsibility to the ViewModel / UseCase / Repository layer that actually owns it.
 
 ---
 
@@ -157,6 +161,12 @@ let service = UserService(...)               // ❌ Services are DELETED
 NSFetchRequest<User>(...)                    // ❌ Use UseCases
 context.perform { }                          // ❌ No context in Presentation
 class VM: ObservableObject { @Published var } // ❌ FORBIDDEN — use @Observable
+```
+
+```swift
+.task { await loadSomethingNeededToFixTheScreen() }   // ❌ If this is bootstrap/orchestration logic, move it to the ViewModel
+onAppear { repairStateAfterPresentation() }           // ❌ View-side patching is forbidden
+Task { await loadGroupsBecauseCallerDidNotPassThem() } // ❌ Fix architecture, don't patch in the View
 ```
 
 ---
