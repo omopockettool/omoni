@@ -228,18 +228,18 @@ struct DashboardCategoryBoxView: View {
     }
 
     private var hasLimit: Bool {
-        guard let limit = data.categoryLimit else { return false }
+        guard let limit = data.categoryEffectiveLimit else { return false }
         return limit > 0
     }
 
     private var isOverLimit: Bool {
-        guard let limit = data.categoryLimit, limit > 0 else { return false }
-        return data.paidAmount > limit
+        guard let limit = data.categoryEffectiveLimit, limit > 0 else { return false }
+        return data.categoryBudgetProgressAmount > limit
     }
 
     private var fillRatio: Double {
-        guard let limit = data.categoryLimit, limit > 0 else { return 1.0 }
-        return min(data.paidAmount / limit, 1.0)
+        guard let limit = data.categoryEffectiveLimit, limit > 0 else { return 1.0 }
+        return min(data.categoryBudgetProgressAmount / limit, 1.0)
     }
 
     private var minHeight: CGFloat {
@@ -339,9 +339,9 @@ struct DashboardCategoryBoxView: View {
                 }
             }
             .overlay {
-                if isOverLimit, let limit = data.categoryLimit, data.paidAmount > 0 {
+                if isOverLimit, let limit = data.categoryEffectiveLimit, data.categoryBudgetProgressAmount > 0 {
                     GeometryReader { proxy in
-                        let limitRatio = limit / data.paidAmount
+                        let limitRatio = limit / data.categoryBudgetProgressAmount
                         let lineY = proxy.size.height * (1.0 - limitRatio)
                         Path { path in
                             path.move(to: CGPoint(x: 0, y: lineY))

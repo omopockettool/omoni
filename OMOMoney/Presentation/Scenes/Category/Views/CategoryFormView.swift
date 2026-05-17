@@ -150,11 +150,12 @@ struct CategoryFormView: View {
                     accentColor: Color(hex: selectedColor) ?? .accentColor
                 )
 
-                VStack(alignment: .leading, spacing: 10) {
+                HStack(spacing: 12) {
                     Text(LocalizationKey.Category.limitFrequency.localized)
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(.secondary)
-                        .padding(.horizontal, 4)
+
+                    Spacer(minLength: 12)
 
                     Picker(LocalizationKey.Category.limitFrequency.localized, selection: $selectedLimitFrequency) {
                         ForEach(limitFrequencyOptions) { option in
@@ -164,11 +165,10 @@ struct CategoryFormView: View {
                     }
                     .pickerStyle(.menu)
                     .tint(Color(hex: selectedColor) ?? .accentColor)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(AppConstants.UserInterface.padding)
-                    .background(Color(.secondarySystemGroupedBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
                 }
+                .padding(AppConstants.UserInterface.padding)
+                .background(Color(.secondarySystemGroupedBackground))
+                .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
             }
             .padding(AppConstants.UserInterface.padding)
         }

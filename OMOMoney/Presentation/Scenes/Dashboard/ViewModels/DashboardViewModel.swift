@@ -48,6 +48,8 @@ struct DashboardCategoryBoxData: Identifiable, Hashable {
     let sizeTier: DashboardCategoryBoxSize
     let range: DashboardCategoryRange
     let categoryLimit: Double?
+    let categoryEffectiveLimit: Double?
+    let categoryBudgetProgressAmount: Double
 
     var id: String {
         "\(range.rawValue)-\(categoryId.uuidString)"
@@ -85,6 +87,8 @@ class DashboardViewModel {
         var itemListCount: Int
         var itemCount: Int
         let categoryLimit: Double?
+        let categoryEffectiveLimit: Double?
+        let categoryBudgetProgressAmount: Double
     }
 
     struct ItemListSearchSummary {
@@ -1067,7 +1071,9 @@ class DashboardViewModel {
                     unpaidAmount: unpaidAmount,
                     itemListCount: 1,
                     itemCount: itemCount,
-                    categoryLimit: category.limit
+                    categoryLimit: category.limit,
+                    categoryEffectiveLimit: effectiveLimit(for: category, range: range),
+                    categoryBudgetProgressAmount: 0
                 )
             }
         }
@@ -1085,7 +1091,9 @@ class DashboardViewModel {
                 itemCount: aggregate.itemCount,
                 sizeTier: .small,
                 range: range,
-                categoryLimit: aggregate.categoryLimit
+                categoryLimit: aggregate.categoryLimit,
+                categoryEffectiveLimit: aggregate.categoryEffectiveLimit,
+                categoryBudgetProgressAmount: aggregate.paidAmount
             )
         }
         .sorted {
@@ -1114,7 +1122,9 @@ class DashboardViewModel {
                     itemCount: box.itemCount,
                     sizeTier: .large,
                     range: box.range,
-                    categoryLimit: box.categoryLimit
+                    categoryLimit: box.categoryLimit,
+                    categoryEffectiveLimit: box.categoryEffectiveLimit,
+                    categoryBudgetProgressAmount: box.categoryBudgetProgressAmount
                 )
             }
         }
@@ -1134,7 +1144,9 @@ class DashboardViewModel {
                     itemCount: box.itemCount,
                     sizeTier: index == 0 ? .large : .small,
                     range: box.range,
-                    categoryLimit: box.categoryLimit
+                    categoryLimit: box.categoryLimit,
+                    categoryEffectiveLimit: box.categoryEffectiveLimit,
+                    categoryBudgetProgressAmount: box.categoryBudgetProgressAmount
                 )
             }
         }
@@ -1162,13 +1174,60 @@ class DashboardViewModel {
                 itemCount: box.itemCount,
                 sizeTier: sizeTier,
                 range: box.range,
-                categoryLimit: box.categoryLimit
+                categoryLimit: box.categoryLimit,
+                categoryEffectiveLimit: box.categoryEffectiveLimit,
+                categoryBudgetProgressAmount: box.categoryBudgetProgressAmount
             )
         }
     }
 
     private func categoryMetadata(for category: SDCategory) -> CategoryMetadata {
         return (category.name, category.color, category.icon)
+    }
+
+    private func effectiveLimit(for category: SDCategory, range: DashboardCategoryRange) -> Double? {
+        guard let limit = category.limit, limit > 0 else { return nil }
+
+        switch range {
+        case .today:
+            return limit
+        case .month:
+            switch category.limitFrequency.lowercased() {
+            case BudgetHelper.LimitFrequency.daily.rawValue:
+                return limit * Double(dayCountInMonth(for: selectedMonthAnchor))
+            case BudgetHelper.LimitFrequency.weekly.rawValue:
+                return limit * Double(weekBucketCountInMonth(for: selectedMonthAnchor))
+            default:
+                return limit
+            }
+        }
+    }
+
+    private func dayCountInMonth(for date: Date) -> Int {
+        Calendar.current.range(of: .day, in: .month, for: date)?.count ?? 30
+    }
+
+    private func weekBucketCountInMonth(for date: Date) -> Int {
+        let calendar = Calendar.current
+        guard
+            let monthInterval = calendar.dateInterval(of: .month, for: date),
+            let dayRange = calendar.range(of: .day, in: .month, for: date)
+        else {
+            return 4
+        }
+
+        var weekBuckets: Set<String> = []
+        for day in dayRange {
+            guard let dayDate = calendar.date(byAdding: .day, value: day - 1, to: monthInterval.start) else {
+                continue
+            }
+            let components = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: dayDate)
+            let year = components.yearForWeekOfYear ?? 0
+            let week = components.weekOfYear ?? 0
+            weekBuckets.insert("\(year)-\(week)")
+        }
+
+        return max(1, weekBuckets.count)
     }
 }
 

@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.25.0] - 2026-05-17
+
+### Added
+- **Native group reordering in the Select Group sheet with per-user persistence** (`GroupSelectorChipView`, `GroupPickerComponents`, `GroupPickerSheetViewModel`, `DefaultUserGroupRepository`, `DefaultGroupRepository`, `UpdateGroupOrderUseCase`, `GroupOrderStore`) — the group picker now includes an explicit `Edit` mode in the toolbar, keeps the currently selected group pinned in the first position, and lets the user drag the remaining groups into a custom order with clear visual drag affordances. The saved order persists per user across launches without changing the SwiftData schema, so different users can keep different group arrangements safely.
+
+### Changed
+- **Category budget controls now use a cleaner inline settings-row layout** (`BudgetLimitField`, `CategoryFormView`) — both `Budget limit` and `Budget frequency` were redesigned to match the dashboard filter row style, with the label aligned on the left and the numeric input or picker aligned on the right for a more native and consistent editing experience.
+
+### Fixed
+- **Dashboard category budget progress now respects the category cadence when calculating visible-month limits** (`DashboardViewModel`, `DashboardCategoryBoardComponents`) — the progress bar no longer compares a month-wide spend against a single daily or weekly cap. In `This month`, daily limits now scale by the number of days in the visible month and weekly limits scale by the number of week buckets covered by that month, so the category progress indicator reflects the real allowance for the current dashboard scope.
+
 ## [1.24.0] - 2026-05-17
 
 ### Added

@@ -7,18 +7,22 @@ struct BudgetLimitField: View {
     @FocusState private var isFocused: Bool
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(LocalizationKey.Category.limit.localized)
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, 4)
-
-            HStack(spacing: 12) {
+        HStack(spacing: 12) {
+            HStack(spacing: 8) {
                 Image(systemName: "chart.bar.fill")
                     .font(.system(size: 16, weight: .medium))
                     .foregroundStyle(accentColor)
 
+                Text(LocalizationKey.Category.limit.localized)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer(minLength: 12)
+
+            HStack(spacing: 8) {
                 TextField(LocalizationKey.Category.noLimit.localized, text: $text)
+                    .multilineTextAlignment(.trailing)
                     .keyboardType(.decimalPad)
                     .focused($isFocused)
                     .toolbar {
@@ -40,9 +44,10 @@ struct BudgetLimitField: View {
                     .buttonStyle(.plain)
                 }
             }
-            .padding(AppConstants.UserInterface.padding)
-            .background(Color(.secondarySystemGroupedBackground))
-            .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
+            .frame(maxWidth: 140, alignment: .trailing)
         }
+        .padding(AppConstants.UserInterface.padding)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
     }
 }
