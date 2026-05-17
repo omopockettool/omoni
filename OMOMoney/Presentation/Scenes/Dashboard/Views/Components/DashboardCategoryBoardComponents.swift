@@ -1,5 +1,26 @@
 import SwiftUI
 
+private struct InwardLimitMarkerTriangle: Shape {
+    let pointsRight: Bool
+
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+
+        if pointsRight {
+            path.move(to: CGPoint(x: rect.minX, y: rect.minY))
+            path.addLine(to: CGPoint(x: rect.maxX, y: rect.midY))
+            path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
+        } else {
+            path.move(to: CGPoint(x: rect.maxX, y: rect.minY))
+            path.addLine(to: CGPoint(x: rect.minX, y: rect.midY))
+            path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+        }
+
+        path.closeSubpath()
+        return path
+    }
+}
+
 struct DashboardCategoryBoardView<EmptyState: View>: View {
     let boxes: [DashboardCategoryBoxData]
     let hasVisibleItemLists: Bool
@@ -242,6 +263,41 @@ struct DashboardCategoryBoxView: View {
         return min(data.categoryBudgetProgressAmount / limit, 1.0)
     }
 
+    private var overLimitLineColor: Color {
+        accentColor.opacity(0.9)
+    }
+
+    private var overLimitLineWidth: CGFloat {
+        2
+    }
+
+    private var overLimitLineSafeTopInset: CGFloat {
+        switch data.sizeTier {
+        case .small:
+            28
+        case .medium:
+            34
+        case .large:
+            40
+        }
+    }
+
+    private var overLimitLineHorizontalInset: CGFloat {
+        0
+    }
+
+    private var overLimitTriangleWidth: CGFloat {
+        12
+    }
+
+    private var overLimitTriangleHeight: CGFloat {
+        18
+    }
+
+    private var overLimitLineGapFromTriangles: CGFloat {
+        1.25
+    }
+
     private var minHeight: CGFloat {
         switch data.sizeTier {
         case .small:
@@ -342,13 +398,42 @@ struct DashboardCategoryBoxView: View {
                 if isOverLimit, let limit = data.categoryEffectiveLimit, data.categoryBudgetProgressAmount > 0 {
                     GeometryReader { proxy in
                         let limitRatio = limit / data.categoryBudgetProgressAmount
-                        let lineY = proxy.size.height * (1.0 - limitRatio)
-                        Path { path in
-                            path.move(to: CGPoint(x: 0, y: lineY))
-                            path.addLine(to: CGPoint(x: proxy.size.width, y: lineY))
+                        let rawLineY = proxy.size.height * (1.0 - limitRatio)
+                        let lineY = min(
+                            max(rawLineY, overLimitLineSafeTopInset),
+                            proxy.size.height - 12
+                        )
+                        let startX = overLimitLineHorizontalInset
+                        let endX = proxy.size.width - overLimitLineHorizontalInset
+                        let triangleHalfWidth = overLimitTriangleWidth / 2
+                        let dashedLineStartX = startX + triangleHalfWidth + overLimitLineGapFromTriangles
+                        let dashedLineEndX = endX - triangleHalfWidth - overLimitLineGapFromTriangles
+
+                        ZStack {
+                            Path { path in
+                                path.move(to: CGPoint(x: dashedLineStartX, y: lineY))
+                                path.addLine(to: CGPoint(x: dashedLineEndX, y: lineY))
+                            }
+                            .stroke(
+                                style: StrokeStyle(
+                                    lineWidth: overLimitLineWidth,
+                                    lineCap: .round,
+                                    dash: [6, 4]
+                                )
+                            )
+                            .foregroundStyle(overLimitLineColor)
+                            .shadow(color: overLimitLineColor.opacity(0.35), radius: 2, y: 0)
+
+                            InwardLimitMarkerTriangle(pointsRight: true)
+                                .fill(overLimitLineColor)
+                                .frame(width: overLimitTriangleWidth, height: overLimitTriangleHeight)
+                                .offset(x: startX - (proxy.size.width / 2), y: lineY - (proxy.size.height / 2))
+
+                            InwardLimitMarkerTriangle(pointsRight: false)
+                                .fill(overLimitLineColor)
+                                .frame(width: overLimitTriangleWidth, height: overLimitTriangleHeight)
+                                .offset(x: endX - (proxy.size.width / 2), y: lineY - (proxy.size.height / 2))
                         }
-                        .stroke(style: StrokeStyle(lineWidth: 1.5, dash: [5, 3]))
-                        .foregroundStyle(accentColor.opacity(0.75))
                     }
                     .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius, style: .continuous))
                 }

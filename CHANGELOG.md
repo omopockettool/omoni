@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.26.0] - 2026-05-17
+
+### Added
+- **Over-limit category marker now uses dedicated inward triangle edge markers** (`DashboardCategoryBoardComponents`) — category boxes that exceed their effective budget limit now show a more intentional threshold marker built from two inward-facing triangle caps plus a separate dashed line, instead of the previous single dashed stroke alone. This makes the limit read more clearly as a measured point inside the box rather than as a decorative divider.
+
+### Changed
+- **Dashboard category over-limit indicator redesigned for stronger visual hierarchy and clearer semantics** (`DashboardCategoryBoardComponents`) — the over-limit marker now:
+  - uses the category’s own accent color instead of a fixed alert red
+  - keeps the dashed line slightly lighter than the triangle caps so the edge markers carry the meaning
+  - spans edge-to-edge across the category box, making the threshold feel tied to the box geometry itself
+  - clamps the marker below the title/icon zone so the category name and symbol do not visually collide with the limit indicator
+  - separates the triangles from the dashed line with a micro-gap so both elements remain legible without visually fusing together
+
 ## [1.25.0] - 2026-05-17
 
 ### Added
