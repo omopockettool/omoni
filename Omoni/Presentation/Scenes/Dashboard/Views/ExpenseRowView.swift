@@ -10,9 +10,10 @@ private struct LegoSideTab: View {
 
     private var tabColor: Color {
         switch rowStatus {
-        case .neutral, .unpaid: return Color(.systemGray4)
-        case .partial:          return .orange
-        case .paid:             return accentColor
+        case .neutral: return Color(.systemGray4)
+        case .unpaid:  return .red
+        case .partial: return .orange
+        case .paid:    return accentColor
         }
     }
 
@@ -90,20 +91,11 @@ struct ExpenseRowView: View {
     private var tabWidth: CGFloat { isCompact ? 36 : 40 }
 
     private var rowAccentColor: Color {
-        if rowStatus == .unpaid {
-            return Color(.systemGray2)
-        }
-
-        if let categoryColor = itemList.category?.color,
-           let parsedColor = Color(hex: categoryColor) {
-            return parsedColor
-        }
-
         switch rowStatus {
         case .neutral:
             return Color(.systemGray2)
         case .unpaid:
-            return Color(.systemGray2)
+            return .red
         case .partial:
             return .orange
         case .paid:

@@ -143,17 +143,21 @@ struct ItemListItemsSection: View {
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
             } else {
-                ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
+                ForEach(items, id: \.id) { item in
                     ItemRowView(
                         item: item,
                         formattedAmount: formattedAmount(item),
                         currencyCode: currencyCode,
-                        timelinePosition: timelinePosition(index: index, count: items.count),
                         isSearchMatch: isSearchMatch(item),
                         onTap: { onItemTap(item) },
                         onTogglePaid: { onTogglePaid(item) }
                     )
-                    .listRowInsets(EdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 16))
+                    .listRowInsets(EdgeInsets(
+                        top: ExpenseListLayoutMetrics.cardRowVerticalInset,
+                        leading: 12,
+                        bottom: ExpenseListLayoutMetrics.cardRowVerticalInset,
+                        trailing: 16
+                    ))
                     .listRowSeparator(.hidden)
                     .listRowBackground(Color.clear)
                 }
@@ -165,19 +169,12 @@ struct ItemListItemsSection: View {
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
         .scrollIndicators(.hidden)
-        .contentMargins(.top, 0, for: .scrollContent)
+        .contentMargins(.top, ExpenseListLayoutMetrics.topContentMargin, for: .scrollContent)
         .refreshable {
             await onRefresh()
             try? await Task.sleep(for: .milliseconds(420))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-    }
-
-    private func timelinePosition(index: Int, count: Int) -> TimelinePosition {
-        if count == 1 { return .single }
-        if index == 0 { return .first }
-        if index == count - 1 { return .last }
-        return .middle
     }
 }
 

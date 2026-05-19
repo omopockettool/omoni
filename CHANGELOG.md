@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.1] - 2026-05-20
+
+### Changed
+- **Item list detail rows now use the same card-and-side-tab structure as dashboard item-list rows** (`ItemListDetailView`, `ItemListDetailComponents`) — items inside an item list no longer use the old timeline rail presentation. They now render as padded rounded cards with a leading status tab, matching the newer dashboard row language so the transition from item-list overview into item detail feels visually consistent.
+- **Item list detail spacing now follows the same shared top and row inset metrics used by dashboard drill-down lists** (`ItemListDetailComponents`, `ExpenseListLayoutMetrics`) — the first item row now starts with the same breathing room against the rounded gray container, and item cards use the same vertical spacing rhythm as the dashboard date/item-list stacks.
+- **Dashboard item-list rows now use semantic system status colors instead of category-driven paid-state color** (`ExpenseRowView`) — paid rows now resolve to green, partial rows to orange, unpaid rows to red, and neutral rows to gray. This keeps the main row color focused on payment state rather than category context, which makes scanability and status recognition clearer.
+
 ## [2.5.0] - 2026-05-20
 
 ### Added

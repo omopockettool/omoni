@@ -1,5 +1,55 @@
 import SwiftUI
 
+private struct ItemRowSideTab: View {
+    let isPaid: Bool
+    let compact: Bool
+    let action: () -> Void
+
+    private var tabWidth: CGFloat { compact ? 36 : 40 }
+
+    private var tabColor: Color {
+        isPaid ? .green : Color(.systemGray4)
+    }
+
+    private var iconName: String {
+        isPaid ? "checkmark" : "clock"
+    }
+
+    var body: some View {
+        Button(action: action) {
+            ZStack {
+                tabColor
+                Image(systemName: iconName)
+                    .font(.system(size: compact ? 11 : 12, weight: .bold))
+                    .foregroundStyle(.white.opacity(0.9))
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(PressHapticButtonStyle())
+        .frame(width: tabWidth)
+        .animation(.spring(response: 0.35, dampingFraction: 0.82), value: isPaid)
+    }
+}
+
+private struct ItemRowCardBorder: View {
+    let accentColor: Color
+    let compact: Bool
+
+    private var cornerRadius: CGFloat { compact ? 18 : 20 }
+    private var borderWidth: CGFloat { compact ? 2.1 : 2.3 }
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                .stroke(accentColor.opacity(0.72), lineWidth: borderWidth)
+            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                .stroke(Color.white.opacity(0.14), lineWidth: 0.5)
+                .padding(1)
+        }
+        .allowsHitTesting(false)
+    }
+}
+
 struct ItemListDetailView: View {
     let itemList: SDItemList
     let currencyCode: String
@@ -225,17 +275,18 @@ struct ItemRowView: View {
     let item: SDItem
     let formattedAmount: String
     let currencyCode: String
-    let timelinePosition: TimelinePosition
     let isSearchMatch: Bool
     let onTap: () -> Void
     let onTogglePaid: () -> Void
 
     private var showsBreakdown: Bool { item.quantity > 1 }
     private var showsZeroAmountStyle: Bool { abs(item.totalAmount) < 0.000_001 }
-    private var minimumRowHeight: CGFloat { showsBreakdown ? 64 : 58 }
-    private var lineSegmentHeight: CGFloat { showsBreakdown ? 31 : 29 }
-    private var showsBottomSeparator: Bool {
-        timelinePosition != .last && timelinePosition != .single
+    private var minimumRowHeight: CGFloat { showsBreakdown ? 80 : 72 }
+    private var contentPadding: CGFloat { 16 }
+    private var shellVerticalPadding: CGFloat { showsBreakdown ? 12 : 11 }
+    private var cardCornerRadius: CGFloat { 20 }
+    private var rowAccentColor: Color {
+        item.isPaid ? .green : Color(.systemGray2)
     }
     private var formattedUnitPrice: String {
         let formatter = NumberFormatter()
@@ -246,63 +297,59 @@ struct ItemRowView: View {
     }
 
     var body: some View {
-        HStack(alignment: .center, spacing: 12) {
-            Button(action: onTogglePaid) {
-                TimelineRailView(
-                    position: timelinePosition,
-                    color: item.isPaid ? .green : Color(.systemGray3),
-                    isActive: item.isPaid,
-                    iconName: item.isPaid ? "checkmark.circle.fill" : "circle",
-                    iconColor: item.isPaid ? .green : Color(.systemGray3),
-                    lineSegmentHeight: lineSegmentHeight
+        ZStack {
+            RoundedRectangle(cornerRadius: cardCornerRadius, style: .continuous)
+                .fill(Color(.secondarySystemBackground))
+
+            HStack(spacing: 0) {
+                ItemRowSideTab(
+                    isPaid: item.isPaid,
+                    compact: false,
+                    action: onTogglePaid
                 )
-                .frame(width: 44)
-            }
-            .buttonStyle(PressHapticButtonStyle())
+                .frame(maxHeight: .infinity)
 
-            HStack(alignment: .center, spacing: 12) {
-                VStack(alignment: .leading, spacing: 0) {
-                    HStack(spacing: 6) {
-                        Text(item.itemDescription)
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                            .lineLimit(1)
+                HStack(alignment: .center, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 0) {
+                        HStack(spacing: 6) {
+                            Text(item.itemDescription)
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                                .lineLimit(1)
 
-                        if isSearchMatch {
-                            Image(systemName: "magnifyingglass.circle.fill")
+                            if isSearchMatch {
+                                Image(systemName: "magnifyingglass.circle.fill")
+                                    .font(.caption)
+                                    .foregroundStyle(.tint)
+                            }
+                        }
+
+                        if showsBreakdown {
+                            Text("\(formattedUnitPrice) × \(item.quantity) \(LocalizationKey.Item.units.localized)")
                                 .font(.caption)
-                                .foregroundStyle(.tint)
+                                .foregroundStyle(.secondary)
+                                .padding(.top, 2)
                         }
                     }
 
-                    if showsBreakdown {
-                        Text("\(formattedUnitPrice) × \(item.quantity) \(LocalizationKey.Item.units.localized)")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .padding(.top, 2)
-                    }
-                }
+                    Spacer(minLength: 20)
 
-                Spacer()
-
-                Text(formattedAmount)
-                    .font(.subheadline)
-                    .fontWeight(showsZeroAmountStyle ? .semibold : .bold)
-                    .foregroundStyle(showsZeroAmountStyle ? Color.secondary : Color.primary)
-                    .lineLimit(1)
-                    .layoutPriority(1)
-            }
-            .frame(minHeight: minimumRowHeight, alignment: .center)
-            .padding(.vertical, 12)
-            .overlay(alignment: .bottom) {
-                if showsBottomSeparator {
-                    Rectangle()
-                        .fill(Color(.separator).opacity(0.15))
-                        .frame(height: 2.0)
-                        .frame(maxWidth: 120)
+                    Text(formattedAmount)
+                        .font(.subheadline)
+                        .fontWeight(showsZeroAmountStyle ? .semibold : .bold)
+                        .foregroundStyle(showsZeroAmountStyle ? Color.secondary : Color.primary)
+                        .lineLimit(1)
+                        .layoutPriority(1)
                 }
+                .padding(.horizontal, contentPadding)
+                .padding(.vertical, shellVerticalPadding)
             }
+            .clipShape(RoundedRectangle(cornerRadius: cardCornerRadius, style: .continuous))
+
+            ItemRowCardBorder(accentColor: rowAccentColor, compact: false)
         }
+        .frame(maxWidth: .infinity, minHeight: minimumRowHeight)
+        .shadow(color: Color.black.opacity(0.03), radius: 8, y: 2)
         .padding(.trailing, 2)
         .contentShape(Rectangle())
         .onTapGesture { onTap() }
