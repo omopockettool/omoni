@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2026-05-19
+
+### Changed
+- **Expense row redesigned with a full-height left side tab for paid status toggle** (`ExpenseRowView`) — the circle connector button and its offset/mounting logic have been replaced with a colored vertical strip on the left edge of each card. The strip spans the full card height, is fully tappable, and uses a clipped `HStack` so its left corners follow the card's rounded shape automatically. The border is drawn last in the `ZStack` so it renders cleanly on top of the tab. Color and icon reflect the row status: gray + clock for unpaid, orange + half-circle for partial, category color + checkmark for paid. Timeline guide lines are now shorter, thicker, and rendered behind each card via `zIndex` and negative `VStack` spacing so the card's rounded corners naturally occlude the line ends.
+
 ## [2.2.0] - 2026-05-19
 
 ### Added

@@ -5,84 +5,72 @@ private struct LegoConnectorGuideLine: View {
     let visible: Bool
     let compact: Bool
 
-    private var width: CGFloat { compact ? 22 : 28 }
+    private var height: CGFloat { compact ? 8 : 10 }
 
     var body: some View {
         Rectangle()
             .fill(color.opacity(visible ? 0.55 : 0))
-            .frame(width: 2.4, height: width)
+            .frame(width: 4, height: height)
     }
 }
 
-private struct LegoConnectorButton: View {
-    let iconName: String?
-    let tintColor: Color
-    let isActive: Bool
+private struct LegoSideTab: View {
+    let rowStatus: ItemListRowStatus
+    let accentColor: Color
     let compact: Bool
     let action: () -> Void
 
-    private var size: CGFloat {
-        compact ? 30 : 34
+    private var tabWidth: CGFloat { compact ? 36 : 40 }
+
+    private var tabColor: Color {
+        switch rowStatus {
+        case .neutral, .unpaid: return Color(.systemGray4)
+        case .partial:          return .orange
+        case .paid:             return accentColor
+        }
+    }
+
+    private var iconName: String {
+        switch rowStatus {
+        case .neutral:  return "minus"
+        case .unpaid:   return "clock"
+        case .partial:  return "circle.lefthalf.filled"
+        case .paid:     return "checkmark"
+        }
     }
 
     var body: some View {
         Button(action: action) {
-            Circle()
-                .fill(isActive ? tintColor : Color(.systemGray4))
-                .overlay {
-                    Circle()
-                        .stroke(isActive ? tintColor.opacity(0.2) : Color.black.opacity(0.05), lineWidth: 0.8)
-                }
-                .overlay {
-                    Group {
-                        if let iconName {
-                            Image(systemName: iconName)
-                                .font(.system(size: compact ? 12 : 13, weight: .bold))
-                        } else {
-                            Circle()
-                                .fill(Color.white.opacity(0.95))
-                                .frame(width: compact ? 7 : 8, height: compact ? 7 : 8)
-                        }
-                    }
-                    .foregroundStyle(isActive ? Color.white.opacity(0.98) : Color(.systemGray2))
-                }
-                .frame(width: size, height: size)
-                .contentShape(Circle())
+            ZStack {
+                tabColor
+                Image(systemName: iconName)
+                    .font(.system(size: compact ? 11 : 12, weight: .bold))
+                    .foregroundStyle(.white.opacity(0.9))
+            }
+            .contentShape(Rectangle())
         }
         .buttonStyle(PressHapticButtonStyle())
-        .frame(width: 48, height: 48)
+        .frame(width: tabWidth)
+        .animation(.spring(response: 0.35, dampingFraction: 0.82), value: rowStatus)
     }
 }
 
-private struct LegoExpenseCapsuleChrome: View {
+private struct LegoCardBorder: View {
     let accentColor: Color
     let compact: Bool
 
-    private var fillColor: Color {
-        Color(.secondarySystemBackground).opacity(0.16)
-    }
-
-    private var borderWidth: CGFloat {
-        compact ? 2.1 : 2.3
-    }
-
-    private var cornerRadius: CGFloat {
-        compact ? 18 : 20
-    }
+    var cornerRadius: CGFloat { compact ? 18 : 20 }
+    var borderWidth: CGFloat { compact ? 2.1 : 2.3 }
 
     var body: some View {
-        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-            .fill(fillColor)
-            .overlay {
-                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .stroke(accentColor.opacity(0.72), lineWidth: borderWidth)
-            }
-            .overlay {
-                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .stroke(Color.white.opacity(0.14), lineWidth: 0.5)
-                    .padding(1)
-            }
-            .shadow(color: Color.black.opacity(0.03), radius: 8, y: 2)
+        ZStack {
+            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                .stroke(accentColor.opacity(0.72), lineWidth: borderWidth)
+            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                .stroke(Color.white.opacity(0.14), lineWidth: 0.5)
+                .padding(1)
+        }
+        .allowsHitTesting(false)
     }
 }
 
@@ -105,26 +93,15 @@ struct ExpenseRowView: View {
 
     private var minimumRowHeight: CGFloat {
         if searchSummary != nil {
-            return isCompact ? 82 : 92
+            return isCompact ? 88 : 98
         }
-        return isCompact ? 74 : 82
+        return isCompact ? 80 : 90
     }
 
-    private var contentPadding: CGFloat {
-        isCompact ? 18 : 20
-    }
-
-    private var shellVerticalPadding: CGFloat {
-        isCompact ? 10 : 11
-    }
-
-    private var topMarkerLift: CGFloat {
-        isCompact ? 24 : 27
-    }
-
-    private var parentTopPadding: CGFloat {
-        isCompact ? 12 : 13
-    }
+    private var contentPadding: CGFloat { isCompact ? 14 : 16 }
+    private var shellVerticalPadding: CGFloat { isCompact ? 10 : 12 }
+    private var cardCornerRadius: CGFloat { isCompact ? 18 : 20 }
+    private var tabWidth: CGFloat { isCompact ? 36 : 40 }
 
     private var rowAccentColor: Color {
         if rowStatus == .unpaid {
@@ -152,57 +129,41 @@ struct ExpenseRowView: View {
         searchMatchedSubtotal != nil
     }
 
-    private var connectorIconName: String? {
-        switch rowStatus {
-        case .neutral:
-            return nil
-        case .unpaid:
-            return "circle"
-        case .partial:
-            return "circle.lefthalf.filled"
-        case .paid:
-            return "checkmark"
-        }
-    }
-
-    private var connectorIsActive: Bool {
-        rowStatus != .neutral && rowStatus != .unpaid
-    }
-
     var body: some View {
-        VStack(spacing: 0) {
+        VStack(spacing: -6) {
             LegoConnectorGuideLine(
                 color: rowAccentColor,
                 visible: timelinePosition.showsTopLine,
                 compact: isCompact
             )
 
-            ZStack(alignment: .top) {
-                Color.clear
+            ZStack {
+                // Background fill
+                RoundedRectangle(cornerRadius: cardCornerRadius, style: .continuous)
+                    .fill(Color(.secondarySystemBackground))
 
-                ZStack(alignment: .top) {
-                    LegoExpenseCapsuleChrome(
+                // Side tab + content in one HStack, clipped to card shape
+                HStack(spacing: 0) {
+                    LegoSideTab(
+                        rowStatus: rowStatus,
                         accentColor: rowAccentColor,
-                        compact: isCompact
-                    )
-
-                    rowContent
-                        .padding(.horizontal, contentPadding)
-                        .padding(.top, shellVerticalPadding + (isCompact ? 10 : 12))
-                        .padding(.bottom, shellVerticalPadding + 2)
-
-                    LegoConnectorButton(
-                        iconName: connectorIconName,
-                        tintColor: rowAccentColor,
-                        isActive: connectorIsActive,
                         compact: isCompact,
                         action: onTogglePaid
                     )
-                    .offset(y: -topMarkerLift)
+                    .frame(maxHeight: .infinity)
+
+                    rowContent
+                        .padding(.horizontal, contentPadding)
+                        .padding(.vertical, shellVerticalPadding)
                 }
-                .padding(.top, parentTopPadding)
+                .clipShape(RoundedRectangle(cornerRadius: cardCornerRadius, style: .continuous))
+
+                // Border drawn last so it sits on top of the tab strip
+                LegoCardBorder(accentColor: rowAccentColor, compact: isCompact)
             }
             .frame(maxWidth: .infinity, minHeight: minimumRowHeight)
+            .shadow(color: Color.black.opacity(0.03), radius: 8, y: 2)
+            .zIndex(1)
 
             LegoConnectorGuideLine(
                 color: rowAccentColor,
