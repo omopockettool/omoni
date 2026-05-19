@@ -185,6 +185,7 @@ struct ExpenseRowView: View {
                     .foregroundStyle(primaryAmountColor)
                     .lineLimit(1)
                     .contentTransition(.numericText())
+                    .frame(maxWidth: .infinity, alignment: .trailing)
 
                 if showsSecondaryAmount {
                     secondaryAmountLine(secondaryAmountText)
@@ -193,7 +194,12 @@ struct ExpenseRowView: View {
 
                 Spacer(minLength: 0)
             }
-            .frame(minWidth: isCompact ? 86 : 96, maxHeight: .infinity, alignment: .center)
+            .frame(
+                minWidth: isCompact ? 86 : 96,
+                maxWidth: isCompact ? 86 : 96,
+                maxHeight: .infinity,
+                alignment: .trailing
+            )
             .layoutPriority(1)
             .animation(AnimationHelper.quickEase, value: showsSecondaryAmount)
             .animation(AnimationHelper.quickEase, value: formattedAmount)
@@ -217,6 +223,7 @@ struct ExpenseRowView: View {
             .font(.caption)
             .foregroundStyle(.secondary)
             .lineLimit(1)
+            .frame(maxWidth: .infinity, alignment: .trailing)
             .opacity(value == nil ? 0 : 1)
             .accessibilityHidden(value == nil)
     }

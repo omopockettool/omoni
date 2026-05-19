@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.2] - 2026-05-20
+
+### Fixed
+- **Dashboard item-list amount column now stays pinned to the trailing edge even when the visible paid total is `0,00 €`** (`ExpenseRowView`) — item-list rows no longer shift the main amount leftward when a list has no paid value. The primary amount and optional unpaid line now share the same stable right alignment, which also shortens the visual travel distance when the amount transitions between zero and paid states.
+
 ## [2.5.1] - 2026-05-20
 
 ### Changed
