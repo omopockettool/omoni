@@ -35,9 +35,9 @@ struct ExpenseListRowContainer: View {
         )
         .listRowInsets(EdgeInsets(
             top: 0,
-            leading: AppConstants.UserInterface.smallPadding,
+            leading: 12,
             bottom: 0,
-            trailing: AppConstants.UserInterface.padding
+            trailing: 14
         ))
         .listRowBackground(Color.clear)
         .listRowSeparator(.hidden)
@@ -88,7 +88,8 @@ struct ExpenseListSectionHeader: View {
                 .disabled(!allowsDayCollapse)
                 .animation(.spring(response: 0.35, dampingFraction: 0.82), value: total)
             }
-            .padding(.top, topPadding)
+            .padding(.top, topPadding + 6)
+            .padding(.bottom, 6)
         }
     }
 }
