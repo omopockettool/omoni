@@ -249,7 +249,7 @@ final class SettingsBackupViewModel {
     }
 
     private var bundleIdentifier: String {
-        Bundle.main.bundleIdentifier ?? "com.omo.OMOMoney"
+        Bundle.main.bundleIdentifier ?? "com.omo.Omoni"
     }
 
     private var appVersion: String {

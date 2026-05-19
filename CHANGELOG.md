@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2026-05-19
+
+### Changed
+- **Bundle identifiers are now aligned with the renamed project identity** (`Omoni.xcodeproj/project.pbxproj`, `SettingsBackupViewModel`) — the app and test targets no longer keep the legacy `com.omo.OMOMoney*` identifiers. Their runtime and backup-facing identifiers now use the `Omoni` naming so the technical identity is consistent with the renamed Xcode project, targets, and module.
+
 ## [2.0.0] - 2026-05-19
 
 ### Changed

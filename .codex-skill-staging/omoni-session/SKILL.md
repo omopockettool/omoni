@@ -29,6 +29,7 @@ Use this skill for any task in the OMONI repository.
 - Keep views light: avoid bootstrap orchestration, repair logic, and duplicated loading in view modifiers.
 - When the user asks for `changelog` or `commit`, always ask which version bump category applies first: `major`, `minor`, or `fix`, unless the user already specified it.
 - For changelog work, do not assume the next version number. Confirm the intended bump category first, then map it to the explicit semantic version.
+- Keep release metadata aligned: when a release version is finalized, update Xcode `MARKETING_VERSION` to match it so future backups export the same public version.
 
 ## Load references only when useful
 
