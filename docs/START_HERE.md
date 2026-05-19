@@ -1,4 +1,4 @@
-# 🚀 OMOMoney - Session Quick Start
+# 🚀 OMONI - Session Quick Start
 
 **You are an expert iOS Swift Developer | Clean Architecture | SwiftUI + SwiftData | iOS 26 | NO Liquid Glass UI for now**
 
@@ -36,7 +36,7 @@ When work is complete, only output the suggested commit message so the team can 
 Dennis validates changes manually on the physical iPhone and then shares feedback if something needs adjustment.
 
 ```swift
-❌ xcodebuild -project OMOMoney.xcodeproj -scheme OMOMoney build
+❌ xcodebuild -project Omoni.xcodeproj -scheme Omoni build
 ❌ Run on Simulator / try local build validation
 ✅ Make the code change, explain it clearly, and wait for device feedback
 ```
@@ -108,12 +108,12 @@ struct MyView: View {
 
 ## 📂 Quick File Location Guide
 
-> Source code lives under the `OMOMoney/` app folder inside the repo root. Example: `OMOMoney/Application/`, `OMOMoney/Presentation/`, `OMOMoney/Data/`.
+> Source code lives under the `Omoni/` app folder inside the repo root. Example: `Omoni/Application/`, `Omoni/Presentation/`, `Omoni/Data/`.
 
 ```
-OMOMoney/
+Omoni/
 ├── Application/
-│   ├── ContentView.swift, OMOMoneyApp.swift
+│   ├── ContentView.swift, OmoniApp.swift
 │   └── DIContainer/
 │       └── AppDIContainer.swift ← ALL dependencies created here (uses ModelContext)
 ├── Domain/
@@ -227,7 +227,7 @@ Fix at the lowest layer that makes sense. Don't cascade a change through all lay
 
 ## 🧪 Unit Tests
 
-**Target:** `OMOMoneyTests` — XCTest + SwiftData in-memory (`OMOMoneyTests/`)
+**Target:** `OmoniTests` — XCTest + SwiftData in-memory (`OmoniTests/`)
 **Run:** `Cmd+U` in Xcode (UI Tests disabled from scheme — they're slow and test nothing useful yet)
 
 ### What layer is tested
@@ -243,7 +243,7 @@ Fix at the lowest layer that makes sense. Don't cascade a change through all lay
 ### Test files
 
 ```
-OMOMoneyTests/
+OmoniTests/
 ├── TestHelpers/
 │   └── SwiftDataTestContainer.swift     ← in-memory container + seed helpers (insertGroup, insertItemList, insertItem...)
 ├── Cache/

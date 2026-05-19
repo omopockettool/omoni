@@ -1,6 +1,6 @@
 # 📚 SwiftData Quick Reference Guide
 
-**For OMOMoney Development Team**  
+**For OMONI Development Team**  
 **Created:** April 15, 2026  
 **Purpose:** Quick reference for working with new SwiftData models
 
@@ -170,7 +170,7 @@ let predicate = #Predicate<ItemList> { itemList in
 ```swift
 import Testing
 import SwiftData
-@testable import OMOMoney
+@testable import Omoni
 
 @Test("Create user with valid data")
 func testCreateUser() async throws {

@@ -1,4 +1,4 @@
-# 🏗️ Architecture Improvement Plan for OMOMoney
+# 🏗️ Architecture Improvement Plan for OMONI
 
 ## Comparison with iOS-Clean-Architecture-MVVM Template
 
@@ -498,10 +498,10 @@
 
 **What to do**:
 
-- [ ] Create `OMOMoneyTests/Domain/UseCases/` directory
+- [ ] Create `OmoniTests/Domain/UseCases/` directory
 - [ ] Test each use case independently:
   ```swift
-  // OMOMoneyTests/Domain/UseCases/CreateUserUseCaseTests.swift
+  // OmoniTests/Domain/UseCases/CreateUserUseCaseTests.swift
   final class CreateUserUseCaseTests: XCTestCase {
 
       private var mockRepository: MockUserRepository!
@@ -552,7 +552,7 @@
 - [ ] Create mock actions:
 
   ```swift
-  // OMOMoneyTests/Presentation/User/UserListViewModelTests.swift
+  // OmoniTests/Presentation/User/UserListViewModelTests.swift
   final class UserListViewModelTests: XCTestCase {
 
       private var mockUseCase: MockFetchUsersUseCase!
@@ -731,7 +731,7 @@
 ## 📁 Proposed New Directory Structure
 
 ```
-OMOMoney/
+Omoni/
 ├── Application/
 │   ├── DIContainer/
 │   │   ├── AppDIContainer.swift
@@ -824,9 +824,9 @@ OMOMoney/
 │   └── Helpers/
 │
 ├── Assets.xcassets/
-├── OMOMoney.xcdatamodeld/
-├── OMOMoneyApp.swift
-└── OMOMoney.entitlements
+├── Omoni.xcdatamodeld/
+├── OmoniApp.swift
+└── Omoni.entitlements
 ```
 
 ---
@@ -967,5 +967,5 @@ These can be implemented quickly for immediate benefit:
 ---
 
 **Generated:** November 17, 2025  
-**For Project:** OMOMoney  
+**For Project:** Omoni  
 **Based on:** iOS-Clean-Architecture-MVVM Template Analysis

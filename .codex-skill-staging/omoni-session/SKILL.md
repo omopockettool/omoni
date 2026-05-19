@@ -27,12 +27,15 @@ Use this skill for any task in the OMONI repository.
 - Never run `xcodebuild`, simulator builds, or launch flows for routine validation in this project.
 - Prefer fixing problems at the correct layer rather than patching SwiftUI views.
 - Keep views light: avoid bootstrap orchestration, repair logic, and duplicated loading in view modifiers.
+- When the user asks for `changelog` or `commit`, always ask which version bump category applies first: `major`, `minor`, or `fix`, unless the user already specified it.
+- For changelog work, do not assume the next version number. Confirm the intended bump category first, then map it to the explicit semantic version.
 
 ## Load references only when useful
 
 - Read `references/session-checklist.md` when you want a quick session reminder without reopening the full project docs.
 - Read `references/architecture-guardrails.md` when touching layering, DI, SwiftData, ViewModels, or view lifecycle decisions.
 - Read `references/ux-direction.md` when shaping flows, interaction quality, wording, visual behavior, or product feel.
+- Read `references/release-versioning.md` when preparing changelog entries, release notes, or commit suggestions tied to a version bump.
 
 ## Use scripts when useful
 

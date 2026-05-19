@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-05-19
+
+### Changed
+- **Project identity renamed from `OMOMoney` to `Omoni` / `OMONI` across the repo** (`Omoni.xcodeproj`, `Omoni/`, `OmoniTests/`, `OmoniUITests/`, docs, CI, localization, project metadata) — the app’s technical Xcode/module/file identity now uses `Omoni`, while visible product branding is standardized as `OMONI`. This includes the app target, shared scheme, test targets, Swift entry-point and schema names, project paths referenced in docs and workflows, and repo-wide references that still carried the old product name.
+- **Bundle identifiers intentionally remain on the legacy `com.omo.OMOMoney*` values for now** (`Omoni.xcodeproj/project.pbxproj`, `SettingsBackupViewModel`) — this keeps signing/provisioning continuity while the visible product and technical project naming move forward to `OMONI` / `Omoni`.
+
+### Fixed
+- **Xcode local workspace state no longer points to deleted `OMOMoney/...` file paths after the rename** (`Omoni.xcodeproj`) — stale project/user-interface metadata that still referenced files like `OMOMoney/Data/SwiftData/ModelContainer+Shared.swift` was cleaned up so the renamed project opens from `Omoni.xcodeproj` without broken file references caused by leftover local state.
+
 ## [1.26.0] - 2026-05-17
 
 ### Added
@@ -65,9 +74,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.22.0] - 2026-05-15
 
 ### Added
-- **Share app row in About OMO → Support OMO section** (`AboutOMOView`, `Localizable.strings`) — added a "Share OMO Money" row using SwiftUI's native `ShareLink`, which opens the system share sheet (iMessage, WhatsApp, copy link, etc.) without any custom state or `UIActivityViewController`. The row follows the same visual style as the donation row (rounded icon, title + subtitle). Currently points to `omopockettool.com`.
+- **Share app row in About OMO → Support OMO section** (`AboutOMOView`, `Localizable.strings`) — added a "Share OMONI" row using SwiftUI's native `ShareLink`, which opens the system share sheet (iMessage, WhatsApp, copy link, etc.) without any custom state or `UIActivityViewController`. The row follows the same visual style as the donation row (rounded icon, title + subtitle). Currently points to `omopockettool.com`.
   - ⚠️ **TODO:** replace `appStoreURL` in `AboutOMOView` with the real App Store link (`https://apps.apple.com/app/idXXXXXXXXXX`) once the app is published.
-- Localization added: `about.shareApp` (EN: "Share OMO Money" / ES: "Compartir OMO Money") and `about.shareAppSubtitle` (EN: "Recommend it to a friend" / ES: "Recomiéndala a un amigo").
+- Localization added: `about.shareApp` (EN: "Share OMONI" / ES: "Compartir OMONI") and `about.shareAppSubtitle` (EN: "Recommend it to a friend" / ES: "Recomiéndala a un amigo").
 
 ## [1.21.0] - 2026-05-15
 
@@ -354,7 +363,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Notes
 - **Backup files use JSON internally with a custom `.omo-backup` extension** (`OMOBackupDocument`) — this keeps the file human-inspectable and migration-friendly while still giving the feature a dedicated app-specific backup format.
 - **Backup filenames now use deterministic zero-padded timestamps** (`SettingsBackupViewModel`) — export and rescue-backup files now always use a stable `yyyy-MM-dd-HH-mm` naming pattern so minute values like `00` are preserved correctly in the visible Files filename.
-- **The app now declares `.omo-backup` as a real document type in its Info.plist** (`Info.plist`, `OMOMoney.xcodeproj/project.pbxproj`) — this lets the iOS Files picker recognize backup files as selectable instead of showing them disabled during import.
+- **The app now declares `.omo-backup` as a real document type in its Info.plist** (`Info.plist`, `Omoni.xcodeproj/project.pbxproj`) — this lets the iOS Files picker recognize backup files as selectable instead of showing them disabled during import.
 
 ## [1.11.4] - 2026-05-07
 
@@ -402,7 +411,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - **Dashboard category filtering now uses directional horizontal content swaps instead of depth/blur effects** (`DashboardComponents`, `AnimationHelper`) — entering a category now moves the category board out to the left while the filtered item-list view enters from the right, and closing the filter performs the true inverse motion. The transition was simplified intentionally so it feels more like native content reorganization and less like a visual effect layered over the whole dashboard.
 - **Month-view day-header totals now animate like item-list row amounts when paid state changes** (`ExpenseListComponents`) — the total shown in each daily section header now uses the same numeric content transition and spring timing already used by dashboard row amounts, so toggling an item list between paid and unpaid updates the day aggregate more smoothly instead of snapping abruptly.
-- **The Xcode project is now explicitly iOS-only** (`OMOMoney.xcodeproj/project.pbxproj`) — unsupported `macosx` and visionOS platform declarations were removed from the app and test targets so Swift module resolution no longer tries to evaluate the project as a multi-platform target. This aligns the project settings with the real product scope and avoids `UIKit` resolution failures in the app entry point.
+- **The Xcode project is now explicitly iOS-only** (`Omoni.xcodeproj/project.pbxproj`) — unsupported `macosx` and visionOS platform declarations were removed from the app and test targets so Swift module resolution no longer tries to evaluate the project as a multi-platform target. This aligns the project settings with the real product scope and avoids `UIKit` resolution failures in the app entry point.
 
 ---
 
@@ -515,7 +524,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - **Dashboard search now reaches both item-list titles and nested items with clearer result amounts** (`DashboardViewModel`, `DashboardView`, `ExpenseListView`, `ExpenseRowView`, dashboard components, localization files) — searching from the dashboard no longer stops at the item-list description. Results now remain visible when either the list title or one of its items matches the query, and matching rows show a more useful search presentation: a match-count subtitle on the left, matched subtotal on the main amount line, and matched unpaid subtotal below when relevant. This keeps the search result scope consistent and avoids mixing whole-list totals into item-level search feedback.
-- **Dashboard bottom search bar was stabilized with a pure SwiftUI layout path** (`DashboardBottomBarView`, `DashboardView`, `DashboardComponents`, `docs/START_HERE.md`) — the inline search bar now stays mounted in the layout and only changes visibility/focus state, which resolves the first-open keyboard positioning issues without relying on UIKit keyboard notifications. The quick-start doc was also updated to reflect the real `OMOMoney/` source-folder layout in the repository.
+- **Dashboard bottom search bar was stabilized with a pure SwiftUI layout path** (`DashboardBottomBarView`, `DashboardView`, `DashboardComponents`, `docs/START_HERE.md`) — the inline search bar now stays mounted in the layout and only changes visibility/focus state, which resolves the first-open keyboard positioning issues without relying on UIKit keyboard notifications. The quick-start doc was also updated to reflect the real `Omoni/` source-folder layout in the repository.
 
 ---
 
@@ -1371,7 +1380,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.8] - 2026-04-16
 
 ### Removed
-- **`Data/CoreData/` directory deleted** — `Persistence.swift`, `OMOMoney.xcdatamodeld`, and empty `Entities/` folder removed; none were referenced in `project.pbxproj` or called from any Swift file
+- **`Data/CoreData/` directory deleted** — `Persistence.swift`, `Omoni.xcdatamodeld`, and empty `Entities/` folder removed; none were referenced in `project.pbxproj` or called from any Swift file
 - **`SettingsView.swift` deleted** — legacy view using old `User` domain type; never referenced outside its own file; app uses `SettingsSheetView` exclusively
 - **`GroupSelectorView.swift` deleted** — legacy view using old `Group` domain type; never referenced outside its own file
 
@@ -1454,14 +1463,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.2] - 2026-04-15
 
 ### Changed
-- **Project structure reorganized for SwiftData migration** — `SD*.swift` models, `OMOMoneySchema.swift`, and `ModelContainer+Shared.swift` moved from project root into `OMOMoney/Data/SwiftData/` following the existing `Data/CoreData/` convention; all migration `.md` docs moved from project root into `docs/`; stale manual Xcode project entries removed (files now auto-discovered via `PBXFileSystemSynchronizedRootGroup`)
+- **Project structure reorganized for SwiftData migration** — `SD*.swift` models, `OmoniSchema.swift`, and `ModelContainer+Shared.swift` moved from project root into `Omoni/Data/SwiftData/` following the existing `Data/CoreData/` convention; all migration `.md` docs moved from project root into `docs/`; stale manual Xcode project entries removed (files now auto-discovered via `PBXFileSystemSynchronizedRootGroup`)
 
 ---
 
 ## [1.0.1] - 2026-04-15
 
 ### Added
-- **SwiftData injected into app entry point** — `ModelContainer.shared` initialized in `OMOMoneyApp`; `.modelContainer()` modifier applied to `ContentView`; Core Data stack kept in parallel until Phase 3
+- **SwiftData injected into app entry point** — `ModelContainer.shared` initialized in `OmoniApp`; `.modelContainer()` modifier applied to `ContentView`; Core Data stack kept in parallel until Phase 3
 
 ### Fixed
 - **`ModelsSwiftData*.swift` duplicates removed** — 8 conflicting files (`class ItemList`, `class Group`, etc.) deleted from project; `SD*` files are the canonical SwiftData models
@@ -1473,7 +1482,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **SwiftData models** — `SDUser`, `SDGroup`, `SDUserGroup`, `SDCategory`, `SDPaymentMethod`, `SDItemList`, `SDItem` with relationships, validations, computed properties, and debug mock helpers
-- **`OMOMoneySchema.swift`** — versioned `SchemaV1` registering all 7 models
+- **`OmoniSchema.swift`** — versioned `SchemaV1` registering all 7 models
 - **`ModelContainer+Shared.swift`** — shared production container, in-memory preview and test containers, `safeSave`/`safeRollback` helpers
 
 ---
