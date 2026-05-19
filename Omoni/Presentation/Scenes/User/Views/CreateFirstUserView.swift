@@ -2,6 +2,7 @@ import SwiftUI
 
 struct CreateFirstUserView: View {
     @State private var viewModel: CreateFirstUserViewModel
+    @State private var backupViewModel: SettingsBackupViewModel
     @State private var acceptedLegal = false
     @FocusState private var focusedField: Field?
     
@@ -19,6 +20,7 @@ struct CreateFirstUserView: View {
         submissionMode: CreateFirstUserViewModel.SubmissionMode = .persist
     ) {
         self._viewModel = State(wrappedValue: CreateFirstUserViewModel(submissionMode: submissionMode))
+        self._backupViewModel = State(wrappedValue: AppDIContainer.shared.makeSettingsBackupViewModel())
         self.onUserCreated = onUserCreated
         self.showsSimulationBadge = submissionMode == .simulate
     }
@@ -44,6 +46,46 @@ struct CreateFirstUserView: View {
             message: viewModel.errorMessage ?? "Error desconocido",
             onDismiss: viewModel.clearError
         )
+        .fileImporter(
+            isPresented: $backupViewModel.isShowingImporter,
+            allowedContentTypes: [.omoBackup, .json]
+        ) { result in
+            backupViewModel.handleImportSelection(result)
+        }
+        .alert(
+            LocalizationKey.Settings.rescueBackupTitle.localized,
+            isPresented: $backupViewModel.isShowingRescueExplanation
+        ) {
+            Button(LocalizationKey.General.cancel.localized, role: .cancel) {
+                backupViewModel.cancelRescueExport()
+            }
+            Button(LocalizationKey.Settings.rescueBackupConfirm.localized) {
+                backupViewModel.confirmRescueExport()
+            }
+        } message: {
+            Text(LocalizationKey.Settings.rescueBackupMessage.localized)
+        }
+        .alert(
+            LocalizationKey.Settings.replaceDataTitle.localized,
+            isPresented: $backupViewModel.isShowingReplaceConfirmation
+        ) {
+            Button(LocalizationKey.General.cancel.localized, role: .cancel) {
+                backupViewModel.cancelReplaceImport()
+            }
+            Button(LocalizationKey.Settings.replaceDataConfirm.localized, role: .destructive) {
+                backupViewModel.confirmReplaceImport {
+                    await onUserCreated?()
+                }
+            }
+        } message: {
+            Text(LocalizationKey.Settings.replaceDataMessage.localized)
+        }
+        .errorAlert(
+            isPresented: $backupViewModel.showError,
+            message: backupViewModel.errorMessage,
+            onDismiss: backupViewModel.clearError
+        )
+        .toast($backupViewModel.toast)
     }
     
     // MARK: - Header
@@ -127,6 +169,11 @@ struct CreateFirstUserView: View {
             
             createButton
                 .padding(.top, 8)
+
+            backupDivider
+                .padding(.top, 8)
+
+            importBackupButton
         }
     }
 
@@ -293,6 +340,56 @@ struct CreateFirstUserView: View {
         .disabled(!viewModel.isFormValid || !acceptedLegal || viewModel.isLoading)
         .animation(.smooth(duration: 0.3), value: viewModel.isFormValid)
         .animation(.smooth(duration: 0.3), value: acceptedLegal)
+    }
+
+    private var backupDivider: some View {
+        HStack(spacing: 14) {
+            Rectangle()
+                .fill(Color(.separator).opacity(0.45))
+                .frame(height: 1)
+
+            Circle()
+                .fill(Color(.tertiarySystemFill))
+                .frame(width: 12, height: 12)
+                .overlay {
+                    Circle()
+                        .stroke(Color(.separator).opacity(0.6), lineWidth: 1)
+                }
+
+            Rectangle()
+                .fill(Color(.separator).opacity(0.45))
+                .frame(height: 1)
+        }
+        .padding(.horizontal, 12)
+        .accessibilityHidden(true)
+    }
+
+    private var importBackupButton: some View {
+        Button {
+            focusedField = nil
+            backupViewModel.beginImport()
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "square.and.arrow.down")
+                    .font(.system(size: 17, weight: .semibold))
+
+                Text(LocalizationKey.Settings.importBackup.localized)
+                    .font(.headline)
+            }
+            .foregroundStyle(Color.primary)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 18)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color(.secondarySystemGroupedBackground))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color(.separator).opacity(0.35), lineWidth: 1)
+                    )
+            )
+        }
+        .buttonStyle(PressHapticButtonStyle())
+        .disabled(viewModel.isLoading || backupViewModel.isWorking)
     }
 }
 

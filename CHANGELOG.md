@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2026-05-19
+
+### Added
+- **First-launch onboarding now offers direct backup import below account creation** (`CreateFirstUserView`, `SettingsBackupViewModel`) — the empty-state registration screen now includes a secondary `Import Backup` action under the main `Create` button, separated by a deliberate divider with a centered circle. This lets users restore an existing OMONI backup immediately after installing the app, without needing to create a new account first or reach the settings flow.
+
+### Changed
+- **Backup import on the initial onboarding screen now reuses the real restore flow and enters the app automatically after success** (`CreateFirstUserView`) — the first-launch screen now uses the same importer, rescue-backup warning, replace-data confirmation, and validation path already used in settings. Once a backup is restored successfully, the onboarding exits through the existing `onUserCreated` path so the app transitions directly into the restored experience.
+
 ## [2.1.0] - 2026-05-19
 
 ### Changed

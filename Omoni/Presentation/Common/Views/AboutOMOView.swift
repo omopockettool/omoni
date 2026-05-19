@@ -298,11 +298,11 @@ private struct AppInfo {
     let build: String
 
     var fullVersionLabel: String {
-        "v\(version)"
+        "v\(version) (\(build))"
     }
 
     static var current: AppInfo {
-        let version = "1.8.0"
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
         let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "1"
         return AppInfo(version: version, build: build)
     }

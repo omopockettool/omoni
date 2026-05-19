@@ -41,13 +41,19 @@ Then map that category to the explicit semantic version that should be written i
   - bundle identifier from the current target settings
   - app version from `MARKETING_VERSION (CURRENT_PROJECT_VERSION)`
 
+### UI version surfaces to verify
+
+- `About OMO` current version row must reflect the live bundle values, not a hardcoded string.
+- When versioning changes, verify any in-app release/version surface that reads the current installed version still reflects `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` correctly.
+
 ### Changelog and commit workflow
 
 1. Ask whether the bump is `major`, `minor`, or `fix` unless already specified.
 2. Write or update the changelog version header.
 3. Align Xcode `MARKETING_VERSION` to that release version.
 4. Decide whether `CURRENT_PROJECT_VERSION` should stay the same or increment for this build.
-5. Only then suggest the commit message.
+5. Verify user-facing version surfaces like `About OMO` if they depend on bundle metadata.
+6. Only then suggest the commit message.
 
 ## Why
 
