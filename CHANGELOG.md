@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.4.0] - 2026-05-20
+## [2.5.0] - 2026-05-20
 
 ### Added
 - **Dashboard drill-down now includes an intermediate date level for both category and `All` scopes** (`DashboardView`, `DashboardViewModel`, `DashboardComponents`, `DashboardDateRowsComponents`) — tapping a dashboard category no longer jumps straight into item lists. The flow now drills into grouped date rows first, and the same date-first navigation is also used when the user selects `All`. From there, tapping a day opens the expense-row list for that concrete date, keeping the navigation more consistent and easier to scan.
@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Dashboard date rows were redesigned as premium cards instead of bare list entries** (`DashboardDateRowsComponents`) — the intermediate day list now uses padded rounded cards with accent treatment, iconography, stronger amount hierarchy, and clearer tap affordance so the dashboard drill-down feels aligned with the rest of OMONI’s card-based language.
 - **Dashboard expense rows were cleaned up for the new filtered-day flow** (`ExpenseRowView`, `ExpenseListComponents`, `ExpenseListView`) — the old vertical connector lines between item-list cards were removed, row spacing was increased, and the list gained more breathing room against the top edge of the rounded container so the deeper drill-down reads as a calmer modern card stack.
 - **Dashboard bottom filter chip now carries the active day context instead of relying on date section headers** (`DashboardView`, `DashboardBottomBarView`) — when the user drills into a concrete day, the selected-scope chip now reflects that day and works as the way back up one level. Date section headers in the expense list are now intentionally hidden in this dashboard flow because the active day is already represented in the bottom control row.
+- **Dashboard date rows and item-list rows now share the same top breathing room and card spacing rules** (`ExpenseListLayoutMetrics`, `DashboardDateRowsComponents`, `ExpenseListComponents`, `ExpenseListView`) — the first card in both drill-down levels now starts with the same air against the rounded gray container, using one shared metrics source instead of separate magic numbers.
+- **Expense row amount column was rebalanced for a steadier unpaid-state presentation** (`ExpenseRowView`) — the right-hand amount block now keeps the primary cost in a more stable position and introduces the unpaid line more softly, reducing the visual jump between single-line and two-line amount states.
 
 ### Fixed
 - **Dashboard filtered drill-down no longer gets stuck showing empty date/detail states after filter or month changes** (`DashboardView`, `DashboardViewModel`, `DashboardComponents`) — active dashboard scope now degrades correctly when the selected category or day no longer has visible content under the current month, pending filter, or search state. This prevents blank intermediate screens and keeps the user inside a valid dashboard level after refreshes or filter changes.

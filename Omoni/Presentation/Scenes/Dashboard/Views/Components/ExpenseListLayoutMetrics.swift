@@ -1,6 +1,9 @@
 import CoreGraphics
 
 enum ExpenseListLayoutMetrics {
+    static let topContentMargin: CGFloat = 10
+    static let cardRowVerticalInset: CGFloat = 8
+
     static func topContentOffset(
         hideSectionHeaders: Bool,
         availableHeight: CGFloat

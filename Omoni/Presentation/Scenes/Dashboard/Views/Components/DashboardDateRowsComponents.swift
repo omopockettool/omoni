@@ -16,7 +16,12 @@ struct DashboardDateRowsView: View {
                     formattedAmount: getFormattedAmount(row),
                     onTap: { onSelect(row) }
                 )
-                .listRowInsets(EdgeInsets(top: 8, leading: 18, bottom: 8, trailing: 18))
+                .listRowInsets(EdgeInsets(
+                    top: ExpenseListLayoutMetrics.cardRowVerticalInset,
+                    leading: 18,
+                    bottom: ExpenseListLayoutMetrics.cardRowVerticalInset,
+                    trailing: 18
+                ))
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
             }
@@ -24,7 +29,7 @@ struct DashboardDateRowsView: View {
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
         .scrollIndicators(.hidden)
-        .contentMargins(.top, 10, for: .scrollContent)
+        .contentMargins(.top, ExpenseListLayoutMetrics.topContentMargin, for: .scrollContent)
         .refreshable {
             await onRefresh()
             try? await Task.sleep(for: .milliseconds(180))

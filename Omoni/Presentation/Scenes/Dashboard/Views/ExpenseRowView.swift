@@ -115,6 +115,24 @@ struct ExpenseRowView: View {
         searchMatchedSubtotal != nil
     }
 
+    private var primaryAmountText: String {
+        if let searchMatchedSubtotal, isShowingSearchAmounts {
+            return searchMatchedSubtotal
+        }
+        return formattedAmount
+    }
+
+    private var secondaryAmountText: String? {
+        if isShowingSearchAmounts {
+            return searchMatchedUnpaid
+        }
+        return formattedUnpaidAmount
+    }
+
+    private var showsSecondaryAmount: Bool {
+        secondaryAmountText != nil
+    }
+
     var body: some View {
         ZStack {
             // Background fill
@@ -166,33 +184,39 @@ struct ExpenseRowView: View {
 
             Spacer(minLength: 28)
 
-            VStack(alignment: .trailing, spacing: 2) {
-                if let searchMatchedSubtotal, isShowingSearchAmounts {
-                    Text(searchMatchedSubtotal)
-                        .font(.subheadline)
-                        .fontWeight(.bold)
-                        .foregroundStyle(.primary)
-                        .lineLimit(1)
-                        .contentTransition(.numericText())
+            VStack(alignment: .trailing, spacing: 4) {
+                Spacer(minLength: 0)
 
-                    secondaryAmountLine(searchMatchedUnpaid)
-                } else {
-                    Text(formattedAmount)
-                        .font(.subheadline)
-                        .fontWeight(showsZeroAmountStyle ? .semibold : .bold)
-                        .foregroundStyle(showsZeroAmountStyle ? Color.secondary : Color.primary)
-                        .lineLimit(1)
-                        .contentTransition(.numericText())
+                Text(primaryAmountText)
+                    .font(.subheadline)
+                    .fontWeight(primaryAmountFontWeight)
+                    .foregroundStyle(primaryAmountColor)
+                    .lineLimit(1)
+                    .contentTransition(.numericText())
 
-                    secondaryAmountLine(formattedUnpaidAmount)
+                if showsSecondaryAmount {
+                    secondaryAmountLine(secondaryAmountText)
+                        .transition(.opacity.combined(with: .move(edge: .top)))
                 }
+
+                Spacer(minLength: 0)
             }
+            .frame(minWidth: isCompact ? 86 : 96, maxHeight: .infinity, alignment: .center)
             .layoutPriority(1)
-            .animation(.spring(response: 0.35, dampingFraction: 0.82), value: formattedAmount)
-            .animation(.spring(response: 0.35, dampingFraction: 0.82), value: formattedUnpaidAmount)
-            .animation(.spring(response: 0.35, dampingFraction: 0.82), value: searchMatchedSubtotal)
-            .animation(.spring(response: 0.35, dampingFraction: 0.82), value: searchMatchedUnpaid)
+            .animation(AnimationHelper.quickEase, value: showsSecondaryAmount)
+            .animation(AnimationHelper.quickEase, value: formattedAmount)
+            .animation(AnimationHelper.quickEase, value: formattedUnpaidAmount)
+            .animation(AnimationHelper.quickEase, value: searchMatchedSubtotal)
+            .animation(AnimationHelper.quickEase, value: searchMatchedUnpaid)
         }
+    }
+
+    private var primaryAmountFontWeight: Font.Weight {
+        showsZeroAmountStyle && !isShowingSearchAmounts ? .semibold : .bold
+    }
+
+    private var primaryAmountColor: Color {
+        showsZeroAmountStyle && !isShowingSearchAmounts ? Color.secondary : Color.primary
     }
 
     @ViewBuilder
