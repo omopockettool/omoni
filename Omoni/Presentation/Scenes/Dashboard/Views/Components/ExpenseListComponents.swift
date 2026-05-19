@@ -34,9 +34,9 @@ struct ExpenseListRowContainer: View {
             timelinePosition: timelinePosition
         )
         .listRowInsets(EdgeInsets(
-            top: 0,
+            top: 6,
             leading: 12,
-            bottom: 0,
+            bottom: 6,
             trailing: 14
         ))
         .listRowBackground(Color.clear)

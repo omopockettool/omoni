@@ -1,19 +1,5 @@
 import SwiftUI
 
-private struct LegoConnectorGuideLine: View {
-    let color: Color
-    let visible: Bool
-    let compact: Bool
-
-    private var height: CGFloat { compact ? 8 : 10 }
-
-    var body: some View {
-        Rectangle()
-            .fill(color.opacity(visible ? 0.55 : 0))
-            .frame(width: 4, height: height)
-    }
-}
-
 private struct LegoSideTab: View {
     let rowStatus: ItemListRowStatus
     let accentColor: Color
@@ -130,47 +116,32 @@ struct ExpenseRowView: View {
     }
 
     var body: some View {
-        VStack(spacing: -6) {
-            LegoConnectorGuideLine(
-                color: rowAccentColor,
-                visible: timelinePosition.showsTopLine,
-                compact: isCompact
-            )
+        ZStack {
+            // Background fill
+            RoundedRectangle(cornerRadius: cardCornerRadius, style: .continuous)
+                .fill(Color(.secondarySystemBackground))
 
-            ZStack {
-                // Background fill
-                RoundedRectangle(cornerRadius: cardCornerRadius, style: .continuous)
-                    .fill(Color(.secondarySystemBackground))
+            // Side tab + content in one HStack, clipped to card shape
+            HStack(spacing: 0) {
+                LegoSideTab(
+                    rowStatus: rowStatus,
+                    accentColor: rowAccentColor,
+                    compact: isCompact,
+                    action: onTogglePaid
+                )
+                .frame(maxHeight: .infinity)
 
-                // Side tab + content in one HStack, clipped to card shape
-                HStack(spacing: 0) {
-                    LegoSideTab(
-                        rowStatus: rowStatus,
-                        accentColor: rowAccentColor,
-                        compact: isCompact,
-                        action: onTogglePaid
-                    )
-                    .frame(maxHeight: .infinity)
-
-                    rowContent
-                        .padding(.horizontal, contentPadding)
-                        .padding(.vertical, shellVerticalPadding)
-                }
-                .clipShape(RoundedRectangle(cornerRadius: cardCornerRadius, style: .continuous))
-
-                // Border drawn last so it sits on top of the tab strip
-                LegoCardBorder(accentColor: rowAccentColor, compact: isCompact)
+                rowContent
+                    .padding(.horizontal, contentPadding)
+                    .padding(.vertical, shellVerticalPadding)
             }
-            .frame(maxWidth: .infinity, minHeight: minimumRowHeight)
-            .shadow(color: Color.black.opacity(0.03), radius: 8, y: 2)
-            .zIndex(1)
+            .clipShape(RoundedRectangle(cornerRadius: cardCornerRadius, style: .continuous))
 
-            LegoConnectorGuideLine(
-                color: rowAccentColor,
-                visible: timelinePosition.showsBottomLine,
-                compact: isCompact
-            )
+            // Border drawn last so it sits on top of the tab strip
+            LegoCardBorder(accentColor: rowAccentColor, compact: isCompact)
         }
+        .frame(maxWidth: .infinity, minHeight: minimumRowHeight)
+        .shadow(color: Color.black.opacity(0.03), radius: 8, y: 2)
         .contentShape(Rectangle())
         .onTapGesture { onTap() }
         .padding(.trailing, 2)

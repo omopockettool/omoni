@@ -5,6 +5,7 @@ struct DashboardMonthFilterSheet: View {
     let availableYears: [Int]
     let isCustomFilterActive: Bool
     let isPendingFilterActive: Bool
+    let selectedPendingFilter: DashboardPendingFilter
     let onApply: (Date, DashboardPendingFilter) -> Void
     let onReset: () -> Void
     let onClose: () -> Void
@@ -27,6 +28,7 @@ struct DashboardMonthFilterSheet: View {
         self.availableYears = availableYears
         self.isCustomFilterActive = isCustomFilterActive
         self.isPendingFilterActive = isPendingFilterActive
+        self.selectedPendingFilter = selectedPendingFilter
         self.onApply = onApply
         self.onReset = onReset
         self.onClose = onClose

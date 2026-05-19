@@ -9,7 +9,9 @@ import SwiftUI
 
 private enum DashboardActiveFilter {
     case all(DashboardCategoryRange)
+    case allDay(range: DashboardCategoryRange, date: Date)
     case category(categoryId: UUID, range: DashboardCategoryRange)
+    case categoryDay(categoryId: UUID, range: DashboardCategoryRange, date: Date)
 }
 
 private struct DashboardItemListRoute: Hashable {
@@ -261,6 +263,23 @@ struct DashboardView: View {
             hasVisibleItemLists: hasVisibleItemListsInSelectedRange,
             getFormattedAmount: { viewModel.formattedAmount(for: $0) },
             getFormattedUnpaidAmount: { viewModel.formattedUnpaidAmount(for: $0) },
+            showsDateRows: showsDateRows,
+            dateRows: activeDateRows,
+            getDateRowAmount: { viewModel.formattedCurrency($0.paidAmount) },
+            onDateRowTap: { box in
+                switch resolvedActiveFilter {
+                case .all(let range):
+                    withAnimation(AnimationHelper.smoothSpring) {
+                        activeFilter = .allDay(range: range, date: box.date)
+                    }
+                case .category(let categoryId, let range):
+                    withAnimation(AnimationHelper.smoothSpring) {
+                        activeFilter = .categoryDay(categoryId: categoryId, range: range, date: box.date)
+                    }
+                default:
+                    break
+                }
+            },
             filteredItemLists: activeFilteredItemLists,
             getItemListAmount: { viewModel.formattedPaid(for: $0) },
             getItemListUnpaidAmount: { viewModel.formattedUnpaid(for: $0) },
@@ -268,6 +287,7 @@ struct DashboardView: View {
             getSearchSummary: { viewModel.formattedSearchSummary(for: $0) },
             getSearchMatchedSubtotal: { viewModel.formattedSearchMatchedSubtotal(for: $0) },
             getSearchMatchedUnpaid: { viewModel.formattedSearchMatchedUnpaid(for: $0) },
+            hideExpenseListSectionHeaders: true,
             customEmptyState: { DashboardNoResultsState() },
             showCustomEmptyState: viewModel.hasActiveSearch || viewModel.isCustomMonthFilterActive || viewModel.hasActivePendingFilter,
             onRefresh: { await viewModel.refreshData() },
@@ -305,11 +325,14 @@ struct DashboardView: View {
                 switch activeFilter {
                 case .all:
                     activeFilter = .all(targetRange)
+                case .allDay:
+                    activeFilter = .all(targetRange)
                 case .category(let categoryId, _):
-                    activeFilter = viewModel.categoryBox(
-                        forCategoryId: categoryId,
-                        in: targetRange
-                    ) == nil ? nil : .category(categoryId: categoryId, range: targetRange)
+                    activeFilter = viewModel.categoryBox(forCategoryId: categoryId, in: targetRange) == nil
+                        ? nil : .category(categoryId: categoryId, range: targetRange)
+                case .categoryDay(let categoryId, _, _):
+                    activeFilter = viewModel.categoryBox(forCategoryId: categoryId, in: targetRange) == nil
+                        ? nil : .category(categoryId: categoryId, range: targetRange)
                 case nil:
                     break
                 }
@@ -337,12 +360,21 @@ struct DashboardView: View {
         switch resolvedActiveFilter {
         case .all:
             break
+        case .allDay(let range, let date):
+            if viewModel.filteredItemLists(in: range, day: date).isEmpty {
+                withAnimation(AnimationHelper.smoothSpring) {
+                    activeFilter = .all(range)
+                }
+            }
         case .category(let categoryId, let range):
-            let hasCategoryContext = viewModel.hasCategoryContext(forCategoryId: categoryId, in: range)
-            let refreshedFilter: DashboardActiveFilter? = hasCategoryContext ? .category(categoryId: categoryId, range: range) : nil
-            guard refreshedFilter == nil else { return }
-            withAnimation(AnimationHelper.smoothSpring) {
-                activeFilter = nil
+            guard !viewModel.hasCategoryContext(forCategoryId: categoryId, in: range) else { return }
+            withAnimation(AnimationHelper.smoothSpring) { activeFilter = nil }
+        case .categoryDay(let categoryId, let range, let date):
+            if viewModel.filteredItemLists(forCategoryId: categoryId, in: range, day: date).isEmpty {
+                // Fall back to date rows for the category
+                withAnimation(AnimationHelper.smoothSpring) {
+                    activeFilter = .category(categoryId: categoryId, range: range)
+                }
             }
         case nil:
             break
@@ -351,13 +383,14 @@ struct DashboardView: View {
 
     private var activeFilteredItemLists: [SDItemList] {
         switch resolvedActiveFilter {
-        case .all(let range):
-            return range == .month ? viewModel.filteredMonthItemLists : viewModel.filteredTodayItemLists
-        case .category(let categoryId, let range):
-            return viewModel.filteredItemLists(
-                forCategoryId: categoryId,
-                in: range
-            )
+        case .all:
+            return []
+        case .allDay(let range, let date):
+            return viewModel.filteredItemLists(in: range, day: date)
+        case .category:
+            return []  // category shows date rows, not expense rows directly
+        case .categoryDay(let categoryId, let range, let date):
+            return viewModel.filteredItemLists(forCategoryId: categoryId, in: range, day: date)
         case nil:
             return []
         }
@@ -367,7 +400,11 @@ struct DashboardView: View {
         switch resolvedActiveFilter {
         case .all:
             return LocalizationKey.General.all.localized
+        case .allDay:
+            return LocalizationKey.General.all.localized
         case .category(let categoryId, _):
+            return activeCategoryBox?.categoryName ?? viewModel.categoryDisplayName(forCategoryId: categoryId, in: viewModel.showingFullMonth ? .month : .today)
+        case .categoryDay(let categoryId, _, _):
             return activeCategoryBox?.categoryName ?? viewModel.categoryDisplayName(forCategoryId: categoryId, in: viewModel.showingFullMonth ? .month : .today)
         case nil:
             return nil
@@ -378,7 +415,9 @@ struct DashboardView: View {
         switch resolvedActiveFilter {
         case .all:
             return "square.grid.2x2.fill"
-        case .category(let categoryId, _):
+        case .allDay:
+            return "square.grid.2x2.fill"
+        case .category(let categoryId, _), .categoryDay(let categoryId, _, _):
             return activeCategoryBox?.categoryIcon ?? viewModel.categoryDisplayIcon(forCategoryId: categoryId, in: viewModel.showingFullMonth ? .month : .today)
         case nil:
             return nil
@@ -389,7 +428,9 @@ struct DashboardView: View {
         switch resolvedActiveFilter {
         case .all:
             return nil
-        case .category(let categoryId, _):
+        case .allDay:
+            return nil
+        case .category(let categoryId, _), .categoryDay(let categoryId, _, _):
             return activeCategoryBox?.categoryColorHex ?? viewModel.categoryDisplayColorHex(forCategoryId: categoryId, in: viewModel.showingFullMonth ? .month : .today)
         case nil:
             return nil
@@ -401,7 +442,12 @@ struct DashboardView: View {
         switch activeFilter {
         case .all:
             return LocalizationKey.General.all.localized
-        case .category(let categoryId, let range):
+        case .allDay(_, let date):
+            return viewModel.dayFilterLabel(for: date)
+        case .category(let categoryId, let range), .categoryDay(let categoryId, let range, _):
+            if case .categoryDay(_, _, let date) = activeFilter {
+                return viewModel.dayFilterLabel(for: date)
+            }
             return activeCategoryBox?.categoryName ?? viewModel.categoryDisplayName(forCategoryId: categoryId, in: range)
         }
     }
@@ -411,7 +457,12 @@ struct DashboardView: View {
         switch activeFilter {
         case .all:
             return "square.grid.2x2.fill"
-        case .category(let categoryId, let range):
+        case .allDay:
+            return "calendar"
+        case .category(let categoryId, let range), .categoryDay(let categoryId, let range, _):
+            if case .categoryDay = activeFilter {
+                return "calendar"
+            }
             return activeCategoryBox?.categoryIcon ?? viewModel.categoryDisplayIcon(forCategoryId: categoryId, in: range)
         }
     }
@@ -421,7 +472,12 @@ struct DashboardView: View {
         switch activeFilter {
         case .all:
             return nil
-        case .category(let categoryId, let range):
+        case .allDay:
+            return nil
+        case .category(let categoryId, let range), .categoryDay(let categoryId, let range, _):
+            if case .categoryDay = activeFilter {
+                return nil
+            }
             return activeCategoryBox?.categoryColorHex ?? viewModel.categoryDisplayColorHex(forCategoryId: categoryId, in: range)
         }
     }
@@ -454,12 +510,18 @@ struct DashboardView: View {
                             monthLabel: viewModel.monthHeroLabel,
                             monthTotal: viewModel.formattedCachedMonthTotal(),
                             todayTotal: viewModel.formattedTodayTotal,
-                            overrideLabel: activeCategoryBox?.categoryName,
-                            overrideTotal: activeCategoryBox.map { viewModel.formattedCurrency($0.paidAmount) },
+                            overrideLabel: activeAllDayContext.map { viewModel.dayFilterLabel(for: $0.date) }
+                                ?? activeCategoryDayContext.map { viewModel.dayFilterLabel(for: $0.date) }
+                                ?? activeCategoryBox?.categoryName,
+                            overrideTotal: activeAllDayContext.map {
+                                viewModel.formattedTotal(in: $0.range, day: $0.date)
+                            } ?? activeCategoryDayContext.map {
+                                viewModel.formattedTotal(forCategoryId: $0.categoryId, in: $0.range, day: $0.date)
+                            } ?? activeCategoryBox.map { viewModel.formattedCurrency($0.paidAmount) },
                             overrideActionColor: activeCategoryBox.flatMap { Color(hex: $0.categoryColorHex) },
                             onAddExpense: {
                                 addItemListTrigger = AddItemListTrigger(
-                                    initialDate: selectedCalendarDay,
+                                    initialDate: selectedCalendarDay ?? activeCategoryDayContext?.date,
                                     preferredCategoryId: activeCategoryBox?.categoryId
                                 )
                             }
@@ -485,7 +547,13 @@ struct DashboardView: View {
                     onDeleteGroup: { deletedGroup in try await viewModel.deleteGroup(deletedGroup) },
                     onSelectedScopeTap: {
                         withAnimation(AnimationHelper.smoothSpring) {
-                            activeFilter = nil
+                            if case .allDay(let range, _) = activeFilter {
+                                activeFilter = .all(range)
+                            } else if case .categoryDay(let categoryId, let range, _) = activeFilter {
+                                activeFilter = .category(categoryId: categoryId, range: range)
+                            } else {
+                                activeFilter = nil
+                            }
                         }
                     },
                     onOpenFilters: { showingFiltersSheet = true }
@@ -495,8 +563,43 @@ struct DashboardView: View {
     }
 
     private var activeCategoryBox: DashboardCategoryBoxData? {
-        guard case .category(let categoryId, let range) = resolvedActiveFilter else { return nil }
-        return viewModel.categoryBox(forCategoryId: categoryId, in: range)
+        switch resolvedActiveFilter {
+        case .category(let categoryId, let range), .categoryDay(let categoryId, let range, _):
+            return viewModel.categoryBox(forCategoryId: categoryId, in: range)
+        default:
+            return nil
+        }
+    }
+
+    private var activeAllDayContext: (range: DashboardCategoryRange, date: Date)? {
+        guard case .allDay(let range, let date) = resolvedActiveFilter else { return nil }
+        return (range, date)
+    }
+
+    // Non-nil when drill down to a specific day within a category
+    private var activeCategoryDayContext: (categoryId: UUID, range: DashboardCategoryRange, date: Date)? {
+        guard case .categoryDay(let categoryId, let range, let date) = resolvedActiveFilter else { return nil }
+        return (categoryId, range, date)
+    }
+
+    private var showsDateRows: Bool {
+        switch resolvedActiveFilter {
+        case .all, .category:
+            return true
+        default:
+            return false
+        }
+    }
+
+    private var activeDateRows: [DashboardDayBoxData] {
+        switch resolvedActiveFilter {
+        case .all:
+            return viewModel.visibleDayBoxes
+        case .category(let categoryId, let range):
+            return viewModel.dayBoxes(forCategoryId: categoryId, in: range)
+        default:
+            return []
+        }
     }
 
     // View picker: filter pill on left, settings icon on right
@@ -569,8 +672,12 @@ private extension DashboardView {
 
 private extension DashboardActiveFilter {
     var categoryId: UUID? {
-        guard case .category(let categoryId, _) = self else { return nil }
-        return categoryId
+        switch self {
+        case .category(let categoryId, _), .categoryDay(let categoryId, _, _):
+            return categoryId
+        default:
+            return nil
+        }
     }
 }
 

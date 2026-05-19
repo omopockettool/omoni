@@ -67,9 +67,7 @@ struct DashboardCategoryBoardView<EmptyState: View>: View {
         ScrollView {
             if hasVisibleItemLists && boxes.isEmpty {
                 VStack(spacing: rowSpacing) {
-                    DashboardAllCategoryBoxView(
-                        onTap: onSelectAll
-                    )
+                    DashboardAllCategoryBoxView(onTap: onSelectAll)
                 }
                 .padding(.horizontal, AppConstants.UserInterface.padding)
                 .padding(.top, AppConstants.UserInterface.padding)
@@ -89,9 +87,7 @@ struct DashboardCategoryBoardView<EmptyState: View>: View {
                     }
 
                     if !boxes.isEmpty {
-                        DashboardAllCategoryBoxView(
-                            onTap: onSelectAll
-                        )
+                        DashboardAllCategoryBoxView(onTap: onSelectAll)
                     }
                 }
                 .padding(.horizontal, AppConstants.UserInterface.padding)

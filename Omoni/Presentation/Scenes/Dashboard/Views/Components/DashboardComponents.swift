@@ -150,6 +150,12 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
     let hasVisibleItemLists: Bool
     let getFormattedAmount: (DashboardCategoryBoxData) -> String
     let getFormattedUnpaidAmount: (DashboardCategoryBoxData) -> String?
+    // Date rows (intermediate level: category → days)
+    let showsDateRows: Bool
+    let dateRows: [DashboardDayBoxData]
+    let getDateRowAmount: (DashboardDayBoxData) -> String
+    let onDateRowTap: (DashboardDayBoxData) -> Void
+    // Expense list (deepest level: day → expense rows)
     let filteredItemLists: [SDItemList]
     let getItemListAmount: (SDItemList) -> String
     let getItemListUnpaidAmount: (SDItemList) -> String?
@@ -157,6 +163,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
     let getSearchSummary: (SDItemList) -> String?
     let getSearchMatchedSubtotal: (SDItemList) -> String?
     let getSearchMatchedUnpaid: (SDItemList) -> String?
+    let hideExpenseListSectionHeaders: Bool
     let customEmptyState: EmptyState
     let showCustomEmptyState: Bool
     let onRefresh: () async -> Void
@@ -180,7 +187,8 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
     private var filteredListContextID: String {
         return [
             selectedFilterTitle ?? "none",
-            showingFullMonth ? "month" : "today"
+            showingFullMonth ? "month" : "today",
+            showsDateRows ? "daterows" : "expenselist"
         ].joined(separator: "#")
     }
 
@@ -191,6 +199,10 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
         hasVisibleItemLists: Bool,
         getFormattedAmount: @escaping (DashboardCategoryBoxData) -> String,
         getFormattedUnpaidAmount: @escaping (DashboardCategoryBoxData) -> String?,
+        showsDateRows: Bool,
+        dateRows: [DashboardDayBoxData],
+        getDateRowAmount: @escaping (DashboardDayBoxData) -> String,
+        onDateRowTap: @escaping (DashboardDayBoxData) -> Void,
         filteredItemLists: [SDItemList],
         getItemListAmount: @escaping (SDItemList) -> String,
         getItemListUnpaidAmount: @escaping (SDItemList) -> String?,
@@ -198,6 +210,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
         getSearchSummary: @escaping (SDItemList) -> String?,
         getSearchMatchedSubtotal: @escaping (SDItemList) -> String?,
         getSearchMatchedUnpaid: @escaping (SDItemList) -> String?,
+        hideExpenseListSectionHeaders: Bool,
         @ViewBuilder customEmptyState: () -> EmptyState,
         showCustomEmptyState: Bool,
         onRefresh: @escaping () async -> Void,
@@ -220,6 +233,10 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
         self.hasVisibleItemLists = hasVisibleItemLists
         self.getFormattedAmount = getFormattedAmount
         self.getFormattedUnpaidAmount = getFormattedUnpaidAmount
+        self.showsDateRows = showsDateRows
+        self.dateRows = dateRows
+        self.getDateRowAmount = getDateRowAmount
+        self.onDateRowTap = onDateRowTap
         self.filteredItemLists = filteredItemLists
         self.getItemListAmount = getItemListAmount
         self.getItemListUnpaidAmount = getItemListUnpaidAmount
@@ -227,6 +244,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
         self.getSearchSummary = getSearchSummary
         self.getSearchMatchedSubtotal = getSearchMatchedSubtotal
         self.getSearchMatchedUnpaid = getSearchMatchedUnpaid
+        self.hideExpenseListSectionHeaders = hideExpenseListSectionHeaders
         self.customEmptyState = customEmptyState()
         self.showCustomEmptyState = showCustomEmptyState
         self.onRefresh = onRefresh
@@ -256,7 +274,24 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
                 .padding(.bottom, 2)
 
             ZStack(alignment: .top) {
-                if selectedFilterTitle != nil {
+                if showsDateRows && !dateRows.isEmpty {
+                    DashboardDateRowsView(
+                        rows: dateRows,
+                        getFormattedAmount: getDateRowAmount,
+                        onSelect: onDateRowTap,
+                        onRefresh: onRefresh
+                    )
+                    .id(filteredListContextID)
+                    .zIndex(1)
+                    .transition(.dashboardFilteredViewSwap)
+                } else if showsDateRows {
+                    customEmptyState
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                        .padding(.horizontal, AppConstants.UserInterface.padding)
+                        .padding(.top, AppConstants.UserInterface.padding)
+                        .zIndex(1)
+                        .transition(.dashboardFilteredViewSwap)
+                } else if selectedFilterTitle != nil {
                     ExpenseListView(
                         itemLists: filteredItemLists,
                         getFormattedAmount: getItemListAmount,
@@ -272,12 +307,12 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
                         customEmptyState: { customEmptyState },
                         showCustomEmptyState: showCustomEmptyState,
                         getDayTotal: getDayTotal,
-                        hideSectionHeaders: !showingFullMonth,
+                        hideSectionHeaders: hideExpenseListSectionHeaders,
                         collapsedDays: $collapsedDays,
-                        allowsDayCollapse: showingFullMonth
+                        allowsDayCollapse: !hideExpenseListSectionHeaders && showingFullMonth
                     )
                     .id(filteredListContextID)
-                    .zIndex(1)
+                    .zIndex(2)
                     .transition(.dashboardFilteredViewSwap)
                 } else {
                     DashboardCategoryBoardView(
@@ -300,13 +335,14 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .mask {
                 ScrollEdgeFadeMask(
-                    showsTopFade: selectedFilterTitle == nil || !showingFullMonth,
+                    showsTopFade: selectedFilterTitle == nil || (!showingFullMonth && !showsDateRows),
                     showsBottomFade: true
                 )
             }
             .padding(.horizontal, AppConstants.UserInterface.padding)
             .padding(.top, selectedFilterTitle == nil ? AppConstants.UserInterface.smallPadding : 6)
             .animation(AnimationHelper.dashboardDrill, value: isShowingFilteredList)
+            .animation(AnimationHelper.dashboardDrill, value: showsDateRows)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .safeAreaInset(edge: .top, spacing: 0) {

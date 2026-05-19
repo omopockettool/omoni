@@ -146,7 +146,7 @@ struct ExpenseListView<EmptyState: View>: View {
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
         .scrollIndicators(.hidden)
-        .contentMargins(.top, 0, for: .scrollContent)
+        .contentMargins(.top, 10, for: .scrollContent)
         .padding(.top, topContentOffset)
         .if(!isCompact) {
             $0.refreshable {

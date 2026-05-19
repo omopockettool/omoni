@@ -56,6 +56,16 @@ struct DashboardCategoryBoxData: Identifiable, Hashable {
     }
 }
 
+struct DashboardDayBoxData: Identifiable, Hashable {
+    let date: Date
+    let paidAmount: Double
+    let unpaidAmount: Double
+    let itemListCount: Int
+    let isToday: Bool
+
+    var id: String { "\(date.timeIntervalSince1970)" }
+}
+
 
 @MainActor
 
@@ -165,8 +175,57 @@ class DashboardViewModel {
         showingFullMonth ? monthCategoryBoxes : todayCategoryBoxes
     }
 
+    var visibleDayBoxes: [DashboardDayBoxData] {
+        makeDayBoxes(from: showingFullMonth ? filteredMonthItemLists : filteredTodayItemLists)
+    }
+
     func filteredSearchResults(from source: [SDItemList]) -> [SDItemList] {
         filteredItemLists(from: source)
+    }
+
+    func filteredItemLists(in range: DashboardCategoryRange, day: Date) -> [SDItemList] {
+        let cal = Calendar.current
+        let source: [SDItemList] = switch range {
+        case .today:
+            filteredTodayItemLists
+        case .month:
+            filteredMonthItemLists
+        }
+
+        return source.filter { cal.isDate($0.date, inSameDayAs: day) }
+    }
+
+    func formattedTotal(in range: DashboardCategoryRange, day: Date) -> String {
+        let total = filteredItemLists(in: range, day: day)
+            .reduce(0.0) { $0 + (itemListTotals[$1.id] ?? 0) }
+        return formattedCurrency(total)
+    }
+
+    // Day aggregates for a category — drives the date rows intermediate view
+    func dayBoxes(forCategoryId categoryId: UUID, in range: DashboardCategoryRange) -> [DashboardDayBoxData] {
+        makeDayBoxes(from: filteredItemLists(forCategoryId: categoryId, in: range))
+    }
+
+    // Expense rows for a specific category + day
+    func filteredItemLists(forCategoryId categoryId: UUID, in range: DashboardCategoryRange, day: Date) -> [SDItemList] {
+        let cal = Calendar.current
+        return filteredItemLists(forCategoryId: categoryId, in: range)
+            .filter { cal.isDate($0.date, inSameDayAs: day) }
+    }
+
+    // Total for a category on a specific day (hero label)
+    func formattedTotal(forCategoryId categoryId: UUID, in range: DashboardCategoryRange, day: Date) -> String {
+        let total = filteredItemLists(forCategoryId: categoryId, in: range, day: day)
+            .reduce(0.0) { $0 + (itemListTotals[$1.id] ?? 0) }
+        return formattedCurrency(total)
+    }
+
+    // Short label for hero / scope chip: "hoy" or "13 MAY"
+    func dayFilterLabel(for date: Date) -> String {
+        if Calendar.current.isDateInToday(date) {
+            return LocalizationKey.Dashboard.today.localized
+        }
+        return dayLabelFormatter.string(from: date).uppercased()
     }
 
     var hasItemsOutsideToday: Bool {
@@ -222,6 +281,13 @@ class DashboardViewModel {
         let f = DateFormatter()
         f.locale = Locale.current
         f.dateFormat = "LLLL yyyy"
+        return f
+    }()
+
+    private let dayLabelFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = Locale.current
+        f.dateFormat = "d MMM"
         return f
     }()
 
@@ -1013,8 +1079,7 @@ class DashboardViewModel {
     }
 
     func hasCategoryContext(forCategoryId categoryId: UUID, in range: DashboardCategoryRange) -> Bool {
-        categoryBox(forCategoryId: categoryId, in: range) != nil ||
-        categoryMetadata(forCategoryId: categoryId) != nil
+        categoryBox(forCategoryId: categoryId, in: range) != nil
     }
 
     func categoryDisplayName(forCategoryId categoryId: UUID, in range: DashboardCategoryRange) -> String? {
@@ -1042,6 +1107,37 @@ class DashboardViewModel {
         }
 
         return nil
+    }
+
+    private func makeDayBoxes(from source: [SDItemList]) -> [DashboardDayBoxData] {
+        let calendar = Calendar.current
+        var grouped: [Date: (paid: Double, unpaid: Double, count: Int)] = [:]
+
+        for itemList in source {
+            let day = calendar.startOfDay(for: itemList.date)
+            let paid = itemListTotals[itemList.id] ?? 0
+            let unpaid = itemListUnpaidTotals[itemList.id] ?? 0
+            if var existing = grouped[day] {
+                existing.paid += paid
+                existing.unpaid += unpaid
+                existing.count += 1
+                grouped[day] = existing
+            } else {
+                grouped[day] = (paid, unpaid, 1)
+            }
+        }
+
+        return grouped
+            .map { day, data in
+                DashboardDayBoxData(
+                    date: day,
+                    paidAmount: data.paid,
+                    unpaidAmount: data.unpaid,
+                    itemListCount: data.count,
+                    isToday: calendar.isDateInToday(day)
+                )
+            }
+            .sorted { $0.date > $1.date }
     }
 
     private func makeCategoryBoxes(from source: [SDItemList], range: DashboardCategoryRange) -> [DashboardCategoryBoxData] {
