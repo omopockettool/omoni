@@ -11,7 +11,7 @@ private struct LegoSideTab: View {
     private var tabColor: Color {
         switch rowStatus {
         case .neutral: return Color(.systemGray4)
-        case .unpaid:  return .red
+        case .unpaid:  return Color(.systemGray4)
         case .partial: return .orange
         case .paid:    return accentColor
         }
@@ -95,7 +95,7 @@ struct ExpenseRowView: View {
         case .neutral:
             return Color(.systemGray2)
         case .unpaid:
-            return .red
+            return Color(.systemGray2)
         case .partial:
             return .orange
         case .paid:
@@ -164,6 +164,7 @@ struct ExpenseRowView: View {
                     .font(.subheadline)
                     .fontWeight(.semibold)
                     .lineLimit(1)
+                    .layoutPriority(1)
 
                 if let searchSummary {
                     Text(searchSummary)
@@ -174,7 +175,7 @@ struct ExpenseRowView: View {
                 }
             }
 
-            Spacer(minLength: 28)
+            Spacer(minLength: 20)
 
             VStack(alignment: .trailing, spacing: 4) {
                 Spacer(minLength: 0)
@@ -185,7 +186,7 @@ struct ExpenseRowView: View {
                     .foregroundStyle(primaryAmountColor)
                     .lineLimit(1)
                     .contentTransition(.numericText())
-                    .frame(maxWidth: .infinity, alignment: .trailing)
+                    .fixedSize(horizontal: true, vertical: false)
 
                 if showsSecondaryAmount {
                     secondaryAmountLine(secondaryAmountText)
@@ -195,8 +196,7 @@ struct ExpenseRowView: View {
                 Spacer(minLength: 0)
             }
             .frame(
-                minWidth: isCompact ? 86 : 96,
-                maxWidth: isCompact ? 86 : 96,
+                minWidth: isCompact ? 72 : 72,
                 maxHeight: .infinity,
                 alignment: .trailing
             )
@@ -223,7 +223,7 @@ struct ExpenseRowView: View {
             .font(.caption)
             .foregroundStyle(.secondary)
             .lineLimit(1)
-            .frame(maxWidth: .infinity, alignment: .trailing)
+            .fixedSize(horizontal: true, vertical: false)
             .opacity(value == nil ? 0 : 1)
             .accessibilityHidden(value == nil)
     }

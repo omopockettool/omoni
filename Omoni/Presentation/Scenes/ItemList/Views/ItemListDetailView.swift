@@ -316,6 +316,7 @@ struct ItemRowView: View {
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
                                 .lineLimit(1)
+                                .layoutPriority(1)
 
                             if isSearchMatch {
                                 Image(systemName: "magnifyingglass.circle.fill")
@@ -339,6 +340,7 @@ struct ItemRowView: View {
                         .fontWeight(showsZeroAmountStyle ? .semibold : .bold)
                         .foregroundStyle(showsZeroAmountStyle ? Color.secondary : Color.primary)
                         .lineLimit(1)
+                        .frame(minWidth: 72, alignment: .trailing)
                         .layoutPriority(1)
                 }
                 .padding(.horizontal, contentPadding)

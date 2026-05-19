@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.3] - 2026-05-20
+
+### Fixed
+- **Dashboard item-list rows now render fully unpaid state in gray instead of red** (`ExpenseRowView`) — item lists where every item remains unpaid no longer use an alert-like red treatment. Their side tab and card accent now resolve back to gray, matching the calmer semantics already used at the item level while preserving orange for partial state and green for fully paid state.
+
 ## [2.5.2] - 2026-05-20
 
 ### Fixed
