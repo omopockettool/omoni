@@ -295,12 +295,20 @@ struct DashboardView: View {
             onRefresh: { await viewModel.refreshData() },
             onAllTap: {
                 withAnimation(AnimationHelper.smoothSpring) {
-                    activeFilter = .all(viewModel.showingFullMonth ? .month : .today)
+                    if viewModel.showingFullMonth {
+                        activeFilter = .all(.month)
+                    } else {
+                        activeFilter = .allDay(range: .today, date: Date())
+                    }
                 }
             },
             onCategoryTap: { box in
                 withAnimation(AnimationHelper.smoothSpring) {
-                    activeFilter = .category(categoryId: box.categoryId, range: box.range)
+                    if box.range == .today {
+                        activeFilter = .categoryDay(categoryId: box.categoryId, range: .today, date: Date())
+                    } else {
+                        activeFilter = .category(categoryId: box.categoryId, range: box.range)
+                    }
                 }
             },
             selectedFilterTitle: activeFilterTitle,
@@ -327,15 +335,23 @@ struct DashboardView: View {
             withAnimation(AnimationHelper.quickEase) {
                 switch activeFilter {
                 case .all:
-                    activeFilter = .all(targetRange)
+                    activeFilter = targetRange == .today ? .allDay(range: .today, date: Date()) : .all(.month)
                 case .allDay:
-                    activeFilter = .all(targetRange)
+                    activeFilter = targetRange == .today ? .allDay(range: .today, date: Date()) : .all(.month)
                 case .category(let categoryId, _):
-                    activeFilter = viewModel.categoryBox(forCategoryId: categoryId, in: targetRange) == nil
-                        ? nil : .category(categoryId: categoryId, range: targetRange)
+                    guard viewModel.categoryBox(forCategoryId: categoryId, in: targetRange) != nil else {
+                        activeFilter = nil; break
+                    }
+                    activeFilter = targetRange == .today
+                        ? .categoryDay(categoryId: categoryId, range: .today, date: Date())
+                        : .category(categoryId: categoryId, range: .month)
                 case .categoryDay(let categoryId, _, _):
-                    activeFilter = viewModel.categoryBox(forCategoryId: categoryId, in: targetRange) == nil
-                        ? nil : .category(categoryId: categoryId, range: targetRange)
+                    guard viewModel.categoryBox(forCategoryId: categoryId, in: targetRange) != nil else {
+                        activeFilter = nil; break
+                    }
+                    activeFilter = targetRange == .today
+                        ? .categoryDay(categoryId: categoryId, range: .today, date: Date())
+                        : .category(categoryId: categoryId, range: .month)
                 case nil:
                     break
                 }
@@ -366,7 +382,7 @@ struct DashboardView: View {
         case .allDay(let range, let date):
             if viewModel.filteredItemLists(in: range, day: date).isEmpty {
                 withAnimation(AnimationHelper.smoothSpring) {
-                    activeFilter = .all(range)
+                    activeFilter = range == .today ? nil : .all(range)
                 }
             }
         case .category(let categoryId, let range):
@@ -374,9 +390,8 @@ struct DashboardView: View {
             withAnimation(AnimationHelper.smoothSpring) { activeFilter = nil }
         case .categoryDay(let categoryId, let range, let date):
             if viewModel.filteredItemLists(forCategoryId: categoryId, in: range, day: date).isEmpty {
-                // Fall back to date rows for the category
                 withAnimation(AnimationHelper.smoothSpring) {
-                    activeFilter = .category(categoryId: categoryId, range: range)
+                    activeFilter = range == .today ? nil : .category(categoryId: categoryId, range: range)
                 }
             }
         case nil:
@@ -448,7 +463,7 @@ struct DashboardView: View {
         case .allDay(_, let date):
             return viewModel.dayFilterLabel(for: date)
         case .category(let categoryId, let range), .categoryDay(let categoryId, let range, _):
-            if case .categoryDay(_, _, let date) = activeFilter {
+            if case .categoryDay(_, let r, let date) = activeFilter, r == .month {
                 return viewModel.dayFilterLabel(for: date)
             }
             return activeCategoryBox?.categoryName ?? viewModel.categoryDisplayName(forCategoryId: categoryId, in: range)
@@ -463,7 +478,7 @@ struct DashboardView: View {
         case .allDay:
             return "calendar"
         case .category(let categoryId, let range), .categoryDay(let categoryId, let range, _):
-            if case .categoryDay = activeFilter {
+            if case .categoryDay(_, let r, _) = activeFilter, r == .month {
                 return "calendar"
             }
             return activeCategoryBox?.categoryIcon ?? viewModel.categoryDisplayIcon(forCategoryId: categoryId, in: range)
@@ -478,7 +493,7 @@ struct DashboardView: View {
         case .allDay:
             return nil
         case .category(let categoryId, let range), .categoryDay(let categoryId, let range, _):
-            if case .categoryDay = activeFilter {
+            if case .categoryDay(_, let r, _) = activeFilter, r == .month {
                 return nil
             }
             return activeCategoryBox?.categoryColorHex ?? viewModel.categoryDisplayColorHex(forCategoryId: categoryId, in: range)
@@ -551,9 +566,9 @@ struct DashboardView: View {
                     onSelectedScopeTap: {
                         withAnimation(AnimationHelper.smoothSpring) {
                             if case .allDay(let range, _) = activeFilter {
-                                activeFilter = .all(range)
+                                activeFilter = range == .today ? nil : .all(range)
                             } else if case .categoryDay(let categoryId, let range, _) = activeFilter {
-                                activeFilter = .category(categoryId: categoryId, range: range)
+                                activeFilter = range == .today ? nil : .category(categoryId: categoryId, range: range)
                             } else {
                                 activeFilter = nil
                             }

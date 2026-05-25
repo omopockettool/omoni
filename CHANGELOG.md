@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.0] - 2026-05-25
+
+### Changed
+- **Today mode now navigates directly to the expense list when tapping a category or All, skipping the intermediate date layer** (`DashboardView`) — in Today mode there is only one possible date, so the date rows step was redundant. Tapping a category or All now lands directly on the filtered item list. Back navigation and empty-state fallbacks have been updated to match the simplified two-level flow.
+- **Bottom bar chip in Today mode now shows the category name, icon, and color instead of "Today"** (`DashboardView`) — when a category is active in Today mode the chip reflects the category identity, which is more informative since the Today context is already communicated by the top tab. The date label and calendar icon are preserved for month-mode day drill-downs where the date context is meaningful.
+
 ## [2.6.2] - 2026-05-25
 
 ### Fixed
