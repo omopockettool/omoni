@@ -230,7 +230,7 @@ struct AboutOMOView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 8))
             }
             .buttonStyle(.plain)
-            .accessibilityLabel("Copiar \(title)")
+            .accessibilityLabel("\(LocalizationKey.General.copy.localized) \(title)")
         }
     }
 }
@@ -320,38 +320,13 @@ private struct AppReleaseNoteEntry: Identifiable {
 private enum AppReleaseNotesCatalog {
     static let entries: [AppReleaseNoteEntry] = [
         AppReleaseNoteEntry(
-            version: "1.5.4",
-            date: "2026-04-29",
-            title: "Visual polish and smoother detail flow",
+            version: "2.0.0",
+            date: "2026-05-07",
+            title: "OMONI",
             highlights: [
-                "Dashboard and item-detail rows were refined to feel cleaner and easier to scan.",
-                "Pending items now stay visible at the top of the item-list detail, while completed ones move to the end.",
-                "Row separators were polished to give list content a calmer reading rhythm."
-            ]
-        ),
-        AppReleaseNoteEntry(
-            version: "1.5.3",
-            date: "2026-04-29",
-            title: "More stable dashboard refresh",
-            highlights: [
-                "Pull-to-refresh no longer shifts dashboard rows up and down during the refresh gesture."
-            ]
-        ),
-        AppReleaseNoteEntry(
-            version: "1.5.0",
-            date: "2026-04-29",
-            title: "Clearer monthly overview",
-            highlights: [
-                "Monthly day groups can now collapse to make long periods easier to browse.",
-                "Collapsed state is remembered while moving between Today and This Month."
-            ]
-        ),
-        AppReleaseNoteEntry(
-            version: "1.4.0",
-            date: "2026-04-29",
-            title: "Group settings improvements",
-            highlights: [
-                "Group details, categories, and payment methods were reorganized into a cleaner settings flow."
+                "The app is now OMONI — a complete rebuild of the foundation with a cleaner architecture, faster data layer, and a more intentional design language.",
+                "Every screen was reconsidered to feel calmer, more native, and more personal.",
+                "Groups, categories, and payment methods were unified into a single coherent flow."
             ]
         ),
         AppReleaseNoteEntry(
@@ -359,7 +334,7 @@ private enum AppReleaseNotesCatalog {
             date: "2025-11-08",
             title: "Initial release",
             highlights: [
-                "First public version of OMONI focused on personal expense tracking and group organization."
+                "First public version focused on personal expense tracking and group organization."
             ]
         )
     ]

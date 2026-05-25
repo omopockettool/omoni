@@ -44,13 +44,16 @@ enum LocalizationKey {
         static let add = "general.add"
         static let back = "general.back"
         static let done = "general.done"
+        static let eg = "general.eg"
         static let error = "general.error"
+        static let unknownError = "general.unknownError"
         static let loading = "general.loading"
         static let search = "general.search"
         static let close = "general.close"
         static let retry = "general.retry"
         static let empty = "general.empty"
         static let paste = "general.paste"
+        static let copy = "general.copy"
         static let all = "general.all"
         static let pending = "general.pending"
         static let daily = "general.daily"
@@ -291,6 +294,10 @@ enum LocalizationKey {
     }
 
     // MARK: - About
+    enum Splash {
+        static let tagline = "splash.tagline"
+    }
+
     enum About {
         static let application = "about.application"
         static let currentVersion = "about.currentVersion"

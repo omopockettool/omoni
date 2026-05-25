@@ -115,7 +115,7 @@ struct AddItemView: View {
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
                     if focusedField == .amount || focusedField == .quantity {
-                        Button("Done") { focusedField = nil }
+                        Button(LocalizationKey.General.done.localized) { focusedField = nil }
                     }
                 }
             }

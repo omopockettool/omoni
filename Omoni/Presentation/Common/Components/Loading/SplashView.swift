@@ -19,7 +19,7 @@ struct SplashView: View {
                 }
 
                 // Tagline
-                Text("your things. on your own terms.")
+                Text(LocalizationKey.Splash.tagline.localized)
                     .font(.system(size: 13, weight: .regular, design: .rounded))
                     .foregroundStyle(.tertiary)
                     .tracking(0.3)

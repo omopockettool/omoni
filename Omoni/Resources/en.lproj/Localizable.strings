@@ -15,7 +15,9 @@
 "general.add" = "Add";
 "general.back" = "Back";
 "general.done" = "Done";
+"general.eg" = "e.g.";
 "general.error" = "Error";
+"general.unknownError" = "Unknown error";
 "general.loading" = "Loading...";
 "general.search" = "Search";
 "general.close" = "Close";
@@ -132,6 +134,7 @@
 "general.retry" = "Retry";
 "general.empty" = "Nothing here...";
 "general.paste" = "Paste";
+"general.copy" = "Copy";
 "general.daily" = "Daily";
 "general.weekly" = "Weekly";
 "general.monthly" = "Monthly";
@@ -275,3 +278,4 @@
 "about.news" = "What's new";
 "about.shareApp" = "Share OMONI";
 "about.shareAppSubtitle" = "Recommend it to a friend";
+"splash.tagline" = "your life. your way.";

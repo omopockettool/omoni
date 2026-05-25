@@ -43,7 +43,7 @@ struct CreateFirstUserView: View {
         }
         .errorAlert(
             isPresented: $viewModel.showError,
-            message: viewModel.errorMessage ?? "Error desconocido",
+            message: viewModel.errorMessage ?? LocalizationKey.General.unknownError.localized,
             onDismiss: viewModel.clearError
         )
         .fileImporter(

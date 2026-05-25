@@ -98,7 +98,7 @@ struct AddItemListView: View {
             return concept
         }
         if let category = viewModel.selectedCategory {
-            return "\(LocalizationKey.Entry.concept.localized) (ej. \(category.name))"
+            return "\(LocalizationKey.Entry.concept.localized) (\(LocalizationKey.General.eg.localized) \(category.name))"
         }
         return LocalizationKey.Entry.concept.localized
     }
@@ -155,7 +155,7 @@ struct AddItemListView: View {
             ToolbarItemGroup(placement: .keyboard) {
                 Spacer()
                 if focusedField == .price {
-                    Button("Done") { focusedField = nil }
+                    Button(LocalizationKey.General.done.localized) { focusedField = nil }
                 }
             }
         }
