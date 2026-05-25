@@ -425,6 +425,7 @@ class DashboardViewModel {
             }
 
             currentGroup = newGroup
+            showingFullMonth = true
             selectedMonthAnchor = Calendar.current.startOfMonth(for: Date())
             itemListTotals = Dictionary(uniqueKeysWithValues: fetchedItemLists.map { ($0.id, 0.0) })
             itemListUnpaidTotals = Dictionary(uniqueKeysWithValues: fetchedItemLists.map { ($0.id, 0.0) })

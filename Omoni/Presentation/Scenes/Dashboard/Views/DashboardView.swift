@@ -126,15 +126,17 @@ struct DashboardView: View {
                 }
             }
             .onChange(of: viewModel.isChangingGroup) { _, changing in
-                if !changing {
+                if changing {
+                    withAnimation(.easeOut(duration: 0.15)) { contentOpacity = 0.0 }
+                } else {
                     selectedCalendarDay = nil
                     activeFilter = nil
                     listDragOffset = 0
                     displayedCalendarMonth = Calendar.current.startOfMonth(for: Date())
                     viewMode = .list
-                    viewModel.showingFullMonth = false
                     isSearchActive = false
                     viewModel.clearSearch()
+                    withAnimation(.easeIn(duration: 0.3)) { contentOpacity = 1.0 }
                 }
             }
             .navigationDestination(for: DashboardItemListRoute.self) { route in
@@ -318,6 +320,7 @@ struct DashboardView: View {
         .animation(AnimationHelper.quickEase, value: viewMode == .calendar)
         .onChange(of: viewModel.currentGroup?.id) { _, _ in
             collapsedMonthDays.removeAll()
+            withAnimation(AnimationHelper.quickEase) { activeFilter = nil }
         }
         .onChange(of: viewModel.showingFullMonth) { _, isShowingMonth in
             let targetRange: DashboardCategoryRange = isShowingMonth ? .month : .today

@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.0] - 2026-05-25
+
+### Changed
+- **Switching groups now always lands on This Month with category boxes instead of Today** (`DashboardViewModel`, `DashboardView`) — changing the active group resets the dashboard to the full-month overview and clears any active drill-down state, so the user always arrives at the most useful summary of the new group rather than a potentially empty Today view.
+- **Group switch transition is now animated with a content fade** (`DashboardView`) — the dashboard content fades out as the group change begins and fades back in once the new group data is ready, replacing the previous abrupt content swap.
+
 ## [2.5.3] - 2026-05-20
 
 ### Fixed
