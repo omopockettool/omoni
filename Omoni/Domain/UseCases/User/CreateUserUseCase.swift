@@ -16,8 +16,7 @@ final class DefaultCreateUserUseCase: CreateUserUseCase {
         let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
 
         guard !trimmedName.isEmpty else { throw ValidationError.emptyName }
-        guard !trimmedEmail.isEmpty else { throw ValidationError.emptyEmail }
-        guard trimmedEmail.contains("@") else { throw ValidationError.invalidEmail }
+        guard ValidationHelper.isValidEmail(trimmedEmail) else { throw ValidationError.invalidEmail }
 
         return try await userRepository.createUser(name: trimmedName, email: trimmedEmail)
     }

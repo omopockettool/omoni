@@ -60,8 +60,7 @@ class CreateFirstUserViewModel {
     
     var isFormValid: Bool {
         !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-        !email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-        email.contains("@")
+        ValidationHelper.isValidEmail(email)
     }
     
     // MARK: - Public Methods
@@ -142,8 +141,7 @@ class CreateFirstUserViewModel {
         let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
 
         guard !trimmedName.isEmpty else { throw ValidationError.emptyName }
-        guard !trimmedEmail.isEmpty else { throw ValidationError.emptyEmail }
-        guard trimmedEmail.contains("@") else { throw ValidationError.invalidEmail }
+        guard ValidationHelper.isValidEmail(trimmedEmail) else { throw ValidationError.invalidEmail }
 
         loadingMessage = "Simulando grupo personal..."
         try? await Task.sleep(for: .milliseconds(250))

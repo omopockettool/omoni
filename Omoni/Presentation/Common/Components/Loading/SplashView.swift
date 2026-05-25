@@ -7,16 +7,10 @@ struct SplashView: View {
         ZStack {
             Color(.systemBackground).ignoresSafeArea()
 
-            VStack(spacing: 8) {
-                // Wordmark
-                HStack(alignment: .lastTextBaseline, spacing: 0) {
-                    Text("omo")
-                        .font(.system(size: 44, weight: .bold, design: .rounded))
-                        .foregroundStyle(.primary)
-                    Text("ni")
-                        .font(.system(size: 44, weight: .light, design: .rounded))
-                        .foregroundStyle(Color.accentColor)
-                }
+            VStack(spacing: 14) {
+                OMOBrandIconView(size: 78, iconScale: 0.66)
+
+                wordmark
 
                 // Tagline
                 Text(LocalizationKey.Splash.tagline.localized)
@@ -32,6 +26,19 @@ struct SplashView: View {
                 }
             }
         }
+    }
+    
+    private var wordmark: some View {
+        HStack(alignment: .lastTextBaseline, spacing: 0) {
+            Text("omo")
+                .font(.system(size: 40, weight: .bold, design: .rounded))
+                .foregroundStyle(.primary)
+
+            Text("ni")
+                .font(.system(size: 40, weight: .semibold, design: .rounded))
+                .foregroundStyle(Color.accentColor)
+        }
+        .tracking(0.6)
     }
 }
 

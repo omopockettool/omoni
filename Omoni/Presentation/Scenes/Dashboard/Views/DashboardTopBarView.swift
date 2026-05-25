@@ -39,11 +39,7 @@ struct DashboardTopBarView: View {
             Spacer()
 
             Button(action: onOpenSettings) {
-                Image("settings-icon")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 20)
-                    .foregroundColor(.primary)
+                OMOBrandIconView(size: 28, iconScale: 0.62)
             }
             .buttonStyle(.plain)
         }

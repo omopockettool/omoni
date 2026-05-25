@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.11.0] - 2026-05-25
+
+### Changed
+- **First-user onboarding was simplified to ask only for the user's name plus legal acceptance** (`CreateFirstUserView`, `CreateFirstUserViewModel`, `CreateUserUseCase`, `SDUser`) — the unused email capture was removed from the initial setup flow so onboarding now matches OMONI's local-first, low-friction philosophy. User validation now allows an empty stored email, while keeping the field available internally for future optional account or sync flows.
+- **Splash and onboarding now share one consistent OMO/OMONI brand presentation** (`SplashView`, `CreateFirstUserView`) — both screens now use the same owl mark, the same `omo` + `ni` wordmark construction, and the same rounded typographic language so the transition from splash into setup feels intentional and coherent.
+
+### Fixed
+- **Brand icon now remains visible in both light and dark appearance modes** (`OMOBrandIconView`, `SplashView`, `CreateFirstUserView`, `AboutOMOView`, `DashboardTopBarView`) — the white owl asset no longer disappears on light backgrounds because it now renders inside a shared dark circular mark used across the main brand surfaces.
+- **Initial onboarding screen now fades in smoothly instead of appearing abruptly after the splash** (`MainView`) — the transition between startup states now uses a calm opacity change that better matches the product tone.
+
 ## [2.10.1] - 2026-05-25
 
 ### Fixed

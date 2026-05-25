@@ -31,19 +31,15 @@ extension SDUser: Identifiable {}
 
 extension SDUser {
     var isValid: Bool {
-        !name.isEmpty && !email.isEmpty && email.contains("@")
+        !name.isEmpty && ValidationHelper.isValidEmail(email)
     }
     
     func validate() throws {
         guard !name.isEmpty else {
             throw ValidationError.emptyName
         }
-        
-        guard !email.isEmpty else {
-            throw ValidationError.emptyEmail
-        }
-        
-        guard email.contains("@") else {
+
+        guard ValidationHelper.isValidEmail(email) else {
             throw ValidationError.invalidEmail
         }
     }

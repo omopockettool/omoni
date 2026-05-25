@@ -13,6 +13,12 @@ struct MainView: View {
     @State private var hasCheckedForUsers = false
 
     private static let logger = Logger(subsystem: "Omoni", category: "Lifecycle.MainView")
+    
+    private enum ScreenState: Equatable {
+        case splash
+        case app
+        case onboarding
+    }
 
     init() {
         _viewModel = State(wrappedValue: MainViewModel())
@@ -23,16 +29,20 @@ struct MainView: View {
         ZStack {
             if viewModel.isLoading {
                 SplashView()
+                    .transition(.opacity)
             } else if viewModel.hasUsers {
                 AppContentView()
+                    .transition(.opacity)
             } else {
                 CreateFirstUserView(
                     onUserCreated: {
                         await viewModel.checkForUsers()
                     }
                 )
+                .transition(.opacity)
             }
         }
+        .animation(AnimationHelper.smoothEase, value: screenState)
         .task {
             guard !hasCheckedForUsers else {
                 Self.logger.debug("task skipped because initial user check already ran")
@@ -44,6 +54,14 @@ struct MainView: View {
             await viewModel.checkForUsers()
             Self.logger.debug("task finished initial user check hasUsers=\(viewModel.hasUsers)")
         }
+    }
+    
+    private var screenState: ScreenState {
+        if viewModel.isLoading {
+            return .splash
+        }
+        
+        return viewModel.hasUsers ? .app : .onboarding
     }
 }
 

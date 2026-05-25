@@ -43,7 +43,7 @@ struct UserProfileView: View {
                     Image(systemName: "envelope.fill")
                         .foregroundStyle(.secondary)
                         .frame(width: 20)
-                    Text(user.email)
+                    Text(user.email.isEmpty ? LocalizationKey.User.noEmail.localized : user.email)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                     Spacer()

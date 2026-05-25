@@ -12,7 +12,7 @@ struct CreateFirstUserView: View {
     private let legalURL = URL(string: "https://omopockettool.com")!
     
     enum Field: Hashable { 
-        case name, email 
+        case name
     }
     
     init(
@@ -102,34 +102,11 @@ struct CreateFirstUserView: View {
                     .clipShape(Capsule())
             }
 
-            // Icon with modern gradient
-            ZStack {
-                Circle()
-                    .fill(Color.black)
-                    .frame(width: 100, height: 100)
-                    .shadow(color: Color.black.opacity(0.18), radius: 12, y: 6)
-
-                Image("settings-icon")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 68, height: 68)
-            }
-            .padding(.bottom, 8)
+            OMOBrandIconView(size: 92, iconScale: 0.66)
+                .padding(.bottom, 4)
             
             VStack(spacing: 8) {
-                Text(LocalizationKey.User.Welcome.title.localized)
-                    .font(.system(size: 30, weight: .bold, design: .rounded))
-                    .tracking(1.2)
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: [
-                                Color.primary,
-                                Color.primary.opacity(0.78)
-                            ],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
+                wordmark
                     .multilineTextAlignment(.center)
 
                 Text(LocalizationKey.User.Welcome.subtitle.localized)
@@ -139,6 +116,19 @@ struct CreateFirstUserView: View {
                     .lineSpacing(4)
             }
         }
+    }
+    
+    private var wordmark: some View {
+        HStack(alignment: .lastTextBaseline, spacing: 0) {
+            Text("omo")
+                .font(.system(size: 34, weight: .bold, design: .rounded))
+                .foregroundStyle(.primary)
+            
+            Text("ni")
+                .font(.system(size: 34, weight: .semibold, design: .rounded))
+                .foregroundStyle(Color.accentColor)
+        }
+        .tracking(0.6)
     }
     
     // MARK: - Form Content
@@ -153,16 +143,6 @@ struct CreateFirstUserView: View {
                 contentType: .name,
                 keyboardType: .default,
                 capitalization: .words
-            )
-
-            inputField(
-                icon: "envelope.fill",
-                placeholder: LocalizationKey.User.emailPlaceholder.localized,
-                text: $viewModel.email,
-                field: .email,
-                contentType: nil,
-                keyboardType: .emailAddress,
-                capitalization: .never
             )
 
             legalDisclosure
@@ -241,13 +221,9 @@ struct CreateFirstUserView: View {
                 .textInputAutocapitalization(capitalization)
                 .autocorrectionDisabled()
                 .focused($focusedField, equals: field)
-                .submitLabel(field == .name ? .next : .done)
+                .submitLabel(.done)
                 .onSubmit {
-                    if field == .name { 
-                        focusedField = .email 
-                    } else { 
-                        focusedField = nil
-                    }
+                    focusedField = nil
                 }
         }
         .padding(.horizontal, 18)
