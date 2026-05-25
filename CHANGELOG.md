@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.11.2] - 2026-05-25
+
+### Fixed
+- **Calendar collapse in New Entry form now animates smoothly** — toggling the date off folds the calendar closed before the content below moves up, matching iOS Reminders behavior. The date label resets to Today only after the animation settles.
+- **Dark mode forced globally** — OMONI always renders in iOS dark mode as an intentional brand decision (owl identity, no light-mode reflections, like Spotify).
+
 ## [2.11.1] - 2026-05-25
 
 ### Fixed

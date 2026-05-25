@@ -314,8 +314,13 @@ struct AddItemListView: View {
                     }
                 }
             } else {
-                viewModel.date = Date()
-                calendarExpanded = false
+                withAnimation(.spring(response: 0.45, dampingFraction: 0.88)) {
+                    calendarExpanded = false
+                }
+                Task {
+                    try? await Task.sleep(for: .milliseconds(400))
+                    viewModel.date = Date()
+                }
             }
         }
     }

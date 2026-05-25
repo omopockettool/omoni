@@ -555,20 +555,23 @@ struct AddItemListDateCard: View {
             }
             .padding(AppConstants.UserInterface.padding)
 
-            if showDatePicker && calendarExpanded {
+            VStack(spacing: 0) {
                 Divider()
                     .padding(.horizontal, AppConstants.UserInterface.padding)
                 DatePicker("", selection: $date, displayedComponents: .date)
                     .datePickerStyle(.graphical)
                     .frame(maxWidth: .infinity)
                     .padding(.bottom, AppConstants.UserInterface.smallPadding)
-                    .transition(.opacity.combined(with: .move(edge: .top)))
                     .id("datePickerAnchor")
             }
+            .frame(maxHeight: (showDatePicker && calendarExpanded) ? .infinity : 0, alignment: .top)
+            .clipped()
+            .opacity((showDatePicker && calendarExpanded) ? 1 : 0)
         }
         .background(Color(.secondarySystemGroupedBackground))
         .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
-        .animation(.spring(response: 0.5, dampingFraction: 0.85), value: calendarExpanded)
+        .animation(.spring(response: 0.45, dampingFraction: 0.88), value: calendarExpanded)
+        .animation(.spring(response: 0.45, dampingFraction: 0.88), value: showDatePicker)
     }
 }
 
