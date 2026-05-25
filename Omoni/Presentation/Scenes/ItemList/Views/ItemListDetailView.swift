@@ -28,6 +28,7 @@ private struct ItemRowSideTab: View {
         .buttonStyle(.plain)
         .frame(width: tabWidth)
         .animation(.spring(response: 0.35, dampingFraction: 0.82), value: isPaid)
+        .toggleHaptic(trigger: isPaid)
     }
 }
 

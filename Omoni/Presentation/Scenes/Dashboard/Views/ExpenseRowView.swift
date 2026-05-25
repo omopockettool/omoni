@@ -39,6 +39,7 @@ private struct LegoSideTab: View {
         .buttonStyle(.plain)
         .frame(width: tabWidth)
         .animation(.spring(response: 0.35, dampingFraction: 0.82), value: rowStatus)
+        .toggleHaptic(trigger: rowStatus)
     }
 }
 

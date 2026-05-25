@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.9.0] - 2026-05-25
+
+### Added
+- **Keyboard Done button on numeric fields in New Entry and New Item forms** (`AddItemListView`, `AddItemView`) — decimal and number pad keyboards now show a Done button in the keyboard toolbar to dismiss the keyboard. The button only appears on fields that lack a native dismiss key (amount and quantity); the description field, which already has its own submit action, is unaffected.
+- **Haptic feedback restored on paid status toggle** (`ItemRowSideTab`, `LegoSideTab`) — tapping the paid status tab in both the item list detail view and the dashboard expense rows now fires a medium impact haptic when the state changes. Extracted into a shared `toggleHaptic(trigger:)` View extension for reuse across future toggle interactions.
+
 ## [2.8.0] - 2026-05-25
 
 ### Added
