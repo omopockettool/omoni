@@ -6,6 +6,7 @@ final class GroupPickerSheetViewModel {
     var availableGroups: [SDGroup]
     var groupWasCreated = false
     var selectedGroupID: UUID?
+    var shouldDismiss = false
     var showingDeleteAlert = false
     var groupToDelete: SDGroup?
     var isDeletingGroup = false
@@ -18,7 +19,11 @@ final class GroupPickerSheetViewModel {
         availableGroups.count > 1 && !isDeletingGroup
     }
 
-    func selectGroup(_ group: SDGroup, onGroupChange: (SDGroup) -> Void) {
+    func selectGroup(_ group: SDGroup, currentGroup: SDGroup, onGroupChange: (SDGroup) -> Void) {
+        guard group.id != currentGroup.id else {
+            shouldDismiss = true
+            return
+        }
         selectedGroupID = group.id
         onGroupChange(group)
     }

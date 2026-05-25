@@ -111,7 +111,7 @@ struct GroupPickerSheet: View {
                     canDeleteGroups: viewModel.canDeleteGroups,
                     selectedGroupID: viewModel.selectedGroupID,
                     onSelect: { group in
-                        viewModel.selectGroup(group, onGroupChange: onGroupChange)
+                        viewModel.selectGroup(group, currentGroup: currentGroup, onGroupChange: onGroupChange)
                     },
                     onEdit: { groupToEdit = $0 },
                     onDelete: { viewModel.requestDelete($0) }
@@ -197,6 +197,9 @@ struct GroupPickerSheet: View {
                         showingPicker = false
                     }
                 }
+            }
+            .onChange(of: viewModel.shouldDismiss) { _, dismiss in
+                if dismiss { showingPicker = false }
             }
             .task {
                 guard !hasSeenGroupActionsHint else { return }
