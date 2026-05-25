@@ -72,29 +72,32 @@ struct ItemListDetailMetaRow: View {
                 .fontWeight(.medium)
             }
 
-            Group {
-                switch heroStatus {
-                case .pending(let unpaidTotal):
-                    HStack(spacing: 4) {
-                        Image(systemName: "clock")
-                        if !showMetaLabels && !unpaidTotal.isEmpty {
-                            Text(unpaidTotal)
-                                .fontWeight(.medium)
-                                .transition(.opacity.combined(with: .scale(scale: 0.85, anchor: .leading)))
-                        }
-                    }
-                    .foregroundStyle(.orange)
-                case .completed:
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(.green)
-                case .neutral:
-                    EmptyView()
-                }
-            }
-            .font(.caption)
-            .animation(.spring(response: 0.45, dampingFraction: 0.8), value: heroStatusKey)
+            statusBadge
+                .font(.caption)
+                .animation(.spring(response: 0.45, dampingFraction: 0.8), value: heroStatusKey)
         }
         .padding(.top, 2)
+    }
+
+    @ViewBuilder
+    private var statusBadge: some View {
+        switch heroStatus {
+        case .pending(let unpaidTotal):
+            HStack(spacing: 4) {
+                Image(systemName: "clock")
+                if !showMetaLabels && !unpaidTotal.isEmpty {
+                    Text(unpaidTotal)
+                        .fontWeight(.medium)
+                        .transition(.opacity.combined(with: .scale(scale: 0.85, anchor: .leading)))
+                }
+            }
+            .foregroundStyle(.orange)
+        case .completed:
+            Image(systemName: "checkmark.circle.fill")
+                .foregroundStyle(Color.paidGreen)
+        case .neutral:
+            EmptyView()
+        }
     }
 
     private var heroStatusKey: String {

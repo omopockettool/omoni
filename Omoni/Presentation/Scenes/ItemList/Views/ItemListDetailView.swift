@@ -1,5 +1,6 @@
 import SwiftUI
 
+
 private struct ItemRowSideTab: View {
     let isPaid: Bool
     let compact: Bool
@@ -8,7 +9,7 @@ private struct ItemRowSideTab: View {
     private var tabWidth: CGFloat { compact ? 36 : 40 }
 
     private var tabColor: Color {
-        isPaid ? .green : Color(.systemGray4)
+        isPaid ? .paidGreen : Color(.systemGray4)
     }
 
     private var iconName: String {
@@ -287,7 +288,7 @@ struct ItemRowView: View {
     private var shellVerticalPadding: CGFloat { showsBreakdown ? 12 : 11 }
     private var cardCornerRadius: CGFloat { 20 }
     private var rowAccentColor: Color {
-        item.isPaid ? .green : Color(.systemGray2)
+        item.isPaid ? .paidGreen : Color(.systemGray2)
     }
     private var formattedUnitPrice: String {
         let formatter = NumberFormatter()

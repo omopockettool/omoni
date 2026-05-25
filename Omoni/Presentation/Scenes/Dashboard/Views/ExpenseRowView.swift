@@ -100,7 +100,7 @@ struct ExpenseRowView: View {
         case .partial:
             return .orange
         case .paid:
-            return .green
+            return .paidGreen
         }
     }
 

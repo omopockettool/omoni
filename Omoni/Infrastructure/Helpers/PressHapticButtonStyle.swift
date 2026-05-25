@@ -1,5 +1,9 @@
 import SwiftUI
 
+extension Color {
+    static let paidGreen = Color(red: 0.22, green: 0.60, blue: 0.40)
+}
+
 extension View {
     func toggleHaptic<T: Equatable>(trigger: T) -> some View {
         sensoryFeedback(.impact(weight: .medium), trigger: trigger)

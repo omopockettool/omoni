@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.0] - 2026-05-25
+
+### Changed
+- **Replaced neon green with a classic emerald green on paid status indicators** (`PressHapticButtonStyle`, `ItemListDetailView`, `ExpenseRowView`, `ItemListDetailComponents`) — the paid state across item rows, expense rows, and the hero check icon now uses a muted, less saturated green (`Color.paidGreen`) defined once as a shared Color extension.
+
 ## [2.9.0] - 2026-05-25
 
 ### Added
