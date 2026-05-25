@@ -25,7 +25,7 @@ private struct ItemRowSideTab: View {
             }
             .contentShape(Rectangle())
         }
-        .buttonStyle(PressHapticButtonStyle())
+        .buttonStyle(.plain)
         .frame(width: tabWidth)
         .animation(.spring(response: 0.35, dampingFraction: 0.82), value: isPaid)
     }

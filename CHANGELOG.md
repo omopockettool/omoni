@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.1] - 2026-05-25
+
+### Fixed
+- **Paid status tab no longer shows a color shift or press animation when held** (`ExpenseRowView`, `ItemListDetailView`) — the side tab button on both item-list and item rows now uses a plain button style. Holding the tab no longer triggers a scale-down or an overlay darkening; the action fires cleanly on release, matching a simple tap.
+- **Press overlay in `PressHapticButtonStyle` now darkens uniformly** — changed the overlay shape from `RoundedRectangle(cornerRadius: 16)` to `Rectangle` so the darkening covers the full button area evenly instead of creating a visible pill-shaped tint that mismatched the tab's rectangular form.
+
 ## [2.6.0] - 2026-05-25
 
 ### Changed

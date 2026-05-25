@@ -6,7 +6,7 @@ struct PressHapticButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .overlay(
-                RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius, style: .continuous)
+                Rectangle()
                     .fill(Color.black.opacity(configuration.isPressed ? 0.06 : 0))
                     .allowsHitTesting(false)
             )
