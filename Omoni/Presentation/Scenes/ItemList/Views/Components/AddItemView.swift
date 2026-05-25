@@ -111,6 +111,14 @@ struct AddItemView: View {
                     }
                 }
             }
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    if focusedField == .amount || focusedField == .quantity {
+                        Button("Done") { focusedField = nil }
+                    }
+                }
+            }
         }
     }
 

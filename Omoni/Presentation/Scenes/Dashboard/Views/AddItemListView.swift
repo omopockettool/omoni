@@ -151,6 +151,14 @@ struct AddItemListView: View {
                 }
             }
         }
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                if focusedField == .price {
+                    Button("Done") { focusedField = nil }
+                }
+            }
+        }
         .errorAlert(
             isPresented: $viewModel.showError,
             message: viewModel.errorMessage,
