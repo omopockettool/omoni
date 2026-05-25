@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.11.1] - 2026-05-25
+
+### Fixed
+- **Updated splash tagline** to "tu vida. a tu manera." / "your life. your way." — more aligned with OMO's philosophy.
+- **Rewritten What's New section** with user-facing language describing what OMONI actually does, removing the unpublished 1.0 entry that never reached users.
+- **MARKETING_VERSION** updated to match current version so About screen shows the correct installed version.
+
 ## [2.11.0] - 2026-05-25
 
 ### Changed

@@ -318,21 +318,15 @@ private enum AppReleaseNotesCatalog {
     static let entries: [AppReleaseNoteEntry] = [
         AppReleaseNoteEntry(
             version: "2.0.0",
-            date: "2026-05-07",
-            title: "OMONI",
+            date: "2026-06-07",
+            title: "Tu vida financiera, clara y ordenada",
             highlights: [
-                "The app is now OMONI — a complete rebuild of the foundation with a cleaner architecture, faster data layer, and a more intentional design language.",
-                "Every screen was reconsidered to feel calmer, more native, and more personal.",
-                "Groups, categories, and payment methods were unified into a single coherent flow."
+                "Organiza tus gastos por grupos — por ejemplo Casa, Trabajo o Viajes — cada uno con su propia moneda y color.",
+                "Dentro de cada grupo crea registros del día a día: una compra, una cena, una factura. A cada registro le asignas una categoría y un método de pago.",
+                "Cada registro puede tener uno o varios artículos, cada uno con su precio y cantidad. OMONI calcula el total automáticamente.",
+                "El panel principal te muestra de un vistazo cuánto has gastado hoy, esta semana o este mes, filtrado por categoría o estado de pago.",
+                "Marca registros como pagados o pendientes con un solo toque y ten siempre controlado qué queda por saldar."
             ]
         ),
-        AppReleaseNoteEntry(
-            version: "1.0",
-            date: "2025-11-08",
-            title: "Initial release",
-            highlights: [
-                "First public version focused on personal expense tracking and group organization."
-            ]
-        )
     ]
 }
