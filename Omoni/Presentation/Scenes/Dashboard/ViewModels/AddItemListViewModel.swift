@@ -26,7 +26,16 @@ final class AddItemListViewModel {
     var description = ""
     var price = ""
     var date = Date()
-    var selectedCategory: SDCategory?
+    var selectedCategory: SDCategory? {
+        didSet {
+            guard !isEditMode, !didManuallyChoosePaymentMethod else { return }
+            selectedPaymentMethod = suggestedPaymentMethod(
+                forCategoryId: selectedCategory?.id,
+                snapshots: usageMemorySnapshots,
+                in: paymentMethods
+            )
+        }
+    }
     var selectedPaymentMethod: SDPaymentMethod?
     var suggestions: [ConceptSuggestion] = []
     var lastUsedConcept: String?
@@ -185,10 +194,12 @@ final class AddItemListViewModel {
                 selectedCategory = categories.first { $0.id == itemListToEdit?.category?.id }
                 selectedPaymentMethod = paymentMethods.first { $0.id == itemListToEdit?.paymentMethod?.id }
             } else {
-                selectedCategory = preferredCategoryId.flatMap { preferredId in
-                    categories.first { $0.id == preferredId }
-                }
-                selectedPaymentMethod = nil
+                let snapshots = (try? await loadUsageMemorySnapshots(forGroupId: groupId)) ?? []
+                usageMemorySnapshots = snapshots
+                let categoryIdToSelect = preferredCategoryId
+                    ?? snapshots.max { $0.createdAt < $1.createdAt }.flatMap { $0.categoryId }
+                selectedCategory = categoryIdToSelect.flatMap { id in categories.first { $0.id == id } }
+                // selectedPaymentMethod is set by selectedCategory's didSet via suggestedPaymentMethod
             }
 
             updateSuggestions()
@@ -307,6 +318,29 @@ final class AddItemListViewModel {
         }
         cacheManager.cacheData(snapshots, for: key)
         return snapshots
+    }
+
+    private func suggestedPaymentMethod(
+        forCategoryId categoryId: UUID?,
+        snapshots: [UsageMemorySnapshot],
+        in paymentMethods: [SDPaymentMethod]
+    ) -> SDPaymentMethod? {
+        if let categoryId {
+            let lastForCategory = snapshots
+                .filter { $0.categoryId == categoryId }
+                .max { $0.createdAt < $1.createdAt }
+                .flatMap { $0.paymentMethodId }
+            if let id = lastForCategory, let method = paymentMethods.first(where: { $0.id == id }) {
+                return method
+            }
+        }
+        let lastGlobal = snapshots
+            .max { $0.createdAt < $1.createdAt }
+            .flatMap { $0.paymentMethodId }
+        if let id = lastGlobal, let method = paymentMethods.first(where: { $0.id == id }) {
+            return method
+        }
+        return nil
     }
 
     private func clearUsageMemoryCache(forGroupId groupId: UUID) {

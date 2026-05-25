@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.0] - 2026-05-25
+
+### Added
+- **New entry form now auto-selects the last used category and payment method** (`AddItemListViewModel`) — when opening a new registro the form pre-selects the most recently used category for the active group. The payment method is then resolved by looking at the last entry in that specific category; if no category history exists, it falls back to the most recent global payment method; if no history at all, both fields are left empty. Changing the category updates the payment method suggestion automatically, unless the user has already made a manual choice.
+
 ## [2.7.0] - 2026-05-25
 
 ### Changed
