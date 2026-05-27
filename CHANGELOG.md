@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.13.0] - 2026-05-27
+
+### Changed
+- **New app icon imported through Xcode's modern single-image asset flow** (`Assets.xcassets/AppIcon.appiconset`) — OMONI now uses the refreshed brand icon generated from the new source artwork, replacing the older multi-file app icon set with a cleaner asset-catalog configuration based on one high-resolution master image.
+- **Global accent color updated to the new OMONI brand red** (`Assets.xcassets/AccentColor.colorset`) — the system-wide `accentColor` now uses `#FF3D4B`, so onboarding, dashboard controls, highlights, and shared components all reflect the updated visual identity consistently.
+
 ## [2.12.1] - 2026-05-27
 
 ### Fixed
