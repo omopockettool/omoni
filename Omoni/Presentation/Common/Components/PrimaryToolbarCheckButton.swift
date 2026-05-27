@@ -16,10 +16,11 @@ struct PrimaryToolbarCheckButton: View {
         Button(action: action) {
             Image(systemName: "checkmark")
                 .font(.system(size: 15, weight: .bold))
+                .foregroundStyle(.white)
         }
         .buttonStyle(.borderedProminent)
         .buttonBorderShape(.circle)
-        .tint(.accentColor)
+        .tint(.omoniInteractiveRed)
         .disabled(isDisabled)
     }
 }

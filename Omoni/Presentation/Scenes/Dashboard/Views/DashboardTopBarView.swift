@@ -40,6 +40,7 @@ struct DashboardTopBarView: View {
 
             Button(action: onOpenSettings) {
                 OMOBrandIconView(size: 36)
+                    .opacity(0.79)
             }
             .buttonStyle(.plain)
         }

@@ -1,6 +1,9 @@
 import SwiftUI
 
 extension Color {
+    static let omoniBrandRed = Color(hex: "FF3D4B") ?? .accentColor
+    static let omoniInteractiveRed = Color(hex: "FA5662") ?? .accentColor
+
     /// Initialize Color from hex string
     /// - Parameter hex: Hex color string (e.g., "#FF0000" or "FF0000")
     init?(hex: String) {

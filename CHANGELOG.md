@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.14.0] - 2026-05-27
+
+### Changed
+- **Interactive accent styling was softened across the app while preserving strong brand red for explicit identity moments** (`Assets.xcassets/AccentColor.colorset`, `Color+Hex`, `SplashView`, `CreateFirstUserView`) — OMONI now separates visual roles between the stronger logo/wordmark red and a more pastel interactive red used for controls, links, and primary actions, so the interface feels warmer and less aggressive without losing brand coherence.
+- **First-user onboarding now uses the refined interactive red consistently** (`CreateFirstUserView`) — the legal acceptance checkbox, privacy/terms links, and create-user CTA now share the softer action color, while the `omoni` wordmark keeps the stronger brand emphasis on `ni`.
+- **Dashboard top bar hierarchy was rebalanced for a calmer, more premium feel** (`DashboardTopBarView`, `GroupSelectorChipView`, `Assets.xcassets/settings-icon.imageset`) — the settings logo now uses the renamed `omoni-logo.png` asset with reduced opacity, and the group selector chip now uses a quieter translucent treatment with a neutral border so it no longer competes with the add action and settings entry point.
+
+### Fixed
+- **Toolbar confirmation buttons now keep a clear white checkmark in sheets** (`PrimaryToolbarCheckButton`) — save/confirm actions like New Entry and New Item no longer risk rendering the check icon too dark or visually lost against the button tint.
+
+## [2.13.1] - 2026-05-27
+
+### Fixed
+- **Dashboard settings logo now feels less visually distracting** (`DashboardTopBarView`, `Assets.xcassets/settings-icon.imageset`) — the top-right brand button now uses the renamed `omoni-logo.png` asset and renders with a softer opacity so the white mark no longer pulls too much attention away from the dashboard content.
+
 ## [2.13.0] - 2026-05-27
 
 ### Changed

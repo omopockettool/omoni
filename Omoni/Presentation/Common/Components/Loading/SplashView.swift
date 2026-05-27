@@ -36,7 +36,7 @@ struct SplashView: View {
 
             Text("ni")
                 .font(.system(size: 40, weight: .semibold, design: .rounded))
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(Color.omoniBrandRed)
         }
         .tracking(0.6)
     }

@@ -28,20 +28,28 @@ struct GroupSelectorChipView: View {
             HStack(spacing: 6) {
                 Image(systemName: "person.3.fill")
                     .font(.caption2)
+                    .foregroundStyle(Color.omoniInteractiveRed)
 
                 Text(currentGroup.name)  // ✅ Domain model: non-optional name
                     .font(.subheadline)
                     .fontWeight(.medium)
+                    .foregroundStyle(.primary)
                     .lineLimit(1)
 
                 Image(systemName: "chevron.down")
                     .font(.caption2)
+                    .foregroundStyle(.secondary)
             }
-            .foregroundColor(.white)
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(Color.accentColor)
-            .cornerRadius(16)
+            .background(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(Color(.secondarySystemBackground).opacity(0.9))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .stroke(Color(.systemGray4).opacity(0.5), lineWidth: 1)
+            )
         }
         .buttonStyle(.plain)
         .sheet(isPresented: $showingPicker) {

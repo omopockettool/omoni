@@ -130,7 +130,7 @@ struct CreateFirstUserView: View {
             
             Text("ni")
                 .font(.system(size: 34, weight: .semibold, design: .rounded))
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(Color.omoniBrandRed)
         }
         .tracking(0.6)
     }
@@ -170,7 +170,7 @@ struct CreateFirstUserView: View {
             } label: {
                 Image(systemName: acceptedLegal ? "checkmark.square.fill" : "square")
                     .font(.system(size: 22, weight: .semibold))
-                    .foregroundStyle(acceptedLegal ? Color.accentColor : Color.secondary)
+                    .foregroundStyle(acceptedLegal ? Color.omoniInteractiveRed : Color.secondary)
                     .frame(width: 34, height: 34)
                     .contentShape(Rectangle())
             }
@@ -179,7 +179,7 @@ struct CreateFirstUserView: View {
             Text(legalConsentMarkdown)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
-                .tint(Color.accentColor)
+                .tint(Color.omoniInteractiveRed)
                 .multilineTextAlignment(.leading)
                 .fixedSize(horizontal: false, vertical: true)
 
@@ -291,8 +291,8 @@ struct CreateFirstUserView: View {
                     if viewModel.isFormValid {
                         LinearGradient(
                             colors: [
-                                Color.accentColor,
-                                Color.accentColor.opacity(0.8)
+                                Color.omoniInteractiveRed,
+                                Color.omoniInteractiveRed.opacity(0.82)
                             ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
@@ -311,7 +311,7 @@ struct CreateFirstUserView: View {
             )
             .clipShape(RoundedRectangle(cornerRadius: 16))
             .shadow(
-                color: viewModel.isFormValid ? Color.accentColor.opacity(0.3) : .clear,
+                color: viewModel.isFormValid ? Color.omoniInteractiveRed.opacity(0.28) : .clear,
                 radius: 8,
                 y: 4
             )
