@@ -76,6 +76,9 @@ struct DashboardHeroSection: View {
     let todayTotal: String
     var overrideLabel: String? = nil
     var overrideTotal: String? = nil
+    var budgetLimitText: String? = nil
+    var budgetFillRatio: Double? = nil
+    var showsOverLimitBadge = false
     var overrideActionColor: Color? = nil
     let onAddExpense: () -> Void
 
@@ -96,8 +99,26 @@ struct DashboardHeroSection: View {
             totalAmount: displayTotal,
             onAddExpense: onAddExpense,
             actionColor: overrideActionColor ?? .accentColor,
+            budgetFillRatio: budgetFillRatio,
             isSuccess: heroIsSuccess
-        )
+        ) {
+            if let budgetLimitText, !heroIsSuccess {
+                HStack(spacing: 8) {
+                    Text(budgetLimitText)
+                        .font(.footnote.weight(.medium))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.85)
+
+                    if showsOverLimitBadge {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.orange)
+                    }
+                }
+                .padding(.top, 2)
+            }
+        }
         .padding(.horizontal, AppConstants.UserInterface.padding)
         .padding(.top, AppConstants.UserInterface.padding)
         .padding(.bottom, 4)

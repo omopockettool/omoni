@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.16.0] - 2026-05-27
+
+### Changed
+- **Category drill-in hero now visualizes budget usage directly inside the main card** (`DashboardView`, `DashboardViewModel`, `DashboardComponents`, `TotalSpentCardView`) — when entering a specific category, the dashboard hero now reuses the category color as a bottom-up fill tied to the effective budget limit, and shows a concise `Límite / Limit` reference instead of a heavier budget summary line.
+- **Over-limit state in the category hero is now signaled with a minimal warning icon** (`DashboardComponents`, `DashboardViewModel`, `String+Localization`, `Resources/en.lproj/Localizable.strings`, `Resources/es.lproj/Localizable.strings`) — categories that exceed their effective limit now show a subtle warning glyph next to the limit label without changing the full hero into an alert state.
+
+### Fixed
+- **Hero budget fill now animates smoothly when paid status toggles change category totals** (`TotalSpentCardView`) — switching entries between paid and unpaid no longer makes the budget fill jump abruptly; the fill ratio now transitions with its own spring animation just like the amount updates.
+
 ## [2.15.0] - 2026-05-27
 
 ### Changed

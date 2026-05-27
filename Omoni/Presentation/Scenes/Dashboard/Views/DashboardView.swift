@@ -536,6 +536,9 @@ struct DashboardView: View {
                             } ?? activeCategoryDayContext.map {
                                 viewModel.formattedTotal(forCategoryId: $0.categoryId, in: $0.range, day: $0.date)
                             } ?? activeCategoryBox.map { viewModel.formattedCurrency($0.paidAmount) },
+                            budgetLimitText: activeCategoryBox.flatMap { viewModel.formattedBudgetLimitText(for: $0) },
+                            budgetFillRatio: activeCategoryBox.flatMap { viewModel.budgetFillRatio(for: $0) },
+                            showsOverLimitBadge: activeCategoryBox.map { viewModel.isOverBudget(for: $0) } ?? false,
                             overrideActionColor: activeCategoryBox.flatMap { Color(hex: $0.categoryColorHex) },
                             onAddExpense: {
                                 addItemListTrigger = AddItemListTrigger(

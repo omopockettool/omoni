@@ -12,6 +12,7 @@ struct TotalSpentCardView<BottomContent: View>: View {
     let totalAmount: String
     let onAddExpense: () -> Void
     var actionColor: Color = .accentColor
+    var budgetFillRatio: Double? = nil
     var isSuccess: Bool = false
     @ViewBuilder let bottomContent: () -> BottomContent
 
@@ -20,12 +21,14 @@ struct TotalSpentCardView<BottomContent: View>: View {
     @State private var flashColor: Color = .clear
     @State private var cardScale: CGFloat = 1.0
     @State private var isAddPressed = false
+    @State private var displayedBudgetFillRatio: Double = 0
 
     init(
         label: String,
         totalAmount: String,
         onAddExpense: @escaping () -> Void,
         actionColor: Color = .accentColor,
+        budgetFillRatio: Double? = nil,
         isSuccess: Bool = false,
         @ViewBuilder bottomContent: @escaping () -> BottomContent
     ) {
@@ -33,6 +36,7 @@ struct TotalSpentCardView<BottomContent: View>: View {
         self.totalAmount = totalAmount
         self.onAddExpense = onAddExpense
         self.actionColor = actionColor
+        self.budgetFillRatio = budgetFillRatio
         self.isSuccess = isSuccess
         self.bottomContent = bottomContent
     }
@@ -104,7 +108,19 @@ struct TotalSpentCardView<BottomContent: View>: View {
             }
             .padding(.horizontal, AppConstants.UserInterface.padding)
             .padding(.vertical, 16)
-            .background(.regularMaterial)
+            .background {
+                ZStack(alignment: .bottom) {
+                    RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius, style: .continuous)
+                        .fill(.regularMaterial)
+
+                    if budgetFillRatio != nil, !isSuccess {
+                        Rectangle()
+                            .fill(actionColor.opacity(0.16))
+                            .scaleEffect(x: 1, y: displayedBudgetFillRatio, anchor: .bottom)
+                    }
+                }
+                .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius, style: .continuous))
+            }
             .overlay(
                 RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius)
                     .fill(flashColor)
@@ -121,6 +137,7 @@ struct TotalSpentCardView<BottomContent: View>: View {
         )
         .onAppear {
             displayedAmount = totalAmount
+            displayedBudgetFillRatio = budgetFillRatio ?? 0
         }
         .onChange(of: totalAmount) { oldValue, newValue in
             let oldDigits = extractDigits(from: oldValue)
@@ -135,6 +152,11 @@ struct TotalSpentCardView<BottomContent: View>: View {
             withAnimation(.easeOut(duration: 0.45).delay(0.15)) { flashColor = .clear }
             withAnimation(.spring(response: 0.25, dampingFraction: 0.45)) { cardScale = 1.025 }
             withAnimation(.spring(response: 0.35, dampingFraction: 0.6).delay(0.12)) { cardScale = 1.0 }
+        }
+        .onChange(of: budgetFillRatio) { _, newValue in
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.86)) {
+                displayedBudgetFillRatio = newValue ?? 0
+            }
         }
     }
 
@@ -159,6 +181,7 @@ extension TotalSpentCardView where BottomContent == EmptyView {
         totalAmount: String,
         onAddExpense: @escaping () -> Void,
         actionColor: Color = .accentColor,
+        budgetFillRatio: Double? = nil,
         isSuccess: Bool = false
     ) {
         self.init(
@@ -166,6 +189,7 @@ extension TotalSpentCardView where BottomContent == EmptyView {
             totalAmount: totalAmount,
             onAddExpense: onAddExpense,
             actionColor: actionColor,
+            budgetFillRatio: budgetFillRatio,
             isSuccess: isSuccess,
             bottomContent: { EmptyView() }
         )

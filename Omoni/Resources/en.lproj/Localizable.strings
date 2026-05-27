@@ -160,6 +160,7 @@
 "dashboard.markedAllPending" = "Everything marked as pending";
 "dashboard.changeUndone" = "Change undone";
 "dashboard.undo" = "Undo";
+"dashboard.limitShort" = "Limit";
 
 // MARK: - Entry (extended)
 "entry.newEntry" = "New Entry";

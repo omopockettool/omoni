@@ -238,6 +238,7 @@ enum LocalizationKey {
         static let markedAllPending = "dashboard.markedAllPending"
         static let changeUndone = "dashboard.changeUndone"
         static let undo = "dashboard.undo"
+        static let limitShort = "dashboard.limitShort"
     }
     
     // MARK: - Settings

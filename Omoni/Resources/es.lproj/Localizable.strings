@@ -56,7 +56,7 @@
 "category.title" = "Categorías";
 "category.name" = "Nombre de Categoría";
 "category.color" = "Color";
-"category.limit" = "Límite de Presupuesto";
+"category.limit" = "Límite";
 "category.noLimit" = "Sin límite";
 "category.create" = "Crear Categoría";
 "category.edit" = "Editar Categoría";
@@ -160,6 +160,7 @@
 "dashboard.markedAllPending" = "Todo marcado como pendiente";
 "dashboard.changeUndone" = "Cambio deshecho";
 "dashboard.undo" = "Deshacer";
+"dashboard.limitShort" = "Límite";
 
 // MARK: - Entry (extended)
 "entry.newEntry" = "Nuevo Registro";

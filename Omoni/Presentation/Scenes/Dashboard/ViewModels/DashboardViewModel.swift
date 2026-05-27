@@ -879,6 +879,22 @@ class DashboardViewModel {
         return formattedCurrency(box.unpaidAmount)
     }
 
+    func formattedBudgetLimitText(for box: DashboardCategoryBoxData) -> String? {
+        guard let limit = box.categoryEffectiveLimit, limit > 0.000_001 else { return nil }
+        let max = formattedCurrency(limit)
+        return "\(LocalizationKey.Dashboard.limitShort.localized): \(max)"
+    }
+
+    func budgetFillRatio(for box: DashboardCategoryBoxData) -> Double? {
+        guard let limit = box.categoryEffectiveLimit, limit > 0.000_001 else { return nil }
+        return min(max(box.categoryBudgetProgressAmount / limit, 0), 1)
+    }
+
+    func isOverBudget(for box: DashboardCategoryBoxData) -> Bool {
+        guard let limit = box.categoryEffectiveLimit, limit > 0.000_001 else { return false }
+        return box.categoryBudgetProgressAmount > limit
+    }
+
     var formattedTodayTotal: String {
         currencyFormatter.string(from: NSNumber(value: todayTotal)) ?? "€0.00"
     }
