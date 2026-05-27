@@ -273,6 +273,7 @@ struct DashboardView: View {
             showsDateRows: showsDateRows,
             dateRows: activeDateRows,
             getDateRowAmount: { viewModel.formattedCurrency($0.paidAmount) },
+            getDateRowUnpaidAmount: { $0.unpaidAmount > 0.000_001 ? viewModel.formattedCurrency($0.unpaidAmount) : nil },
             onDateRowTap: { box in
                 switch resolvedActiveFilter {
                 case .all(let range):

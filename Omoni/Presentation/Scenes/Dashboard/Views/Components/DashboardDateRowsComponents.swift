@@ -5,6 +5,7 @@ import SwiftUI
 struct DashboardDateRowsView: View {
     let rows: [DashboardDayBoxData]
     let getFormattedAmount: (DashboardDayBoxData) -> String
+    let getFormattedUnpaidAmount: (DashboardDayBoxData) -> String?
     let onSelect: (DashboardDayBoxData) -> Void
     let onRefresh: () async -> Void
 
@@ -14,6 +15,7 @@ struct DashboardDateRowsView: View {
                 DashboardDateRowView(
                     data: row,
                     formattedAmount: getFormattedAmount(row),
+                    formattedUnpaidAmount: getFormattedUnpaidAmount(row),
                     onTap: { onSelect(row) }
                 )
                 .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
@@ -38,6 +40,7 @@ struct DashboardDateRowsView: View {
 struct DashboardDateRowView: View {
     let data: DashboardDayBoxData
     let formattedAmount: String
+    let formattedUnpaidAmount: String?
     let onTap: () -> Void
 
     private var isToday: Bool { data.isToday }
@@ -70,12 +73,22 @@ struct DashboardDateRowView: View {
 
                 Spacer()
 
-                // Right: amount + nav chevron
+                // Right: amounts + nav chevron
                 HStack(alignment: .center, spacing: 10) {
-                    Text(formattedAmount)
-                        .font(.system(size: 16, weight: isToday ? .medium : .light, design: .default))
-                        .foregroundStyle(isToday ? Color.accentColor : Color.primary.opacity(0.75))
-                        .monospacedDigit()
+                    VStack(alignment: .trailing, spacing: 2) {
+                        Text(formattedAmount)
+                            .font(.system(size: 16, weight: isToday ? .medium : .light))
+                            .foregroundStyle(isToday ? Color.accentColor : Color.primary.opacity(0.75))
+                            .monospacedDigit()
+
+                        if let unpaid = formattedUnpaidAmount {
+                            Text("\(unpaid) \(LocalizationKey.Item.unpaid.localized)")
+                                .font(.system(size: 11, weight: .regular))
+                                .foregroundStyle(.orange.opacity(0.85))
+                                .transition(.opacity.combined(with: .move(edge: .top)))
+                        }
+                    }
+                    .animation(AnimationHelper.quickEase, value: formattedUnpaidAmount)
 
                     Image(systemName: "chevron.right")
                         .font(.system(size: 10, weight: .medium))

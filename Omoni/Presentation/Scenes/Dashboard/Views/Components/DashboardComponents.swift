@@ -175,6 +175,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
     let showsDateRows: Bool
     let dateRows: [DashboardDayBoxData]
     let getDateRowAmount: (DashboardDayBoxData) -> String
+    let getDateRowUnpaidAmount: (DashboardDayBoxData) -> String?
     let onDateRowTap: (DashboardDayBoxData) -> Void
     // Expense list (deepest level: day → expense rows)
     let filteredItemLists: [SDItemList]
@@ -223,6 +224,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
         showsDateRows: Bool,
         dateRows: [DashboardDayBoxData],
         getDateRowAmount: @escaping (DashboardDayBoxData) -> String,
+        getDateRowUnpaidAmount: @escaping (DashboardDayBoxData) -> String?,
         onDateRowTap: @escaping (DashboardDayBoxData) -> Void,
         filteredItemLists: [SDItemList],
         getItemListAmount: @escaping (SDItemList) -> String,
@@ -257,6 +259,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
         self.showsDateRows = showsDateRows
         self.dateRows = dateRows
         self.getDateRowAmount = getDateRowAmount
+        self.getDateRowUnpaidAmount = getDateRowUnpaidAmount
         self.onDateRowTap = onDateRowTap
         self.filteredItemLists = filteredItemLists
         self.getItemListAmount = getItemListAmount
@@ -299,6 +302,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
                     DashboardDateRowsView(
                         rows: dateRows,
                         getFormattedAmount: getDateRowAmount,
+                        getFormattedUnpaidAmount: getDateRowUnpaidAmount,
                         onSelect: onDateRowTap,
                         onRefresh: onRefresh
                     )
