@@ -2,6 +2,7 @@ import SwiftUI
 
 struct AddItemListView: View {
     let group: SDGroup
+    var onRequestExpandSheet: (() -> Void)? = nil
     let onItemListCreated: (SDItemList) -> Void
     let onItemListUpdated: ((SDItemList) -> Void)?
     let onCancel: () -> Void
@@ -15,6 +16,7 @@ struct AddItemListView: View {
     @State private var showCategoryOverflow = false
     @State private var showPaymentMethodOverflow = false
     @State private var scrollToPaymentMethods = false
+    @State private var scrollToHero = false
 
     init(
         group: SDGroup,
@@ -22,10 +24,12 @@ struct AddItemListView: View {
         itemListToEdit: SDItemList? = nil,
         initialDate: Date? = nil,
         preferredCategoryId: UUID? = nil,
+        onRequestExpandSheet: (() -> Void)? = nil,
         onItemListCreated: @escaping (SDItemList) -> Void,
         onItemListUpdated: ((SDItemList) -> Void)? = nil,
         onCancel: @escaping () -> Void
     ) {
+        self.onRequestExpandSheet = onRequestExpandSheet
         self.group = group
         self.onItemListCreated = onItemListCreated
         self.onItemListUpdated = onItemListUpdated
@@ -110,6 +114,7 @@ struct AddItemListView: View {
         ScrollView {
             VStack(spacing: 20) {
                 topCard
+                    .id("heroAnchor")
                 if !viewModel.categories.isEmpty {
                     categoryGridSection
                 }
@@ -127,6 +132,13 @@ struct AddItemListView: View {
                 withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) {
                     proxy.scrollTo("paymentMethodAnchor", anchor: .top)
                 }
+            }
+        }
+        .onChange(of: scrollToHero) { _, fire in
+            guard fire else { return }
+            scrollToHero = false
+            withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) {
+                proxy.scrollTo("heroAnchor", anchor: .top)
             }
         }
 
@@ -153,11 +165,27 @@ struct AddItemListView: View {
         }
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
-                Spacer()
-                if focusedField == .price {
-                    Button(LocalizationKey.General.done.localized) { focusedField = nil }
+                Button(action: moveFocusBackward) {
+                    Image(systemName: "chevron.up")
                 }
+                .disabled(!canMoveFocusBackward)
+
+                Button(action: moveFocusForward) {
+                    Image(systemName: "chevron.down")
+                }
+                .disabled(!canMoveFocusForward)
+
+                Spacer()
+
+                Button(LocalizationKey.General.done.localized) { focusedField = nil }
             }
+        }
+        .onChange(of: focusedField) { _, newField in
+            if newField != nil { onRequestExpandSheet?() }
+            if newField == .price { scrollToHero = true }
+        }
+        .onChange(of: showDetails) { _, isShowing in
+            if isShowing { onRequestExpandSheet?() }
         }
         .errorAlert(
             isPresented: $viewModel.showError,

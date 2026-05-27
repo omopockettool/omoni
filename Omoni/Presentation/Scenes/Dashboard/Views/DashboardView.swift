@@ -61,6 +61,7 @@ struct DashboardView: View {
     @State private var hasLoadedInitialData = false
     @State private var selectedCalendarDay: Date? = nil
     @State private var addItemListTrigger: AddItemListTrigger? = nil
+    @State private var addItemListDetent: PresentationDetent = .fraction(0.75)
 
     private struct AddItemListTrigger: Identifiable {
         let id = UUID()
@@ -181,6 +182,7 @@ struct DashboardView: View {
                             availableGroups: viewModel.availableGroups,
                             initialDate: trigger.initialDate,
                             preferredCategoryId: trigger.preferredCategoryId,
+                            onRequestExpandSheet: { addItemListDetent = .large },
                             onItemListCreated: { createdItemList in
                                 guard !heroIsSuccess else {
                                     addItemListTrigger = nil
@@ -205,6 +207,9 @@ struct DashboardView: View {
                             }
                         )
                     }
+                    .presentationDetents([.fraction(0.75), .large], selection: $addItemListDetent)
+                    .presentationDragIndicator(.visible)
+                    .onDisappear { addItemListDetent = .fraction(0.75) }
                 }
             }
             .sheet(isPresented: $showingFiltersSheet) {

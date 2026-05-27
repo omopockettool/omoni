@@ -5,6 +5,8 @@ enum AddItemListField {
     case price
 }
 
+// MARK: - Top Card (Amount + Description)
+
 struct AddItemListTopCard: View {
     let isEditMode: Bool
     @Binding var price: String
@@ -44,9 +46,7 @@ struct AddItemListTopCard: View {
             )
 
             if focusedField.wrappedValue == .description && !suggestions.isEmpty {
-                ConceptSuggestionChipsView(
-                    suggestions: suggestions
-                ) { selected in
+                ConceptSuggestionChipsView(suggestions: suggestions) { selected in
                     onSuggestionSelected(selected)
                 }
                 .padding(.bottom, 8)
@@ -81,6 +81,8 @@ struct AddItemListDescriptionField: View {
     }
 }
 
+// MARK: - Category Grid (no section label)
+
 struct AddItemListCategorySection: View {
     let displayedCategories: [SDCategory]
     let overflowCategories: [SDCategory]
@@ -93,12 +95,6 @@ struct AddItemListCategorySection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(LocalizationKey.Entry.category.localized)
-                .font(.subheadline)
-                .fontWeight(.semibold)
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, 4)
-
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
                 ForEach(displayedCategories) { category in
                     AddItemListCategoryChip(
@@ -233,9 +229,7 @@ private struct AddItemListCategoryOverflowChip: View {
         overflowSelected?.name ?? LocalizationKey.Entry.more.localized
     }
 
-    private var isActive: Bool {
-        overflowSelected != nil
-    }
+    private var isActive: Bool { overflowSelected != nil }
 
     var body: some View {
         Button(action: onTap) {
@@ -295,6 +289,8 @@ private struct AddItemListCategoryOverflowChip: View {
     }
 }
 
+// MARK: - More Details Section (lighter trigger)
+
 struct AddItemListMoreDetailsSection<Content: View>: View {
     let isEditMode: Bool
     @Binding var showDetails: Bool
@@ -308,24 +304,23 @@ struct AddItemListMoreDetailsSection<Content: View>: View {
                     withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) {
                         showDetails.toggle()
                     }
-                    if !showDetails {
-                        onCollapse()
-                    }
+                    if !showDetails { onCollapse() }
                 } label: {
-                    HStack {
+                    HStack(spacing: 6) {
+                        Image(systemName: showDetails ? "chevron.up" : "chevron.down")
+                            .font(.system(size: 11, weight: .semibold))
                         Text(LocalizationKey.Entry.moreDetails.localized)
                             .font(.subheadline)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Image(systemName: showDetails ? "chevron.up" : "chevron.down")
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(.secondary)
+                            .fontWeight(.medium)
                     }
-                    .padding(.horizontal, 4)
+                    .foregroundStyle(Color.secondary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 13)
+                    .background(Color(.secondarySystemGroupedBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                     .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(PressHapticButtonStyle())
             }
 
             if isEditMode || showDetails {
@@ -338,6 +333,8 @@ struct AddItemListMoreDetailsSection<Content: View>: View {
         }
     }
 }
+
+// MARK: - Payment Method Grid (no section label)
 
 struct AddItemListPaymentMethodSection: View {
     let displayedPaymentMethods: [SDPaymentMethod]
@@ -352,13 +349,6 @@ struct AddItemListPaymentMethodSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(LocalizationKey.Entry.paymentMethod.localized)
-                .font(.subheadline)
-                .fontWeight(.semibold)
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, 4)
-                .id("paymentMethodAnchor")
-
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
                 ForEach(displayedPaymentMethods) { method in
                     AddItemListPaymentMethodChip(
@@ -390,6 +380,7 @@ struct AddItemListPaymentMethodSection: View {
                 }
             }
             .animation(.spring(response: 0.45, dampingFraction: 0.82), value: showOverflow)
+            .id("paymentMethodAnchor")
 
             if showOverflow {
                 Button {
@@ -470,9 +461,7 @@ private struct AddItemListPaymentMethodOverflowChip: View {
         overflowSelected?.name ?? LocalizationKey.Entry.more.localized
     }
 
-    private var isActive: Bool {
-        overflowSelected != nil
-    }
+    private var isActive: Bool { overflowSelected != nil }
 
     var body: some View {
         Button(action: onTap) {
@@ -506,6 +495,8 @@ private struct AddItemListPaymentMethodOverflowChip: View {
     }
 }
 
+// MARK: - Date Card (chip-style, no Toggle)
+
 struct AddItemListDateCard: View {
     @Binding var showDatePicker: Bool
     @Binding var calendarExpanded: Bool
@@ -514,47 +505,74 @@ struct AddItemListDateCard: View {
     let focusedField: FocusState<AddItemListField?>.Binding
     let onToggleChanged: (Bool) -> Void
 
+    private var dateLabel: String {
+        showDatePicker
+            ? formattedDate
+            : LocalizationKey.Dashboard.today.localized.capitalized
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 12) {
+                // Tappable date area — full width minus reset button
                 Button {
-                    guard showDatePicker else { return }
-                    withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
-                        calendarExpanded.toggle()
+                    focusedField.wrappedValue = nil
+                    if !showDatePicker {
+                        showDatePicker = true
+                        onToggleChanged(true)
+                    } else {
+                        withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
+                            calendarExpanded.toggle()
+                        }
                     }
                 } label: {
-                    HStack(spacing: 12) {
+                    HStack(spacing: 8) {
                         Image(systemName: "calendar")
-                            .foregroundStyle(Color.accentColor)
-                            .frame(width: 20)
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(LocalizationKey.Entry.date.localized)
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
-                            Text(Calendar.current.isDateInToday(date) ? LocalizationKey.Dashboard.today.localized : formattedDate)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                        Spacer()
+                            .font(.system(size: 14))
+                            .foregroundStyle(showDatePicker ? Color.accentColor : Color.secondary)
+
+                        Text(dateLabel)
+                            .font(.subheadline)
+                            .foregroundStyle(showDatePicker ? Color.primary : Color.secondary)
+                            .contentTransition(.interpolate)
+
                         if showDatePicker {
                             Image(systemName: calendarExpanded ? "chevron.up" : "chevron.down")
                                 .font(.caption.weight(.semibold))
-                                .foregroundStyle(.tertiary)
+                                .foregroundStyle(Color(.tertiaryLabel))
+                                .transition(.opacity)
                         }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
 
-                Toggle("", isOn: $showDatePicker)
-                    .labelsHidden()
-                    .onChange(of: showDatePicker) { _, on in
+                // Reset to today
+                if showDatePicker {
+                    Button {
                         focusedField.wrappedValue = nil
-                        onToggleChanged(on)
+                        withAnimation(.spring(response: 0.45, dampingFraction: 0.88)) {
+                            calendarExpanded = false
+                        }
+                        Task {
+                            try? await Task.sleep(for: .milliseconds(320))
+                            showDatePicker = false
+                            onToggleChanged(false)
+                        }
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 18))
+                            .foregroundStyle(Color(.tertiaryLabel))
                     }
+                    .buttonStyle(.plain)
+                    .transition(.opacity.combined(with: .scale(scale: 0.75)))
+                }
             }
             .padding(AppConstants.UserInterface.padding)
+            .animation(.spring(response: 0.35, dampingFraction: 0.82), value: showDatePicker)
 
+            // Collapsible calendar
             VStack(spacing: 0) {
                 Divider()
                     .padding(.horizontal, AppConstants.UserInterface.padding)
@@ -575,25 +593,27 @@ struct AddItemListDateCard: View {
     }
 }
 
+// MARK: - Group Card (hidden when single group)
+
 struct AddItemListGroupCard: View {
     let activeGroup: SDGroup
     let availableGroups: [SDGroup]
     let onSelect: (SDGroup) -> Void
 
     var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: "person.2.fill")
-                .foregroundStyle(Color.accentColor)
-                .frame(width: 20)
+        if availableGroups.count > 1 {
+            HStack(spacing: 12) {
+                Image(systemName: "person.2.fill")
+                    .foregroundStyle(Color.accentColor)
+                    .frame(width: 20)
 
-            Text(LocalizationKey.Group.singularTitle.localized)
-                .foregroundStyle(.secondary)
-                .font(.subheadline)
-                .fontWeight(.semibold)
+                Text(LocalizationKey.Group.singularTitle.localized)
+                    .foregroundStyle(.secondary)
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
 
-            Spacer()
+                Spacer()
 
-            if availableGroups.count > 1 {
                 Menu {
                     ForEach(availableGroups, id: \.id) { group in
                         Button {
@@ -617,15 +637,11 @@ struct AddItemListGroupCard: View {
                     }
                     .contentShape(Rectangle())
                 }
-            } else {
-                Text(activeGroup.name)
-                    .font(.subheadline)
-                    .foregroundStyle(.primary)
             }
+            .padding(AppConstants.UserInterface.padding)
+            .background(Color(.secondarySystemGroupedBackground))
+            .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
+            .buttonStyle(.plain)
         }
-        .padding(AppConstants.UserInterface.padding)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
-        .buttonStyle(.plain)
     }
 }

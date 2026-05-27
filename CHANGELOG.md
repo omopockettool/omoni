@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.19.0] - 2026-05-27
+
+### Changed
+- **New Entry sheet now opens at ¾ height and auto-expands to full when interacting** (`DashboardView`, `AddItemListView`) — the sheet starts at `.fraction(0.75)` so the "More details" button is visible on open; tapping any input field or "More details" programmatically expands the sheet to full height.
+- **"More details" trigger redesigned as a visible full-width chip** (`AddItemListComponents`) — replaced the near-invisible tertiary-label footnote text with a `secondarySystemGroupedBackground` rounded button using secondary color and a chevron, making it a clear and tappable action.
+- **Date row in New Entry redesigned from Settings-style toggle to a tappable chip** (`AddItemListComponents`) — the `Toggle` and form labels were removed; the date chip now shows "Today" or the selected date and taps to open the calendar. A dismiss button collapses the calendar first, then resets to today with a sequenced animation.
+- **Date chip tap area is now full-width** (`AddItemListComponents`) — the button label fills all available horizontal space so the entire row (not just the label text) registers taps.
+- **Section labels removed from category and payment method grids** (`AddItemListComponents`) — "Category" and "Payment method" headings were form-style noise; the chips communicate their purpose through icons and names.
+- **Group card is now hidden when there is only one group** (`AddItemListComponents`) — the card added no interactive value in single-group setups and was removed to reduce visual clutter.
+- **Keyboard toolbar now includes field navigation arrows** (`AddItemListView`) — `‹` and `›` buttons let the user move between the amount and description fields without dismissing the keyboard; arrows disable automatically when there is no adjacent field. "Done" remains on the right.
+- **Tapping the hero amount field scrolls it into view** (`AddItemListView`) — if the user has scrolled down, focusing the price input now animates the scroll back to the top so the field is always visible above the keyboard.
+
 ## [2.18.0] - 2026-05-27
 
 ### Changed
