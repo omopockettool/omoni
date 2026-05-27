@@ -6,7 +6,7 @@
 
 **New Directory Structure:**
 ```
-OMOMoney/Resources/
+Omoni/Resources/
 ├── en.lproj/
 │   └── Localizable.strings (English - 100+ keys)
 ├── es.lproj/
@@ -50,13 +50,13 @@ Text(LocalizationKey.User.title.localized)
 ### 3. Directory Cleanup
 
 **Removed Empty Directories:**
-- ❌ `OMOMoney/Models/CoreData` (empty)
-- ❌ `OMOMoney/Models/Domain` (empty)
-- ❌ `OMOMoney/Models` (removed after subdirectories deleted)
+- ❌ `Omoni/Models/CoreData` (empty)
+- ❌ `Omoni/Models/Domain` (empty)
+- ❌ `Omoni/Models` (removed after subdirectories deleted)
 
 **Reason:** These were superseded by the new Clean Architecture structure:
-- Domain entities now in: `OMOMoney/Domain/Entities/`
-- Core Data mapping in: `OMOMoney/Data/PersistentStorages/DTOMapping/`
+- Domain entities now in: `Omoni/Domain/Entities/`
+- Core Data mapping in: `Omoni/Data/PersistentStorages/DTOMapping/`
 
 ### 4. Documentation Created
 
@@ -121,7 +121,7 @@ errorMessage = LocalizationKey.ValidationError.emptyName.localized
 3. **In Error Messages:**
 ```swift
 throw NSError(
-    domain: "OMOMoney",
+    domain: "Omoni",
     code: 404,
     userInfo: [NSLocalizedDescriptionKey: LocalizationKey.RepositoryError.notFound.localized]
 )
@@ -137,7 +137,7 @@ throw NSError(
 ## 📁 Final Project Structure
 
 ```
-OMOMoney/
+Omoni/
 ├── Application/          ✅ DI Containers
 ├── Domain/              ✅ Entities, Use Cases, Repository Interfaces
 ├── Data/                ✅ Repository Implementations, DTO Mappings

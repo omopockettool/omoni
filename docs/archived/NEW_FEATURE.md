@@ -113,7 +113,7 @@ If user types:
 
 ## 🗃️ Data Model
 
-Each entry list in OMOMoney/Data/SwiftData/SDItemList.swift
+Each entry list in Omoni/Data/SwiftData/SDItemList.swift
 Maintain a lightweight concept store:
 
 ConceptStats:

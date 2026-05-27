@@ -5,6 +5,310 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.21.0] - 2026-05-27
+
+### Changed
+- **Dashboard content is now clipped by the main rounded container instead of a dark fade mask** (`DashboardComponents`) — the category/month board and drill-down content now share the same real rounded card boundary, removing the heavy dark edge treatment at the top and bottom and making the visual limit belong to the container itself.
+- **Dashboard horizontal spacing was rebalanced after the container refactor** (`DashboardComponents`) — removed the extra intermediate horizontal padding layer that was making category boxes and drill-down content feel too inset from the card edges.
+
+## [2.20.1] - 2026-05-27
+
+### Fixed
+- **Brand icon in About OMO was too small** (`AboutOMOView`) — increased from 68 pt with 0.66 scale to 100 pt full size so the app icon displays at a proper prominent size in the about screen.
+
+## [2.20.0] - 2026-05-27
+
+### Changed
+- **Day rows in the category drill-in now show paid amount and pending amount separately** (`DashboardDateRowsComponents`, `DashboardComponents`, `DashboardView`) — the main amount displays only what has been paid; when a day has unpaid entries, a secondary orange line reading `22,00 € por pagar` appears below, consistent with the pattern used in expense and item rows throughout the app.
+
+## [2.19.0] - 2026-05-27
+
+### Changed
+- **New Entry sheet now opens at ¾ height and auto-expands to full when interacting** (`DashboardView`, `AddItemListView`) — the sheet starts at `.fraction(0.75)` so the "More details" button is visible on open; tapping any input field or "More details" programmatically expands the sheet to full height.
+- **"More details" trigger redesigned as a visible full-width chip** (`AddItemListComponents`) — replaced the near-invisible tertiary-label footnote text with a `secondarySystemGroupedBackground` rounded button using secondary color and a chevron, making it a clear and tappable action.
+- **Date row in New Entry redesigned from Settings-style toggle to a tappable chip** (`AddItemListComponents`) — the `Toggle` and form labels were removed; the date chip now shows "Today" or the selected date and taps to open the calendar. A dismiss button collapses the calendar first, then resets to today with a sequenced animation.
+- **Date chip tap area is now full-width** (`AddItemListComponents`) — the button label fills all available horizontal space so the entire row (not just the label text) registers taps.
+- **Section labels removed from category and payment method grids** (`AddItemListComponents`) — "Category" and "Payment method" headings were form-style noise; the chips communicate their purpose through icons and names.
+- **Group card is now hidden when there is only one group** (`AddItemListComponents`) — the card added no interactive value in single-group setups and was removed to reduce visual clutter.
+- **Keyboard toolbar now includes field navigation arrows** (`AddItemListView`) — `‹` and `›` buttons let the user move between the amount and description fields without dismissing the keyboard; arrows disable automatically when there is no adjacent field. "Done" remains on the right.
+- **Tapping the hero amount field scrolls it into view** (`AddItemListView`) — if the user has scrolled down, focusing the price input now animates the scroll back to the top so the field is always visible above the keyboard.
+
+## [2.18.0] - 2026-05-27
+
+### Changed
+- **Category boxes now signal over-budget state with a direct warning icon instead of an internal dashed limit marker** (`DashboardCategoryBoardComponents`) — when a category exceeds its effective limit, the dashboard now shows a small warning glyph beside the category name, which is easier to understand at a glance than the previous dashed line treatment inside the filled box.
+- **Shared text fields now reserve more space for the leading symbol icon** (`LimitedTextField`) — the `Aa` / `textformat` icon used in entry editing no longer appears clipped because the reusable field now gives the symbol a more stable font size and width.
+
+## [2.17.0] - 2026-05-27
+
+### Changed
+- **Day list rows (category drill-in) were redesigned with a flat, typographic aesthetic** (`DashboardDateRowsComponents`) — each row now shows a large light-weight day number, abbreviated weekday in uppercase tracking, and right-aligned monospaced amount with a hairline separator; today is highlighted in accent color. Cards, icons, item-count labels, and chevron badges were removed entirely.
+- **Expense rows in the dashboard list were simplified to match the flat design language** (`ExpenseRowView`, `ExpenseListComponents`) — the lego-style colored side tab, card border, and rounded card background were replaced with a minimal toggle icon (circle / checkmark) on the left, a regular-weight description, and a light monospaced amount whose color signals paid state (green / orange / gray). A hairline separator replaces card chrome.
+- **Item rows inside an ItemList detail adopt the same flat row style** (`ItemListDetailView`, `ItemListDetailComponents`) — `ItemRowSideTab` and `ItemRowCardBorder` were removed; items now use the same toggle icon, flat separator, and monospaced amount pattern as the rest of the drill-in stack.
+
+## [2.16.0] - 2026-05-27
+
+### Changed
+- **Category drill-in hero now visualizes budget usage directly inside the main card** (`DashboardView`, `DashboardViewModel`, `DashboardComponents`, `TotalSpentCardView`) — when entering a specific category, the dashboard hero now reuses the category color as a bottom-up fill tied to the effective budget limit, and shows a concise `Límite / Limit` reference instead of a heavier budget summary line.
+- **Over-limit state in the category hero is now signaled with a minimal warning icon** (`DashboardComponents`, `DashboardViewModel`, `String+Localization`, `Resources/en.lproj/Localizable.strings`, `Resources/es.lproj/Localizable.strings`) — categories that exceed their effective limit now show a subtle warning glyph next to the limit label without changing the full hero into an alert state.
+
+### Fixed
+- **Hero budget fill now animates smoothly when paid status toggles change category totals** (`TotalSpentCardView`) — switching entries between paid and unpaid no longer makes the budget fill jump abruptly; the fill ratio now transitions with its own spring animation just like the amount updates.
+
+## [2.15.0] - 2026-05-27
+
+### Changed
+- **What's New / Novedades release notes are now fully localized instead of static** (`AboutOMOView`, `String+Localization`, `Resources/en.lproj/Localizable.strings`, `Resources/es.lproj/Localizable.strings`) — the in-app release notes catalog now reads localized title and highlight keys for each version entry, so users see the full changelog content in their active app language rather than a single hardcoded text block.
+
+## [2.14.0] - 2026-05-27
+
+### Changed
+- **Interactive accent styling was softened across the app while preserving strong brand red for explicit identity moments** (`Assets.xcassets/AccentColor.colorset`, `Color+Hex`, `SplashView`, `CreateFirstUserView`) — OMONI now separates visual roles between the stronger logo/wordmark red and a more pastel interactive red used for controls, links, and primary actions, so the interface feels warmer and less aggressive without losing brand coherence.
+- **First-user onboarding now uses the refined interactive red consistently** (`CreateFirstUserView`) — the legal acceptance checkbox, privacy/terms links, and create-user CTA now share the softer action color, while the `omoni` wordmark keeps the stronger brand emphasis on `ni`.
+- **Dashboard top bar hierarchy was rebalanced for a calmer, more premium feel** (`DashboardTopBarView`, `GroupSelectorChipView`, `Assets.xcassets/settings-icon.imageset`) — the settings logo now uses the renamed `omoni-logo.png` asset with reduced opacity, and the group selector chip now uses a quieter translucent treatment with a neutral border so it no longer competes with the add action and settings entry point.
+
+### Fixed
+- **Toolbar confirmation buttons now keep a clear white checkmark in sheets** (`PrimaryToolbarCheckButton`) — save/confirm actions like New Entry and New Item no longer risk rendering the check icon too dark or visually lost against the button tint.
+
+## [2.13.1] - 2026-05-27
+
+### Fixed
+- **Dashboard settings logo now feels less visually distracting** (`DashboardTopBarView`, `Assets.xcassets/settings-icon.imageset`) — the top-right brand button now uses the renamed `omoni-logo.png` asset and renders with a softer opacity so the white mark no longer pulls too much attention away from the dashboard content.
+
+## [2.13.0] - 2026-05-27
+
+### Changed
+- **New app icon imported through Xcode's modern single-image asset flow** (`Assets.xcassets/AppIcon.appiconset`) — OMONI now uses the refreshed brand icon generated from the new source artwork, replacing the older multi-file app icon set with a cleaner asset-catalog configuration based on one high-resolution master image.
+- **Global accent color updated to the new OMONI brand red** (`Assets.xcassets/AccentColor.colorset`) — the system-wide `accentColor` now uses `#FF3D4B`, so onboarding, dashboard controls, highlights, and shared components all reflect the updated visual identity consistently.
+
+## [2.12.1] - 2026-05-27
+
+### Fixed
+- **Dark mode now applies correctly from the very first onboarding screen on app launch** (`MainView`, `AppContentView`) — the forced dark appearance was moved to the root flow container so splash, first-user setup, and dashboard all open with the same intended OMONI visual identity, even when the simulator or device is set to light mode.
+
+## [2.12.0] - 2026-05-27
+
+### Changed
+- **New OMONI logo asset set applied across key brand surfaces** (`Assets.xcassets`, `OMOBrandIconView`, `SplashView`, `DashboardTopBarView`, `CreateFirstUserView`) — the app now uses the new logo variants and dimensions in the shared asset catalog, with the refreshed mark shown consistently in the splash screen, the dashboard settings entry point, and first-user onboarding.
+- **Brand icon presentation refined to feel more native to iOS** (`OMOBrandIconView`, `SplashView`, `DashboardTopBarView`, `CreateFirstUserView`) — the shared logo container now fills its frame cleanly, uses a more app-icon-like rounded shape, scales up more confidently in key UI moments, and the first-user screen is vertically rebalanced so the onboarding composition feels more centered and intentional.
+
+## [2.11.2] - 2026-05-25
+
+### Fixed
+- **Calendar collapse in New Entry form now animates smoothly** — toggling the date off folds the calendar closed before the content below moves up, matching iOS Reminders behavior. The date label resets to Today only after the animation settles.
+- **Dark mode forced globally** — OMONI always renders in iOS dark mode as an intentional brand decision (owl identity, no light-mode reflections, like Spotify).
+
+## [2.11.1] - 2026-05-25
+
+### Fixed
+- **Updated splash tagline** to "tu vida. a tu manera." / "your life. your way." — more aligned with OMO's philosophy.
+- **Rewritten What's New section** with user-facing language describing what OMONI actually does, removing the unpublished 1.0 entry that never reached users.
+- **MARKETING_VERSION** updated to match current version so About screen shows the correct installed version.
+
+## [2.11.0] - 2026-05-25
+
+### Changed
+- **First-user onboarding was simplified to ask only for the user's name plus legal acceptance** (`CreateFirstUserView`, `CreateFirstUserViewModel`, `CreateUserUseCase`, `SDUser`) — the unused email capture was removed from the initial setup flow so onboarding now matches OMONI's local-first, low-friction philosophy. User validation now allows an empty stored email, while keeping the field available internally for future optional account or sync flows.
+- **Splash and onboarding now share one consistent OMO/OMONI brand presentation** (`SplashView`, `CreateFirstUserView`) — both screens now use the same owl mark, the same `omo` + `ni` wordmark construction, and the same rounded typographic language so the transition from splash into setup feels intentional and coherent.
+
+### Fixed
+- **Brand icon now remains visible in both light and dark appearance modes** (`OMOBrandIconView`, `SplashView`, `CreateFirstUserView`, `AboutOMOView`, `DashboardTopBarView`) — the white owl asset no longer disappears on light backgrounds because it now renders inside a shared dark circular mark used across the main brand surfaces.
+- **Initial onboarding screen now fades in smoothly instead of appearing abruptly after the splash** (`MainView`) — the transition between startup states now uses a calm opacity change that better matches the product tone.
+
+## [2.10.1] - 2026-05-25
+
+### Fixed
+- **Localized all remaining hardcoded strings** — splash tagline, keyboard Done button, placeholder "e.g." abbreviation, unknown error fallback, and Copy accessibility label now use localization keys with proper English and Spanish translations.
+
+## [2.10.0] - 2026-05-25
+
+### Changed
+- **Replaced neon green with a classic emerald green on paid status indicators** (`PressHapticButtonStyle`, `ItemListDetailView`, `ExpenseRowView`, `ItemListDetailComponents`) — the paid state across item rows, expense rows, and the hero check icon now uses a muted, less saturated green (`Color.paidGreen`) defined once as a shared Color extension.
+
+## [2.9.0] - 2026-05-25
+
+### Added
+- **Keyboard Done button on numeric fields in New Entry and New Item forms** (`AddItemListView`, `AddItemView`) — decimal and number pad keyboards now show a Done button in the keyboard toolbar to dismiss the keyboard. The button only appears on fields that lack a native dismiss key (amount and quantity); the description field, which already has its own submit action, is unaffected.
+- **Haptic feedback restored on paid status toggle** (`ItemRowSideTab`, `LegoSideTab`) — tapping the paid status tab in both the item list detail view and the dashboard expense rows now fires a medium impact haptic when the state changes. Extracted into a shared `toggleHaptic(trigger:)` View extension for reuse across future toggle interactions.
+
+## [2.8.0] - 2026-05-25
+
+### Added
+- **New entry form now auto-selects the last used category and payment method** (`AddItemListViewModel`) — when opening a new registro the form pre-selects the most recently used category for the active group. The payment method is then resolved by looking at the last entry in that specific category; if no category history exists, it falls back to the most recent global payment method; if no history at all, both fields are left empty. Changing the category updates the payment method suggestion automatically, unless the user has already made a manual choice.
+
+## [2.7.0] - 2026-05-25
+
+### Changed
+- **Today mode now navigates directly to the expense list when tapping a category or All, skipping the intermediate date layer** (`DashboardView`) — in Today mode there is only one possible date, so the date rows step was redundant. Tapping a category or All now lands directly on the filtered item list. Back navigation and empty-state fallbacks have been updated to match the simplified two-level flow.
+- **Bottom bar chip in Today mode now shows the category name, icon, and color instead of "Today"** (`DashboardView`) — when a category is active in Today mode the chip reflects the category identity, which is more informative since the Today context is already communicated by the top tab. The date label and calendar icon are preserved for month-mode day drill-downs where the date context is meaningful.
+
+## [2.6.2] - 2026-05-25
+
+### Fixed
+- **Tapping the already-selected group in the picker now closes the sheet** (`GroupPickerSheetViewModel`, `GroupSelectorChipView`) — `selectGroup` now detects when the chosen group is already active and sets `shouldDismiss`, which the sheet observes to dismiss itself. The decision stays in the ViewModel; the View only reacts.
+
+## [2.6.1] - 2026-05-25
+
+### Fixed
+- **Paid status tab no longer shows a color shift or press animation when held** (`ExpenseRowView`, `ItemListDetailView`) — the side tab button on both item-list and item rows now uses a plain button style. Holding the tab no longer triggers a scale-down or an overlay darkening; the action fires cleanly on release, matching a simple tap.
+- **Press overlay in `PressHapticButtonStyle` now darkens uniformly** — changed the overlay shape from `RoundedRectangle(cornerRadius: 16)` to `Rectangle` so the darkening covers the full button area evenly instead of creating a visible pill-shaped tint that mismatched the tab's rectangular form.
+
+## [2.6.0] - 2026-05-25
+
+### Changed
+- **Switching groups now always lands on This Month with category boxes instead of Today** (`DashboardViewModel`, `DashboardView`) — changing the active group resets the dashboard to the full-month overview and clears any active drill-down state, so the user always arrives at the most useful summary of the new group rather than a potentially empty Today view.
+- **Group switch transition is now animated with a content fade** (`DashboardView`) — the dashboard content fades out as the group change begins and fades back in once the new group data is ready, replacing the previous abrupt content swap.
+
+## [2.5.3] - 2026-05-20
+
+### Fixed
+- **Dashboard item-list rows now render fully unpaid state in gray instead of red** (`ExpenseRowView`) — item lists where every item remains unpaid no longer use an alert-like red treatment. Their side tab and card accent now resolve back to gray, matching the calmer semantics already used at the item level while preserving orange for partial state and green for fully paid state.
+
+## [2.5.2] - 2026-05-20
+
+### Fixed
+- **Dashboard item-list amount column now stays pinned to the trailing edge even when the visible paid total is `0,00 €`** (`ExpenseRowView`) — item-list rows no longer shift the main amount leftward when a list has no paid value. The primary amount and optional unpaid line now share the same stable right alignment, which also shortens the visual travel distance when the amount transitions between zero and paid states.
+
+## [2.5.1] - 2026-05-20
+
+### Changed
+- **Item list detail rows now use the same card-and-side-tab structure as dashboard item-list rows** (`ItemListDetailView`, `ItemListDetailComponents`) — items inside an item list no longer use the old timeline rail presentation. They now render as padded rounded cards with a leading status tab, matching the newer dashboard row language so the transition from item-list overview into item detail feels visually consistent.
+- **Item list detail spacing now follows the same shared top and row inset metrics used by dashboard drill-down lists** (`ItemListDetailComponents`, `ExpenseListLayoutMetrics`) — the first item row now starts with the same breathing room against the rounded gray container, and item cards use the same vertical spacing rhythm as the dashboard date/item-list stacks.
+- **Dashboard item-list rows now use semantic system status colors instead of category-driven paid-state color** (`ExpenseRowView`) — paid rows now resolve to green, partial rows to orange, unpaid rows to red, and neutral rows to gray. This keeps the main row color focused on payment state rather than category context, which makes scanability and status recognition clearer.
+
+## [2.5.0] - 2026-05-20
+
+### Added
+- **Dashboard drill-down now includes an intermediate date level for both category and `All` scopes** (`DashboardView`, `DashboardViewModel`, `DashboardComponents`, `DashboardDateRowsComponents`) — tapping a dashboard category no longer jumps straight into item lists. The flow now drills into grouped date rows first, and the same date-first navigation is also used when the user selects `All`. From there, tapping a day opens the expense-row list for that concrete date, keeping the navigation more consistent and easier to scan.
+
+### Changed
+- **Dashboard date rows were redesigned as premium cards instead of bare list entries** (`DashboardDateRowsComponents`) — the intermediate day list now uses padded rounded cards with accent treatment, iconography, stronger amount hierarchy, and clearer tap affordance so the dashboard drill-down feels aligned with the rest of OMONI’s card-based language.
+- **Dashboard expense rows were cleaned up for the new filtered-day flow** (`ExpenseRowView`, `ExpenseListComponents`, `ExpenseListView`) — the old vertical connector lines between item-list cards were removed, row spacing was increased, and the list gained more breathing room against the top edge of the rounded container so the deeper drill-down reads as a calmer modern card stack.
+- **Dashboard bottom filter chip now carries the active day context instead of relying on date section headers** (`DashboardView`, `DashboardBottomBarView`) — when the user drills into a concrete day, the selected-scope chip now reflects that day and works as the way back up one level. Date section headers in the expense list are now intentionally hidden in this dashboard flow because the active day is already represented in the bottom control row.
+- **Dashboard date rows and item-list rows now share the same top breathing room and card spacing rules** (`ExpenseListLayoutMetrics`, `DashboardDateRowsComponents`, `ExpenseListComponents`, `ExpenseListView`) — the first card in both drill-down levels now starts with the same air against the rounded gray container, using one shared metrics source instead of separate magic numbers.
+- **Expense row amount column was rebalanced for a steadier unpaid-state presentation** (`ExpenseRowView`) — the right-hand amount block now keeps the primary cost in a more stable position and introduces the unpaid line more softly, reducing the visual jump between single-line and two-line amount states.
+
+### Fixed
+- **Dashboard filtered drill-down no longer gets stuck showing empty date/detail states after filter or month changes** (`DashboardView`, `DashboardViewModel`, `DashboardComponents`) — active dashboard scope now degrades correctly when the selected category or day no longer has visible content under the current month, pending filter, or search state. This prevents blank intermediate screens and keeps the user inside a valid dashboard level after refreshes or filter changes.
+
+## [2.3.0] - 2026-05-19
+
+### Changed
+- **Expense row redesigned with a full-height left side tab for paid status toggle** (`ExpenseRowView`) — the circle connector button and its offset/mounting logic have been replaced with a colored vertical strip on the left edge of each card. The strip spans the full card height, is fully tappable, and uses a clipped `HStack` so its left corners follow the card's rounded shape automatically. The border is drawn last in the `ZStack` so it renders cleanly on top of the tab. Color and icon reflect the row status: gray + clock for unpaid, orange + half-circle for partial, category color + checkmark for paid. Timeline guide lines are now shorter, thicker, and rendered behind each card via `zIndex` and negative `VStack` spacing so the card's rounded corners naturally occlude the line ends.
+
+## [2.2.0] - 2026-05-19
+
+### Added
+- **First-launch onboarding now offers direct backup import below account creation** (`CreateFirstUserView`, `SettingsBackupViewModel`) — the empty-state registration screen now includes a secondary `Import Backup` action under the main `Create` button, separated by a deliberate divider with a centered circle. This lets users restore an existing OMONI backup immediately after installing the app, without needing to create a new account first or reach the settings flow.
+
+### Changed
+- **Backup import on the initial onboarding screen now reuses the real restore flow and enters the app automatically after success** (`CreateFirstUserView`) — the first-launch screen now uses the same importer, rescue-backup warning, replace-data confirmation, and validation path already used in settings. Once a backup is restored successfully, the onboarding exits through the existing `onUserCreated` path so the app transitions directly into the restored experience.
+
+## [2.1.0] - 2026-05-19
+
+### Changed
+- **Bundle identifiers are now aligned with the renamed project identity** (`Omoni.xcodeproj/project.pbxproj`, `SettingsBackupViewModel`) — the app and test targets no longer keep the legacy `com.omo.OMOMoney*` identifiers. Their runtime and backup-facing identifiers now use the `Omoni` naming so the technical identity is consistent with the renamed Xcode project, targets, and module.
+
+## [2.0.0] - 2026-05-19
+
+### Changed
+- **Project identity renamed from `OMOMoney` to `Omoni` / `OMONI` across the repo** (`Omoni.xcodeproj`, `Omoni/`, `OmoniTests/`, `OmoniUITests/`, docs, CI, localization, project metadata) — the app’s technical Xcode/module/file identity now uses `Omoni`, while visible product branding is standardized as `OMONI`. This includes the app target, shared scheme, test targets, Swift entry-point and schema names, project paths referenced in docs and workflows, and repo-wide references that still carried the old product name.
+- **Bundle identifiers intentionally remain on the legacy `com.omo.OMOMoney*` values for now** (`Omoni.xcodeproj/project.pbxproj`, `SettingsBackupViewModel`) — this keeps signing/provisioning continuity while the visible product and technical project naming move forward to `OMONI` / `Omoni`.
+
+### Fixed
+- **Xcode local workspace state no longer points to deleted `OMOMoney/...` file paths after the rename** (`Omoni.xcodeproj`) — stale project/user-interface metadata that still referenced files like `OMOMoney/Data/SwiftData/ModelContainer+Shared.swift` was cleaned up so the renamed project opens from `Omoni.xcodeproj` without broken file references caused by leftover local state.
+
+## [1.26.0] - 2026-05-17
+
+### Added
+- **Over-limit category marker now uses dedicated inward triangle edge markers** (`DashboardCategoryBoardComponents`) — category boxes that exceed their effective budget limit now show a more intentional threshold marker built from two inward-facing triangle caps plus a separate dashed line, instead of the previous single dashed stroke alone. This makes the limit read more clearly as a measured point inside the box rather than as a decorative divider.
+
+### Changed
+- **Dashboard category over-limit indicator redesigned for stronger visual hierarchy and clearer semantics** (`DashboardCategoryBoardComponents`) — the over-limit marker now:
+  - uses the category’s own accent color instead of a fixed alert red
+  - keeps the dashed line slightly lighter than the triangle caps so the edge markers carry the meaning
+  - spans edge-to-edge across the category box, making the threshold feel tied to the box geometry itself
+  - clamps the marker below the title/icon zone so the category name and symbol do not visually collide with the limit indicator
+  - separates the triangles from the dashed line with a micro-gap so both elements remain legible without visually fusing together
+
+## [1.25.0] - 2026-05-17
+
+### Added
+- **Native group reordering in the Select Group sheet with per-user persistence** (`GroupSelectorChipView`, `GroupPickerComponents`, `GroupPickerSheetViewModel`, `DefaultUserGroupRepository`, `DefaultGroupRepository`, `UpdateGroupOrderUseCase`, `GroupOrderStore`) — the group picker now includes an explicit `Edit` mode in the toolbar, keeps the currently selected group pinned in the first position, and lets the user drag the remaining groups into a custom order with clear visual drag affordances. The saved order persists per user across launches without changing the SwiftData schema, so different users can keep different group arrangements safely.
+
+### Changed
+- **Category budget controls now use a cleaner inline settings-row layout** (`BudgetLimitField`, `CategoryFormView`) — both `Budget limit` and `Budget frequency` were redesigned to match the dashboard filter row style, with the label aligned on the left and the numeric input or picker aligned on the right for a more native and consistent editing experience.
+
+### Fixed
+- **Dashboard category budget progress now respects the category cadence when calculating visible-month limits** (`DashboardViewModel`, `DashboardCategoryBoardComponents`) — the progress bar no longer compares a month-wide spend against a single daily or weekly cap. In `This month`, daily limits now scale by the number of days in the visible month and weekly limits scale by the number of week buckets covered by that month, so the category progress indicator reflects the real allowance for the current dashboard scope.
+
+## [1.24.0] - 2026-05-17
+
+### Added
+- **Dashboard pending-only filter with pending drill-in behavior** (`DashboardViewModel`, `DashboardView`, `DashboardMonthFilterSheet`, `ItemListDetailView`, `ItemListDetailViewModel`, `String+Localization`, `Localizable.strings`) — the dashboard Filters sheet now includes an `Item Status` selector with `All` and `Pending`.
+  - When `Pending` is selected, the dashboard shows only item lists that still contain at least one item with `isPaid == false`.
+  - This works both in the general dashboard scope and when a category is selected, so category drill-in respects the same pending-only filtering.
+  - Opening an item list from a pending-filtered dashboard now presents only the unpaid items inside that list, keeping the drill-in aligned with the user’s selected filter context.
+
+### Changed
+- **Dashboard Filters sheet polished for clearer reset behavior and cleaner native layout** (`DashboardMonthFilterSheet`, `DashboardView`, `String+Localization`, `Localizable.strings`) — the old month-reset action was replaced with `Clean filters`, which now resets both the selected month back to the current month and the `Item Status` selector back to `All`. The item-status control was also redesigned into a single inline settings row, with the label on the left and the native menu selector aligned on the right, plus more spacing around the reset action.
+
+### Refactored
+- **Dashboard filter application centralized in the view model** (`DashboardViewModel`, `DashboardView`) — filter rules are now coordinated through dedicated view-model methods instead of ad-hoc logic inside the sheet callback. The view now forwards user intent, while the view model owns:
+  - how selected month and pending status are applied together
+  - when the dashboard should preserve the `Today` tab
+  - how all dashboard filters are cleared in one place
+- This also fixes the previous regression where applying the pending filter from `Today` could incorrectly force the dashboard into `This month`.
+
+## [1.23.0] - 2026-05-17
+
+### Added
+- **Per-category budget frequency selector in create/edit category sheets** (`CategoryFormView`, `CategoryFormViewModel`, `String+Localization`, `Localizable.strings`) — added a native iOS menu-style `Picker` directly below the `Budget Limit` field so each category can define its own budget cadence. The selector supports `Daily`, `Weekly`, and `Monthly`, preloads the saved value when editing an existing category, and now persists `limitFrequency` through the existing create/update use case flow instead of always falling back to `monthly`.
+
+### Changed
+- **Onboarding default category budgets now seed fixed monthly limits instead of one shared placeholder value** (`DefaultGroupRepository`) — new groups now create their default categories with these explicit monthly limits:
+  - `Hogar`: `700`
+  - `Alimentación`: `300`
+  - `Salud`: `50`
+  - `Movilidad`: `100`
+  - `Moda`: `100`
+  - `Ocio`: `200`
+- All onboarding default categories continue to set `limitFrequency: "monthly"` explicitly so the new budget frequency UI starts from a predictable default.
+
+## [1.22.0] - 2026-05-15
+
+### Added
+- **Share app row in About OMO → Support OMO section** (`AboutOMOView`, `Localizable.strings`) — added a "Share OMONI" row using SwiftUI's native `ShareLink`, which opens the system share sheet (iMessage, WhatsApp, copy link, etc.) without any custom state or `UIActivityViewController`. The row follows the same visual style as the donation row (rounded icon, title + subtitle). Currently points to `omopockettool.com`.
+  - ⚠️ **TODO:** replace `appStoreURL` in `AboutOMOView` with the real App Store link (`https://apps.apple.com/app/idXXXXXXXXXX`) once the app is published.
+- Localization added: `about.shareApp` (EN: "Share OMONI" / ES: "Compartir OMONI") and `about.shareAppSubtitle` (EN: "Recommend it to a friend" / ES: "Recomiéndala a un amigo").
+
+## [1.21.0] - 2026-05-15
+
+### Added
+- **Category monthly budget limit — form input + dashboard fill visual** (`CategoryFormView`, `CategoryFormViewModel`, `DashboardViewModel`, `DashboardCategoryBoardComponents`, `BudgetLimitField`, `DefaultGroupRepository`, `Localizable.strings`) — activates the existing `limit: Double?` and `limitFrequency: String` fields on `SDCategory` end-to-end.
+  - **`BudgetLimitField`** (new reusable component in `Common/Components/`) — budget limit input field with section label, accent-colored icon that reacts to the selected category color, decimal pad, a `tertiaryLabel`-gray clear button, and a keyboard toolbar with a **Done** button to dismiss the numpad.
+  - **`CategoryFormView`** — added `@State private var limitText`, initialized from `categoryToEdit?.limit` when editing, and replaced the inline block with the new `BudgetLimitField` component.
+  - **`CategoryFormViewModel.save()`** — now accepts `limit: Decimal?` and passes it to both `CreateCategoryUseCase` and `UpdateCategoryUseCase` (previously always `nil`).
+  - **Dashboard fill visual** — `DashboardCategoryBoxData` and `CategoryAggregate` now carry `categoryLimit: Double?` threaded from `SDCategory.limit` through `makeCategoryBoxes` and all three `applySizeTiers` map passes. `DashboardCategoryBoxView` renders a fill-from-bottom bucket: `systemGray4` base + category accent color scaled upward proportionally (`accentColor.opacity(0.18)`, `scaleEffect(anchor: .bottom)`). When spending exceeds the limit, a dashed line (`StrokeStyle(lineWidth: 1.5, dash: [5, 3])`, `accentColor.opacity(0.75)`) marks the limit position via `GeometryReader` in the overlay. No new text labels added to the dashboard.
+  - **Onboarding defaults** — all 5 default categories created during group setup now seed with `limit: 300` and `limitFrequency: "monthly"` so new users see the visual immediately.
+  - **Localization** — added `category.noLimit` key (EN: "No limit" / ES: "Sin límite").
+
+## [1.20.0] - 2026-05-15
+
+### Fixed
+- **Fixed `CacheManagerTests` crash on all tests except the first** (`CacheManagerTests`) — `setUp` was empty and never initialized `cacheManager`, so every test beyond the first hit a nil force-unwrap crash on a background thread. Fixed by marking the class `@MainActor`, making `setUp`/`tearDown` async, and initializing `CacheManager.shared` with a full cache clear before each test. Tests simplified to remove unnecessary `await MainActor.run {}` wrappers.
+
+### Tests
+- **Added `CreateItemUseCaseTests`** — 10 tests covering successful creation, description trimming, multi-quantity total amount, `isPaid` persistence, and all validation error paths (`invalidDescription`, `invalidAmount`, `invalidQuantity`, nil `itemListId`).
+- **Added `CalculateItemListTotalsUseCaseTests`** — 12 tests covering empty states, all paid/unpaid/partial status transitions, `paidTotal`/`unpaidTotal` accuracy, quantity multiplication, multi-list `totalSpent` aggregation, unpaid items excluded from total, `itemCount` from quantities, `searchItems` population, and cache consistency across two calls.
+- **Added `ItemUseCaseTests`** — 8 tests split across `DeleteItemUseCaseTests` (deletes correct item, leaves others untouched, throws `RepositoryError.notFound` for unknown id) and `ToggleAllItemsPaidUseCaseTests` (marks all paid, all unpaid, mixed state, empty list, scoped to target list only).
+- **Expanded `SwiftDataTestContainer`** — added `makeItemRepository()` factory and `insertItem(description:amount:quantity:isPaid:itemList:)` seed helper used by all new item-level tests.
+
+## [1.19.0] - 2026-05-15
+
+### Refactored
+- **Extracted `CalculateItemListTotalsUseCase` from `DashboardViewModel`** (`DashboardViewModel`, `CalculateItemListTotalsUseCase`, `ItemListStatus`, `DashboardView`, `AppDIContainer`) — the per-item-list financial calculation logic (`calculateTotalSpent`, `getItemListData`, cache read/write, `paidStatus`, `makeRowStatus`) was embedded inside the ViewModel, making it untestable without SwiftUI. All of that logic now lives in `DefaultCalculateItemListTotalsUseCase`, a pure Swift class that accepts a `FetchItemsUseCase` protocol and returns an `ItemListTotalsResult` struct containing per-list totals, counts, paid/row statuses, and search item snapshots. The ViewModel is reduced to calling `applyTotals(_:)`, which assigns the result and derives today/month aggregates from ViewModel-owned state. `ItemListPaidStatus` and `ItemListRowStatus` were moved to their own file in `Domain/UseCases/ItemList/` so both layers can reference them without circular dependency. Cache invalidation on delete is now delegated to `calculateItemListTotalsUseCase.clearCache(for:)`.
+
 ## [1.18.24] - 2026-05-15
 
 ### Fixed
@@ -263,7 +567,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Notes
 - **Backup files use JSON internally with a custom `.omo-backup` extension** (`OMOBackupDocument`) — this keeps the file human-inspectable and migration-friendly while still giving the feature a dedicated app-specific backup format.
 - **Backup filenames now use deterministic zero-padded timestamps** (`SettingsBackupViewModel`) — export and rescue-backup files now always use a stable `yyyy-MM-dd-HH-mm` naming pattern so minute values like `00` are preserved correctly in the visible Files filename.
-- **The app now declares `.omo-backup` as a real document type in its Info.plist** (`Info.plist`, `OMOMoney.xcodeproj/project.pbxproj`) — this lets the iOS Files picker recognize backup files as selectable instead of showing them disabled during import.
+- **The app now declares `.omo-backup` as a real document type in its Info.plist** (`Info.plist`, `Omoni.xcodeproj/project.pbxproj`) — this lets the iOS Files picker recognize backup files as selectable instead of showing them disabled during import.
 
 ## [1.11.4] - 2026-05-07
 
@@ -311,7 +615,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - **Dashboard category filtering now uses directional horizontal content swaps instead of depth/blur effects** (`DashboardComponents`, `AnimationHelper`) — entering a category now moves the category board out to the left while the filtered item-list view enters from the right, and closing the filter performs the true inverse motion. The transition was simplified intentionally so it feels more like native content reorganization and less like a visual effect layered over the whole dashboard.
 - **Month-view day-header totals now animate like item-list row amounts when paid state changes** (`ExpenseListComponents`) — the total shown in each daily section header now uses the same numeric content transition and spring timing already used by dashboard row amounts, so toggling an item list between paid and unpaid updates the day aggregate more smoothly instead of snapping abruptly.
-- **The Xcode project is now explicitly iOS-only** (`OMOMoney.xcodeproj/project.pbxproj`) — unsupported `macosx` and visionOS platform declarations were removed from the app and test targets so Swift module resolution no longer tries to evaluate the project as a multi-platform target. This aligns the project settings with the real product scope and avoids `UIKit` resolution failures in the app entry point.
+- **The Xcode project is now explicitly iOS-only** (`Omoni.xcodeproj/project.pbxproj`) — unsupported `macosx` and visionOS platform declarations were removed from the app and test targets so Swift module resolution no longer tries to evaluate the project as a multi-platform target. This aligns the project settings with the real product scope and avoids `UIKit` resolution failures in the app entry point.
 
 ---
 
@@ -424,7 +728,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - **Dashboard search now reaches both item-list titles and nested items with clearer result amounts** (`DashboardViewModel`, `DashboardView`, `ExpenseListView`, `ExpenseRowView`, dashboard components, localization files) — searching from the dashboard no longer stops at the item-list description. Results now remain visible when either the list title or one of its items matches the query, and matching rows show a more useful search presentation: a match-count subtitle on the left, matched subtotal on the main amount line, and matched unpaid subtotal below when relevant. This keeps the search result scope consistent and avoids mixing whole-list totals into item-level search feedback.
-- **Dashboard bottom search bar was stabilized with a pure SwiftUI layout path** (`DashboardBottomBarView`, `DashboardView`, `DashboardComponents`, `docs/START_HERE.md`) — the inline search bar now stays mounted in the layout and only changes visibility/focus state, which resolves the first-open keyboard positioning issues without relying on UIKit keyboard notifications. The quick-start doc was also updated to reflect the real `OMOMoney/` source-folder layout in the repository.
+- **Dashboard bottom search bar was stabilized with a pure SwiftUI layout path** (`DashboardBottomBarView`, `DashboardView`, `DashboardComponents`, `docs/START_HERE.md`) — the inline search bar now stays mounted in the layout and only changes visibility/focus state, which resolves the first-open keyboard positioning issues without relying on UIKit keyboard notifications. The quick-start doc was also updated to reflect the real `Omoni/` source-folder layout in the repository.
 
 ---
 
@@ -1280,7 +1584,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.8] - 2026-04-16
 
 ### Removed
-- **`Data/CoreData/` directory deleted** — `Persistence.swift`, `OMOMoney.xcdatamodeld`, and empty `Entities/` folder removed; none were referenced in `project.pbxproj` or called from any Swift file
+- **`Data/CoreData/` directory deleted** — `Persistence.swift`, `Omoni.xcdatamodeld`, and empty `Entities/` folder removed; none were referenced in `project.pbxproj` or called from any Swift file
 - **`SettingsView.swift` deleted** — legacy view using old `User` domain type; never referenced outside its own file; app uses `SettingsSheetView` exclusively
 - **`GroupSelectorView.swift` deleted** — legacy view using old `Group` domain type; never referenced outside its own file
 
@@ -1363,14 +1667,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.2] - 2026-04-15
 
 ### Changed
-- **Project structure reorganized for SwiftData migration** — `SD*.swift` models, `OMOMoneySchema.swift`, and `ModelContainer+Shared.swift` moved from project root into `OMOMoney/Data/SwiftData/` following the existing `Data/CoreData/` convention; all migration `.md` docs moved from project root into `docs/`; stale manual Xcode project entries removed (files now auto-discovered via `PBXFileSystemSynchronizedRootGroup`)
+- **Project structure reorganized for SwiftData migration** — `SD*.swift` models, `OmoniSchema.swift`, and `ModelContainer+Shared.swift` moved from project root into `Omoni/Data/SwiftData/` following the existing `Data/CoreData/` convention; all migration `.md` docs moved from project root into `docs/`; stale manual Xcode project entries removed (files now auto-discovered via `PBXFileSystemSynchronizedRootGroup`)
 
 ---
 
 ## [1.0.1] - 2026-04-15
 
 ### Added
-- **SwiftData injected into app entry point** — `ModelContainer.shared` initialized in `OMOMoneyApp`; `.modelContainer()` modifier applied to `ContentView`; Core Data stack kept in parallel until Phase 3
+- **SwiftData injected into app entry point** — `ModelContainer.shared` initialized in `OmoniApp`; `.modelContainer()` modifier applied to `ContentView`; Core Data stack kept in parallel until Phase 3
 
 ### Fixed
 - **`ModelsSwiftData*.swift` duplicates removed** — 8 conflicting files (`class ItemList`, `class Group`, etc.) deleted from project; `SD*` files are the canonical SwiftData models
@@ -1382,7 +1686,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **SwiftData models** — `SDUser`, `SDGroup`, `SDUserGroup`, `SDCategory`, `SDPaymentMethod`, `SDItemList`, `SDItem` with relationships, validations, computed properties, and debug mock helpers
-- **`OMOMoneySchema.swift`** — versioned `SchemaV1` registering all 7 models
+- **`OmoniSchema.swift`** — versioned `SchemaV1` registering all 7 models
 - **`ModelContainer+Shared.swift`** — shared production container, in-memory preview and test containers, `safeSave`/`safeRollback` helpers
 
 ---

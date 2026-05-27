@@ -39,7 +39,7 @@ Replace CoreData object caching with domain model caching in two services:
 
 ### 1. Refactor `ItemListService.getItemLists(for group:)`
 
-**File:** `OMOMoney/Data/Services/ItemListService.swift`
+**File:** `Omoni/Data/Services/ItemListService.swift`
 
 Change the cache to store `[ItemListDomain]` instead of `[ItemList]`:
 
@@ -80,7 +80,7 @@ Update `ItemListServiceProtocol` signatures accordingly.
 
 ### 2. Refactor `ItemService.getItems(for itemList:)` and `getItems(for group:)`
 
-**File:** `OMOMoney/Data/Services/ItemService.swift`
+**File:** `Omoni/Data/Services/ItemService.swift`
 
 Add domain model caching (resolves both TODOs):
 
