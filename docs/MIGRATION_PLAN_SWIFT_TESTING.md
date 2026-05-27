@@ -9,7 +9,7 @@
 
 ## 📋 Executive Summary
 
-Swift Testing is Apple's modern, macro-based testing framework that provides a superior alternative to XCTest. If OMOMoney currently uses XCTest (or has no tests), migrating to Swift Testing offers significant benefits.
+Swift Testing is Apple's modern, macro-based testing framework that provides a superior alternative to XCTest. If Omoni currently uses XCTest (or has no tests), migrating to Swift Testing offers significant benefits.
 
 ### Why Migrate to Swift Testing?
 
@@ -30,7 +30,7 @@ Swift Testing is Apple's modern, macro-based testing framework that provides a s
 ```swift
 // Typical XCTest approach
 import XCTest
-@testable import OMOMoney
+@testable import Omoni
 
 class UserServiceTests: XCTestCase {
     var sut: UserService!
@@ -83,7 +83,7 @@ Swift Testing is built into Xcode 16+, no additional setup needed!
 #### 1.2 Create Test File Structure
 
 ```
-OMOMoneyTests/
+OmoniTests/
 ├── DomainTests/
 │   ├── UserTests.swift
 │   ├── GroupTests.swift
@@ -110,7 +110,7 @@ OMOMoneyTests/
 ```swift
 // BEFORE: XCTest
 import XCTest
-@testable import OMOMoney
+@testable import Omoni
 
 class UserServiceTests: XCTestCase {
     func testCreateUser() {
@@ -120,7 +120,7 @@ class UserServiceTests: XCTestCase {
 
 // AFTER: Swift Testing
 import Testing
-@testable import OMOMoney
+@testable import Omoni
 
 @Suite("User Service Tests")
 struct UserServiceTests {
@@ -316,7 +316,7 @@ struct CategoryServiceTests {
 // TestHelpers.swift
 
 import Foundation
-@testable import OMOMoney
+@testable import Omoni
 
 struct TestDataBuilder {
     static func createUser(
@@ -575,7 +575,7 @@ func testCreateUser() async throws { /* ... */ }
 ```swift
 // UserTests.swift
 import Testing
-@testable import OMOMoney
+@testable import Omoni
 
 @Suite("User Domain Tests", .tags(.unit))
 struct UserTests {
@@ -612,7 +612,7 @@ struct UserTests {
 
 // CreateUserUseCaseTests.swift
 import Testing
-@testable import OMOMoney
+@testable import Omoni
 
 @Suite("Create User Use Case Tests", .tags(.unit, .useCase))
 struct CreateUserUseCaseTests {
@@ -653,7 +653,7 @@ struct CreateUserUseCaseTests {
 
 // DashboardViewModelTests.swift
 import Testing
-@testable import OMOMoney
+@testable import Omoni
 
 @Suite("Dashboard ViewModel Tests", .tags(.integration, .viewModel))
 struct DashboardViewModelTests {

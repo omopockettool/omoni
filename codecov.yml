@@ -1,4 +1,4 @@
-# Codecov Configuration for OMOMoney
+# Codecov Configuration for Omoni
 # This file configures code coverage reporting and thresholds
 
 # MARK: - Coverage Configuration
@@ -30,9 +30,9 @@ comment:
 
 # MARK: - Ignore Patterns
 ignore:
-  - "OMOMoneyTests/"
-  - "OMOMoneyUITests/"
-  - "OMOMoneyPerformanceTests/"
+  - "OmoniTests/"
+  - "OmoniUITests/"
+  - "OmoniPerformanceTests/"
   - "**/*.generated.swift"
   - "**/Generated/"
   - "**/Mock*.swift"
@@ -43,34 +43,34 @@ ignore:
 
 # MARK: - File Paths
 paths:
-  - "OMOMoney/"
-  - "!OMOMoneyTests/"
-  - "!OMOMoneyUITests/"
-  - "!OMOMoneyPerformanceTests/"
+  - "Omoni/"
+  - "!OmoniTests/"
+  - "!OmoniUITests/"
+  - "!OmoniPerformanceTests/"
 
 # MARK: - Flags
 flags:
   ios:
     paths:
-      - "OMOMoney/"
+      - "Omoni/"
     coverage:
       target: 85%
       threshold: 5%
   services:
     paths:
-      - "OMOMoney/Services/"
+      - "Omoni/Services/"
     coverage:
       target: 90%
       threshold: 5%
   viewmodels:
     paths:
-      - "OMOMoney/ViewModel/"
+      - "Omoni/ViewModel/"
     coverage:
       target: 80%
       threshold: 5%
   views:
     paths:
-      - "OMOMoney/View/"
+      - "Omoni/View/"
     coverage:
       target: 75%
       threshold: 5%

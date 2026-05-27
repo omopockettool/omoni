@@ -56,7 +56,7 @@ ViewModel → Use Case → Repository → Service (returns Domain models)
 ### 1. Service Protocols (Change return types to Domain)
 
 #### CategoryServiceProtocol
-**File:** `OMOMoney/Domain/Protocols/Services/CategoryServiceProtocol.swift`
+**File:** `Omoni/Domain/Protocols/Services/CategoryServiceProtocol.swift`
 
 **Current signatures:**
 ```swift
@@ -82,7 +82,7 @@ func createCategory(...) async throws -> CategoryDomain
 ---
 
 #### ItemServiceProtocol
-**File:** `OMOMoney/Domain/Protocols/Services/ItemServiceProtocol.swift`
+**File:** `Omoni/Domain/Protocols/Services/ItemServiceProtocol.swift`
 
 **Current signatures:**
 ```swift
@@ -105,7 +105,7 @@ func deleteItem(itemId: UUID) async throws
 ---
 
 #### ItemListServiceProtocol
-**File:** `OMOMoney/Domain/Protocols/Services/ItemListServiceProtocol.swift`
+**File:** `Omoni/Domain/Protocols/Services/ItemListServiceProtocol.swift`
 
 **Current signatures:**
 ```swift
@@ -130,7 +130,7 @@ func deleteItemList(itemListId: UUID) async throws
 ### 2. Service Implementations (Implement new Domain-first logic)
 
 #### CategoryService
-**File:** `OMOMoney/Data/Services/CategoryService.swift`
+**File:** `Omoni/Data/Services/CategoryService.swift`
 
 **Current implementation (lines 157-185):**
 ```swift
@@ -201,7 +201,7 @@ func getCategories(forGroupId groupId: UUID) async throws -> [CategoryDomain] {
 ---
 
 #### ItemService
-**File:** `OMOMoney/Data/Services/ItemService.swift`
+**File:** `Omoni/Data/Services/ItemService.swift`
 
 **Methods to refactor:**
 - `getItems(for itemList: ItemList)` → `getItems(forItemListId: UUID)`
@@ -250,7 +250,7 @@ func getItems(forItemListId itemListId: UUID) async throws -> [ItemDomain] {
 ---
 
 #### ItemListService
-**File:** `OMOMoney/Data/Services/ItemListService.swift`
+**File:** `Omoni/Data/Services/ItemListService.swift`
 
 **Methods to refactor:**
 - `getItemLists(for group: Group)` → `getItemLists(forGroupId: UUID)`
@@ -262,7 +262,7 @@ func getItems(forItemListId itemListId: UUID) async throws -> [ItemDomain] {
 ### 3. Repository Simplification (Remove .toDomain() calls)
 
 #### DefaultCategoryRepository
-**File:** `OMOMoney/Data/Repositories/DefaultCategoryRepository.swift`
+**File:** `Omoni/Data/Repositories/DefaultCategoryRepository.swift`
 
 **Current implementation (lines 35-62):**
 ```swift
@@ -292,7 +292,7 @@ func fetchCategories(forGroupId groupId: UUID) async throws -> [CategoryDomain] 
 ---
 
 #### DefaultItemRepository
-**File:** `OMOMoney/Data/Repositories/DefaultItemRepository.swift`
+**File:** `Omoni/Data/Repositories/DefaultItemRepository.swift`
 
 **Methods to simplify:**
 ```swift
@@ -312,7 +312,7 @@ func fetchItems(forItemListId itemListId: UUID) async throws -> [ItemDomain] {
 ---
 
 #### DefaultItemListRepository
-**File:** `OMOMoney/Data/Repositories/DefaultItemListRepository.swift`
+**File:** `Omoni/Data/Repositories/DefaultItemListRepository.swift`
 
 **Methods to simplify:**
 ```swift
@@ -333,7 +333,7 @@ func fetchItemLists(forGroupId groupId: UUID) async throws -> [ItemListDomain] {
 
 ### 4. Cache Manager Updates
 
-**File:** `OMOMoney/Data/Cache/CacheManager.swift`
+**File:** `Omoni/Data/Cache/CacheManager.swift`
 
 **Change:** Ensure caching works with **Domain models** instead of Core Data entities.
 

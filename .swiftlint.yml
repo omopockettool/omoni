@@ -1,4 +1,4 @@
-# SwiftLint Configuration for OMOMoney
+# SwiftLint Configuration for Omoni
 # This file configures SwiftLint to enforce code quality standards
 
 # MARK: - Disabled Rules
@@ -81,13 +81,13 @@ custom_rules:
 excluded:
   - Carthage
   - Pods
-  - OMOMoney.xcodeproj
-  - OMOMoney.xcworkspace
+  - Omoni.xcodeproj
+  - Omoni.xcworkspace
   - .build
   - .swiftpm
-  - OMOMoneyTests
-  - OMOMoneyUITests
-  - OMOMoneyPerformanceTests
+  - OmoniTests
+  - OmoniUITests
+  - OmoniPerformanceTests
 
 # MARK: - Analyzer Rules
 analyzer_rules:

@@ -1,6 +1,6 @@
 # SwiftUI Data Flow & Rendering — Reference Guide
 > Based on "SwiftUI Data Flow" by Karin Prater (swiftyplace.com, April 2026)
-> Condensed for OMOMoney / iOS 26 / SwiftData / @Observable stack
+> Condensed for OMONI / iOS 26 / SwiftData / @Observable stack
 
 ---
 

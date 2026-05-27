@@ -1,4 +1,4 @@
-# 🚀 OMOMoney - Session Quick Start
+# 🚀 OMONI - Session Quick Start
 
 **You are an expert iOS Swift Developer | Clean Architecture | SwiftUI + SwiftData | iOS 26 | NO Liquid Glass UI for now**
 
@@ -36,7 +36,7 @@ When work is complete, only output the suggested commit message so the team can 
 Dennis validates changes manually on the physical iPhone and then shares feedback if something needs adjustment.
 
 ```swift
-❌ xcodebuild -project OMOMoney.xcodeproj -scheme OMOMoney build
+❌ xcodebuild -project Omoni.xcodeproj -scheme Omoni build
 ❌ Run on Simulator / try local build validation
 ✅ Make the code change, explain it clearly, and wait for device feedback
 ```
@@ -63,6 +63,8 @@ Models  Models    Models      Models       (single source of truth)
 | **Data** (Repositories) | ModelContext, SD* models, Domain protocols | Presentation layer |
 
 - **Views render; ViewModels decide.** Keep derived UI state, display-state mapping, and business/presentation rules out of SwiftUI views. If a view needs conditions like "neutral vs paid vs partial", compute that in the ViewModel (or a dedicated presentation mapper) and pass the result in.
+- **NO logic in Views.** Views must not fetch, orchestrate, repair, bootstrap, or "complete" state after presentation. If the screen needs data, fallback loading, selection recovery, async coordination, or flow decisions, that belongs in the ViewModel or below.
+- **No quick fixes.** We are building a premium product, not patching demos. Do not solve issues with local hacks, view-side band-aids, duplicated loading paths, or special-case glue code. Prefer the robust architectural fix at the correct layer.
 
 ### 3. Dependency Injection (MANDATORY)
 ```swift
@@ -86,16 +88,32 @@ struct MyView: View {
 - **Repositories**: `MainActor.run { }` wrapping ModelContext operations
 - **Async**: Use `async/await` and `withTaskGroup` for concurrent ops
 
+### 5. Form Pattern (KEEP IT SIMPLE)
+- **Dumb forms, smart ViewModels.** A form view should mostly render bindings and user actions. Loading categories, payment methods, groups, or other form data belongs in the ViewModel.
+- **No patchy bootstrap logic in SwiftUI views.** Avoid stacking `.task`, `Task {}`, `onChange`, and post-render state fixes to "finish" building a form after presentation.
+- **Initialize structural UI state up front.** Things like edit-mode expansion, initial detent intent, and default selected context should be decided in `init` or by the ViewModel before the view starts reacting.
+- **Prefer one clear loading flow.** For sheets and forms, aim for a single standard loading path instead of several competing async triggers.
+- **No rush fixes.** We optimize for stable architecture and predictable SwiftUI data flow, not quick patches. If a flow feels too clever, simplify it.
+- **Premium product standard.** Every form/edit flow should feel intentional, maintainable, and production-grade. If a change only "makes it work" but weakens architecture, it is not done.
+
+### 6. View Lifecycle Rule (APPLE-LIKE BY DEFAULT)
+- **Views should open light.** Opening a sheet, push view, or modal should not trigger heavy UI-side orchestration. A screen should appear because its state already makes sense, not because the view is racing to repair itself after render.
+- **Keep views “dumb” beyond forms too.** This rule applies to any SwiftUI screen, not only editors. Views render state. ViewModels prepare state, load data, and decide the flow.
+- **Do not put heavy startup logic in `body` modifiers.** Avoid mixing multiple `.task`, `onAppear`, `onChange`, focus reactions, keyboard toolbars, alerts, and animations when a screen is first mounting. If startup behavior feels busy, move the logic down into the ViewModel or simplify the feature.
+- **One responsibility per trigger.** If a screen needs initial data, use one clear load path. If it needs to react to identity changes like `group.id`, use one standard reload path. Do not stack several reactive mechanisms for the same concern.
+- **Stability first, polish second.** Keyboard accessories, focus animations, suggestion engines, and similar enhancements should only be layered on top once the base screen is already stable.
+- **If you feel tempted to add logic in the View, stop.** Re-check the architecture first and move the responsibility to the ViewModel / UseCase / Repository layer that actually owns it.
+
 ---
 
 ## 📂 Quick File Location Guide
 
-> Source code lives under the `OMOMoney/` app folder inside the repo root. Example: `OMOMoney/Application/`, `OMOMoney/Presentation/`, `OMOMoney/Data/`.
+> Source code lives under the `Omoni/` app folder inside the repo root. Example: `Omoni/Application/`, `Omoni/Presentation/`, `Omoni/Data/`.
 
 ```
-OMOMoney/
+Omoni/
 ├── Application/
-│   ├── ContentView.swift, OMOMoneyApp.swift
+│   ├── ContentView.swift, OmoniApp.swift
 │   └── DIContainer/
 │       └── AppDIContainer.swift ← ALL dependencies created here (uses ModelContext)
 ├── Domain/
@@ -143,6 +161,12 @@ let service = UserService(...)               // ❌ Services are DELETED
 NSFetchRequest<User>(...)                    // ❌ Use UseCases
 context.perform { }                          // ❌ No context in Presentation
 class VM: ObservableObject { @Published var } // ❌ FORBIDDEN — use @Observable
+```
+
+```swift
+.task { await loadSomethingNeededToFixTheScreen() }   // ❌ If this is bootstrap/orchestration logic, move it to the ViewModel
+onAppear { repairStateAfterPresentation() }           // ❌ View-side patching is forbidden
+Task { await loadGroupsBecauseCallerDidNotPassThem() } // ❌ Fix architecture, don't patch in the View
 ```
 
 ---
@@ -201,10 +225,49 @@ Fix at the lowest layer that makes sense. Don't cascade a change through all lay
 
 ---
 
-**Last Updated:** April 16, 2026 (Phase 4 complete)
+## 🧪 Unit Tests
+
+**Target:** `OmoniTests` — XCTest + SwiftData in-memory (`OmoniTests/`)
+**Run:** `Cmd+U` in Xcode (UI Tests disabled from scheme — they're slow and test nothing useful yet)
+
+### What layer is tested
+
+| Layer | Tested? | How |
+|---|---|---|
+| **Domain / UseCases** | ✅ Yes | Real use case + real repository backed by in-memory SwiftData |
+| **Data / Repositories** | ✅ Indirectly | Exercised through UseCases via `SwiftDataTestContainer` |
+| **Infrastructure / Cache** | ✅ Yes | `CacheManager` directly |
+| **Presentation / ViewModels** | ❌ No | Logic lives in UseCases; ViewModels are coordinators only |
+| **Views** | ❌ No | Validated manually on physical device |
+
+### Test files
+
+```
+OmoniTests/
+├── TestHelpers/
+│   └── SwiftDataTestContainer.swift     ← in-memory container + seed helpers (insertGroup, insertItemList, insertItem...)
+├── Cache/
+│   └── CacheManagerTests.swift          ← 11 tests: store/retrieve/clear/expiry/type safety
+└── Domain/UseCases/
+    ├── CreateGroupUseCaseTests.swift     ← 5 tests: validation, trim, uppercase currency
+    ├── FetchCategoriesUseCaseTests.swift ← 5 tests: group scoping, ordering
+    ├── CreateItemUseCaseTests.swift      ← 10 tests: creation, trim, quantity, all validation errors
+    ├── CalculateItemListTotalsUseCaseTests.swift ← 12 tests: paid status, totals, search items, cache
+    └── ItemUseCaseTests.swift            ← 8 tests: delete (target isolation, notFound), toggle paid (bulk, scope)
+```
+
+### Rules for new tests
+- **Add a test every time you fix a real bug** — the failing test is proof the bug existed and won't return
+- **Never mock the repository** — use `SwiftDataTestContainer` (in-memory SwiftData) for real persistence behavior
+- **Don't test ViewModels** — if logic needs testing, it belongs in a UseCase, not a ViewModel
+- **One `SwiftDataTestContainer` per test class** — created in `setUp`, destroyed in `tearDown` for full isolation
+
+---
+
+**Last Updated:** May 15, 2026 (v1.20.0 — unit test coverage added)
 **Framework:** SwiftUI + SwiftData
 **iOS Version:** 26.1
-**Architecture:** Clean Architecture — SwiftData persistence, @Observable ViewModels (in progress)
+**Architecture:** Clean Architecture — SwiftData persistence, @Observable ViewModels
 
 ---
 

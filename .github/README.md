@@ -1,6 +1,6 @@
 # 🚀 GitHub Actions CI/CD Pipeline
 
-This directory contains the GitHub Actions workflows for OMOMoney iOS app. The pipeline ensures code quality, runs tests, and provides automated feedback.
+This directory contains the GitHub Actions workflows for OMONI iOS app. The pipeline ensures code quality, runs tests, and provides automated feedback.
 
 ## 📋 **Workflows Overview**
 
@@ -71,13 +71,13 @@ Enable these in GitHub repository settings:
 ### **Running Tests Locally**
 ```bash
 # Run all tests
-xcodebuild test -project OMOMoney.xcodeproj -scheme OMOMoney -destination 'platform=iOS Simulator,name=iPhone 15,OS=18.5'
+xcodebuild test -project Omoni.xcodeproj -scheme Omoni -destination 'platform=iOS Simulator,name=iPhone 15,OS=18.5'
 
 # Run specific test target
-xcodebuild test -project OMOMoney.xcodeproj -scheme OMOMoney -only-testing:OMOMoneyTests -destination 'platform=iOS Simulator,name=iPhone 15,OS=18.5'
+xcodebuild test -project Omoni.xcodeproj -scheme Omoni -only-testing:OmoniTests -destination 'platform=iOS Simulator,name=iPhone 15,OS=18.5'
 
 # Run with coverage
-xcodebuild test -project OMOMoney.xcodeproj -scheme OMOMoney -enableCodeCoverage YES -destination 'platform=iOS Simulator,name=iPhone 15,OS=18.5'
+xcodebuild test -project Omoni.xcodeproj -scheme Omoni -enableCodeCoverage YES -destination 'platform=iOS Simulator,name=iPhone 15,OS=18.5'
 ```
 
 ### **SwiftLint Local Usage**
@@ -129,7 +129,7 @@ xcrun xccov view --report path/to/TestResults.xcresult
 2. **Test Failures**
    ```bash
    # Run tests with verbose output
-   xcodebuild test -project OMOMoney.xcodeproj -scheme OMOMoney -destination 'platform=iOS Simulator,name=iPhone 15,OS=18.5' -verbose
+   xcodebuild test -project Omoni.xcodeproj -scheme Omoni -destination 'platform=iOS Simulator,name=iPhone 15,OS=18.5' -verbose
    ```
 
 3. **SwiftLint Issues**
@@ -222,4 +222,4 @@ xcrun xccov view --report path/to/TestResults.xcresult
 
 **Last Updated:** $(date)
 **Pipeline Version:** 1.0.0
-**Maintainer:** OMOMoney Team
+**Maintainer:** OMONI Team

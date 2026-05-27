@@ -2,14 +2,14 @@
 
 ## 🎉 What Was Implemented
 
-This document outlines the Clean Architecture improvements implemented in the OMOMoney project based on iOS Clean Architecture MVVM best practices.
+This document outlines the Clean Architecture improvements implemented in the OMONI project based on iOS Clean Architecture MVVM best practices.
 
 ---
 
 ## 📁 New Directory Structure
 
 ```
-OMOMoney/
+Omoni/
 ├── Domain/                          ✅ NEW - Business Logic Layer
 │   ├── Entities/                    ✅ Pure Swift domain models
 │   │   ├── UserDomain.swift
@@ -65,7 +65,7 @@ OMOMoney/
 │   ├── Protocols/
 │   └── Implementation/
 │
-└── OMOMoneyTests/                   ✅ NEW - Test infrastructure
+└── OmoniTests/                   ✅ NEW - Test infrastructure
     ├── Domain/
     │   └── UseCases/
     │       └── CreateUserUseCaseTests.swift
@@ -294,7 +294,7 @@ let createdUser = try await createUserUseCase.execute(
 
 ```swift
 import XCTest
-@testable import OMOMoney
+@testable import Omoni
 
 final class FetchUsersUseCaseTests: XCTestCase {
     
@@ -442,4 +442,3 @@ Centralized creation and management of dependencies, enabling testability and fl
 **Implementation Date:** November 18, 2025  
 **Status:** ✅ Foundation Complete  
 **Next Phase:** ViewModel Refactoring & Expanded Testing
-
