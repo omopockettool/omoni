@@ -321,6 +321,15 @@ enum LocalizationKey {
         static let news = "about.news"
         static let shareApp = "about.shareApp"
         static let shareAppSubtitle = "about.shareAppSubtitle"
+
+        enum ReleaseNotes {
+            static let v2_0_0Title = "about.releaseNotes.2_0_0.title"
+            static let v2_0_0Highlight1 = "about.releaseNotes.2_0_0.highlight1"
+            static let v2_0_0Highlight2 = "about.releaseNotes.2_0_0.highlight2"
+            static let v2_0_0Highlight3 = "about.releaseNotes.2_0_0.highlight3"
+            static let v2_0_0Highlight4 = "about.releaseNotes.2_0_0.highlight4"
+            static let v2_0_0Highlight5 = "about.releaseNotes.2_0_0.highlight5"
+        }
     }
 }
 

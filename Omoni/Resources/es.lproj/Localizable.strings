@@ -278,4 +278,10 @@
 "about.news" = "Novedades";
 "about.shareApp" = "Compartir OMONI";
 "about.shareAppSubtitle" = "Recomiéndala a un amigo";
+"about.releaseNotes.2_0_0.title" = "Tu vida financiera, clara y ordenada";
+"about.releaseNotes.2_0_0.highlight1" = "Organiza tus gastos por grupos — por ejemplo Casa, Trabajo o Viajes — cada uno con su propia moneda y color.";
+"about.releaseNotes.2_0_0.highlight2" = "Dentro de cada grupo crea registros del día a día: una compra, una cena, una factura. A cada registro le asignas una categoría y un método de pago.";
+"about.releaseNotes.2_0_0.highlight3" = "Cada registro puede tener uno o varios artículos, cada uno con su precio y cantidad. OMONI calcula el total automáticamente.";
+"about.releaseNotes.2_0_0.highlight4" = "El panel principal te muestra de un vistazo cuánto has gastado hoy, esta semana o este mes, filtrado por categoría o estado de pago.";
+"about.releaseNotes.2_0_0.highlight5" = "Marca registros como pagados o pendientes con un solo toque y ten siempre controlado qué queda por saldar.";
 "splash.tagline" = "tu vida. a tu manera.";

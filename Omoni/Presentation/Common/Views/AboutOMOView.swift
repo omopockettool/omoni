@@ -308,10 +308,13 @@ private struct AppInfo {
 private struct AppReleaseNoteEntry: Identifiable {
     let version: String
     let date: String
-    let title: String
-    let highlights: [String]
+    let titleKey: String
+    let highlightKeys: [String]
 
     var id: String { version }
+
+    var title: String { titleKey.localized }
+    var highlights: [String] { highlightKeys.map(\.localized) }
 }
 
 private enum AppReleaseNotesCatalog {
@@ -319,13 +322,13 @@ private enum AppReleaseNotesCatalog {
         AppReleaseNoteEntry(
             version: "2.0.0",
             date: "2026-06-07",
-            title: "Tu vida financiera, clara y ordenada",
-            highlights: [
-                "Organiza tus gastos por grupos — por ejemplo Casa, Trabajo o Viajes — cada uno con su propia moneda y color.",
-                "Dentro de cada grupo crea registros del día a día: una compra, una cena, una factura. A cada registro le asignas una categoría y un método de pago.",
-                "Cada registro puede tener uno o varios artículos, cada uno con su precio y cantidad. OMONI calcula el total automáticamente.",
-                "El panel principal te muestra de un vistazo cuánto has gastado hoy, esta semana o este mes, filtrado por categoría o estado de pago.",
-                "Marca registros como pagados o pendientes con un solo toque y ten siempre controlado qué queda por saldar."
+            titleKey: LocalizationKey.About.ReleaseNotes.v2_0_0Title,
+            highlightKeys: [
+                LocalizationKey.About.ReleaseNotes.v2_0_0Highlight1,
+                LocalizationKey.About.ReleaseNotes.v2_0_0Highlight2,
+                LocalizationKey.About.ReleaseNotes.v2_0_0Highlight3,
+                LocalizationKey.About.ReleaseNotes.v2_0_0Highlight4,
+                LocalizationKey.About.ReleaseNotes.v2_0_0Highlight5
             ]
         ),
     ]

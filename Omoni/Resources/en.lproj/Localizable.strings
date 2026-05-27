@@ -278,4 +278,10 @@
 "about.news" = "What's new";
 "about.shareApp" = "Share OMONI";
 "about.shareAppSubtitle" = "Recommend it to a friend";
+"about.releaseNotes.2_0_0.title" = "Your financial life, clear and organized";
+"about.releaseNotes.2_0_0.highlight1" = "Organize your spending by groups — for example Home, Work, or Trips — each with its own currency and color.";
+"about.releaseNotes.2_0_0.highlight2" = "Inside each group, create everyday entries: a purchase, a dinner, a bill. Assign each entry a category and a payment method.";
+"about.releaseNotes.2_0_0.highlight3" = "Each entry can contain one or more items, each with its own price and quantity. OMONI calculates the total automatically.";
+"about.releaseNotes.2_0_0.highlight4" = "The main dashboard shows at a glance how much you've spent today, this week, or this month, filtered by category or payment status.";
+"about.releaseNotes.2_0_0.highlight5" = "Mark entries as paid or pending with a single tap and always know what still needs to be settled.";
 "splash.tagline" = "your life. your way.";

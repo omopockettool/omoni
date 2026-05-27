@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.15.0] - 2026-05-27
+
+### Changed
+- **What's New / Novedades release notes are now fully localized instead of static** (`AboutOMOView`, `String+Localization`, `Resources/en.lproj/Localizable.strings`, `Resources/es.lproj/Localizable.strings`) — the in-app release notes catalog now reads localized title and highlight keys for each version entry, so users see the full changelog content in their active app language rather than a single hardcoded text block.
+
 ## [2.14.0] - 2026-05-27
 
 ### Changed
