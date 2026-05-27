@@ -140,7 +140,7 @@ struct AboutOMOView: View {
     private var heroSection: some View {
         Section {
             VStack(spacing: 14) {
-                OMOBrandIconView(size: 68, iconScale: 0.66)
+                OMOBrandIconView(size: 100)
 
                 VStack(spacing: 4) {
                     Text("OMONI")

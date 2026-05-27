@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.20.1] - 2026-05-27
+
+### Fixed
+- **Brand icon in About OMO was too small** (`AboutOMOView`) — increased from 68 pt with 0.66 scale to 100 pt full size so the app icon displays at a proper prominent size in the about screen.
+
 ## [2.20.0] - 2026-05-27
 
 ### Changed
