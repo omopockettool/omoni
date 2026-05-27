@@ -221,7 +221,7 @@ let viewModel = CreateFirstUserViewModel(
 ```swift
 func testCreateUser() async {
     // Setup Core Data stack
-    let container = NSPersistentContainer(name: "OMOMoney")
+    let container = NSPersistentContainer(name: "Omoni")
     // Load persistent stores
     // Setup context
     // Create ViewModel
@@ -362,8 +362,8 @@ When migrating a ViewModel to Clean Architecture:
 ## 📚 Additional Resources
 
 - **CLEAN_ARCHITECTURE_IMPLEMENTATION.md** - Full architecture guide
-- **Use Case Tests** - Examples in `OMOMoneyTests/Domain/UseCases/`
-- **ViewModel Tests** - Examples in `OMOMoneyTests/ViewModel/`
+- **Use Case Tests** - Examples in `OmoniTests/Domain/UseCases/`
+- **ViewModel Tests** - Examples in `OmoniTests/ViewModel/`
 - **DI Container** - `Application/DIContainer/AppDIContainer.swift`
 
 ---

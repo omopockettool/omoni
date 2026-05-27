@@ -1,0 +1,288 @@
+/* 
+  Localizable.strings
+  OMONI - Español
+
+  Created on 11/18/25.
+*/
+
+// MARK: - General
+"app.name" = "OMONI";
+"general.ok" = "Aceptar";
+"general.cancel" = "Cancelar";
+"general.save" = "Guardar";
+"general.delete" = "Eliminar";
+"general.edit" = "Editar";
+"general.add" = "Añadir";
+"general.back" = "Atrás";
+"general.done" = "Hecho";
+"general.eg" = "ej.";
+"general.error" = "Error";
+"general.unknownError" = "Error desconocido";
+"general.loading" = "Cargando...";
+"general.search" = "Buscar";
+"general.close" = "Cerrar";
+"general.all" = "Todo";
+"general.pending" = "Pendiente";
+
+// MARK: - Navigation
+"nav.dashboard" = "Panel";
+"nav.groups" = "Grupos";
+"nav.categories" = "Categorías";
+"nav.entries" = "Entradas";
+"nav.settings" = "Ajustes";
+"nav.users" = "Usuarios";
+
+// MARK: - User
+"user.title" = "Usuarios";
+"user.name" = "Nombre";
+"user.email" = "Correo electrónico";
+"user.create" = "Crear Usuario";
+"user.edit" = "Editar Usuario";
+"user.delete.confirm" = "¿Estás seguro de que quieres eliminar este usuario?";
+"user.empty.message" = "No se encontraron usuarios";
+
+// MARK: - Group
+"group.title" = "Grupos";
+"group.singularTitle" = "Grupo";
+"group.name" = "Nombre del Grupo";
+"group.currency" = "Moneda";
+"group.create" = "Crear Grupo";
+"group.edit" = "Editar Grupo";
+"group.delete.confirm" = "¿Estás seguro de que quieres eliminar este grupo?";
+"group.empty.message" = "No se encontraron grupos";
+"group.members" = "Miembros";
+
+// MARK: - Category
+"category.title" = "Categorías";
+"category.name" = "Nombre de Categoría";
+"category.color" = "Color";
+"category.limit" = "Límite";
+"category.noLimit" = "Sin límite";
+"category.create" = "Crear Categoría";
+"category.edit" = "Editar Categoría";
+"category.delete.confirm" = "¿Estás seguro de que quieres eliminar esta categoría?";
+"category.empty.message" = "No se encontraron categorías";
+
+// MARK: - Entry/ItemList
+"entry.title" = "Entradas";
+"entry.description" = "Descripción";
+"entry.date" = "Fecha";
+"entry.amount" = "Monto";
+"entry.category" = "Categoría";
+"entry.paymentMethod" = "Método de Pago";
+"entry.create" = "Añadir Entrada";
+"entry.edit" = "Editar Entrada";
+"entry.delete.confirm" = "¿Estás seguro de que quieres eliminar esta entrada?";
+"entry.empty.message" = "No se encontraron entradas";
+
+// MARK: - Item
+"item.description" = "Descripción del Artículo";
+"item.quantity" = "Cantidad";
+"item.amount" = "Monto";
+"item.total" = "Total";
+"item.add" = "Añadir Artículo";
+
+// MARK: - Payment Method
+"payment.title" = "Métodos de Pago";
+"payment.name" = "Nombre del Método de Pago";
+"payment.type" = "Tipo";
+"payment.active" = "Activo";
+"payment.create" = "Crear Método de Pago";
+"payment.edit" = "Editar Método de Pago";
+"payment.delete.confirm" = "¿Estás seguro de que quieres eliminar este método de pago?";
+"payment.empty.message" = "No se encontraron métodos de pago";
+
+// MARK: - Dashboard
+"dashboard.title" = "Panel";
+"dashboard.totalExpenses" = "Gastos Totales";
+"dashboard.totalIncome" = "Ingresos Totales";
+"dashboard.balance" = "Balance";
+"dashboard.thisMonth" = "Este Mes";
+"dashboard.recentEntries" = "Entradas Recientes";
+
+// MARK: - Settings
+"settings.title" = "Ajustes";
+"settings.language" = "Idioma";
+"settings.currency" = "Moneda Predeterminada";
+"settings.theme" = "Tema";
+"settings.notifications" = "Notificaciones";
+"settings.about" = "Acerca de";
+
+// MARK: - Validation Errors
+"error.validation.emptyName" = "El nombre no puede estar vacío";
+"error.validation.emptyEmail" = "El correo electrónico no puede estar vacío";
+"error.validation.invalidEmail" = "El correo electrónico debe ser válido";
+"error.validation.emptyGroupName" = "El nombre del grupo no puede estar vacío";
+"error.validation.invalidAmount" = "El monto debe ser mayor que cero";
+"error.validation.emptyItemDescription" = "La descripción del artículo no puede estar vacía";
+"error.validation.emptyCategoryName" = "El nombre de la categoría no puede estar vacío";
+"error.validation.emptyPaymentMethodName" = "El nombre del método de pago no puede estar vacío";
+
+// MARK: - Repository Errors
+"error.repository.notFound" = "El elemento solicitado no se encontró";
+"error.repository.invalidData" = "Los datos proporcionados no son válidos";
+"error.repository.saveFailed" = "No se pudo guardar el elemento";
+"error.repository.deleteFailed" = "No se pudo eliminar el elemento";
+
+// MARK: - Success Messages
+"success.created" = "Creado exitosamente";
+"success.updated" = "Actualizado exitosamente";
+"success.deleted" = "Eliminado exitosamente";
+"success.saved" = "Guardado exitosamente";
+
+// MARK: - General (extended)
+"general.retry" = "Reintentar";
+"general.empty" = "Nada por aquí...";
+"general.paste" = "Pegar";
+"general.copy" = "Copiar";
+"general.daily" = "Diario";
+"general.weekly" = "Semanal";
+"general.monthly" = "Mensual";
+
+// MARK: - Dashboard (extended)
+"dashboard.changingGroup" = "Cambiando grupo...";
+"dashboard.today" = "Hoy";
+"dashboard.yesterday" = "Ayer";
+"dashboard.costThisMonth" = "Coste de este mes";
+"dashboard.costToday" = "Coste de hoy";
+"dashboard.added" = "¡Listo!";
+"dashboard.filters" = "Filtros";
+"dashboard.itemStatus" = "Estado de artículos";
+"dashboard.month" = "Mes";
+"dashboard.year" = "Año";
+"dashboard.clearFilters" = "Limpiar filtros";
+"dashboard.noMatchesTitle" = "Sin coincidencias";
+"dashboard.noMatchesMessage" = "Prueba otra búsqueda o ajusta los filtros.";
+"dashboard.searchItemSummary.single" = "%d artículo coincidente";
+"dashboard.searchItemSummary.multiple" = "%d artículos coincidentes";
+"dashboard.emptyEntryToast" = "Registro vacío";
+"dashboard.markedAllPaid" = "Todo marcado como pagado";
+"dashboard.markedAllPending" = "Todo marcado como pendiente";
+"dashboard.changeUndone" = "Cambio deshecho";
+"dashboard.undo" = "Deshacer";
+"dashboard.limitShort" = "Límite";
+
+// MARK: - Entry (extended)
+"entry.newEntry" = "Nuevo Registro";
+"entry.concept" = "Concepto";
+"entry.viewLess" = "Ver menos";
+"entry.moreDetails" = "Más detalles";
+"entry.tapToAdd" = "Pulsa el + para agregar un registro";
+"entry.addByDate" = "Añadir en esta fecha";
+"entry.more" = "Más";
+
+// MARK: - Item (extended)
+"item.newItem" = "Nuevo Artículo";
+"item.editItem" = "Editar Artículo";
+"item.subtotal" = "Subtotal";
+"item.units" = "uds.";
+"item.loading" = "Cargando artículos...";
+"item.tapToAdd" = "Pulsa el + para agregar un artículo";
+"item.costOf" = "Coste de %@";
+"item.oneItem" = "1 artículo";
+"item.items" = "artículos";
+"item.unpaid" = "por pagar";
+
+// MARK: - Group (extended)
+"group.selectGroup" = "Seleccionar Grupo";
+"group.deleting" = "Eliminando grupo...";
+"group.deleteWarning" = "Se eliminarán todos los datos asociados a este grupo.";
+"group.deleteConfirmTitle" = "¿Desea eliminar \"%@\"?";
+"group.details" = "Detalles";
+"group.holdForActions" = "Mantén pulsado un grupo para ver más acciones.";
+"group.info" = "Información del Grupo";
+"group.settings" = "Detalles del grupo";
+"group.content" = "Contenido";
+"group.currencyEuro" = "Euro (EUR)";
+"group.currencyDollar" = "Dólar (USD)";
+"group.optionsFor" = "Opciones de %@";
+
+// MARK: - Category (extended)
+"category.selectCategory" = "Seleccionar Categoría";
+"category.emptyHint" = "Las categorías se crean automáticamente cuando se crea un grupo";
+"category.icon" = "Icono";
+"category.new" = "Nueva categoría";
+"category.limitFrequency" = "Frecuencia del límite";
+
+// MARK: - Payment (extended)
+"payment.selectPayment" = "Seleccionar Método de Pago";
+"payment.emptyHint" = "Crea un método de pago en la configuración del grupo";
+"payment.none" = "Ninguno";
+"payment.cards" = "Tarjetas";
+"payment.cash" = "Efectivo";
+"payment.transfers" = "Transferencias";
+"payment.digitalWallets" = "Billeteras Digitales";
+"payment.digital" = "Digital";
+"payment.others" = "Otros";
+"payment.card" = "Tarjeta";
+"payment.other" = "Otro";
+"payment.debit" = "Débito";
+"payment.credit" = "Crédito";
+"payment.transfer" = "Transferencia";
+"payment.icon" = "Icono";
+"payment.newMethod" = "Nuevo método";
+"payment.editMethod" = "Editar método";
+
+// MARK: - Settings (extended)
+"settings.account" = "Cuenta";
+"settings.aboutOMO" = "Sobre OMO";
+"settings.requiredConfig" = "Configuración requerida";
+"settings.requiredConfigMsg" = "Por favor crea un usuario y grupo para continuar";
+"settings.goToSettings" = "Ir a Configuración";
+"settings.backup" = "Copia de seguridad";
+"settings.backupDescription" = "Exporta una copia completa a Archivos o restaura los datos de la app desde un backup anterior.";
+"settings.exportBackup" = "Exportar backup a Archivos";
+"settings.importBackup" = "Importar backup";
+"settings.rescueBackupTitle" = "Guarda antes una copia de rescate";
+"settings.rescueBackupMessage" = "Antes de reemplazar tus datos, guarda una copia de lo que hay ahora mismo en este dispositivo. Asi podras restaurarlo todo si algo falla.";
+"settings.rescueBackupConfirm" = "Guardar copia de rescate";
+"settings.replaceDataTitle" = "¿Reemplazar los datos actuales?";
+"settings.replaceDataMessage" = "Importar este backup reemplazará todos los datos actuales de la app. Continúa solo si estás seguro.";
+"settings.replaceDataConfirm" = "Reemplazar datos";
+
+// MARK: - User (extended)
+"user.welcome.title" = "OMONI";
+"user.welcome.subtitle" = "¿Cuánto costé hoy?";
+"user.welcome.legalIntro" = "Acepto los";
+"user.welcome.terms" = "Términos";
+"user.welcome.privacy" = "Política de Privacidad";
+"user.welcome.consent" = "y la";
+"user.name.placeholder" = "Tu nombre";
+"user.email.placeholder" = "tu@email.com";
+"user.noEmail" = "Sin email";
+"user.profile" = "Perfil";
+"user.info" = "Información del usuario";
+"user.details" = "Detalles del usuario";
+"user.createdAt" = "Fecha de creación";
+"user.updatedAt" = "Última modificación";
+
+// MARK: - About
+"about.application" = "Aplicación";
+"about.currentVersion" = "Versión actual";
+"about.whatsNew" = "Novedades y cambios";
+"about.viewHistory" = "Ver historial";
+"about.title" = "Sobre OMO";
+"about.descriptionLabel" = "Descripción";
+"about.tagline" = "Pocket tool. Consciencia financiera en tu bolsillo. Sin fricción.";
+"about.heroTagline" = "¿Cuánto te costó vivir hoy?";
+"about.officialWeb" = "Web oficial";
+"about.contact" = "Contacto";
+"about.support" = "Apoyar OMO";
+"about.supportQuestion" = "¿Te está ayudando OMONI?";
+"about.supportDescription" = "Si la app te aporta valor, puedes apoyar su desarrollo con una donación y ayudar a que siga creciendo.";
+"about.donate" = "Apoyar con una donación";
+"about.developedBy" = "Desarrollado por";
+"about.team" = "Equipo OMO";
+"about.motto" = "Hacia una vida mejor 🌿";
+"about.installed" = "Instalada";
+"about.changelog" = "Historial de cambios";
+"about.news" = "Novedades";
+"about.shareApp" = "Compartir OMONI";
+"about.shareAppSubtitle" = "Recomiéndala a un amigo";
+"about.releaseNotes.2_0_0.title" = "Tu vida financiera, clara y ordenada";
+"about.releaseNotes.2_0_0.highlight1" = "Organiza tus gastos por grupos — por ejemplo Casa, Trabajo o Viajes — cada uno con su propia moneda y color.";
+"about.releaseNotes.2_0_0.highlight2" = "Dentro de cada grupo crea registros del día a día: una compra, una cena, una factura. A cada registro le asignas una categoría y un método de pago.";
+"about.releaseNotes.2_0_0.highlight3" = "Cada registro puede tener uno o varios artículos, cada uno con su precio y cantidad. OMONI calcula el total automáticamente.";
+"about.releaseNotes.2_0_0.highlight4" = "El panel principal te muestra de un vistazo cuánto has gastado hoy, esta semana o este mes, filtrado por categoría o estado de pago.";
+"about.releaseNotes.2_0_0.highlight5" = "Marca registros como pagados o pendientes con un solo toque y ten siempre controlado qué queda por saldar.";
+"splash.tagline" = "tu vida. a tu manera.";

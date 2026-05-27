@@ -184,7 +184,7 @@ Use this checklist to track your progress during the reorganization.
 
 ### Core Data Stack → `Data/CoreData/`
 - [ ] `PersistenceController.swift`
-- [ ] `OMOMoney.xcdatamodeld`
+- [ ] `Omoni.xcdatamodeld`
 
 **✅ Checkpoint**: Build and run tests (`Cmd+U`)
 

@@ -1,218 +1,274 @@
-# 🚀 OMOMoney - Session Quick Start
+# 🚀 OMONI - Session Quick Start
 
-**You are an expert iOS Swift Developer | Clean Architecture | SwiftUI + CoreData | Liquid Glass UI**
+**You are an expert iOS Swift Developer | Clean Architecture | SwiftUI + SwiftData | iOS 26 | NO Liquid Glass UI for now**
 
+read this .md then let me know if you are ready for new development!
+
+## 📚 Required Reading Before Coding
+
+1. Read this file first: `docs/START_HERE.md`
+2. Then read: `docs/swiftui_data_flow_guide.md`
+
+> `swiftui_data_flow_guide.md` is part of the project entry point now. Read it before touching SwiftUI code so you align with the app's current mental model for `@Observable`, `@State` lifetime, `.task`, view identity, rendering, and performance-sensitive data flow decisions.
+
+> **This project is built with passion — no shortcuts, no lazy responses.**
+> Think hard, write clean code, respect every architecture rule, and bring full effort to every task.
+> OMO and Claude are building this together. Match that energy.
 ---
 
 ## ⚡ Critical Rules (NEVER VIOLATE)
 
-### 1. Clean Architecture Layers
+### 0. NEVER MAKE COMMITS — Only Suggest the Commit Message
+**Claude NEVER runs `git commit`, `git add`, or any git write command.**
+When work is complete, only output the suggested commit message so the team can run it himself.
+
 ```
-View → ViewModel → UseCase → Repository → CoreData
-  ↓        ↓          ↓           ↓          ↓
-Domain  Domain    Domain      Domain    Data Layer
-Models  Models    Models      Models    ONLY
+❌ git add . && git commit -m "..." → NEVER DO THIS
+✅ "Here's the suggested commit message: feat: ..."
 ```
+
+> Team reviews and commits manually. Claude's job ends at suggesting the message.
+
+---
+
+### 0.1. NEVER RUN BUILDS — Validation Happens on Physical Device
+**Claude NEVER runs `xcodebuild`, simulator builds, or any build/launch command.**
+Dennis validates changes manually on the physical iPhone and then shares feedback if something needs adjustment.
+
+```swift
+❌ xcodebuild -project Omoni.xcodeproj -scheme Omoni build
+❌ Run on Simulator / try local build validation
+✅ Make the code change, explain it clearly, and wait for device feedback
+```
+
+> Build verification is handled manually on the physical device. Do not attempt it from Codex.
+
+---
+
+### 1. Architecture Layers (Post-SwiftData)
+```
+View → ViewModel → UseCase → Repository → ModelContext (SwiftData)
+  ↓        ↓          ↓           ↓              ↓
+SD*     SD*        SD*         SD*          SD* Models
+Models  Models    Models      Models       (single source of truth)
+```
+
+> **Domain entity files deleted.** All layers use SD* types directly (SDUser, SDGroup, SDItemList, etc.)
 
 ### 2. Layer Boundaries (STRICT)
 | Layer | ✅ Can Use | ❌ FORBIDDEN |
 |-------|-----------|--------------|
-| **Presentation** (Views/ViewModels) | Domain models, UseCases, AppDIContainer | CoreData, NSManagedObjectContext, Services, Repositories |
-| **Domain** (UseCases, Protocols, Entities) | Pure Swift, Foundation only | CoreData, SwiftUI, Data layer |
-| **Data** (Repositories, Services) | CoreData, Domain protocols, `.toDomain()` | Presentation layer |
+| **Presentation** (Views/ViewModels) | SD* models, UseCases, AppDIContainer, @Query | CoreData, NSManagedObjectContext, ModelContext directly, Repositories, *Domain structs |
+| **Domain** (UseCases, Protocols) | Pure Swift, Foundation, SD* types | SwiftData @Model directly, SwiftUI, Data layer |
+| **Data** (Repositories) | ModelContext, SD* models, Domain protocols | Presentation layer |
+
+- **Views render; ViewModels decide.** Keep derived UI state, display-state mapping, and business/presentation rules out of SwiftUI views. If a view needs conditions like "neutral vs paid vs partial", compute that in the ViewModel (or a dedicated presentation mapper) and pass the result in.
+- **NO logic in Views.** Views must not fetch, orchestrate, repair, bootstrap, or "complete" state after presentation. If the screen needs data, fallback loading, selection recovery, async coordination, or flow decisions, that belongs in the ViewModel or below.
+- **No quick fixes.** We are building a premium product, not patching demos. Do not solve issues with local hacks, view-side band-aids, duplicated loading paths, or special-case glue code. Prefer the robust architectural fix at the correct layer.
 
 ### 3. Dependency Injection (MANDATORY)
 ```swift
 // ✅ CORRECT - Always use AppDIContainer
 struct MyView: View {
-    @StateObject private var viewModel: MyViewModel
-    
+    @State private var viewModel: MyViewModel
+
     init(container: AppDIContainer) {
-        _viewModel = StateObject(wrappedValue: container.makeMyViewModel())
+        _viewModel = State(wrappedValue: container.makeMyViewModel())
     }
 }
 
 // ❌ WRONG - Never create dependencies directly
 struct MyView: View {
-    @StateObject private var viewModel = MyViewModel(
-        service: UserService() // ❌ FIRED!
-    )
+    @State private var viewModel = MyViewModel(repository: DefaultUserRepository(...))
 }
 ```
 
 ### 4. Threading Rules
-- **UI**: `@MainActor` for all ViewModels and Published properties
-- **CoreData**: `context.perform { }` for ALL CoreData operations
+- **ViewModels**: `@Observable` + `@MainActor`
+- **Repositories**: `MainActor.run { }` wrapping ModelContext operations
 - **Async**: Use `async/await` and `withTaskGroup` for concurrent ops
+
+### 5. Form Pattern (KEEP IT SIMPLE)
+- **Dumb forms, smart ViewModels.** A form view should mostly render bindings and user actions. Loading categories, payment methods, groups, or other form data belongs in the ViewModel.
+- **No patchy bootstrap logic in SwiftUI views.** Avoid stacking `.task`, `Task {}`, `onChange`, and post-render state fixes to "finish" building a form after presentation.
+- **Initialize structural UI state up front.** Things like edit-mode expansion, initial detent intent, and default selected context should be decided in `init` or by the ViewModel before the view starts reacting.
+- **Prefer one clear loading flow.** For sheets and forms, aim for a single standard loading path instead of several competing async triggers.
+- **No rush fixes.** We optimize for stable architecture and predictable SwiftUI data flow, not quick patches. If a flow feels too clever, simplify it.
+- **Premium product standard.** Every form/edit flow should feel intentional, maintainable, and production-grade. If a change only "makes it work" but weakens architecture, it is not done.
+
+### 6. View Lifecycle Rule (APPLE-LIKE BY DEFAULT)
+- **Views should open light.** Opening a sheet, push view, or modal should not trigger heavy UI-side orchestration. A screen should appear because its state already makes sense, not because the view is racing to repair itself after render.
+- **Keep views “dumb” beyond forms too.** This rule applies to any SwiftUI screen, not only editors. Views render state. ViewModels prepare state, load data, and decide the flow.
+- **Do not put heavy startup logic in `body` modifiers.** Avoid mixing multiple `.task`, `onAppear`, `onChange`, focus reactions, keyboard toolbars, alerts, and animations when a screen is first mounting. If startup behavior feels busy, move the logic down into the ViewModel or simplify the feature.
+- **One responsibility per trigger.** If a screen needs initial data, use one clear load path. If it needs to react to identity changes like `group.id`, use one standard reload path. Do not stack several reactive mechanisms for the same concern.
+- **Stability first, polish second.** Keyboard accessories, focus animations, suggestion engines, and similar enhancements should only be layered on top once the base screen is already stable.
+- **If you feel tempted to add logic in the View, stop.** Re-check the architecture first and move the responsibility to the ViewModel / UseCase / Repository layer that actually owns it.
 
 ---
 
 ## 📂 Quick File Location Guide
 
+> Source code lives under the `Omoni/` app folder inside the repo root. Example: `Omoni/Application/`, `Omoni/Presentation/`, `Omoni/Data/`.
+
 ```
-Application/
-├── ContentView.swift, OMOMoneyApp.swift
-└── DIContainer/
-    └── AppDIContainer.swift ← ALL dependencies created here
-
-Domain/
-├── Entities/ ← Pure Swift models (UserDomain, GroupDomain, etc.)
-├── Protocols/ ← Repository & Service contracts
-└── UseCases/ ← Business logic (one operation per UseCase)
-
-Data/
-├── CoreData/ ← NSManagedObjectContext, .xcdatamodeld
-├── Repositories/ ← Implement Domain protocols
-└── Services/ ← CoreData CRUD operations with .toDomain()
-
-Presentation/
-└── Scenes/
-    ├── Dashboard/, User/, Group/, ItemList/, etc.
-    └── Each has: Views/ and ViewModels/
-
-Infrastructure/
-└── Cache/, Extensions/, Helpers/, Utils/
+Omoni/
+├── Application/
+│   ├── ContentView.swift, OmoniApp.swift
+│   └── DIContainer/
+│       └── AppDIContainer.swift ← ALL dependencies created here (uses ModelContext)
+├── Domain/
+│   ├── Entities/   ← EMPTY — Domain struct files deleted in Phase 4 Step 4.2
+│   ├── Protocols/  ← Repository contracts only (Services layer DELETED)
+│   └── UseCases/   ← Business logic (one operation per UseCase, returns SD* types)
+├── Data/
+│   ├── CoreData/   ← Legacy .xcdatamodeld + Persistence.swift (NOT USED by app)
+│   ├── SwiftData/  ← SD*.swift @Model classes — THE persistence layer + source of truth
+│   └── Repositories/ ← ModelContext + FetchDescriptor, return SD* models directly
+├── Presentation/
+│   └── Scenes/
+│       ├── Dashboard/, User/, Group/, ItemList/, etc.
+│       └── Each has: Views/ and ViewModels/ (@Observable)
+└── Infrastructure/
+    └── Cache/, Extensions/, Helpers/, Utils/
 ```
 
 ---
 
 ## 🎯 Current Architecture Status
 
-**Status**: ✅ **100% Clean Architecture** (as of Dec 24, 2025)
-- **0** CoreData imports in Presentation layer
-- **0** NSManagedObjectContext in Views/ViewModels  
-- **0** Direct Service/Repository instantiation
-- **32** `.toDomain()` conversions (all in Data layer)
+**SwiftData Migration: Phases 1–3 + 4.1–4.2 Complete** (as of April 2026)
+- ✅ SD* SwiftData models replace Core Data entities
+- ✅ ModelContainer replaces PersistenceController
+- ✅ Service layer fully deleted (~2,700 lines removed)
+- ✅ All 7 repositories use ModelContext directly
+- ✅ 0 CoreData imports in Presentation layer
+- ✅ 14 ViewModels migrated to @Observable (Phase 4 Step 4.1)
+- ✅ All Domain entity files deleted — 0 *Domain types in codebase (Phase 4 Step 4.2)
+- ✅ All 7 CoreData mapping files deleted (Phase 4 Step 4.2)
+- ✅ All use cases, repositories, ViewModels, and Views use SD* types directly
+- ✅ @Query adoption in picker views (Phase 4 Step 4.3) — CategoryPickerView + PaymentMethodPickerView now use @Query directly; 2 ViewModels deleted
+
+**Active Phase:** Phase 4 — Complete ✅
 
 ---
 
-## 🔍 When You Need More Context
+## 🔴 Red Flags (Auto-Reject)
 
-Use these commands in order:
-1. **Quick overview**: Read `docs/architecture/QUICK_START.md`
-2. **Layer details**: Read `docs/architecture/CLEAN_ARCHITECTURE_GUIDE.md`
-3. **File structure**: Read `docs/architecture/PROJECT_STRUCTURE.md`
-4. **Complete refactor**: Read `docs/CLEAN_ARCHITECTURE_REFACTOR_SUMMARY.md`
-
----
-
-## 🚨 Red Flags (Auto-Reject)
-
-If you see ANY of these in Presentation layer, **STOP and REFACTOR**:
 ```swift
-import CoreData                           // ❌ FORBIDDEN
-@Environment(\.managedObjectContext)      // ❌ FORBIDDEN
-let service = UserService(...)            // ❌ Use DI Container
-NSFetchRequest<User>(...)                 // ❌ Use UseCases
-context.perform { }                       // ❌ No context in Presentation
+import CoreData                              // ❌ FORBIDDEN in Presentation
+@Environment(\.managedObjectContext)         // ❌ FORBIDDEN
+let service = UserService(...)               // ❌ Services are DELETED
+NSFetchRequest<User>(...)                    // ❌ Use UseCases
+context.perform { }                          // ❌ No context in Presentation
+class VM: ObservableObject { @Published var } // ❌ FORBIDDEN — use @Observable
 ```
+
+```swift
+.task { await loadSomethingNeededToFixTheScreen() }   // ❌ If this is bootstrap/orchestration logic, move it to the ViewModel
+onAppear { repairStateAfterPresentation() }           // ❌ View-side patching is forbidden
+Task { await loadGroupsBecauseCallerDidNotPassThem() } // ❌ Fix architecture, don't patch in the View
+```
+
+---
+
+## 🧭 Current Stack
+
+| Concern | Solution |
+|---------|----------|
+| Persistence | SwiftData `ModelContext` via `ModelContainer.shared` |
+| DI | `AppDIContainer` (singleton, `@MainActor`) |
+| ViewModels | `@Observable` + `@MainActor` ✅ |
+| Data fetch | Repositories → UseCases → ViewModels / `@Query` in Views |
+| UI | SwiftUI, Liquid Glass materials (iOS 26) |
+| Testing device | Dennis's iPhone (iOS 26.4) `00008120-000A190218614032` |
+
+---
+
+## 🧠 UX Intent — Key Behaviours (READ BEFORE TOUCHING THESE VIEWS)
+
+| View | Behaviour | Why |
+|------|-----------|-----|
+| `AddItemListView` — create mode | Shows `HeroAmountInputView` (big money input) + description field below it | Dashboard quick-add: user sets a price AND a concept in one shot |
+| `AddItemListView` — edit mode | **Hides** `HeroAmountInputView`; description field becomes larger (`.body` font, extra padding) | Money is an **item-level** property. The item list itself has no "price" — the hero input is a create-only shortcut, not a real field |
+| `ItemListDetailView` | Never shows `HeroAmountInputView` | Same reason — money lives on items, not on the list |
+
+---
+
+## 🔔 Shared Helpers (ALWAYS use before creating new ones)
+
+| Helper | File | Usage |
+|--------|------|-------|
+| `PressHapticButtonStyle` | `Infrastructure/Helpers/PressHapticButtonStyle.swift` | `.buttonStyle(PressHapticButtonStyle())` |
+| `AnimationHelper.smoothSpring` | `Infrastructure/Helpers/AnimationHelper.swift` | General transitions |
+| `AnimationHelper.quickSpring` | same | Immediate feedback |
+| `AnimationHelper.quickEase` | same | View mode switching |
+| `AppConstants.UserInterface.padding` | `Infrastructure/Constants/AppConstants.swift` | 16pt standard padding |
+| `AppConstants.UserInterface.cornerRadius` | same | 16pt corner radius |
+
+---
+
+## 💡 Adding a New Feature (post-SwiftData)
+
+1. Add SD* model or extend existing in `Data/SwiftData/`
+2. Create/update Repository protocol in `Domain/Protocols/Repositories/`
+3. Implement in `Data/Repositories/Default*.swift`
+4. Create UseCase in `Domain/UseCases/`
+5. Add factory method to `AppDIContainer`
+6. Create `@Observable` ViewModel
+7. Create View using `@State` + DI container
 
 ---
 
 ## ⚠️ Don't Over-Engineer
 
-**Fix at the lowest layer that makes sense. Don't cascade a change through all layers unless truly required.**
+Fix at the lowest layer that makes sense. Don't cascade a change through all layers unless truly required.
 
-| Situation | ❌ Over-engineered | ✅ Right fix |
-|-----------|-------------------|--------------|
-| UI field should be optional | Change Domain model + UseCase + Repository + Mapping + ViewModel | Handle the empty/nil state in the ViewModel, pass a safe default |
-| Display tweak | New UseCase + new protocol | Change the View or ViewModel directly |
-| Validation relaxation | Refactor all layers | Relax only the layer that owns that rule |
+---
 
-**Real example** — making the amount field optional when creating an item:
-```swift
-// ❌ Wrong: changed ItemDomain, UseCases, Repository, Mapping, ViewModel (7 files)
+## 🧪 Unit Tests
 
-// ✅ Right: one line in AddItemViewModel.saveItem()
-let amountDecimal = normalizedAmount.isEmpty ? Decimal(0) : (Decimal(string: normalizedAmount) ?? Decimal(0))
+**Target:** `OmoniTests` — XCTest + SwiftData in-memory (`OmoniTests/`)
+**Run:** `Cmd+U` in Xcode (UI Tests disabled from scheme — they're slow and test nothing useful yet)
+
+### What layer is tested
+
+| Layer | Tested? | How |
+|---|---|---|
+| **Domain / UseCases** | ✅ Yes | Real use case + real repository backed by in-memory SwiftData |
+| **Data / Repositories** | ✅ Indirectly | Exercised through UseCases via `SwiftDataTestContainer` |
+| **Infrastructure / Cache** | ✅ Yes | `CacheManager` directly |
+| **Presentation / ViewModels** | ❌ No | Logic lives in UseCases; ViewModels are coordinators only |
+| **Views** | ❌ No | Validated manually on physical device |
+
+### Test files
+
+```
+OmoniTests/
+├── TestHelpers/
+│   └── SwiftDataTestContainer.swift     ← in-memory container + seed helpers (insertGroup, insertItemList, insertItem...)
+├── Cache/
+│   └── CacheManagerTests.swift          ← 11 tests: store/retrieve/clear/expiry/type safety
+└── Domain/UseCases/
+    ├── CreateGroupUseCaseTests.swift     ← 5 tests: validation, trim, uppercase currency
+    ├── FetchCategoriesUseCaseTests.swift ← 5 tests: group scoping, ordering
+    ├── CreateItemUseCaseTests.swift      ← 10 tests: creation, trim, quantity, all validation errors
+    ├── CalculateItemListTotalsUseCaseTests.swift ← 12 tests: paid status, totals, search items, cache
+    └── ItemUseCaseTests.swift            ← 8 tests: delete (target isolation, notFound), toggle paid (bulk, scope)
 ```
 
----
-
-## ♻️ Reusable Components (MANDATORY thinking)
-
-**Before writing any UI component, helper, or style — ask: "Could this be used in more than one place?"**
-
-If yes, put it in the right shared location instead of scoping it to a single file:
-
-| Type | Where |
-|------|-------|
-| `ButtonStyle`, visual modifiers | `Infrastructure/Helpers/` |
-| SwiftUI shared views (cards, inputs) | `Presentation/Common/Components/` |
-| Extensions (`Color`, `String`, etc.) | `Infrastructure/Extensions/` |
-| Animation constants | `Infrastructure/Helpers/AnimationHelper.swift` |
-| Haptic feedback | `Infrastructure/Helpers/PressHapticButtonStyle.swift` |
-| Conditional modifier `.if` | `Infrastructure/Extensions/View+ConditionalModifier.swift` |
-
-**Real example** — haptic button style needed in two views:
-```swift
-// ❌ Wrong: defined as `private struct` inside ItemListDetailView.swift
-
-// ✅ Right: Infrastructure/Helpers/PressHapticButtonStyle.swift
-struct PressHapticButtonStyle: ButtonStyle { ... }
-// Now any view can use: .buttonStyle(PressHapticButtonStyle())
-```
-
-**Rule**: if you catch yourself copy-pasting a component into a second file, stop and extract it first.
+### Rules for new tests
+- **Add a test every time you fix a real bug** — the failing test is proof the bug existed and won't return
+- **Never mock the repository** — use `SwiftDataTestContainer` (in-memory SwiftData) for real persistence behavior
+- **Don't test ViewModels** — if logic needs testing, it belongs in a UseCase, not a ViewModel
+- **One `SwiftDataTestContainer` per test class** — created in `setUp`, destroyed in `tearDown` for full isolation
 
 ---
 
-## 🔔 Existing Shared Helpers (ALWAYS use before creating new ones)
-
-| Helper | File | Usage |
-|--------|------|-------|
-| `PressHapticButtonStyle` | `Infrastructure/Helpers/PressHapticButtonStyle.swift` | `.buttonStyle(PressHapticButtonStyle())` — rigid haptic on press-down, soft on release. Use on ANY tappable element that needs tactile feedback. Never call `UIImpactFeedbackGenerator` directly in a view. |
-| `AnimationHelper.smoothSpring` | `Infrastructure/Helpers/AnimationHelper.swift` | General UI transitions (calendar selection, panel appear) |
-| `AnimationHelper.quickSpring` | same | Immediate feedback (small buttons) |
-| `AnimationHelper.quickEase` | same | View mode switching |
-| `AnimationHelper.gentleEase` | same | Subtle transitions |
-| `AppConstants.UserInterface.padding` | `Infrastructure/Constants/AppConstants.swift` | 16pt — standard padding |
-| `AppConstants.UserInterface.smallPadding` | same | 8pt — compact spacing |
-| `AppConstants.UserInterface.largePadding` | same | 24pt — generous spacing |
-| `AppConstants.UserInterface.cornerRadius` | same | 16pt — universal corner radius |
+**Last Updated:** May 15, 2026 (v1.20.0 — unit test coverage added)
+**Framework:** SwiftUI + SwiftData
+**iOS Version:** 26.1
+**Architecture:** Clean Architecture — SwiftData persistence, @Observable ViewModels
 
 ---
 
-## 💡 Development Patterns
-
-### Adding New Feature
-1. Create Domain entity in `Domain/Entities/`
-2. Create Repository protocol in `Domain/Protocols/Repositories/`
-3. Create UseCase in `Domain/UseCases/`
-4. Implement Repository in `Data/Repositories/`
-5. Add factory method to `AppDIContainer`
-6. Create ViewModel using container
-7. Create View using container
-
-### Incremental Updates (Cache System)
-```swift
-// Pattern: Update cache first, then CoreData in background
-Task {
-    // 1. Update cache immediately (UI updates)
-    CacheManager.shared.updateCache(...)
-    
-    // 2. Persist to CoreData in background
-    await repository.save(...)
-}
-```
-
----
-
-## 🧪 Testing Device
-**Physical Device**: Dennis's iPhone (26.1) `00008120-000A190218614032`
-
----
-
-## 📝 Code Style
-- **No verbose summaries** - Concise responses only
-- **Swift naming**: camelCase for vars, PascalCase for types
-- **SwiftUI**: Prefer `@StateObject` for ownership, `@ObservedObject` for passing
-- **Async/await**: Prefer over completion handlers
-- **Error handling**: Use `throws` and domain-specific errors
-
----
-
-**Last Updated**: April 5, 2026
-**Framework**: SwiftUI + CoreData  
-**iOS Version**: 26.1  
-**Architecture**: Clean Architecture (100% compliant)
+Finally, when the user says "ok, doc and commit" meaning you have to document in english the changelog.md and give the commit name. This is an example: refactor: mark all repositories @MainActor, remove MainActor.run wrappers [v1.0.53] Never make you the commits.
