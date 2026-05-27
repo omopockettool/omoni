@@ -1,54 +1,21 @@
 import SwiftUI
 
 
-private struct ItemRowSideTab: View {
+private struct ItemRowToggleButton: View {
     let isPaid: Bool
-    let compact: Bool
     let action: () -> Void
-
-    private var tabWidth: CGFloat { compact ? 36 : 40 }
-
-    private var tabColor: Color {
-        isPaid ? .paidGreen : Color(.systemGray4)
-    }
-
-    private var iconName: String {
-        isPaid ? "checkmark" : "clock"
-    }
 
     var body: some View {
         Button(action: action) {
-            ZStack {
-                tabColor
-                Image(systemName: iconName)
-                    .font(.system(size: compact ? 11 : 12, weight: .bold))
-                    .foregroundStyle(.white.opacity(0.9))
-            }
-            .contentShape(Rectangle())
+            Image(systemName: isPaid ? "checkmark.circle.fill" : "circle")
+                .font(.system(size: 24, weight: isPaid ? .regular : .light))
+                .foregroundStyle(isPaid ? Color.paidGreen : Color(.systemGray3))
+                .frame(width: 34, height: 34)
+                .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .frame(width: tabWidth)
-        .animation(.spring(response: 0.35, dampingFraction: 0.82), value: isPaid)
+        .animation(.spring(response: 0.3, dampingFraction: 0.75), value: isPaid)
         .toggleHaptic(trigger: isPaid)
-    }
-}
-
-private struct ItemRowCardBorder: View {
-    let accentColor: Color
-    let compact: Bool
-
-    private var cornerRadius: CGFloat { compact ? 18 : 20 }
-    private var borderWidth: CGFloat { compact ? 2.1 : 2.3 }
-
-    var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                .stroke(accentColor.opacity(0.72), lineWidth: borderWidth)
-            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                .stroke(Color.white.opacity(0.14), lineWidth: 0.5)
-                .padding(1)
-        }
-        .allowsHitTesting(false)
     }
 }
 
@@ -283,13 +250,12 @@ struct ItemRowView: View {
 
     private var showsBreakdown: Bool { item.quantity > 1 }
     private var showsZeroAmountStyle: Bool { abs(item.totalAmount) < 0.000_001 }
-    private var minimumRowHeight: CGFloat { showsBreakdown ? 80 : 72 }
-    private var contentPadding: CGFloat { 16 }
-    private var shellVerticalPadding: CGFloat { showsBreakdown ? 12 : 11 }
-    private var cardCornerRadius: CGFloat { 20 }
-    private var rowAccentColor: Color {
-        item.isPaid ? .paidGreen : Color(.systemGray2)
+
+    private var amountColor: Color {
+        if showsZeroAmountStyle { return .secondary }
+        return item.isPaid ? .paidGreen : Color.primary.opacity(0.75)
     }
+
     private var formattedUnitPrice: String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
@@ -299,62 +265,44 @@ struct ItemRowView: View {
     }
 
     var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: cardCornerRadius, style: .continuous)
-                .fill(Color(.secondarySystemBackground))
+        HStack(alignment: .center, spacing: 10) {
+            ItemRowToggleButton(isPaid: item.isPaid, action: onTogglePaid)
 
-            HStack(spacing: 0) {
-                ItemRowSideTab(
-                    isPaid: item.isPaid,
-                    compact: false,
-                    action: onTogglePaid
-                )
-                .frame(maxHeight: .infinity)
-
-                HStack(alignment: .center, spacing: 12) {
-                    VStack(alignment: .leading, spacing: 0) {
-                        HStack(spacing: 6) {
-                            Text(item.itemDescription)
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
-                                .lineLimit(1)
-                                .layoutPriority(1)
-
-                            if isSearchMatch {
-                                Image(systemName: "magnifyingglass.circle.fill")
-                                    .font(.caption)
-                                    .foregroundStyle(.tint)
-                            }
-                        }
-
-                        if showsBreakdown {
-                            Text("\(formattedUnitPrice) × \(item.quantity) \(LocalizationKey.Item.units.localized)")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                                .padding(.top, 2)
-                        }
-                    }
-
-                    Spacer(minLength: 20)
-
-                    Text(formattedAmount)
-                        .font(.subheadline)
-                        .fontWeight(showsZeroAmountStyle ? .semibold : .bold)
-                        .foregroundStyle(showsZeroAmountStyle ? Color.secondary : Color.primary)
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 6) {
+                    Text(item.itemDescription)
+                        .font(.system(size: 15, weight: .regular))
+                        .foregroundStyle(Color.primary.opacity(0.9))
                         .lineLimit(1)
-                        .frame(minWidth: 72, alignment: .trailing)
-                        .layoutPriority(1)
-                }
-                .padding(.horizontal, contentPadding)
-                .padding(.vertical, shellVerticalPadding)
-            }
-            .clipShape(RoundedRectangle(cornerRadius: cardCornerRadius, style: .continuous))
 
-            ItemRowCardBorder(accentColor: rowAccentColor, compact: false)
+                    if isSearchMatch {
+                        Image(systemName: "magnifyingglass.circle.fill")
+                            .font(.caption)
+                            .foregroundStyle(.tint)
+                    }
+                }
+
+                if showsBreakdown {
+                    Text("\(formattedUnitPrice) × \(item.quantity) \(LocalizationKey.Item.units.localized)")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            Text(formattedAmount)
+                .font(.system(size: 15, weight: .light))
+                .foregroundStyle(amountColor)
+                .monospacedDigit()
+                .lineLimit(1)
+                .contentTransition(.numericText())
         }
-        .frame(maxWidth: .infinity, minHeight: minimumRowHeight)
-        .shadow(color: Color.black.opacity(0.03), radius: 8, y: 2)
-        .padding(.trailing, 2)
+        .padding(.vertical, 17)
+        .overlay(alignment: .bottom) {
+            Rectangle()
+                .fill(Color(.separator).opacity(0.3))
+                .frame(height: 0.5)
+        }
         .contentShape(Rectangle())
         .onTapGesture { onTap() }
     }

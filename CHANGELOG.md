@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.17.0] - 2026-05-27
+
+### Changed
+- **Day list rows (category drill-in) were redesigned with a flat, typographic aesthetic** (`DashboardDateRowsComponents`) — each row now shows a large light-weight day number, abbreviated weekday in uppercase tracking, and right-aligned monospaced amount with a hairline separator; today is highlighted in accent color. Cards, icons, item-count labels, and chevron badges were removed entirely.
+- **Expense rows in the dashboard list were simplified to match the flat design language** (`ExpenseRowView`, `ExpenseListComponents`) — the lego-style colored side tab, card border, and rounded card background were replaced with a minimal toggle icon (circle / checkmark) on the left, a regular-weight description, and a light monospaced amount whose color signals paid state (green / orange / gray). A hairline separator replaces card chrome.
+- **Item rows inside an ItemList detail adopt the same flat row style** (`ItemListDetailView`, `ItemListDetailComponents`) — `ItemRowSideTab` and `ItemRowCardBorder` were removed; items now use the same toggle icon, flat separator, and monospaced amount pattern as the rest of the drill-in stack.
+
 ## [2.16.0] - 2026-05-27
 
 ### Changed

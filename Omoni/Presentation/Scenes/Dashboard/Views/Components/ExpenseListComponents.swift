@@ -33,12 +33,7 @@ struct ExpenseListRowContainer: View {
             isCompact: isCompact,
             timelinePosition: timelinePosition
         )
-        .listRowInsets(EdgeInsets(
-            top: ExpenseListLayoutMetrics.cardRowVerticalInset,
-            leading: 12,
-            bottom: ExpenseListLayoutMetrics.cardRowVerticalInset,
-            trailing: 14
-        ))
+        .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
         .listRowBackground(Color.clear)
         .listRowSeparator(.hidden)
     }

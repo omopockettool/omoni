@@ -16,12 +16,7 @@ struct DashboardDateRowsView: View {
                     formattedAmount: getFormattedAmount(row),
                     onTap: { onSelect(row) }
                 )
-                .listRowInsets(EdgeInsets(
-                    top: ExpenseListLayoutMetrics.cardRowVerticalInset,
-                    leading: 18,
-                    bottom: ExpenseListLayoutMetrics.cardRowVerticalInset,
-                    trailing: 18
-                ))
+                .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
             }
@@ -45,100 +40,66 @@ struct DashboardDateRowView: View {
     let formattedAmount: String
     let onTap: () -> Void
 
-    private var accentColor: Color {
-        data.isToday ? .accentColor : Color(.systemGray2)
-    }
-
-    private var cardFillColor: Color {
-        data.isToday ? Color.accentColor.opacity(0.08) : Color(.secondarySystemBackground)
-    }
-
-    private var cardBorderColor: Color {
-        data.isToday ? Color.accentColor.opacity(0.24) : Color(.systemGray5)
-    }
-
-    private var dateLabel: String {
-        if data.isToday { return LocalizationKey.Dashboard.today.localized.capitalized }
-        return DateFormatterHelper.formatSectionDate(data.date)
-    }
+    private var isToday: Bool { data.isToday }
 
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: 0) {
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(accentColor.opacity(data.isToday ? 0.18 : 0.12))
-                    .frame(width: 8)
-                    .padding(.vertical, 10)
+            HStack(alignment: .center, spacing: 0) {
+                // Left: day number + weekday label
+                HStack(alignment: .firstTextBaseline, spacing: 7) {
+                    if isToday {
+                        Text(LocalizationKey.Dashboard.today.localized.uppercased())
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(Color.accentColor)
+                            .tracking(1.5)
+                    } else {
+                        Text(dayNumber)
+                            .font(.system(size: 26, weight: .light, design: .default))
+                            .foregroundStyle(Color.primary.opacity(0.88))
+                            .monospacedDigit()
 
-                HStack(spacing: 14) {
-                    ZStack {
-                        Circle()
-                            .fill(accentColor.opacity(data.isToday ? 0.16 : 0.1))
-                            .frame(width: 42, height: 42)
-
-                        Image(systemName: data.isToday ? "sun.max.fill" : "calendar")
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundStyle(data.isToday ? Color.accentColor : Color.secondary)
-                    }
-
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(dateLabel)
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(data.isToday ? Color.accentColor : Color.primary)
-
-                        Text(itemCountLabel)
-                            .font(.caption.weight(.medium))
+                        Text(weekday)
+                            .font(.system(size: 10, weight: .medium))
                             .foregroundStyle(Color.secondary)
-                            .lineLimit(1)
-                    }
-
-                    Spacer(minLength: 12)
-
-                    VStack(alignment: .trailing, spacing: 8) {
-                        Text(formattedAmount)
-                            .font(.subheadline.weight(.bold))
-                            .foregroundStyle(Color.primary)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.8)
-
-                        HStack(spacing: 6) {
-                            Text(drillLabel)
-                                .font(.caption2.weight(.semibold))
-                                .foregroundStyle(Color.secondary)
-
-                            Image(systemName: "chevron.right")
-                                .font(.caption2.weight(.bold))
-                                .foregroundStyle(Color(.tertiaryLabel))
-                        }
+                            .tracking(1.2)
+                            .textCase(.uppercase)
+                            .offset(y: -1)
                     }
                 }
-                .padding(.leading, 12)
-                .padding(.trailing, 14)
-                .padding(.vertical, 14)
+                .frame(minWidth: 64, alignment: .leading)
+
+                Spacer()
+
+                // Right: amount + nav chevron
+                HStack(alignment: .center, spacing: 10) {
+                    Text(formattedAmount)
+                        .font(.system(size: 16, weight: isToday ? .medium : .light, design: .default))
+                        .foregroundStyle(isToday ? Color.accentColor : Color.primary.opacity(0.75))
+                        .monospacedDigit()
+
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundStyle(Color(.tertiaryLabel))
+                }
             }
-            .background {
-                RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .fill(cardFillColor)
+            .padding(.vertical, 20)
+            .overlay(alignment: .bottom) {
+                Rectangle()
+                    .fill(Color(.separator).opacity(0.5))
+                    .frame(height: 1)
             }
-            .overlay {
-                RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .stroke(cardBorderColor, lineWidth: 1)
-            }
-            .shadow(color: Color.black.opacity(0.035), radius: 10, y: 3)
             .contentShape(Rectangle())
         }
         .buttonStyle(PressHapticButtonStyle())
-        .animation(AnimationHelper.quickEase, value: data.isToday)
     }
 
-    private var itemCountLabel: String {
-        if data.itemListCount == 1 {
-            return "1 entrada"
-        }
-        return "\(data.itemListCount) entradas"
+    private var dayNumber: String {
+        String(Calendar.current.component(.day, from: data.date))
     }
 
-    private var drillLabel: String {
-        data.itemListCount == 1 ? "Ver gasto" : "Ver gastos"
+    private var weekday: String {
+        let f = DateFormatter()
+        f.dateFormat = "EEE"
+        return f.string(from: data.date)
     }
 }
