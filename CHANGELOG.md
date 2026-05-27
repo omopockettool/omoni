@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.12.1] - 2026-05-27
+
+### Fixed
+- **Dark mode now applies correctly from the very first onboarding screen on app launch** (`MainView`, `AppContentView`) — the forced dark appearance was moved to the root flow container so splash, first-user setup, and dashboard all open with the same intended OMONI visual identity, even when the simulator or device is set to light mode.
+
+## [2.12.0] - 2026-05-27
+
+### Changed
+- **New OMONI logo asset set applied across key brand surfaces** (`Assets.xcassets`, `OMOBrandIconView`, `SplashView`, `DashboardTopBarView`, `CreateFirstUserView`) — the app now uses the new logo variants and dimensions in the shared asset catalog, with the refreshed mark shown consistently in the splash screen, the dashboard settings entry point, and first-user onboarding.
+- **Brand icon presentation refined to feel more native to iOS** (`OMOBrandIconView`, `SplashView`, `DashboardTopBarView`, `CreateFirstUserView`) — the shared logo container now fills its frame cleanly, uses a more app-icon-like rounded shape, scales up more confidently in key UI moments, and the first-user screen is vertically rebalanced so the onboarding composition feels more centered and intentional.
+
 ## [2.11.2] - 2026-05-25
 
 ### Fixed

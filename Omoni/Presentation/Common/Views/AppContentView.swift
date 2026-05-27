@@ -33,7 +33,6 @@ struct AppContentView: View {
         }
         .navigationTitle("OMONI")
         .navigationBarTitleDisplayMode(.inline)
-        .preferredColorScheme(.dark) // Apply dark mode for prototype design
         .task {
             guard !hasLoadedInitialData else {
                 Self.logger.debug("task skipped because initial content load already ran")

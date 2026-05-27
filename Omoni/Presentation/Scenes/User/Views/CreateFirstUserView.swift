@@ -8,8 +8,8 @@ struct CreateFirstUserView: View {
     
     var onUserCreated: (() async -> Void)?
     private let showsSimulationBadge: Bool
-    // TODO: Replace the landing-page fallback with dedicated Terms and Privacy URLs once the website pages exist.
-    private let legalURL = URL(string: "https://omopockettool.com")!
+    private let termsURL = URL(string: "https://omopockettool.com/terms/")!
+    private let privacyURL = URL(string: "https://omopockettool.com/privacy/")!
     
     enum Field: Hashable { 
         case name
@@ -30,14 +30,18 @@ struct CreateFirstUserView: View {
             Color(.systemGroupedBackground)
                 .ignoresSafeArea()
             
-            VStack(spacing: 32) {
-                header
-                    .padding(.top, 40)
-                
-                formContent
-                    .padding(.horizontal, AppConstants.UserInterface.largePadding)
-                
-                Spacer()
+            VStack(spacing: 0) {
+                Spacer(minLength: 0)
+
+                VStack(spacing: 32) {
+                    header
+                    
+                    formContent
+                        .padding(.horizontal, AppConstants.UserInterface.largePadding)
+                }
+
+                Spacer(minLength: 0)
+                    .frame(maxHeight: 120)
             }
             .opacity(viewModel.isLoading ? 0 : 1)
         }
@@ -102,7 +106,7 @@ struct CreateFirstUserView: View {
                     .clipShape(Capsule())
             }
 
-            OMOBrandIconView(size: 92, iconScale: 0.66)
+            OMOBrandIconView(size: 112)
                 .padding(.bottom, 4)
             
             VStack(spacing: 8) {
@@ -192,7 +196,7 @@ struct CreateFirstUserView: View {
         let privacy = LocalizationKey.User.Welcome.privacy.localized
 
         return (try? AttributedString(
-            markdown: "\(intro) [\(terms)](\(legalURL.absoluteString)) \(connector) [\(privacy)](\(legalURL.absoluteString))"
+            markdown: "\(intro) [\(terms)](\(termsURL.absoluteString)) \(connector) [\(privacy)](\(privacyURL.absoluteString))"
         )) ?? AttributedString("\(intro) \(terms) \(connector) \(privacy)")
     }
     

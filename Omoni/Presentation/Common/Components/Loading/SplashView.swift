@@ -8,7 +8,7 @@ struct SplashView: View {
             Color(.systemBackground).ignoresSafeArea()
 
             VStack(spacing: 14) {
-                OMOBrandIconView(size: 78, iconScale: 0.66)
+                OMOBrandIconView(size: 104)
 
                 wordmark
 

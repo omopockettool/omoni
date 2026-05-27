@@ -43,6 +43,7 @@ struct MainView: View {
             }
         }
         .animation(AnimationHelper.smoothEase, value: screenState)
+        .preferredColorScheme(.dark)
         .task {
             guard !hasCheckedForUsers else {
                 Self.logger.debug("task skipped because initial user check already ran")
