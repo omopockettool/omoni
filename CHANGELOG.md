@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.21.0] - 2026-05-27
+
+### Changed
+- **Dashboard content is now clipped by the main rounded container instead of a dark fade mask** (`DashboardComponents`) — the category/month board and drill-down content now share the same real rounded card boundary, removing the heavy dark edge treatment at the top and bottom and making the visual limit belong to the container itself.
+- **Dashboard horizontal spacing was rebalanced after the container refactor** (`DashboardComponents`) — removed the extra intermediate horizontal padding layer that was making category boxes and drill-down content feel too inset from the card edges.
+
 ## [2.20.1] - 2026-05-27
 
 ### Fixed

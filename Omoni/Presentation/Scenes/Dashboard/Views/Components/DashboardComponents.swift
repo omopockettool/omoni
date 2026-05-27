@@ -291,12 +291,6 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
             Color(.systemGroupedBackground)
                 .ignoresSafeArea()
 
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .fill(Color(.secondarySystemBackground))
-                .padding(.horizontal, AppConstants.UserInterface.padding)
-                .padding(.top, 4)
-                .padding(.bottom, 2)
-
             ZStack(alignment: .top) {
                 if showsDateRows && !dateRows.isEmpty {
                     DashboardDateRowsView(
@@ -357,17 +351,14 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
                     .transition(.dashboardCategoryBoardSwap)
                 }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            .mask {
-                ScrollEdgeFadeMask(
-                    showsTopFade: selectedFilterTitle == nil || (!showingFullMonth && !showsDateRows),
-                    showsBottomFade: true
-                )
-            }
-            .padding(.horizontal, AppConstants.UserInterface.padding)
-            .padding(.top, selectedFilterTitle == nil ? AppConstants.UserInterface.smallPadding : 6)
             .animation(AnimationHelper.dashboardDrill, value: isShowingFilteredList)
             .animation(AnimationHelper.dashboardDrill, value: showsDateRows)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .background(Color(.secondarySystemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .padding(.horizontal, AppConstants.UserInterface.padding)
+            .padding(.top, 4)
+            .padding(.bottom, 2)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .safeAreaInset(edge: .top, spacing: 0) {
@@ -381,43 +372,6 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
         .safeAreaInset(edge: .bottom, spacing: 0) {
             bottomInset
         }
-    }
-}
-
-struct ScrollEdgeFadeMask: View {
-    let showsTopFade: Bool
-    let showsBottomFade: Bool
-
-    private let topFadeHeight: CGFloat = 8
-    private let bottomFadeHeight: CGFloat = 8
-
-    var body: some View {
-        VStack(spacing: 0) {
-            if showsTopFade {
-                LinearGradient(
-                    colors: [Color.black.opacity(0), Color.black],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .frame(height: topFadeHeight)
-            } else {
-                Color.black.frame(height: 0)
-            }
-
-            Color.black
-
-            if showsBottomFade {
-                LinearGradient(
-                    colors: [Color.black, Color.black.opacity(0)],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .frame(height: bottomFadeHeight)
-            } else {
-                Color.black.frame(height: 0)
-            }
-        }
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
     }
 }
 
