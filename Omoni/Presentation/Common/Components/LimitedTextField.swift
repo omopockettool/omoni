@@ -36,8 +36,9 @@ struct LimitedTextField<F: Hashable>: View {
     var body: some View {
         HStack(alignment: isMultiline ? .top : .center, spacing: 12) {
             Image(systemName: icon)
+                .font(.system(size: 18, weight: .medium))
                 .foregroundStyle(.secondary)
-                .frame(width: 20)
+                .frame(width: 26, alignment: .leading)
                 .padding(.top, isMultiline ? 1 : 0)
 
             TextField(placeholder, text: limitedText, axis: axis)

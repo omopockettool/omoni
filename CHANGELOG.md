@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.18.0] - 2026-05-27
+
+### Changed
+- **Category boxes now signal over-budget state with a direct warning icon instead of an internal dashed limit marker** (`DashboardCategoryBoardComponents`) — when a category exceeds its effective limit, the dashboard now shows a small warning glyph beside the category name, which is easier to understand at a glance than the previous dashed line treatment inside the filled box.
+- **Shared text fields now reserve more space for the leading symbol icon** (`LimitedTextField`) — the `Aa` / `textformat` icon used in entry editing no longer appears clipped because the reusable field now gives the symbol a more stable font size and width.
+
 ## [2.17.0] - 2026-05-27
 
 ### Changed
