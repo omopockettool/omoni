@@ -55,8 +55,13 @@ final class SwiftDataTestContainer {
         return category
     }
 
-    func insertItemList(description: String = "Lista", date: Date = Date(), group: SDGroup) throws -> SDItemList {
-        let itemList = SDItemList(itemListDescription: description, date: date)
+    func insertItemList(
+        description: String = "Lista",
+        isList: Bool? = true,
+        date: Date = Date(),
+        group: SDGroup
+    ) throws -> SDItemList {
+        let itemList = SDItemList(itemListDescription: description, isList: isList, date: date)
         itemList.group = group
         context.insert(itemList)
         try context.save()

@@ -27,6 +27,7 @@ struct ItemListDetailView: View {
     let showsPendingItemsOnly: Bool
     let onItemListUpdated: ((SDItemList) -> Void)?
 
+    @Environment(\.dismiss) private var dismiss
     @State private var viewModel: ItemListDetailViewModel
     @State private var sheetMode: ItemSheetMode?
     @State private var heroIsSuccess: Bool = false
@@ -151,6 +152,9 @@ struct ItemListDetailView: View {
                         onItemListUpdated: { updated in
                             onItemListUpdated?(updated)
                             sheetMode = nil
+                            if updated.isSingleEntry {
+                                dismiss()
+                            }
                         },
                         onCancel: { sheetMode = nil }
                     )

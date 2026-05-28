@@ -26,6 +26,7 @@ final class AddItemListViewModel {
     var description = ""
     var price = ""
     var date = Date()
+    var entryStructure: ItemListStructure = .singleEntry
     var selectedCategory: SDCategory? {
         didSet {
             guard !isEditMode, !didManuallyChoosePaymentMethod else { return }
@@ -44,8 +45,9 @@ final class AddItemListViewModel {
 
     // MARK: - Dependencies
     private let createItemListUseCase: CreateItemListUseCase
-    private let createItemUseCase: CreateItemUseCase
+    private let createSingleEntryUseCase: CreateSingleEntryUseCase
     private let updateItemListUseCase: UpdateItemListUseCase
+    private let updateSingleEntryUseCase: UpdateSingleEntryUseCase
     private let fetchItemListsUseCase: FetchItemListsUseCase
     private let fetchCategoriesUseCase: FetchCategoriesUseCase
     private let fetchPaymentMethodsUseCase: FetchPaymentMethodsUseCase
@@ -62,14 +64,25 @@ final class AddItemListViewModel {
     // MARK: - Computed
 
     var isEditMode: Bool { itemListToEdit != nil }
+    var showsHeroAmountInput: Bool { entryStructure == .singleEntry }
+    var usesExpandedDescriptionLayout: Bool { entryStructure == .itemizedList }
+    var canConvertToSingleEntry: Bool {
+        guard let itemListToEdit else { return true }
+        return itemListToEdit.isSingleEntry || itemListToEdit.items.count <= 1
+    }
+    var structureHelperText: String? {
+        guard !canConvertToSingleEntry, entryStructure == .itemizedList else { return nil }
+        return LocalizationKey.Entry.singleEntryDisabledHint.localized
+    }
 
     // MARK: - Initialization
 
     init(
         itemListToEdit: SDItemList? = nil,
         createItemListUseCase: CreateItemListUseCase,
-        createItemUseCase: CreateItemUseCase,
+        createSingleEntryUseCase: CreateSingleEntryUseCase,
         updateItemListUseCase: UpdateItemListUseCase,
+        updateSingleEntryUseCase: UpdateSingleEntryUseCase,
         fetchItemListsUseCase: FetchItemListsUseCase,
         fetchCategoriesUseCase: FetchCategoriesUseCase,
         fetchPaymentMethodsUseCase: FetchPaymentMethodsUseCase,
@@ -80,8 +93,9 @@ final class AddItemListViewModel {
         self.itemListToEdit = itemListToEdit
         self.preferredCategoryId = preferredCategoryId
         self.createItemListUseCase = createItemListUseCase
-        self.createItemUseCase = createItemUseCase
+        self.createSingleEntryUseCase = createSingleEntryUseCase
         self.updateItemListUseCase = updateItemListUseCase
+        self.updateSingleEntryUseCase = updateSingleEntryUseCase
         self.fetchItemListsUseCase = fetchItemListsUseCase
         self.fetchCategoriesUseCase = fetchCategoriesUseCase
         self.fetchPaymentMethodsUseCase = fetchPaymentMethodsUseCase
@@ -89,9 +103,16 @@ final class AddItemListViewModel {
         self.fetchGroupsForUserUseCase = fetchGroupsForUserUseCase
 
         if let toEdit = itemListToEdit {
+            self.entryStructure = toEdit.structure
             self.description = toEdit.itemListDescription
             self.date = toEdit.date
             self.selectedGroup = toEdit.group
+            if toEdit.items.count == 1, let firstItem = toEdit.items.first {
+                self.price = Self.formattedPrice(firstItem.amount)
+            }
+            if let singleItem = toEdit.singleEntryItem {
+                self.description = singleItem.itemDescription
+            }
         }
     }
 
@@ -104,8 +125,9 @@ final class AddItemListViewModel {
         self.init(
             itemListToEdit: itemListToEdit,
             createItemListUseCase: appContainer.makeCreateItemListUseCase(),
-            createItemUseCase: appContainer.makeCreateItemUseCase(),
+            createSingleEntryUseCase: appContainer.makeCreateSingleEntryUseCase(),
             updateItemListUseCase: appContainer.makeUpdateItemListUseCase(),
+            updateSingleEntryUseCase: appContainer.makeUpdateSingleEntryUseCase(),
             fetchItemListsUseCase: appContainer.makeFetchItemListsUseCase(),
             fetchCategoriesUseCase: appContainer.makeFetchCategoriesUseCase(),
             fetchPaymentMethodsUseCase: appContainer.makeFetchPaymentMethodsUseCase(),
@@ -123,13 +145,18 @@ final class AddItemListViewModel {
     var formattedDate: String { DateFormatterHelper.formatDate(date) }
 
     var canSave: Bool {
-        isPriceValid
+        guard isPriceValid else { return false }
+        if entryStructure == .singleEntry {
+            guard let priceAsDecimal else { return false }
+            return priceAsDecimal > 0
+        }
+        return true
     }
 
     var isPriceValid: Bool {
-        if price.isEmpty { return true }
+        if price.isEmpty { return entryStructure == .itemizedList }
         let normalizedPrice = price.replacingOccurrences(of: ",", with: ".")
-        if normalizedPrice.hasSuffix(".") { return true }
+        if normalizedPrice.hasSuffix(".") { return false }
         return NSDecimalNumber(string: normalizedPrice) != NSDecimalNumber.notANumber
     }
 
@@ -141,7 +168,11 @@ final class AddItemListViewModel {
     }
 
     func showValidationToast() {
-        if !isPriceValid {
+        let resolvedPrice = priceAsDecimal
+        if entryStructure == .singleEntry,
+           resolvedPrice == nil || (resolvedPrice ?? 0) <= 0 {
+            toast = ToastMessage("Añade un importe válido para guardar el registro.", type: .warning)
+        } else if !isPriceValid {
             toast = ToastMessage("Precio no válido", type: .warning)
         }
     }
@@ -155,6 +186,15 @@ final class AddItemListViewModel {
         let fallback = lastUsedConcept ?? selectedCategory?.name ?? "Concepto"
         description = fallback
         return fallback
+    }
+
+    func updateEntryStructure(to newStructure: ItemListStructure) {
+        guard newStructure != entryStructure else { return }
+        guard newStructure == .itemizedList || canConvertToSingleEntry else {
+            toast = ToastMessage(LocalizationKey.Entry.singleEntryDisabledHint.localized, type: .info)
+            return
+        }
+        entryStructure = newStructure
     }
 
     // MARK: - Public Methods
@@ -424,7 +464,7 @@ final class AddItemListViewModel {
     func createItemList(
         description: String,
         date: Date,
-        categoryId: UUID,
+        categoryId: UUID?,
         groupId: UUID,
         paymentMethodId: UUID?
     ) async -> SDItemList? {
@@ -434,23 +474,34 @@ final class AddItemListViewModel {
 
         do {
             let trimmedDescription = description.trimmingCharacters(in: .whitespacesAndNewlines)
+            let itemList: SDItemList
 
-            let itemList = try await createItemListUseCase.execute(
-                description: trimmedDescription,
-                date: date,
-                categoryId: categoryId,
-                paymentMethodId: paymentMethodId,
-                groupId: groupId
-            )
-
-            if let priceDecimal = priceAsDecimal {
+            switch entryStructure {
+            case .singleEntry:
+                guard let priceDecimal = priceAsDecimal, priceDecimal > 0 else {
+                    errorMessage = "Añade un importe para crear el registro."
+                    showError = true
+                    isLoading = false
+                    return nil
+                }
                 let isFuture = Calendar.current.startOfDay(for: date) > Calendar.current.startOfDay(for: Date())
-                let _ = try await createItemUseCase.execute(
+                itemList = try await createSingleEntryUseCase.execute(
                     description: trimmedDescription,
                     amount: priceDecimal,
-                    quantity: 1,
-                    itemListId: itemList.id,
+                    date: date,
+                    categoryId: categoryId,
+                    paymentMethodId: paymentMethodId,
+                    groupId: groupId,
                     isPaid: !isFuture
+                )
+            case .itemizedList:
+                itemList = try await createItemListUseCase.execute(
+                    description: trimmedDescription,
+                    isList: true,
+                    date: date,
+                    categoryId: categoryId,
+                    paymentMethodId: paymentMethodId,
+                    groupId: groupId
                 )
             }
 
@@ -471,39 +522,41 @@ final class AddItemListViewModel {
         errorMessage = nil
         showError = false
 
-        if let newCategory = selectedCategory,
-           newCategory.id != toEdit.category?.id,
-           let oldCategoryName = toEdit.category?.name,
-           toEdit.items.count == 1,
-           let item = toEdit.items.first,
-           toEdit.itemListDescription == oldCategoryName,
-           item.itemDescription == oldCategoryName {
-            description = newCategory.name
-            item.itemDescription = newCategory.name
-        }
-
-        let newDescription = description.trimmingCharacters(in: .whitespacesAndNewlines)
-        let oldDescription = toEdit.itemListDescription
-
-        // If the item list has exactly one item whose name matches the old list name,
-        // keep them in sync when the user renames the list.
-        if newDescription != oldDescription,
-           toEdit.items.count == 1,
-           let singleItem = toEdit.items.first,
-           singleItem.itemDescription == oldDescription {
-            singleItem.itemDescription = newDescription
-        }
-
-        toEdit.itemListDescription = newDescription
-        toEdit.date = date
-        if let category = selectedCategory { toEdit.category = category }
-        toEdit.paymentMethod = selectedPaymentMethod
-        if let group = selectedGroup { toEdit.group = group }
-
         do {
-            try await updateItemListUseCase.execute(toEdit)
+            let updatedItemList: SDItemList
+
+            switch entryStructure {
+            case .singleEntry:
+                guard let priceDecimal = priceAsDecimal, priceDecimal > 0 else {
+                    errorMessage = "Añade un importe para guardar el registro."
+                    showError = true
+                    isLoading = false
+                    return nil
+                }
+
+                updatedItemList = try await updateSingleEntryUseCase.execute(
+                    itemList: toEdit,
+                    description: resolvedDescriptionForSave(),
+                    amount: priceDecimal,
+                    date: date,
+                    category: selectedCategory,
+                    paymentMethod: selectedPaymentMethod,
+                    group: selectedGroup ?? toEdit.group
+                )
+            case .itemizedList:
+                toEdit.itemListDescription = resolvedDescriptionForSave()
+                toEdit.setStructure(.itemizedList)
+                toEdit.date = date
+                toEdit.category = selectedCategory
+                toEdit.paymentMethod = selectedPaymentMethod
+                toEdit.group = selectedGroup ?? toEdit.group
+                try await updateItemListUseCase.execute(toEdit)
+                updatedItemList = toEdit
+            }
+
+            clearUsageMemoryCache(forGroupId: groupId)
             isLoading = false
-            return toEdit
+            return updatedItemList
         } catch {
             errorMessage = "Error al actualizar: \(error.localizedDescription)"
             showError = true
@@ -546,6 +599,12 @@ final class AddItemListViewModel {
 
     private func correctPriceInput(_ input: String) -> String {
         HeroAmountInputSanitizer.sanitize(input)
+    }
+
+    private static func formattedPrice(_ amount: Double) -> String {
+        guard amount != 0 else { return "" }
+        return String(format: "%.2f", amount)
+            .replacingOccurrences(of: "\\.?0+$", with: "", options: .regularExpression)
     }
 
     func updateSuggestions() {

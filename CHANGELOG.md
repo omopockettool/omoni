@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.22.0] - 2026-05-29
+
+### Changed
+- **Entries now distinguish explicitly between quick single-entry records and real itemized lists** (`SDItemList`, `CreateItemListUseCase`, `UpdateItemListUseCase`, `DefaultItemListRepository`, `AppDIContainer`) — the data model now persists whether an `ItemList` represents a single quick entry or a multi-item list, instead of relying on implicit “one item with the same name” behavior. Creation and editing flows were moved into dedicated use cases so the `ItemList + Item` coordination happens at the correct layer rather than inside the screen view model.
+- **Dashboard navigation now respects the user-facing entry type** (`DashboardView`, `DashboardViewModel`, `ItemListDetailView`) — tapping a quick single-entry record from the dashboard now opens the direct entry editor with the money hero, while true lists still open the item-list detail screen. Legacy records without an explicit stored type are resolved conservatively using existing item data so older local data remains usable.
+- **New Entry now exposes a clearer mode selector for `Quick` vs `List`** (`AddItemListView`, `AddItemListComponents`, `String+Localization`, `Resources/en.lproj/Localizable.strings`, `Resources/es.lproj/Localizable.strings`) — the old internal mental model is no longer leaked to the user. The sheet now makes the intent explicit, shows the hero amount input when editing or creating a quick single entry, and keeps the list-style editing layout for itemized lists.
+- **Backup payloads now persist entry structure for future-proof imports and exports** (`OMOBackupModels`, `DefaultBackupRepository`) — backup schema version `2` adds the new `isList` field while still accepting schema version `1`, giving the app a first real compatibility path for structure-aware data evolution.
+
+### Fixed
+- **Converting a single-item list into `Quick` now exits the stale list detail screen automatically** (`ItemListDetailView`) — after saving a conversion from list mode to quick-entry mode, the app dismisses the invalid cached list-detail presentation immediately instead of leaving the user on a screen that no longer matches the underlying entry type until they back out manually.
+
 ## [2.21.0] - 2026-05-27
 
 ### Changed

@@ -74,6 +74,9 @@
 "entry.edit" = "Editar Entrada";
 "entry.delete.confirm" = "¿Estás seguro de que quieres eliminar esta entrada?";
 "entry.empty.message" = "No se encontraron entradas";
+"entry.singleEntry" = "Rápido";
+"entry.itemizedList" = "Lista";
+"entry.singleEntryDisabledHint" = "Las listas con varios artículos no pueden convertirse en registro único.";
 
 // MARK: - Item
 "item.description" = "Descripción del Artículo";

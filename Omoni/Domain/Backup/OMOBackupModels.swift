@@ -15,7 +15,8 @@ struct OMOBackupEnvelope: Codable {
     let itemLists: [OMOBackupItemListRecord]
     let items: [OMOBackupItemRecord]
 
-    static let currentSchemaVersion = 1
+    static let currentSchemaVersion = 2
+    static let supportedSchemaVersions: Set<Int> = [1, 2]
 }
 
 struct OMOBackupStatistics: Codable {
@@ -84,6 +85,7 @@ struct OMOBackupPaymentMethodRecord: Codable {
 struct OMOBackupItemListRecord: Codable {
     let id: UUID
     let itemListDescription: String
+    let isList: Bool?
     let date: Date
     let createdAt: Date
     let lastModifiedAt: Date?
@@ -131,7 +133,7 @@ enum OMOBackupError: LocalizedError {
 
 extension OMOBackupEnvelope {
     func validate() throws {
-        guard schemaVersion == Self.currentSchemaVersion else {
+        guard Self.supportedSchemaVersions.contains(schemaVersion) else {
             throw OMOBackupError.unsupportedSchemaVersion(schemaVersion)
         }
 

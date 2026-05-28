@@ -81,6 +81,7 @@ final class DefaultBackupRepository: BackupRepository {
             OMOBackupItemListRecord(
                 id: $0.id,
                 itemListDescription: $0.itemListDescription,
+                isList: $0.isList,
                 date: $0.date,
                 createdAt: $0.createdAt,
                 lastModifiedAt: $0.lastModifiedAt,
@@ -205,6 +206,7 @@ final class DefaultBackupRepository: BackupRepository {
             let itemList = SDItemList(
                 id: record.id,
                 itemListDescription: record.itemListDescription,
+                isList: record.isList,
                 date: record.date,
                 createdAt: record.createdAt,
                 lastModifiedAt: record.lastModifiedAt

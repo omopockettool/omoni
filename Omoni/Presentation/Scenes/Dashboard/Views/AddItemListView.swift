@@ -2,6 +2,7 @@ import SwiftUI
 
 struct AddItemListView: View {
     let group: SDGroup
+    let showsCancelButton: Bool
     var onRequestExpandSheet: (() -> Void)? = nil
     let onItemListCreated: (SDItemList) -> Void
     let onItemListUpdated: ((SDItemList) -> Void)?
@@ -24,11 +25,13 @@ struct AddItemListView: View {
         itemListToEdit: SDItemList? = nil,
         initialDate: Date? = nil,
         preferredCategoryId: UUID? = nil,
+        showsCancelButton: Bool = true,
         onRequestExpandSheet: (() -> Void)? = nil,
         onItemListCreated: @escaping (SDItemList) -> Void,
         onItemListUpdated: ((SDItemList) -> Void)? = nil,
         onCancel: @escaping () -> Void
     ) {
+        self.showsCancelButton = showsCancelButton
         self.onRequestExpandSheet = onRequestExpandSheet
         self.group = group
         self.onItemListCreated = onItemListCreated
@@ -113,6 +116,7 @@ struct AddItemListView: View {
         ScrollViewReader { proxy in
         ScrollView {
             VStack(spacing: 20) {
+                entryStructureSection
                 topCard
                     .id("heroAnchor")
                 if !viewModel.categories.isEmpty {
@@ -148,9 +152,11 @@ struct AddItemListView: View {
         .navigationTitle(viewModel.isEditMode ? LocalizationKey.Entry.edit.localized : LocalizationKey.Entry.newEntry.localized)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .cancellationAction) {
-                Button { onCancel() } label: {
-                    Image(systemName: "xmark")
+            if showsCancelButton {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button { onCancel() } label: {
+                        Image(systemName: "xmark")
+                    }
                 }
             }
             ToolbarItem(placement: .confirmationAction) {
@@ -184,6 +190,13 @@ struct AddItemListView: View {
             if newField != nil { onRequestExpandSheet?() }
             if newField == .price { scrollToHero = true }
         }
+        .onChange(of: viewModel.entryStructure) { _, structure in
+            if structure == .singleEntry {
+                scrollToHero = true
+            } else if focusedField == .price {
+                focusedField = nil
+            }
+        }
         .onChange(of: showDetails) { _, isShowing in
             if isShowing { onRequestExpandSheet?() }
         }
@@ -201,7 +214,7 @@ struct AddItemListView: View {
     private var canMoveFocusBackward: Bool {
         switch focusedField {
         case .description:
-            return !viewModel.isEditMode
+            return viewModel.showsHeroAmountInput
         default:
             return false
         }
@@ -210,7 +223,7 @@ struct AddItemListView: View {
     private var canMoveFocusForward: Bool {
         switch focusedField {
         case .price:
-            return true
+            return viewModel.showsHeroAmountInput
         default:
             return false
         }
@@ -219,7 +232,7 @@ struct AddItemListView: View {
     private func moveFocusBackward() {
         switch focusedField {
         case .description:
-            guard !viewModel.isEditMode else { return }
+            guard viewModel.showsHeroAmountInput else { return }
             focusedField = .price
         default:
             break
@@ -237,9 +250,23 @@ struct AddItemListView: View {
 
     // MARK: - Top Card (Concept + Amount)
 
+    private var entryStructureSection: some View {
+        AddItemListStructureSection(
+            selection: viewModel.entryStructure,
+            canConvertToSingleEntry: viewModel.canConvertToSingleEntry,
+            helperText: viewModel.structureHelperText,
+            onSelect: { structure in
+                withAnimation(AnimationHelper.quickSpring) {
+                    viewModel.updateEntryStructure(to: structure)
+                }
+            }
+        )
+    }
+
     private var topCard: some View {
         AddItemListTopCard(
-            isEditMode: viewModel.isEditMode,
+            showsHeroAmountInput: viewModel.showsHeroAmountInput,
+            usesExpandedDescriptionLayout: viewModel.usesExpandedDescriptionLayout,
             price: $viewModel.price,
             currencySymbol: currencySymbol,
             descriptionPlaceholder: descriptionPlaceholder,
@@ -400,7 +427,7 @@ struct AddItemListView: View {
             if let created = await viewModel.createItemList(
                 description: finalDescription,
                 date: viewModel.date,
-                categoryId: viewModel.selectedCategory?.id ?? UUID(),
+                categoryId: viewModel.selectedCategory?.id,
                 groupId: activeGroup.id,
                 paymentMethodId: viewModel.selectedPaymentMethod?.id
             ) {

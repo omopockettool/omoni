@@ -74,6 +74,9 @@
 "entry.edit" = "Edit Entry";
 "entry.delete.confirm" = "Are you sure you want to delete this entry?";
 "entry.empty.message" = "No entries found";
+"entry.singleEntry" = "Quick";
+"entry.itemizedList" = "List";
+"entry.singleEntryDisabledHint" = "Lists with several items can't be converted into a single entry.";
 
 // MARK: - Item
 "item.description" = "Item Description";

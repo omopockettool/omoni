@@ -14,8 +14,14 @@ private enum DashboardActiveFilter {
     case categoryDay(categoryId: UUID, range: DashboardCategoryRange, date: Date)
 }
 
+private enum DashboardEntryDestination: Hashable {
+    case singleEntryEditor
+    case itemListDetail
+}
+
 private struct DashboardItemListRoute: Hashable {
     let itemListId: UUID
+    let destination: DashboardEntryDestination
     let highlightedSearchQuery: String?
     let showsPendingItemsOnly: Bool
 }
@@ -50,6 +56,30 @@ struct ItemListDetailNavigationWrapper: View {
             showsPendingItemsOnly: showsPendingItemsOnly,
             onItemListUpdated: onItemListUpdated,
             onPaidStatusChanged: onPaidStatusChanged
+        )
+    }
+}
+
+struct SingleEntryEditorNavigationWrapper: View {
+    let itemList: SDItemList
+    let group: SDGroup
+    let availableGroups: [SDGroup]
+    let onItemListUpdated: (SDItemList) -> Void
+
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        AddItemListView(
+            group: group,
+            availableGroups: availableGroups,
+            itemListToEdit: itemList,
+            showsCancelButton: false,
+            onItemListCreated: { _ in },
+            onItemListUpdated: { updated in
+                onItemListUpdated(updated)
+                dismiss()
+            },
+            onCancel: { dismiss() }
         )
     }
 }
@@ -143,19 +173,31 @@ struct DashboardView: View {
             .navigationDestination(for: DashboardItemListRoute.self) { route in
                 if let group = viewModel.currentGroup,
                    let itemList = viewModel.itemLists.first(where: { $0.id == route.itemListId }) {
-                    ItemListDetailNavigationWrapper(
-                        itemList: itemList,
-                        currencyCode: group.currency,
-                        group: group,
-                        highlightedSearchQuery: route.highlightedSearchQuery,
-                        showsPendingItemsOnly: route.showsPendingItemsOnly,
-                        onItemListUpdated: { updated in
-                            Task { await viewModel.updateItemList(updated) }
-                        },
-                        onPaidStatusChanged: {
-                            Task { await viewModel.refreshTotals() }
-                        }
-                    )
+                    switch route.destination {
+                    case .singleEntryEditor:
+                        SingleEntryEditorNavigationWrapper(
+                            itemList: itemList,
+                            group: group,
+                            availableGroups: viewModel.availableGroups,
+                            onItemListUpdated: { updated in
+                                Task { await viewModel.updateItemList(updated) }
+                            }
+                        )
+                    case .itemListDetail:
+                        ItemListDetailNavigationWrapper(
+                            itemList: itemList,
+                            currencyCode: group.currency,
+                            group: group,
+                            highlightedSearchQuery: route.highlightedSearchQuery,
+                            showsPendingItemsOnly: route.showsPendingItemsOnly,
+                            onItemListUpdated: { updated in
+                                Task { await viewModel.updateItemList(updated) }
+                            },
+                            onPaidStatusChanged: {
+                                Task { await viewModel.refreshTotals() }
+                            }
+                        )
+                    }
                 }
             }
             .sheet(isPresented: $viewModel.showingSettings, onDismiss: {
@@ -691,6 +733,7 @@ private extension DashboardView {
     func itemListRoute(for itemList: SDItemList) -> DashboardItemListRoute {
         DashboardItemListRoute(
             itemListId: itemList.id,
+            destination: viewModel.prefersSingleEntryEditor(for: itemList) ? .singleEntryEditor : .itemListDetail,
             highlightedSearchQuery: viewModel.hasActiveSearch ? viewModel.searchQuery : nil,
             showsPendingItemsOnly: viewModel.hasActivePendingFilter
         )

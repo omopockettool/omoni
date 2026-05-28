@@ -20,12 +20,17 @@ final class DefaultItemListRepository: ItemListRepository {
 
     func createItemList(
         description: String,
+        isList: Bool,
         date: Date,
         categoryId: UUID?,
         paymentMethodId: UUID?,
         groupId: UUID?
     ) async throws -> SDItemList {
-        let itemList = SDItemList(itemListDescription: description, date: date)
+        let itemList = SDItemList(
+            itemListDescription: description,
+            isList: isList,
+            date: date
+        )
 
         if let groupId {
             let targetId = groupId

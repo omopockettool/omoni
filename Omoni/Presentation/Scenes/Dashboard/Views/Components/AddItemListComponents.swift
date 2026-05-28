@@ -5,10 +5,84 @@ enum AddItemListField {
     case price
 }
 
+struct AddItemListStructureSection: View {
+    let selection: ItemListStructure
+    let canConvertToSingleEntry: Bool
+    let helperText: String?
+    let onSelect: (ItemListStructure) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 10) {
+                structureChip(
+                    title: LocalizationKey.Entry.singleEntry.localized,
+                    systemImage: "circle.fill",
+                    structure: .singleEntry,
+                    isEnabled: canConvertToSingleEntry || selection == .singleEntry
+                )
+                structureChip(
+                    title: LocalizationKey.Entry.itemizedList.localized,
+                    systemImage: "list.bullet",
+                    structure: .itemizedList,
+                    isEnabled: true
+                )
+            }
+
+            if let helperText {
+                Text(helperText)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 4)
+            }
+        }
+    }
+
+    private func structureChip(
+        title: String,
+        systemImage: String,
+        structure: ItemListStructure,
+        isEnabled: Bool
+    ) -> some View {
+        let isSelected = selection == structure
+        return Button {
+            guard isEnabled else { return }
+            onSelect(structure)
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: systemImage)
+                    .font(.subheadline.weight(.semibold))
+                Text(title)
+                    .font(.subheadline.weight(.semibold))
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+            .foregroundStyle(isSelected ? .white : isEnabled ? .primary : .secondary)
+            .background(
+                isSelected
+                    ? Color.accentColor
+                    : Color(.secondarySystemGroupedBackground)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .stroke(
+                        isSelected
+                            ? Color.clear
+                            : Color(.separator).opacity(isEnabled ? 0.35 : 0.15),
+                        lineWidth: 1
+                    )
+            )
+            .opacity(isEnabled ? 1 : 0.5)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
 // MARK: - Top Card (Amount + Description)
 
 struct AddItemListTopCard: View {
-    let isEditMode: Bool
+    let showsHeroAmountInput: Bool
+    let usesExpandedDescriptionLayout: Bool
     @Binding var price: String
     let currencySymbol: String
     let descriptionPlaceholder: String
@@ -21,7 +95,7 @@ struct AddItemListTopCard: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            if !isEditMode {
+            if showsHeroAmountInput {
                 HeroAmountInputView(
                     text: $price,
                     currencySymbol: currencySymbol,
@@ -39,7 +113,7 @@ struct AddItemListTopCard: View {
             }
 
             AddItemListDescriptionField(
-                isEditMode: isEditMode,
+                usesExpandedLayout: usesExpandedDescriptionLayout,
                 description: $description,
                 placeholder: descriptionPlaceholder,
                 focusedField: focusedField
@@ -59,7 +133,7 @@ struct AddItemListTopCard: View {
 }
 
 struct AddItemListDescriptionField: View {
-    let isEditMode: Bool
+    let usesExpandedLayout: Bool
     @Binding var description: String
     let placeholder: String
     let focusedField: FocusState<AddItemListField?>.Binding
@@ -77,7 +151,7 @@ struct AddItemListDescriptionField: View {
             focusedField: focusedField,
             fieldValue: .description
         )
-        .padding(isEditMode ? AppConstants.UserInterface.largePadding : AppConstants.UserInterface.padding)
+        .padding(usesExpandedLayout ? AppConstants.UserInterface.largePadding : AppConstants.UserInterface.padding)
     }
 }
 

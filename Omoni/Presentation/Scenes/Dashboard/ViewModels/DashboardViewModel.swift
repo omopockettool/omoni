@@ -870,6 +870,19 @@ class DashboardViewModel {
         currencyFormatter.string(from: NSNumber(value: amount)) ?? "€0.00"
     }
 
+    func prefersSingleEntryEditor(for itemList: SDItemList) -> Bool {
+        if let isList = itemList.isList {
+            return !isList
+        }
+
+        let searchItems = currentSearchItems(for: itemList)
+        guard searchItems.count == 1, let firstItem = searchItems.first else {
+            return false
+        }
+
+        return firstItem.description == itemList.itemListDescription
+    }
+
     func formattedAmount(for box: DashboardCategoryBoxData) -> String {
         formattedCurrency(box.paidAmount)
     }
@@ -1056,8 +1069,18 @@ class DashboardViewModel {
     }
 
     func updateItemList(_ itemList: SDItemList) async {
+        if !isItemListInCurrentContext(itemList) {
+            removeItemList(itemList)
+            await applyTotals(calculateItemListTotalsUseCase.execute(itemLists: itemLists))
+            return
+        }
 
-        // Re-sort since date may have changed (SD* reference type, object is already mutated)
+        if !itemLists.contains(where: { $0.id == itemList.id }) {
+            await addItemList(itemList)
+            return
+        }
+
+        // Re-sort since date or structure may have changed (SD* reference type, object is already mutated)
         let cal = Calendar.current
         itemLists = itemLists.sorted {
             let d0 = cal.startOfDay(for: $0.date)

@@ -80,6 +80,7 @@ extension ModelContainer {
             
             let itemList = SDItemList.mock(
                 itemListDescription: "Weekly Shopping",
+                isList: true,
                 date: Date(),
                 category: category,
                 paymentMethod: paymentMethod,

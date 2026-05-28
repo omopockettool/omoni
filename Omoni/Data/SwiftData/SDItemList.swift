@@ -1,10 +1,16 @@
 import Foundation
 import SwiftData
 
+enum ItemListStructure: String, Codable, CaseIterable {
+    case singleEntry
+    case itemizedList
+}
+
 @Model
 final class SDItemList {
     @Attribute(.unique) var id: UUID
     var itemListDescription: String
+    var isList: Bool?
     var date: Date
     var createdAt: Date
     var lastModifiedAt: Date?
@@ -19,12 +25,14 @@ final class SDItemList {
     init(
         id: UUID = UUID(),
         itemListDescription: String = "",
+        isList: Bool? = nil,
         date: Date = Date(),
         createdAt: Date = Date(),
         lastModifiedAt: Date? = nil
     ) {
         self.id = id
         self.itemListDescription = itemListDescription
+        self.isList = isList
         self.date = date
         self.createdAt = createdAt
         self.lastModifiedAt = lastModifiedAt
@@ -40,6 +48,33 @@ extension SDItemList {
 }
 
 extension SDItemList {
+    var structure: ItemListStructure {
+        if let isList {
+            return isList ? .itemizedList : .singleEntry
+        }
+
+        guard items.count == 1, let singleItem = items.first else {
+            return .itemizedList
+        }
+
+        return singleItem.itemDescription == itemListDescription
+            ? .singleEntry
+            : .itemizedList
+    }
+
+    var isSingleEntry: Bool {
+        structure == .singleEntry
+    }
+
+    var singleEntryItem: SDItem? {
+        guard isSingleEntry else { return nil }
+        return items.first
+    }
+
+    func setStructure(_ structure: ItemListStructure) {
+        isList = (structure == .itemizedList)
+    }
+
     var totalAmount: Double {
         items.reduce(0.0) { total, item in
             total + item.totalAmount
@@ -139,6 +174,7 @@ extension SDItemList {
     static func mock(
         id: UUID = UUID(),
         itemListDescription: String = "Shopping",
+        isList: Bool? = true,
         date: Date = Date(),
         createdAt: Date = Date(),
         lastModifiedAt: Date? = nil,
@@ -149,6 +185,7 @@ extension SDItemList {
         let itemList = SDItemList(
             id: id,
             itemListDescription: itemListDescription,
+            isList: isList,
             date: date,
             createdAt: createdAt,
             lastModifiedAt: lastModifiedAt
