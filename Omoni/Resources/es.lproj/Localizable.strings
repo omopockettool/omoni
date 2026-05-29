@@ -69,7 +69,7 @@
 "entry.date" = "Fecha";
 "entry.amount" = "Monto";
 "entry.category" = "Categoría";
-"entry.paymentMethod" = "Método de Pago";
+"entry.paymentMethod" = "Origen";
 "entry.create" = "Añadir Entrada";
 "entry.edit" = "Editar Entrada";
 "entry.delete.confirm" = "¿Estás seguro de que quieres eliminar esta entrada?";
@@ -86,14 +86,14 @@
 "item.add" = "Añadir Artículo";
 
 // MARK: - Payment Method
-"payment.title" = "Métodos de Pago";
-"payment.name" = "Nombre del Método de Pago";
+"payment.title" = "Orígenes";
+"payment.name" = "Nombre del Origen";
 "payment.type" = "Tipo";
 "payment.active" = "Activo";
-"payment.create" = "Crear Método de Pago";
-"payment.edit" = "Editar Método de Pago";
-"payment.delete.confirm" = "¿Estás seguro de que quieres eliminar este método de pago?";
-"payment.empty.message" = "No se encontraron métodos de pago";
+"payment.create" = "Crear Origen";
+"payment.edit" = "Editar Origen";
+"payment.delete.confirm" = "¿Estás seguro de que quieres eliminar este origen?";
+"payment.empty.message" = "No se encontraron orígenes";
 
 // MARK: - Dashboard
 "dashboard.title" = "Panel";
@@ -119,7 +119,7 @@
 "error.validation.invalidAmount" = "El monto debe ser mayor que cero";
 "error.validation.emptyItemDescription" = "La descripción del artículo no puede estar vacía";
 "error.validation.emptyCategoryName" = "El nombre de la categoría no puede estar vacío";
-"error.validation.emptyPaymentMethodName" = "El nombre del método de pago no puede estar vacío";
+"error.validation.emptyPaymentMethodName" = "El nombre del origen no puede estar vacío";
 
 // MARK: - Repository Errors
 "error.repository.notFound" = "El elemento solicitado no se encontró";
@@ -208,8 +208,8 @@
 "category.limitFrequency" = "Frecuencia del límite";
 
 // MARK: - Payment (extended)
-"payment.selectPayment" = "Seleccionar Método de Pago";
-"payment.emptyHint" = "Crea un método de pago en la configuración del grupo";
+"payment.selectPayment" = "Seleccionar Origen";
+"payment.emptyHint" = "Crea un origen en la configuración del grupo";
 "payment.none" = "Ninguno";
 "payment.cards" = "Tarjetas";
 "payment.cash" = "Efectivo";
@@ -223,8 +223,8 @@
 "payment.credit" = "Crédito";
 "payment.transfer" = "Transferencia";
 "payment.icon" = "Icono";
-"payment.newMethod" = "Nuevo método";
-"payment.editMethod" = "Editar método";
+"payment.newMethod" = "Nuevo origen";
+"payment.editMethod" = "Editar origen";
 
 // MARK: - Settings (extended)
 "settings.account" = "Cuenta";
@@ -284,7 +284,7 @@
 "about.shareAppSubtitle" = "Recomiéndala a un amigo";
 "about.releaseNotes.2_0_0.title" = "Tu vida financiera, clara y ordenada";
 "about.releaseNotes.2_0_0.highlight1" = "Organiza tus gastos por grupos — por ejemplo Casa, Trabajo o Viajes — cada uno con su propia moneda y color.";
-"about.releaseNotes.2_0_0.highlight2" = "Dentro de cada grupo crea registros del día a día: una compra, una cena, una factura. A cada registro le asignas una categoría y un método de pago.";
+"about.releaseNotes.2_0_0.highlight2" = "Dentro de cada grupo crea registros del día a día: una compra, una cena, una factura. A cada registro le asignas una categoría y un origen.";
 "about.releaseNotes.2_0_0.highlight3" = "Cada registro puede tener uno o varios artículos, cada uno con su precio y cantidad. OMONI calcula el total automáticamente.";
 "about.releaseNotes.2_0_0.highlight4" = "El panel principal te muestra de un vistazo cuánto has gastado hoy, esta semana o este mes, filtrado por categoría o estado de pago.";
 "about.releaseNotes.2_0_0.highlight5" = "Marca registros como pagados o pendientes con un solo toque y ten siempre controlado qué queda por saldar.";
