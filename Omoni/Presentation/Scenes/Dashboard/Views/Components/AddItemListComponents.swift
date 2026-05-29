@@ -16,7 +16,7 @@ struct AddItemListStructureSection: View {
             HStack(spacing: 10) {
                 structureChip(
                     title: LocalizationKey.Entry.singleEntry.localized,
-                    systemImage: "circle.fill",
+                    systemImage: "bolt.fill",
                     structure: .singleEntry,
                     isEnabled: canConvertToSingleEntry || selection == .singleEntry
                 )

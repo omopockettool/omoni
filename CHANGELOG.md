@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.23.1] - 2026-05-30
+
+### Fixed
+- **New Entry mode selector now communicates the simple-entry option more clearly** (`AddItemListComponents`, `Resources/en.lproj/Localizable.strings`, `Resources/es.lproj/Localizable.strings`) — the former `Quick / Rápido` wording and neutral circle icon were replaced with `Simple` and a bolt symbol so the first option reads less ambiguously and better conveys an immediate one-concept, one-amount entry flow.
+
 ## [2.23.0] - 2026-05-30
 
 ### Changed
