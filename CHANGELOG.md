@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.23.0] - 2026-05-30
+
+### Changed
+- **Payment-method UI wording now uses `Origin / Origen` across the app while preserving the internal data model** (`Resources/en.lproj/Localizable.strings`, `Resources/es.lproj/Localizable.strings`) — visible labels, empty states, form titles, prompts, and release-note copy now describe the money source in simpler language that matches how users naturally think about accounts and origins of money.
+- **New groups now start with a broader, lower-friction default category set** (`DefaultGroupRepository`) — the seeded categories were refined to `Alimentación`, `Movilidad`, `Hogar`, `Salud`, `Ocio`, and `Ropa`, replacing the less clear previous default so first-time organization feels more intuitive without forcing users into an overcomplicated taxonomy.
+
 ## [2.22.0] - 2026-05-29
 
 ### Changed

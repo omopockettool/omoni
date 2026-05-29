@@ -35,9 +35,9 @@ final class DefaultGroupRepository: GroupRepository {
             ("Alimentación", "#FF6B6B", "cart.fill",            0, 300, "monthly"),
             ("Movilidad",    "#4ECDC4", "car.fill",             0, 100, "monthly"),
             ("Hogar",        "#45B7D1", "house.fill",           0, 700, "monthly"),
-            ("Ocio",         "#96CEB4", "theatermasks.fill",    0, 200, "monthly"),
             ("Salud",        "#FFEAA7", "heart.fill",           0, 50, "monthly"),
-            ("Moda",         "#ffa7ed", "tshirt.fill",          0, 100, "monthly"),
+            ("Ocio",         "#96CEB4", "theatermasks.fill",    0, 200, "monthly"),
+            ("Ropa",         "#ffa7ed", "tshirt.fill",          0, 150, "monthly"),
         ]
         for (catName, catColor, catIcon, catSortOrder, catLimit, catLimitFrequency) in defaultCategories {
             let cat = SDCategory(
