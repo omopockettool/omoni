@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.23.2] - 2026-05-30
+
+### Fixed
+- **Create User button no longer appears active until the legal checkbox is checked** (`CreateFirstUserView`) — the button background and shadow now require both a valid name and acceptance of the Terms & Privacy before turning red, instead of activating visually as soon as the name field was filled.
+- **Create User button icon no longer animates when the form becomes valid or invalid** (`CreateFirstUserView`) — the bounce symbol effect on the `person.badge.plus` icon was removed; the button state change is now communicated through color only.
+
 ## [2.23.1] - 2026-05-30
 
 ### Fixed

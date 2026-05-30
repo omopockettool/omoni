@@ -278,7 +278,6 @@ struct CreateFirstUserView: View {
             HStack(spacing: 12) {
                 Image(systemName: "person.badge.plus")
                     .font(.system(size: 17, weight: .semibold))
-                    .symbolEffect(.bounce, value: viewModel.isFormValid)
                 
                 Text(LocalizationKey.User.create.localized)
                     .font(.headline)
@@ -288,7 +287,7 @@ struct CreateFirstUserView: View {
             .padding(.vertical, 18)
             .background(
                 Group {
-                    if viewModel.isFormValid {
+                    if viewModel.isFormValid && acceptedLegal {
                         LinearGradient(
                             colors: [
                                 Color.omoniInteractiveRed,
@@ -311,7 +310,7 @@ struct CreateFirstUserView: View {
             )
             .clipShape(RoundedRectangle(cornerRadius: 16))
             .shadow(
-                color: viewModel.isFormValid ? Color.omoniInteractiveRed.opacity(0.28) : .clear,
+                color: viewModel.isFormValid && acceptedLegal ? Color.omoniInteractiveRed.opacity(0.28) : .clear,
                 radius: 8,
                 y: 4
             )
