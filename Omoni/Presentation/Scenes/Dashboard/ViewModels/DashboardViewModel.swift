@@ -553,12 +553,7 @@ class DashboardViewModel {
             let currentStatus = itemListPaidStatus[itemList.id] ?? .none
             let newValue = currentStatus == .all ? false : true
 
-            applyBulkPaidState(
-                newValue,
-                to: currentItems,
-                in: itemList,
-                itemCount: itemCount
-            )
+            applyBulkPaidState(newValue, to: currentItems, in: itemList, itemCount: itemCount)
             showBulkToggleToast(
                 for: itemList,
                 itemCount: itemCount,
@@ -569,7 +564,10 @@ class DashboardViewModel {
             defer { paidToggleTasks[itemList.id] = nil }
 
             try? await toggleAllItemsPaidInListUseCase.execute(itemListId: itemList.id, isPaid: newValue)
-            await applyTotals(calculateItemListTotalsUseCase.execute(itemLists: itemLists))
+            await applyTotals(
+                calculateItemListTotalsUseCase.execute(itemLists: itemLists),
+                animated: true
+            )
         }
     }
 
@@ -582,7 +580,10 @@ class DashboardViewModel {
         }
 
         await restorePaidSnapshot(previousStates, for: itemList)
-        await applyTotals(calculateItemListTotalsUseCase.execute(itemLists: itemLists))
+        await applyTotals(
+            calculateItemListTotalsUseCase.execute(itemLists: itemLists),
+            animated: true
+        )
         toast = ToastMessage(LocalizationKey.Dashboard.changeUndone.localized, type: .info)
     }
 
@@ -669,14 +670,18 @@ class DashboardViewModel {
         in itemList: SDItemList,
         itemCount: Int
     ) {
-        itemList.lastModifiedAt = Date()
-        itemListPaidStatus[itemList.id] = isPaid ? ItemListPaidStatus.all : ItemListPaidStatus.none
-        items.forEach { $0.isPaid = isPaid }
-        itemListRowStatus[itemList.id] = makeRowStatus(
-            totalAmount: itemList.totalAmount,
-            itemCount: itemCount,
-            paidStatus: itemListPaidStatus[itemList.id] ?? ItemListPaidStatus.none
-        )
+        let paidStatus: ItemListPaidStatus = isPaid ? .all : .none
+
+        withAnimation(AnimationHelper.quickSpring) {
+            itemList.lastModifiedAt = Date()
+            items.forEach { $0.isPaid = isPaid }
+            applyOptimisticTotals(
+                for: itemList,
+                items: items,
+                itemCount: itemCount,
+                paidStatus: paidStatus
+            )
+        }
     }
 
     private func showBulkToggleToast(
@@ -723,12 +728,15 @@ class DashboardViewModel {
 
         itemList.lastModifiedAt = Date()
         let restoredStatus = paidStatus(from: snapshot)
-        itemListPaidStatus[itemList.id] = restoredStatus
-        itemListRowStatus[itemList.id] = makeRowStatus(
-            totalAmount: itemList.totalAmount,
-            itemCount: snapshot.count,
-            paidStatus: restoredStatus
-        )
+        let restoredItemCount = currentItems.reduce(0) { $0 + $1.quantity }
+        withAnimation(AnimationHelper.quickSpring) {
+            applyOptimisticTotals(
+                for: itemList,
+                items: currentItems,
+                itemCount: restoredItemCount,
+                paidStatus: restoredStatus
+            )
+        }
     }
 
     private func makeRowStatus(totalAmount _: Double, itemCount: Int, paidStatus: ItemListPaidStatus) -> ItemListRowStatus {
@@ -752,18 +760,50 @@ class DashboardViewModel {
         return .partial
     }
 
-    private func applyTotals(_ result: ItemListTotalsResult) {
-        itemListTotals = result.itemListTotals
-        itemListUnpaidTotals = result.itemListUnpaidTotals
-        itemListCounts = result.itemListCounts
-        itemListPaidStatus = result.itemListPaidStatus
-        itemListRowStatus = result.itemListRowStatus
-        cachedSearchItems = result.searchItems
-        totalSpent = result.totalSpent
-        todayTotal = todayItemLists.reduce(0.0) { $0 + (result.itemListTotals[$1.id] ?? 0) }
-        todayUnpaidTotal = todayItemLists.reduce(0.0) { $0 + (result.itemListUnpaidTotals[$1.id] ?? 0) }
-        currentMonthTotal = currentMonthItemLists.reduce(0.0) { $0 + (result.itemListTotals[$1.id] ?? 0) }
-        currentMonthUnpaidTotal = currentMonthItemLists.reduce(0.0) { $0 + (result.itemListUnpaidTotals[$1.id] ?? 0) }
+    private func applyTotals(_ result: ItemListTotalsResult, animated: Bool = false) {
+        let updates = {
+            self.itemListTotals = result.itemListTotals
+            self.itemListUnpaidTotals = result.itemListUnpaidTotals
+            self.itemListCounts = result.itemListCounts
+            self.itemListPaidStatus = result.itemListPaidStatus
+            self.itemListRowStatus = result.itemListRowStatus
+            self.cachedSearchItems = result.searchItems
+            self.totalSpent = result.totalSpent
+            self.todayTotal = self.todayItemLists.reduce(0.0) { $0 + (result.itemListTotals[$1.id] ?? 0) }
+            self.todayUnpaidTotal = self.todayItemLists.reduce(0.0) { $0 + (result.itemListUnpaidTotals[$1.id] ?? 0) }
+            self.currentMonthTotal = self.currentMonthItemLists.reduce(0.0) { $0 + (result.itemListTotals[$1.id] ?? 0) }
+            self.currentMonthUnpaidTotal = self.currentMonthItemLists.reduce(0.0) { $0 + (result.itemListUnpaidTotals[$1.id] ?? 0) }
+        }
+
+        if animated {
+            withAnimation(AnimationHelper.quickSpring, updates)
+        } else {
+            updates()
+        }
+    }
+
+    private func applyOptimisticTotals(
+        for itemList: SDItemList,
+        items: [SDItem],
+        itemCount: Int,
+        paidStatus: ItemListPaidStatus
+    ) {
+        itemListPaidStatus[itemList.id] = paidStatus
+        itemListRowStatus[itemList.id] = makeRowStatus(
+            totalAmount: itemList.totalAmount,
+            itemCount: itemCount,
+            paidStatus: paidStatus
+        )
+        itemListTotals[itemList.id] = max(0, itemList.totalPaidAmount.isFinite ? itemList.totalPaidAmount : 0.0)
+        itemListUnpaidTotals[itemList.id] = max(0, itemList.totalUnpaidAmount.isFinite ? itemList.totalUnpaidAmount : 0.0)
+        cachedSearchItems[itemList.id] = items.map {
+            ItemListTotalsResult.SearchItemData(
+                description: $0.itemDescription,
+                totalAmount: $0.totalAmount,
+                isPaid: $0.isPaid
+            )
+        }
+        recomputeTotalsFromCurrentState()
     }
 
     private func recomputeTotalsFromCurrentState() {

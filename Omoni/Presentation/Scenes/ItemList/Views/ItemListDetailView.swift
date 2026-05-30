@@ -1,24 +1,5 @@
 import SwiftUI
 
-
-private struct ItemRowToggleButton: View {
-    let isPaid: Bool
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            Image(systemName: isPaid ? "checkmark.circle.fill" : "circle")
-                .font(.system(size: 24, weight: isPaid ? .regular : .light))
-                .foregroundStyle(isPaid ? Color.paidGreen : Color(.systemGray3))
-                .frame(width: 34, height: 34)
-                .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .animation(.spring(response: 0.3, dampingFraction: 0.75), value: isPaid)
-        .toggleHaptic(trigger: isPaid)
-    }
-}
-
 struct ItemListDetailView: View {
     let itemList: SDItemList
     let currencyCode: String
@@ -211,7 +192,6 @@ struct ItemListDetailView: View {
     private var itemsList: some View {
         ItemListItemsSection(
             items: viewModel.visibleItems,
-            currencyCode: currencyCode,
             formattedAmount: viewModel.getFormattedAmount,
             isSearchMatch: { item in
                 viewModel.itemMatchesSearch(item, query: highlightedSearchQuery)
@@ -247,68 +227,41 @@ struct ItemListDetailView: View {
 struct ItemRowView: View {
     let item: SDItem
     let formattedAmount: String
-    let currencyCode: String
     let isSearchMatch: Bool
     let onTap: () -> Void
     let onTogglePaid: () -> Void
 
-    private var showsBreakdown: Bool { item.quantity > 1 }
-    private var showsZeroAmountStyle: Bool { abs(item.totalAmount) < 0.000_001 }
-
-    private var amountColor: Color {
-        if showsZeroAmountStyle { return .secondary }
-        return item.isPaid ? .paidGreen : Color.primary.opacity(0.75)
+    private var rowTone: StatusFramedRowTone {
+        item.isPaid ? .completed : .pending
     }
 
-    private var formattedUnitPrice: String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = currencyCode
-        formatter.locale = Locale(identifier: "es_ES")
-        return formatter.string(from: NSNumber(value: item.amount)) ?? "\(item.amount)"
+    private var statusIconName: String {
+        item.isPaid ? "checkmark" : "clock"
     }
 
     var body: some View {
-        HStack(alignment: .center, spacing: 10) {
-            ItemRowToggleButton(isPaid: item.isPaid, action: onTogglePaid)
+        StatusFramedRow(
+            tone: rowTone,
+            statusIconName: statusIconName,
+            onTap: onTap,
+            onToggle: onTogglePaid
+        ) {
+            HStack(alignment: .center, spacing: 12) {
+                Text(item.itemDescription)
+                    .font(.system(size: 15, weight: isSearchMatch ? .semibold : .medium))
+                    .foregroundStyle(Color.primary.opacity(0.92))
+                    .lineLimit(1)
+                    .frame(maxWidth: .infinity, alignment: .leading)
 
-            VStack(alignment: .leading, spacing: 2) {
-                HStack(spacing: 6) {
-                    Text(item.itemDescription)
-                        .font(.system(size: 15, weight: .regular))
-                        .foregroundStyle(Color.primary.opacity(0.9))
-                        .lineLimit(1)
-
-                    if isSearchMatch {
-                        Image(systemName: "magnifyingglass.circle.fill")
-                            .font(.caption)
-                            .foregroundStyle(.tint)
-                    }
-                }
-
-                if showsBreakdown {
-                    Text("\(formattedUnitPrice) × \(item.quantity) \(LocalizationKey.Item.units.localized)")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
+                Text(formattedAmount)
+                    .font(.system(size: 15, weight: .semibold, design: .rounded))
+                    .foregroundStyle(rowTone.amountColor)
+                    .monospacedDigit()
+                    .lineLimit(1)
+                    .contentTransition(.numericText())
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-
-            Text(formattedAmount)
-                .font(.system(size: 15, weight: .light))
-                .foregroundStyle(amountColor)
-                .monospacedDigit()
-                .lineLimit(1)
-                .contentTransition(.numericText())
         }
-        .padding(.vertical, 17)
-        .overlay(alignment: .bottom) {
-            Rectangle()
-                .fill(Color(.separator).opacity(0.3))
-                .frame(height: 0.5)
-        }
-        .contentShape(Rectangle())
-        .onTapGesture { onTap() }
+        .padding(.vertical, 6)
     }
 }
 

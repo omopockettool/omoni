@@ -131,7 +131,6 @@ struct ItemListDetailMetaRow: View {
 
 struct ItemListItemsSection: View {
     let items: [SDItem]
-    let currencyCode: String
     let formattedAmount: (SDItem) -> String
     let isSearchMatch: (SDItem) -> Bool
     let onItemTap: (SDItem) -> Void
@@ -150,7 +149,6 @@ struct ItemListItemsSection: View {
                     ItemRowView(
                         item: item,
                         formattedAmount: formattedAmount(item),
-                        currencyCode: currencyCode,
                         isSearchMatch: isSearchMatch(item),
                         onTap: { onItemTap(item) },
                         onTogglePaid: { onTogglePaid(item) }

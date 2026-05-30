@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.24.0] - 2026-05-30
+
+### Changed
+- **Dashboard item-list rows now use a stronger status-card language instead of the overly flat ticket treatment** (`StatusFramedRow`, `ExpenseRowView`) — item-list rows were rebuilt as rounded cards with a full-height tappable left status block, clearer paid/pending/empty iconography, and a calmer content hierarchy so the list feels more aligned with OMONI’s current visual direction while staying simple to scan.
+- **Pending amount is now right-aligned under the main total, not under the concept text** (`ExpenseRowView`) — the secondary `unpaid` line now sits directly below the primary amount, preserving a cleaner accounting-style amount column and reducing visual imbalance in rows with pending items.
+- **Item rows inside list detail now share the same solid status-block row language as dashboard rows** (`ItemListDetailView`, `ItemListDetailComponents`, `StatusFramedRow`) — the detail screen now uses the same unified row pattern, with a full-height left state block and clearer pending/completed signals so moving from the dashboard into a list feels visually consistent.
+
+### Fixed
+- **Paid-status toggles in dashboard item-list rows now transition more consistently between complete and pending states** (`ExpenseRowView`, `DashboardViewModel`) — the secondary unpaid line now lives in a stable reserved slot instead of changing the row height, and the optimistic/dashboard total updates are animated as one coherent state change so neighboring rows no longer jump abruptly during complete-to-pending toggles.
+
 ## [2.23.2] - 2026-05-30
 
 ### Fixed
