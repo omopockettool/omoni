@@ -8,6 +8,7 @@ read this .md then let me know if you are ready for new development!
 
 1. Read this file first: `docs/START_HERE.md`
 2. Then read: `docs/swiftui_data_flow_guide.md`
+3. If you are changing persisted SwiftData models or adding storage fields, read: `docs/SWIFTDATA_MIGRATION_GUIDE.md`
 
 > `swiftui_data_flow_guide.md` is part of the project entry point now. Read it before touching SwiftUI code so you align with the app's current mental model for `@Observable`, `@State` lifetime, `.task`, view identity, rendering, and performance-sensitive data flow decisions.
 
@@ -54,6 +55,8 @@ Models  Models    Models      Models       (single source of truth)
 ```
 
 > **Domain entity files deleted.** All layers use SD* types directly (SDUser, SDGroup, SDItemList, etc.)
+>
+> **Persisted model changes are migration work.** If an `SD*` stored shape changes, route it through the versioned schema + migration plan, not only through the model class edit.
 
 ### 2. Layer Boundaries (STRICT)
 | Layer | ✅ Can Use | ❌ FORBIDDEN |
@@ -167,6 +170,14 @@ class VM: ObservableObject { @Published var } // ❌ FORBIDDEN — use @Observab
 .task { await loadSomethingNeededToFixTheScreen() }   // ❌ If this is bootstrap/orchestration logic, move it to the ViewModel
 onAppear { repairStateAfterPresentation() }           // ❌ View-side patching is forbidden
 Task { await loadGroupsBecauseCallerDidNotPassThem() } // ❌ Fix architecture, don't patch in the View
+```
+
+```swift
+// ❌ Persisted SwiftData change without schema/migration review
+var newStoredField: String
+
+// ❌ Bypassing the versioned persistence path in ModelContainer
+let schema = Schema([ ... ])
 ```
 
 ---

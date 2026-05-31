@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.25.0] - 2026-05-31
+
+### Added
+- **SwiftData persistence now runs through an explicit versioned schema and migration-plan path** (`OmoniSchema`, `ModelContainer+Shared`) — the live app container, preview container, and test container now initialize from the same versioned SwiftData baseline instead of bypassing schema versioning with an ad hoc `Schema([...])` setup, giving OMONI a safer foundation for future store migrations before production launch.
+- **SwiftData migration workflow is now documented in the project entry docs** (`SWIFTDATA_MIGRATION_GUIDE.md`, `START_HERE.md`) — future persisted-model changes now have a clear documented path covering schema version bumps, migration stages, and backup review so storage-level work is treated as intentional migration work instead of casual model edits.
+
 ## [2.24.2] - 2026-05-31
 
 ### Fixed
