@@ -11,8 +11,12 @@ final class SDItemList {
     @Attribute(.unique) var id: UUID
     var itemListDescription: String
     var isList: Bool?
+    /// User-facing entry date. This can differ from `createdAt` when someone logs
+    /// an expense later (for example, creating today's record for yesterday's expense).
     var date: Date
+    /// Automatic persistence timestamp for when this record was first created.
     var createdAt: Date
+    /// Automatic timestamp for the latest edit affecting this list or its items.
     var lastModifiedAt: Date?
     
     var group: SDGroup?
