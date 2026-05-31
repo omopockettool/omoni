@@ -52,13 +52,23 @@ final class DefaultGroupRepository: GroupRepository {
             context.insert(cat)
         }
 
-        try context.save()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
         return group
     }
 
     func updateGroup(_ group: SDGroup) async throws {
         group.lastModifiedAt = Date()
-        try context.save()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
     }
 
     func deleteGroup(id: UUID) async throws {
@@ -68,7 +78,12 @@ final class DefaultGroupRepository: GroupRepository {
             throw RepositoryError.notFound
         }
         context.delete(group)
-        try context.save()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
     }
 
     func fetchGroups(forUserId userId: UUID) async throws -> [SDGroup] {

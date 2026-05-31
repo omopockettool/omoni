@@ -45,13 +45,23 @@ final class DefaultCategoryRepository: CategoryRepository {
             category.group = try context.fetch(descriptor).first
         }
         context.insert(category)
-        try context.save()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
         return category
     }
 
     func updateCategory(_ category: SDCategory) async throws {
         category.lastModifiedAt = Date()
-        try context.save()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
     }
 
     func deleteCategory(id: UUID) async throws {
@@ -61,6 +71,11 @@ final class DefaultCategoryRepository: CategoryRepository {
             throw RepositoryError.notFound
         }
         context.delete(category)
-        try context.save()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
     }
 }

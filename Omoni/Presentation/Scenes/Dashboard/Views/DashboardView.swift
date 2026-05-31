@@ -198,6 +198,9 @@ struct DashboardView: View {
                             }
                         )
                     }
+                } else {
+                    Color.clear
+                        .onAppear { navigationPath = NavigationPath() }
                 }
             }
             .sheet(isPresented: $viewModel.showingSettings, onDismiss: {

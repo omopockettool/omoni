@@ -134,7 +134,7 @@ struct ItemListDetailView: View {
                             onItemListUpdated?(updated)
                             sheetMode = nil
                             if updated.isSingleEntry {
-                                dismiss()
+                                Task { dismiss() }
                             }
                         },
                         onCancel: { sheetMode = nil }

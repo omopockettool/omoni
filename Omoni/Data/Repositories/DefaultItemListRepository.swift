@@ -49,13 +49,23 @@ final class DefaultItemListRepository: ItemListRepository {
         }
 
         context.insert(itemList)
-        try context.save()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
         return itemList
     }
 
     func updateItemList(_ itemList: SDItemList) async throws {
         itemList.lastModifiedAt = Date()
-        try context.save()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
     }
 
     func deleteItemList(id: UUID) async throws {
@@ -65,6 +75,11 @@ final class DefaultItemListRepository: ItemListRepository {
             throw RepositoryError.notFound
         }
         context.delete(itemList)
-        try context.save()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
     }
 }

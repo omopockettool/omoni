@@ -33,13 +33,23 @@ final class DefaultPaymentMethodRepository: PaymentMethodRepository {
             pm.group = try context.fetch(descriptor).first
         }
         context.insert(pm)
-        try context.save()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
         return pm
     }
 
     func updatePaymentMethod(_ paymentMethod: SDPaymentMethod) async throws {
         paymentMethod.lastModifiedAt = Date()
-        try context.save()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
     }
 
     func deletePaymentMethod(id: UUID) async throws {
@@ -49,6 +59,11 @@ final class DefaultPaymentMethodRepository: PaymentMethodRepository {
             throw RepositoryError.notFound
         }
         context.delete(pm)
-        try context.save()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
     }
 }

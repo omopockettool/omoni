@@ -563,7 +563,11 @@ class DashboardViewModel {
 
             defer { paidToggleTasks[itemList.id] = nil }
 
-            try? await toggleAllItemsPaidInListUseCase.execute(itemListId: itemList.id, isPaid: newValue)
+            do {
+                try await toggleAllItemsPaidInListUseCase.execute(itemListId: itemList.id, isPaid: newValue)
+            } catch {
+                toast = ToastMessage(LocalizationKey.General.unknownError.localized, type: .error)
+            }
             await applyTotals(
                 calculateItemListTotalsUseCase.execute(itemLists: itemLists),
                 animated: true
@@ -579,12 +583,14 @@ class DashboardViewModel {
             await pendingTask.value
         }
 
-        await restorePaidSnapshot(previousStates, for: itemList)
+        let allSucceeded = await restorePaidSnapshot(previousStates, for: itemList)
         await applyTotals(
             calculateItemListTotalsUseCase.execute(itemLists: itemLists),
             animated: true
         )
-        toast = ToastMessage(LocalizationKey.Dashboard.changeUndone.localized, type: .info)
+        toast = allSucceeded
+            ? ToastMessage(LocalizationKey.Dashboard.changeUndone.localized, type: .info)
+            : ToastMessage(LocalizationKey.General.unknownError.localized, type: .error)
     }
 
     func forceRefresh() async {
@@ -718,12 +724,17 @@ class DashboardViewModel {
     private func restorePaidSnapshot(
         _ snapshot: [ItemPaidSnapshot],
         for itemList: SDItemList
-    ) async {
+    ) async -> Bool {
         let currentItems = await currentItemsSnapshot(for: itemList)
+        var allSucceeded = true
 
         for state in snapshot {
             currentItems.first { $0.id == state.id }?.isPaid = state.isPaid
-            try? await toggleItemPaidUseCase.execute(itemId: state.id, isPaid: state.isPaid)
+            do {
+                try await toggleItemPaidUseCase.execute(itemId: state.id, isPaid: state.isPaid)
+            } catch {
+                allSucceeded = false
+            }
         }
 
         itemList.lastModifiedAt = Date()
@@ -737,6 +748,7 @@ class DashboardViewModel {
                 paidStatus: restoredStatus
             )
         }
+        return allSucceeded
     }
 
     private func makeRowStatus(totalAmount _: Double, itemCount: Int, paidStatus: ItemListPaidStatus) -> ItemListRowStatus {

@@ -48,12 +48,22 @@ final class DefaultUserGroupRepository: UserGroupRepository {
         userGroup.group = try context.fetch(groupDescriptor).first
 
         context.insert(userGroup)
-        try context.save()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
         return userGroup
     }
 
     func updateUserGroup(_ userGroup: SDUserGroup) async throws {
-        try context.save()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
     }
 
     func deleteUserGroup(id: UUID) async throws {
@@ -63,7 +73,12 @@ final class DefaultUserGroupRepository: UserGroupRepository {
             throw RepositoryError.notFound
         }
         context.delete(userGroup)
-        try context.save()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
     }
 
     func removeUser(_ userId: UUID, fromGroup groupId: UUID) async throws {
@@ -76,6 +91,11 @@ final class DefaultUserGroupRepository: UserGroupRepository {
             throw RepositoryError.notFound
         }
         context.delete(userGroup)
-        try context.save()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
     }
 }

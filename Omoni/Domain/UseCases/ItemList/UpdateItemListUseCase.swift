@@ -76,7 +76,6 @@ final class DefaultUpdateSingleEntryUseCase: UpdateSingleEntryUseCase {
         item.amount = Double(truncating: amount as NSDecimalNumber)
         item.quantity = 1
 
-        try await itemListRepository.updateItemList(itemList)
         if needsCreateItem {
             _ = try await itemRepository.createItem(
                 description: trimmedDescription,

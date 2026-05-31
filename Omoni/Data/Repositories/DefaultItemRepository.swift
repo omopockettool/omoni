@@ -38,7 +38,12 @@ final class DefaultItemRepository: ItemRepository {
         item.itemList = try context.fetch(descriptor).first
         item.itemList?.lastModifiedAt = Date()
         context.insert(item)
-        try context.save()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
         return item
     }
 
@@ -46,7 +51,12 @@ final class DefaultItemRepository: ItemRepository {
         let modifiedAt = Date()
         item.lastModifiedAt = modifiedAt
         item.itemList?.lastModifiedAt = modifiedAt
-        try context.save()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
     }
 
     func deleteItem(id: UUID) async throws {
@@ -57,7 +67,12 @@ final class DefaultItemRepository: ItemRepository {
         }
         item.itemList?.lastModifiedAt = Date()
         context.delete(item)
-        try context.save()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
     }
 
     func setAllItemsPaid(forItemListId itemListId: UUID, isPaid: Bool) async throws {
@@ -70,7 +85,12 @@ final class DefaultItemRepository: ItemRepository {
             $0.lastModifiedAt = modifiedAt
             $0.itemList?.lastModifiedAt = modifiedAt
         }
-        try context.save()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
     }
 
     func toggleItemPaid(id: UUID, isPaid: Bool) async throws {
@@ -83,6 +103,11 @@ final class DefaultItemRepository: ItemRepository {
         item.isPaid = isPaid
         item.lastModifiedAt = modifiedAt
         item.itemList?.lastModifiedAt = modifiedAt
-        try context.save()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
     }
 }

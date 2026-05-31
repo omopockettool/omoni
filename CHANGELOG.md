@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.26.0] - 2026-05-31
+
+### Fixed
+- **Create User button no longer appears active until the legal checkbox is checked** (`CreateFirstUserView`) — the button background and shadow now require both a valid name and acceptance of the Terms & Privacy before turning red, instead of activating visually as soon as the name field was filled.
+- **Create User button icon no longer animates when the form becomes valid or invalid** (`CreateFirstUserView`) — the bounce symbol effect on the `person.badge.plus` icon was removed; the button state change is now communicated through color only.
+- **Converting a list entry to Simple no longer risks a simultaneous dismiss conflict** (`ItemListDetailView`) — the parent screen dismiss is now deferred to a separate SwiftUI cycle from the sheet close, preventing both operations from competing for the view hierarchy at the same time.
+- **Saving a converted Simple entry now performs a single atomic write** (`UpdateSingleEntryUseCase`) — the redundant intermediate `context.save()` was removed so the item and all itemList mutations are committed together in one operation.
+- **All repository write operations now rollback on a failed save** (`DefaultItemRepository`, `DefaultItemListRepository`, `DefaultCategoryRepository`, `DefaultPaymentMethodRepository`, `DefaultGroupRepository`, `DefaultUserRepository`, `DefaultUserGroupRepository`) — if `context.save()` throws, the context is rolled back to its last clean state so in-memory objects never remain in a partially-mutated, unsaved condition.
+- **Dashboard navigation recovers automatically if a destination can no longer be resolved** (`DashboardView`) — if a navigation route points to an entry that no longer exists in the loaded data, the navigation stack resets to the dashboard root instead of showing a blank screen.
+- **Bulk paid toggle and undo now surface errors instead of failing silently** (`DashboardViewModel`) — if persisting a bulk paid/unpaid change or its undo fails, the user now sees an error toast instead of the UI reverting without explanation.
+
 ## [2.25.0] - 2026-05-31
 
 ### Added
@@ -19,23 +30,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.24.1] - 2026-05-31
 
 ### Fixed
-- **Unpaid entry states now use neutral gray while orange is reserved strictly for partial payment progress** (`ExpenseRowView`, `ItemListDetailView`, `ItemListDetailViewModel`, `ItemListDetailComponents`, `StatusFramedRow`) — fully unpaid dashboard item lists, single-entry records, item rows, and detail hero badges now show an empty gray circle and neutral unpaid label treatment, while only genuinely partial states use the half-filled orange icon. This removes the false sense of “in progress” from entries that are simply still unpaid and makes partial settlement easier to recognize at a glance.
+- **Unpaid entry states now use neutral gray while orange is reserved strictly for partial payment progress** (`ExpenseRowView`, `ItemListDetailView`, `ItemListDetailViewModel`, `ItemListDetailComponents`, `StatusFramedRow`) — fully unpaid dashboard item lists, single-entry records, item rows, and detail hero badges now show an empty gray circle and neutral unpaid label treatment, while only genuinely partial states use the half-filled orange icon. This removes the false sense of "in progress" from entries that are simply still unpaid and makes partial settlement easier to recognize at a glance.
 
 ## [2.24.0] - 2026-05-30
 
 ### Changed
-- **Dashboard item-list rows now use a stronger status-card language instead of the overly flat ticket treatment** (`StatusFramedRow`, `ExpenseRowView`) — item-list rows were rebuilt as rounded cards with a full-height tappable left status block, clearer paid/pending/empty iconography, and a calmer content hierarchy so the list feels more aligned with OMONI’s current visual direction while staying simple to scan.
+- **Dashboard item-list rows now use a stronger status-card language instead of the overly flat ticket treatment** (`StatusFramedRow`, `ExpenseRowView`) — item-list rows were rebuilt as rounded cards with a full-height tappable left status block, clearer paid/pending/empty iconography, and a calmer content hierarchy so the list feels more aligned with OMONI's current visual direction while staying simple to scan.
 - **Pending amount is now right-aligned under the main total, not under the concept text** (`ExpenseRowView`) — the secondary `unpaid` line now sits directly below the primary amount, preserving a cleaner accounting-style amount column and reducing visual imbalance in rows with pending items.
 - **Item rows inside list detail now share the same solid status-block row language as dashboard rows** (`ItemListDetailView`, `ItemListDetailComponents`, `StatusFramedRow`) — the detail screen now uses the same unified row pattern, with a full-height left state block and clearer pending/completed signals so moving from the dashboard into a list feels visually consistent.
 
 ### Fixed
 - **Paid-status toggles in dashboard item-list rows now transition more consistently between complete and pending states** (`ExpenseRowView`, `DashboardViewModel`) — the secondary unpaid line now lives in a stable reserved slot instead of changing the row height, and the optimistic/dashboard total updates are animated as one coherent state change so neighboring rows no longer jump abruptly during complete-to-pending toggles.
-
-## [2.23.2] - 2026-05-30
-
-### Fixed
-- **Create User button no longer appears active until the legal checkbox is checked** (`CreateFirstUserView`) — the button background and shadow now require both a valid name and acceptance of the Terms & Privacy before turning red, instead of activating visually as soon as the name field was filled.
-- **Create User button icon no longer animates when the form becomes valid or invalid** (`CreateFirstUserView`) — the bounce symbol effect on the `person.badge.plus` icon was removed; the button state change is now communicated through color only.
 
 ## [2.23.1] - 2026-05-30
 
