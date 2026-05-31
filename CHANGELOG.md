@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.24.2] - 2026-05-31
+
+### Fixed
+- **Dashboard item-list rows now animate paid-to-pending transitions more cleanly without layout drift or clipped amounts** (`ExpenseRowView`) — the right-side amount column now keeps a stable reserved height while the total and unpaid labels animate internally with a smoother vertical motion, preventing the currency symbol from being clipped and avoiding the awkward horizontal sweep during state changes. The item-list title also flashes subtly on full completion and full rollback, adding a lightweight sense of progress without making the row feel noisy.
+
 ## [2.24.1] - 2026-05-31
 
 ### Fixed
