@@ -8,7 +8,8 @@ import SwiftUI
 
 enum ItemListDetailHeroStatus {
     case neutral
-    case pending(String)
+    case unpaid(String)
+    case partial(String)
     case completed
 }
 
@@ -197,9 +198,10 @@ class ItemListDetailViewModel {
             return .neutral
         }
 
-        let hasUnpaidItems = visibleItems.contains { !$0.isPaid }
-        if hasUnpaidItems {
-            return .pending(getFormattedUnpaidTotal() ?? "")
+        let unpaidItems = visibleItems.filter { !$0.isPaid }
+        if !unpaidItems.isEmpty {
+            let unpaidTotal = getFormattedUnpaidTotal() ?? ""
+            return unpaidItems.count == visibleItems.count ? .unpaid(unpaidTotal) : .partial(unpaidTotal)
         }
 
         return .completed

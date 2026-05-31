@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.24.1] - 2026-05-31
+
+### Fixed
+- **Unpaid entry states now use neutral gray while orange is reserved strictly for partial payment progress** (`ExpenseRowView`, `ItemListDetailView`, `ItemListDetailViewModel`, `ItemListDetailComponents`, `StatusFramedRow`) — fully unpaid dashboard item lists, single-entry records, item rows, and detail hero badges now show an empty gray circle and neutral unpaid label treatment, while only genuinely partial states use the half-filled orange icon. This removes the false sense of “in progress” from entries that are simply still unpaid and makes partial settlement easier to recognize at a glance.
+
 ## [2.24.0] - 2026-05-30
 
 ### Changed

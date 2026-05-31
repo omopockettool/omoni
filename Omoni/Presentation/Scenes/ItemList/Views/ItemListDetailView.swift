@@ -232,17 +232,22 @@ struct ItemRowView: View {
     let onTogglePaid: () -> Void
 
     private var rowTone: StatusFramedRowTone {
-        item.isPaid ? .completed : .pending
+        item.isPaid ? .completed : .neutral
     }
 
     private var statusIconName: String {
-        item.isPaid ? "checkmark" : "clock"
+        item.isPaid ? "checkmark" : "circle"
+    }
+
+    private var statusIconColor: Color? {
+        item.isPaid ? nil : Color(.systemGray2)
     }
 
     var body: some View {
         StatusFramedRow(
             tone: rowTone,
             statusIconName: statusIconName,
+            statusIconColor: statusIconColor,
             onTap: onTap,
             onToggle: onTogglePaid
         ) {

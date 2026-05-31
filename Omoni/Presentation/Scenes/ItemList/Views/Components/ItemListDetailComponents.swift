@@ -82,9 +82,19 @@ struct ItemListDetailMetaRow: View {
     @ViewBuilder
     private var statusBadge: some View {
         switch heroStatus {
-        case .pending(let unpaidTotal):
+        case .unpaid(let unpaidTotal):
             HStack(spacing: 4) {
-                Image(systemName: "clock")
+                Image(systemName: "circle")
+                if !showMetaLabels && !unpaidTotal.isEmpty {
+                    Text(unpaidTotal)
+                        .fontWeight(.medium)
+                        .transition(.opacity.combined(with: .scale(scale: 0.85, anchor: .leading)))
+                }
+            }
+            .foregroundStyle(Color.secondary)
+        case .partial(let unpaidTotal):
+            HStack(spacing: 4) {
+                Image(systemName: "circle.lefthalf.filled")
                 if !showMetaLabels && !unpaidTotal.isEmpty {
                     Text(unpaidTotal)
                         .fontWeight(.medium)
@@ -104,8 +114,10 @@ struct ItemListDetailMetaRow: View {
         switch heroStatus {
         case .neutral:
             return "neutral"
-        case .pending:
-            return "pending"
+        case .unpaid:
+            return "unpaid"
+        case .partial:
+            return "partial"
         case .completed:
             return "completed"
         }

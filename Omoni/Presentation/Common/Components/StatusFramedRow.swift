@@ -43,6 +43,7 @@ struct StatusFramedRow<Content: View>: View {
     let tone: StatusFramedRowTone
     let statusIconName: String
     let statusIconWeight: Font.Weight
+    let statusIconColor: Color?
     let onTap: () -> Void
     let onToggle: () -> Void
     @ViewBuilder let content: () -> Content
@@ -51,6 +52,7 @@ struct StatusFramedRow<Content: View>: View {
         tone: StatusFramedRowTone,
         statusIconName: String,
         statusIconWeight: Font.Weight = .semibold,
+        statusIconColor: Color? = nil,
         onTap: @escaping () -> Void,
         onToggle: @escaping () -> Void,
         @ViewBuilder content: @escaping () -> Content
@@ -58,6 +60,7 @@ struct StatusFramedRow<Content: View>: View {
         self.tone = tone
         self.statusIconName = statusIconName
         self.statusIconWeight = statusIconWeight
+        self.statusIconColor = statusIconColor
         self.onTap = onTap
         self.onToggle = onToggle
         self.content = content
@@ -89,7 +92,7 @@ struct StatusFramedRow<Content: View>: View {
 
                 Image(systemName: statusIconName)
                     .font(.system(size: 18, weight: statusIconWeight))
-                    .foregroundStyle(Color.white.opacity(0.96))
+                    .foregroundStyle(statusIconColor ?? Color.white.opacity(0.96))
             }
             .frame(width: 52)
             .frame(maxHeight: .infinity)

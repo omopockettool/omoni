@@ -28,7 +28,7 @@ struct ExpenseRowView: View {
         case .paid:
             return .completed
         case .partial, .unpaid:
-            return .pending
+            return .neutral
         case .neutral:
             return .neutral
         }
@@ -38,15 +38,42 @@ struct ExpenseRowView: View {
         switch rowStatus {
         case .paid:
             return "checkmark"
-        case .partial, .unpaid:
-            return "clock"
+        case .partial:
+            return "circle.lefthalf.filled"
+        case .unpaid:
+            return "circle"
         case .neutral:
             return "minus"
         }
     }
 
+    private var statusIconColor: Color? {
+        switch rowStatus {
+        case .partial:
+            return .orange
+        case .unpaid:
+            return Color(.systemGray2)
+        case .paid, .neutral:
+            return nil
+        }
+    }
+
     private var showsSecondaryAmount: Bool {
-        rowTone == .pending && secondaryAmountText != nil
+        switch rowStatus {
+        case .partial, .unpaid:
+            return secondaryAmountText != nil
+        case .paid, .neutral:
+            return false
+        }
+    }
+
+    private var secondaryAmountColor: Color {
+        switch rowStatus {
+        case .partial:
+            return .orange
+        case .unpaid, .paid, .neutral:
+            return .secondary
+        }
     }
 
     private var secondaryAmountSlotHeight: CGFloat {
@@ -57,6 +84,7 @@ struct ExpenseRowView: View {
         StatusFramedRow(
             tone: rowTone,
             statusIconName: statusIconName,
+            statusIconColor: statusIconColor,
             onTap: onTap,
             onToggle: onTogglePaid
         ) {
@@ -82,7 +110,7 @@ struct ExpenseRowView: View {
 
                         Text(secondaryAmountLabel)
                             .font(.caption)
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(secondaryAmountColor)
                             .monospacedDigit()
                             .lineLimit(1)
                             .opacity(showsSecondaryAmount ? 1 : 0)
