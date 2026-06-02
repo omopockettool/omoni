@@ -117,6 +117,7 @@ struct AddItemListView: View {
         ScrollView {
             VStack(spacing: 20) {
                 entryStructureSection
+                    .id("formTop")
                 topCard
                     .id("heroAnchor")
                 if !viewModel.categories.isEmpty {
@@ -192,7 +193,9 @@ struct AddItemListView: View {
         }
         .onChange(of: viewModel.entryStructure) { _, structure in
             if structure == .singleEntry {
-                scrollToHero = true
+                withAnimation(AnimationHelper.expansionSpring) {
+                    proxy.scrollTo("formTop", anchor: .top)
+                }
             } else if focusedField == .price {
                 focusedField = nil
             }
