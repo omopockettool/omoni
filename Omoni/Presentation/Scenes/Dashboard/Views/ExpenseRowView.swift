@@ -66,9 +66,9 @@ struct ExpenseRowView: View {
         switch rowStatus {
         case .partial:
             return .orange
-        case .unpaid:
+        case .unpaid, .neutral:
             return Color(.systemGray2)
-        case .paid, .neutral:
+        case .paid:
             return nil
         }
     }
