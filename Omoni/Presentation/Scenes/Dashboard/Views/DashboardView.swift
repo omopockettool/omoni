@@ -77,7 +77,11 @@ struct SingleEntryEditorNavigationWrapper: View {
             onItemListCreated: { _ in },
             onItemListUpdated: { updated in
                 onItemListUpdated(updated)
-                dismiss()
+                // Defer dismiss to the next SwiftUI cycle so parent list/filter
+                // recomposition does not compete with the navigation pop.
+                Task { @MainActor in
+                    dismiss()
+                }
             },
             onCancel: { dismiss() }
         )

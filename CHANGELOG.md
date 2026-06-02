@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.30.3] - 2026-06-02
+
+### Fixed
+- **Saving a date change from the dashboard single-entry editor no longer risks a navigation-dismiss conflict** (`DashboardView`) — the dashboard now defers the editor dismiss to the next SwiftUI cycle after propagating the updated item list, reducing the chance of a crash when a date edit causes the parent dashboard context to recompose at the same time.
+
 ## [2.30.2] - 2026-06-02
 
 ### Fixed
