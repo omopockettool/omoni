@@ -305,7 +305,9 @@ struct AddItemListView: View {
             isEditMode: viewModel.isEditMode,
             showDetails: $showDetails,
             onCollapse: {
-                showDatePicker = false
+                if Calendar.current.isDateInToday(viewModel.date) {
+                    showDatePicker = false
+                }
                 calendarExpanded = false
             }
         ) {
