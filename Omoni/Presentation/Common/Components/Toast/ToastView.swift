@@ -133,17 +133,35 @@ struct ToastView: View {
     }
 }
 
+struct ToastHost: View {
+    @Binding var toast: ToastMessage?
+    var horizontalPadding: CGFloat = AppConstants.UserInterface.padding
+    var topPadding: CGFloat = 0
+    var bottomPadding: CGFloat = 0
+
+    var body: some View {
+        Group {
+            if let message = toast {
+                ToastView(toast: message, onDismiss: { toast = nil })
+                    .id(message.id)
+                    .padding(.horizontal, horizontalPadding)
+                    .padding(.top, topPadding)
+                    .padding(.bottom, bottomPadding)
+            }
+        }
+        .animation(.spring(response: 0.35, dampingFraction: 0.75), value: toast)
+    }
+}
+
 // MARK: - View Modifier
 
 extension View {
     func toast(_ toast: Binding<ToastMessage?>) -> some View {
         overlay(alignment: .top) {
-            if let message = toast.wrappedValue {
-                ToastView(toast: message, onDismiss: { toast.wrappedValue = nil })
-                    .id(message.id)
-                    .padding(.horizontal, AppConstants.UserInterface.padding)
-                    .padding(.top, AppConstants.UserInterface.smallPadding)
-            }
+            ToastHost(
+                toast: toast,
+                topPadding: AppConstants.UserInterface.smallPadding
+            )
         }
         .animation(.spring(response: 0.35, dampingFraction: 0.75), value: toast.wrappedValue)
     }

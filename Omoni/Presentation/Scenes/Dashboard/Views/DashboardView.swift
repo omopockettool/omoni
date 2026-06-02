@@ -281,7 +281,6 @@ struct DashboardView: View {
                 .presentationDragIndicator(.visible)
             }
         }
-        .toast($viewModel.toast)
         .task {
             guard !hasLoadedInitialData else {
                 await viewModel.refreshData()
@@ -374,6 +373,7 @@ struct DashboardView: View {
             showingFullMonth: $viewModel.showingFullMonth,
             hasItemsOutsideToday: viewModel.hasItemsOutsideToday,
             onOpenSettings: { viewModel.openSettings() },
+            toast: $viewModel.toast,
             bottomInset: { bottomInset }
         )
         .animation(AnimationHelper.smoothSpring, value: selectedCalendarDay == nil)

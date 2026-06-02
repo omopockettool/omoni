@@ -14,6 +14,13 @@ private extension AnyTransition {
             removal: .move(edge: .leading).combined(with: .opacity)
         )
     }
+
+    static var dashboardTopChromeSwap: AnyTransition {
+        .asymmetric(
+            insertion: .move(edge: .top).combined(with: .opacity),
+            removal: .move(edge: .top).combined(with: .opacity)
+        )
+    }
 }
 
 struct DashboardLoadingState: View {
@@ -164,6 +171,40 @@ struct DashboardBottomInset<Hero: View, Bar: View>: View {
     }
 }
 
+struct DashboardTopChromeView: View {
+    @Binding var showingFullMonth: Bool
+    let hasItemsOutsideToday: Bool
+    let onOpenSettings: () -> Void
+    let toast: Binding<ToastMessage?>
+
+    private var showsToast: Bool {
+        toast.wrappedValue != nil
+    }
+
+    var body: some View {
+        ZStack(alignment: .top) {
+            if showsToast {
+                ToastHost(
+                    toast: toast,
+                    topPadding: AppConstants.UserInterface.smallPadding,
+                    bottomPadding: AppConstants.UserInterface.smallPadding
+                )
+                .transition(.dashboardTopChromeSwap)
+            } else {
+                DashboardTopBarView(
+                    showingFullMonth: $showingFullMonth,
+                    hasItemsOutsideToday: hasItemsOutsideToday,
+                    onOpenSettings: onOpenSettings
+                )
+                .transition(.dashboardTopChromeSwap)
+            }
+        }
+        .frame(maxWidth: .infinity, minHeight: 68, alignment: .top)
+        .background(Color(.systemBackground))
+        .animation(AnimationHelper.smoothSpring, value: showsToast)
+    }
+}
+
 struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
     let allFormattedAmount: String
     let allFormattedUnpaidAmount: String?
@@ -200,6 +241,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
     @Binding var showingFullMonth: Bool
     let hasItemsOutsideToday: Bool
     let onOpenSettings: () -> Void
+    let toast: Binding<ToastMessage?>
     let bottomInset: BottomInset
 
     private var isShowingFilteredList: Bool {
@@ -248,6 +290,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
         showingFullMonth: Binding<Bool>,
         hasItemsOutsideToday: Bool,
         onOpenSettings: @escaping () -> Void,
+        toast: Binding<ToastMessage?>,
         @ViewBuilder bottomInset: () -> BottomInset
     ) {
         self.allFormattedAmount = allFormattedAmount
@@ -283,6 +326,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
         self._showingFullMonth = showingFullMonth
         self.hasItemsOutsideToday = hasItemsOutsideToday
         self.onOpenSettings = onOpenSettings
+        self.toast = toast
         self.bottomInset = bottomInset()
     }
 
@@ -362,12 +406,12 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .safeAreaInset(edge: .top, spacing: 0) {
-            DashboardTopBarView(
+            DashboardTopChromeView(
                 showingFullMonth: $showingFullMonth,
                 hasItemsOutsideToday: hasItemsOutsideToday,
-                onOpenSettings: onOpenSettings
+                onOpenSettings: onOpenSettings,
+                toast: toast
             )
-            .background(Color(.systemBackground))
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
             bottomInset
