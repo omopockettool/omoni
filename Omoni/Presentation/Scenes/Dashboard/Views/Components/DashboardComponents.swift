@@ -82,6 +82,7 @@ struct DashboardHeroSection: View {
     let monthTotal: String
     let todayTotal: String
     var overrideLabel: String? = nil
+    var overrideLabelUsesCostOfPrefix: Bool = true
     var overrideTotal: String? = nil
     var budgetLimitText: String? = nil
     var budgetFillRatio: Double? = nil
@@ -91,7 +92,11 @@ struct DashboardHeroSection: View {
 
     private var displayLabel: String {
         if heroIsSuccess { return lastAddedDescription }
-        if let overrideLabel { return LocalizationKey.Item.costOf.localized(with: overrideLabel) }
+        if let overrideLabel {
+            return overrideLabelUsesCostOfPrefix
+                ? LocalizationKey.Item.costOf.localized(with: overrideLabel)
+                : overrideLabel
+        }
         return showingFullMonth ? monthLabel : LocalizationKey.Dashboard.costToday.localized
     }
 

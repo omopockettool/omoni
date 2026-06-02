@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.36.0] - 2026-06-03
+
+### Changed
+- **Date chip now shows the weekday abbreviation alongside the day and month** (`DashboardViewModel`) — format changed from `"5 JUN"` to `"JUE 5 JUN"` so the chip carries useful temporal context without requiring the user to count back from a calendar.
+- **Hero label for date filters no longer uses the "Cost of" prefix** (`DashboardHeroSection`, `DashboardViewModel`) — when filtering by a specific day, the hero now shows a full weekday label such as `"Jueves 5 jun"` directly instead of the awkward `"Coste de 5 JUN"`. Category filters keep the `"Coste de"` prefix as before.
+
 ## [2.35.0] - 2026-06-02
 
 ### Changed

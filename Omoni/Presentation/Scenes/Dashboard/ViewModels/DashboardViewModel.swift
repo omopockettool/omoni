@@ -228,6 +228,13 @@ class DashboardViewModel {
         return dayLabelFormatter.string(from: date).uppercased()
     }
 
+    func heroDayLabel(for date: Date) -> String {
+        if Calendar.current.isDateInToday(date) {
+            return LocalizationKey.Dashboard.today.localized
+        }
+        return heroDateFormatter.string(from: date).capitalized
+    }
+
     var hasItemsOutsideToday: Bool {
         monthItemLists.count > todayItemLists.count || isCustomMonthFilterActive
     }
@@ -287,7 +294,14 @@ class DashboardViewModel {
     private let dayLabelFormatter: DateFormatter = {
         let f = DateFormatter()
         f.locale = Locale.current
-        f.dateFormat = "d MMM"
+        f.dateFormat = "EEE d MMM"
+        return f
+    }()
+
+    private let heroDateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = Locale.current
+        f.dateFormat = "EEEE d MMM"
         return f
     }()
 
