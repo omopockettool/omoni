@@ -113,12 +113,61 @@ struct AddItemView: View {
             }
             .toolbar {
                 ToolbarItemGroup(placement: .keyboard) {
-                    Spacer()
-                    if focusedField == .amount || focusedField == .quantity {
-                        Button(LocalizationKey.General.done.localized) { focusedField = nil }
+                    Button(action: moveFocusBackward) {
+                        Image(systemName: "chevron.up")
                     }
+                    .disabled(!canMoveFocusBackward)
+
+                    Button(action: moveFocusForward) {
+                        Image(systemName: "chevron.down")
+                    }
+                    .disabled(!canMoveFocusForward)
+
+                    Spacer()
+
+                    Button(LocalizationKey.General.done.localized) { focusedField = nil }
                 }
             }
+        }
+    }
+
+    private var canMoveFocusBackward: Bool {
+        switch focusedField {
+        case .description, .quantity:
+            return true
+        default:
+            return false
+        }
+    }
+
+    private var canMoveFocusForward: Bool {
+        switch focusedField {
+        case .amount, .description:
+            return true
+        default:
+            return false
+        }
+    }
+
+    private func moveFocusBackward() {
+        switch focusedField {
+        case .description:
+            focusedField = .amount
+        case .quantity:
+            focusedField = .description
+        default:
+            break
+        }
+    }
+
+    private func moveFocusForward() {
+        switch focusedField {
+        case .amount:
+            focusedField = .description
+        case .description:
+            focusedField = .quantity
+        default:
+            break
         }
     }
 
