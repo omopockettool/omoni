@@ -18,6 +18,7 @@ struct AddItemListView: View {
     @State private var showPaymentMethodOverflow = false
     @State private var scrollToPaymentMethods = false
     @State private var scrollToHero = false
+    @State private var scrollToTop = false
 
     init(
         group: SDGroup,
@@ -146,6 +147,13 @@ struct AddItemListView: View {
                 proxy.scrollTo("heroAnchor", anchor: .top)
             }
         }
+        .onChange(of: scrollToTop) { _, fire in
+            guard fire else { return }
+            scrollToTop = false
+            withAnimation(AnimationHelper.expansionSpring) {
+                proxy.scrollTo("formTop", anchor: .top)
+            }
+        }
 
         } // ScrollViewReader
         .scrollDisabled(!showDetails && !viewModel.isEditMode && !showCategoryOverflow && !showPaymentMethodOverflow)
@@ -192,13 +200,7 @@ struct AddItemListView: View {
             if newField == .price { scrollToHero = true }
         }
         .onChange(of: viewModel.entryStructure) { _, structure in
-            if structure == .singleEntry {
-                withAnimation(AnimationHelper.expansionSpring) {
-                    proxy.scrollTo("formTop", anchor: .top)
-                }
-            } else if focusedField == .price {
-                focusedField = nil
-            }
+            handleStructureChange(structure)
         }
         .onChange(of: showDetails) { _, isShowing in
             if isShowing { onRequestExpandSheet?() }
@@ -420,6 +422,14 @@ struct AddItemListView: View {
     }
 
     // MARK: - Actions
+
+    private func handleStructureChange(_ structure: ItemListStructure) {
+        if structure == .singleEntry {
+            scrollToTop = true
+        } else if focusedField == .price {
+            focusedField = nil
+        }
+    }
 
     private func saveItemList() async {
         let finalDescription = viewModel.resolvedDescriptionForSave()

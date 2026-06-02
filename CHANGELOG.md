@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.30.4] - 2026-06-02
+
+### Fixed
+- **Switching from list to simple mode no longer hides the Simple/List toggle row** (`AddItemListView`) — the scroll now resets to the top of the form via a dedicated `scrollToTop` flag, following the same pattern as `scrollToHero`, ensuring the structure selector stays fully visible after the transition.
+
 ## [2.30.3] - 2026-06-02
 
 ### Fixed
