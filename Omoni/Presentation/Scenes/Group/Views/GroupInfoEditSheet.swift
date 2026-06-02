@@ -61,6 +61,7 @@ struct GroupInfoEditSheet: View {
                                         .foregroundStyle(Color.accentColor)
                                 }
                             }
+                            .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
                     }

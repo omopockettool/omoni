@@ -82,6 +82,7 @@ struct CategoryManagementView: View {
             .padding(AppConstants.UserInterface.padding)
             .background(Color(.secondarySystemGroupedBackground))
             .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
+            .contentShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
         }
         .buttonStyle(.plain)
     }
