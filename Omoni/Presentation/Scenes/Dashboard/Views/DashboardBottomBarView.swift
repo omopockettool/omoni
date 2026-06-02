@@ -103,6 +103,7 @@ struct DashboardBottomBarView: View {
                     availableGroups: availableGroups,
                     userId: userId,
                     isChangingGroup: isChangingGroup,
+                    compact: selectedScopeTitle != nil,
                     onGroupChange: onGroupChange,
                     onGroupCreated: onGroupCreated,
                     onDeleteGroup: onDeleteGroup

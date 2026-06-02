@@ -10,18 +10,18 @@ import SwiftUI
 /// ✅ Clean Architecture: Chip selector de grupo - no Core Data dependencies
 /// No mueve el layout, se sobrepone como CategoryPickerView/PaymentMethodPickerView
 struct GroupSelectorChipView: View {
-    let currentGroup: SDGroup  // ✅ Clean Architecture: Domain model
-    let availableGroups: [SDGroup]  // ✅ Clean Architecture: Domain models
+    let currentGroup: SDGroup
+    let availableGroups: [SDGroup]
     let userId: UUID
-    let isChangingGroup: Bool  // ✅ Estado de carga del cambio de grupo
+    let isChangingGroup: Bool
+    var compact: Bool = false
     let onGroupChange: (SDGroup) -> Void
     let onGroupCreated: (SDGroup) -> Void
     let onDeleteGroup: (SDGroup) async throws -> Void
 
     @State private var showingPicker = false
-    
+
     var body: some View {
-        // Chip pegado a la izquierda
         Button {
             showingPicker = true
         } label: {
@@ -30,17 +30,20 @@ struct GroupSelectorChipView: View {
                     .font(.caption2)
                     .foregroundStyle(Color.omoniInteractiveRed)
 
-                Text(currentGroup.name)  // ✅ Domain model: non-optional name
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                    .foregroundStyle(.primary)
-                    .lineLimit(1)
+                if !compact {
+                    Text(currentGroup.name)
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundStyle(.primary)
+                        .lineLimit(1)
+                        .transition(.opacity.combined(with: .scale(scale: 0.85, anchor: .leading)))
+                }
 
                 Image(systemName: "chevron.down")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
-            .padding(.horizontal, 12)
+            .padding(.horizontal, compact ? 10 : 12)
             .padding(.vertical, 8)
             .background(
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
@@ -52,6 +55,7 @@ struct GroupSelectorChipView: View {
             )
         }
         .buttonStyle(.plain)
+        .animation(AnimationHelper.quickSpring, value: compact)
         .sheet(isPresented: $showingPicker) {
             GroupPickerSheet(
                 currentGroup: currentGroup,
