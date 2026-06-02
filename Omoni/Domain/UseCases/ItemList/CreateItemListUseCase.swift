@@ -69,7 +69,7 @@ final class DefaultCreateSingleEntryUseCase: CreateSingleEntryUseCase {
     ) async throws -> SDItemList {
         let trimmedDescription = description.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedDescription.isEmpty else { throw ValidationError.invalidDescription }
-        guard amount > 0 else { throw ValidationError.invalidAmount }
+        guard amount >= 0 else { throw ValidationError.invalidAmount }
 
         let itemList = try await itemListRepository.createItemList(
             description: trimmedDescription,

@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.26.1] - 2026-06-02
+
+### Fixed
+- **Simple entries can now be saved with no amount, acting as a reminder or pending payment placeholder** (`AddItemListViewModel`, `CreateSingleEntryUseCase`, `UpdateSingleEntryUseCase`) — the save button is active as soon as the form opens; leaving the amount field empty saves the entry with 0.00 automatically. Only the category is needed to give the record meaningful context. When editing an existing Simple entry with no amount, the field shows the placeholder instead of "0".
+
 ## [2.26.0] - 2026-05-31
 
 ### Fixed

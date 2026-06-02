@@ -48,7 +48,7 @@ final class DefaultUpdateSingleEntryUseCase: UpdateSingleEntryUseCase {
     ) async throws -> SDItemList {
         let trimmedDescription = description.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedDescription.isEmpty else { throw ValidationError.invalidDescription }
-        guard amount > 0 else { throw ValidationError.invalidAmount }
+        guard amount >= 0 else { throw ValidationError.invalidAmount }
 
         itemList.itemListDescription = trimmedDescription
         itemList.setStructure(.singleEntry)

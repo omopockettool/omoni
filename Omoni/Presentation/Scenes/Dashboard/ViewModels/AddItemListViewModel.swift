@@ -145,16 +145,11 @@ final class AddItemListViewModel {
     var formattedDate: String { DateFormatterHelper.formatDate(date) }
 
     var canSave: Bool {
-        guard isPriceValid else { return false }
-        if entryStructure == .singleEntry {
-            guard let priceAsDecimal else { return false }
-            return priceAsDecimal > 0
-        }
-        return true
+        return isPriceValid
     }
 
     var isPriceValid: Bool {
-        if price.isEmpty { return entryStructure == .itemizedList }
+        if price.isEmpty { return true }
         let normalizedPrice = price.replacingOccurrences(of: ",", with: ".")
         if normalizedPrice.hasSuffix(".") { return false }
         return NSDecimalNumber(string: normalizedPrice) != NSDecimalNumber.notANumber
@@ -168,11 +163,7 @@ final class AddItemListViewModel {
     }
 
     func showValidationToast() {
-        let resolvedPrice = priceAsDecimal
-        if entryStructure == .singleEntry,
-           resolvedPrice == nil || (resolvedPrice ?? 0) <= 0 {
-            toast = ToastMessage("Añade un importe válido para guardar el registro.", type: .warning)
-        } else if !isPriceValid {
+        if !isPriceValid {
             toast = ToastMessage("Precio no válido", type: .warning)
         }
     }
@@ -473,17 +464,12 @@ final class AddItemListViewModel {
         showError = false
 
         do {
-            let trimmedDescription = description.trimmingCharacters(in: .whitespacesAndNewlines)
+            let trimmedDescription = resolvedDescriptionForSave()
             let itemList: SDItemList
 
             switch entryStructure {
             case .singleEntry:
-                guard let priceDecimal = priceAsDecimal, priceDecimal > 0 else {
-                    errorMessage = "Añade un importe para crear el registro."
-                    showError = true
-                    isLoading = false
-                    return nil
-                }
+                let priceDecimal = priceAsDecimal ?? 0
                 let isFuture = Calendar.current.startOfDay(for: date) > Calendar.current.startOfDay(for: Date())
                 itemList = try await createSingleEntryUseCase.execute(
                     description: trimmedDescription,
@@ -527,12 +513,7 @@ final class AddItemListViewModel {
 
             switch entryStructure {
             case .singleEntry:
-                guard let priceDecimal = priceAsDecimal, priceDecimal > 0 else {
-                    errorMessage = "Añade un importe para guardar el registro."
-                    showError = true
-                    isLoading = false
-                    return nil
-                }
+                let priceDecimal = priceAsDecimal ?? 0
 
                 updatedItemList = try await updateSingleEntryUseCase.execute(
                     itemList: toEdit,
