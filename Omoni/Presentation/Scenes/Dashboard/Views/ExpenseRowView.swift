@@ -181,6 +181,7 @@ struct ExpenseRowView: View {
                 .frame(maxWidth: .infinity, alignment: .trailing)
                 .frame(height: trailingAmountColumnHeight, alignment: .bottomTrailing)
                 .opacity(showsSecondaryAmount ? 1 : 0)
+                .offset(y: showsSecondaryAmount ? 0 : -10)
         }
         .frame(height: trailingAmountColumnHeight, alignment: .topTrailing)
         .clipped()
@@ -202,7 +203,6 @@ struct ExpenseRowView: View {
             .foregroundStyle(secondaryAmountColor)
             .monospacedDigit()
             .lineLimit(1)
-            .offset(y: showsSecondaryAmount ? 0 : -6)
     }
 
     private var secondaryAmountLabel: String {

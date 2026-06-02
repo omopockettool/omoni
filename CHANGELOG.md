@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.27.2] - 2026-06-02
+
+### Fixed
+- **Pending amount label now fades upward when an item list is marked as paid** (`ExpenseRowView`) — the offset and opacity transitions are now co-located at the call site so both are driven by the same animation curve, producing a directional fade that matches the primary amount sliding down from above.
+
 ## [2.27.1] - 2026-06-02
 
 ### Fixed
