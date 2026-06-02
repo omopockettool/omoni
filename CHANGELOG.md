@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.29.0] - 2026-06-02
+
+### Changed
+- **New entries created from the dashboard now inherit the current date context more reliably** (`DashboardView`) — if the user is standing on a specific day, the entry sheet now preloads that day in the date field; if the user is standing on the intermediate day list, the sheet falls back to today instead of carrying an unrelated date.
+
 ## [2.28.0] - 2026-06-02
 
 ### Changed

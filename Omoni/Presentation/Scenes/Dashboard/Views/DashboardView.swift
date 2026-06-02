@@ -593,7 +593,7 @@ struct DashboardView: View {
                             overrideActionColor: activeCategoryBox.flatMap { Color(hex: $0.categoryColorHex) },
                             onAddExpense: {
                                 addItemListTrigger = AddItemListTrigger(
-                                    initialDate: selectedCalendarDay ?? activeCategoryDayContext?.date,
+                                    initialDate: resolvedInitialEntryDate,
                                     preferredCategoryId: activeCategoryBox?.categoryId
                                 )
                             }
@@ -652,6 +652,13 @@ struct DashboardView: View {
     private var activeCategoryDayContext: (categoryId: UUID, range: DashboardCategoryRange, date: Date)? {
         guard case .categoryDay(let categoryId, let range, let date) = resolvedActiveFilter else { return nil }
         return (categoryId, range, date)
+    }
+
+    private var resolvedInitialEntryDate: Date {
+        selectedCalendarDay
+            ?? activeAllDayContext?.date
+            ?? activeCategoryDayContext?.date
+            ?? Date()
     }
 
     private var showsDateRows: Bool {
