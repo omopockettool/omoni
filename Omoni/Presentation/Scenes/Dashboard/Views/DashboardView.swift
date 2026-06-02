@@ -95,7 +95,7 @@ struct DashboardView: View {
     @State private var hasLoadedInitialData = false
     @State private var selectedCalendarDay: Date? = nil
     @State private var addItemListTrigger: AddItemListTrigger? = nil
-    @State private var addItemListDetent: PresentationDetent = .fraction(0.75)
+    @State private var addItemListDetent: PresentationDetent = .fraction(0.8)
 
     private struct AddItemListTrigger: Identifiable {
         let id = UUID()
@@ -256,9 +256,9 @@ struct DashboardView: View {
                             }
                         )
                     }
-                    .presentationDetents([.fraction(0.75), .large], selection: $addItemListDetent)
+                    .presentationDetents([.fraction(0.8), .large], selection: $addItemListDetent)
                     .presentationDragIndicator(.visible)
-                    .onDisappear { addItemListDetent = .fraction(0.75) }
+                    .onDisappear { addItemListDetent = .fraction(0.8) }
                 }
             }
             .sheet(isPresented: $showingFiltersSheet) {

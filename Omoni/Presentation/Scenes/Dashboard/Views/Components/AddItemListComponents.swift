@@ -368,20 +368,32 @@ private struct AddItemListCategoryOverflowChip: View {
 struct AddItemListMoreDetailsSection<Content: View>: View {
     let isEditMode: Bool
     @Binding var showDetails: Bool
-    let onCollapse: () -> Void
     @ViewBuilder let content: () -> Content
+
+    private var triggerTransition: AnyTransition {
+        .asymmetric(
+            insertion: .move(edge: .top).combined(with: .opacity),
+            removal: .move(edge: .top).combined(with: .opacity)
+        )
+    }
+
+    private var detailsTransition: AnyTransition {
+        .asymmetric(
+            insertion: .move(edge: .bottom).combined(with: .opacity),
+            removal: .move(edge: .bottom).combined(with: .opacity)
+        )
+    }
 
     var body: some View {
         VStack(spacing: 16) {
-            if !isEditMode {
+            if !isEditMode && !showDetails {
                 Button {
                     withAnimation(AnimationHelper.expansionSpring) {
-                        showDetails.toggle()
+                        showDetails = true
                     }
-                    if !showDetails { onCollapse() }
                 } label: {
                     HStack(spacing: 6) {
-                        Image(systemName: showDetails ? "chevron.up" : "chevron.down")
+                        Image(systemName: "chevron.down")
                             .font(.system(size: 11, weight: .semibold))
                         Text(LocalizationKey.Entry.moreDetails.localized)
                             .font(.subheadline)
@@ -395,13 +407,17 @@ struct AddItemListMoreDetailsSection<Content: View>: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(PressHapticButtonStyle())
+                .zIndex(1)
+                .transition(triggerTransition)
             }
 
             if isEditMode || showDetails {
                 VStack(spacing: 16) {
                     content()
                 }
-                .transition(isEditMode ? .identity : .opacity.combined(with: .scale(scale: 0.97, anchor: .top)))
+                .zIndex(0)
+                .clipped()
+                .transition(isEditMode ? .identity : detailsTransition)
                 .animation(isEditMode ? nil : AnimationHelper.expansionSpring, value: showDetails)
             }
         }

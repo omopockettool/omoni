@@ -308,13 +308,7 @@ struct AddItemListView: View {
     private var moreDetailsSection: some View {
         AddItemListMoreDetailsSection(
             isEditMode: viewModel.isEditMode,
-            showDetails: $showDetails,
-            onCollapse: {
-                if Calendar.current.isDateInToday(viewModel.date) {
-                    showDatePicker = false
-                }
-                calendarExpanded = false
-            }
+            showDetails: $showDetails
         ) {
             dateCard
             groupCard

@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.31.0] - 2026-06-02
+
+### Changed
+- **`More details` in New Entry now behaves like a one-way form expansion instead of a reversible accordion** (`AddItemListComponents`, `AddItemListView`, `DashboardView`) — after the user opens the extra fields, the trigger row disappears and exits upward while the detailed section enters from below, creating a calmer progressive-reveal flow that feels more intentional and avoids the previous overlap between the tappable row and the expanding content. The sheet also now opens slightly taller, giving the trigger more breathing room above the bottom edge.
+
 ## [2.30.4] - 2026-06-02
 
 ### Fixed
