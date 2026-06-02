@@ -110,7 +110,7 @@ class ItemListDetailViewModel {
 
     func updateItem(_ item: SDItem) async {
         // SDItem is a reference type — the object is already updated in place.
-        // Re-sort in case payment status or lastModifiedAt ordering changed.
+        // Keep the list aligned with the repository's creation-date ordering.
         items = sortItems(items)
     }
 
@@ -133,18 +133,16 @@ class ItemListDetailViewModel {
     func toggleItemPaid(_ item: SDItem) async {
         let newIsPaid = !item.isPaid
         let previousLastModifiedAt = item.lastModifiedAt
-        item.isPaid = newIsPaid
-        item.lastModifiedAt = Date()
-        withAnimation(.easeInOut(duration: 0.2)) {
-            items = sortItems(items)
+        withAnimation(AnimationHelper.quickSpring) {
+            item.isPaid = newIsPaid
+            item.lastModifiedAt = Date()
         }
         do {
             try await toggleItemPaidUseCase.execute(itemId: item.id, isPaid: newIsPaid)
         } catch {
-            item.isPaid = !newIsPaid
-            item.lastModifiedAt = previousLastModifiedAt
-            withAnimation(.easeInOut(duration: 0.2)) {
-                items = sortItems(items)
+            withAnimation(AnimationHelper.quickSpring) {
+                item.isPaid = !newIsPaid
+                item.lastModifiedAt = previousLastModifiedAt
             }
         }
     }
@@ -153,16 +151,12 @@ class ItemListDetailViewModel {
 
     private func sortItems(_ items: [SDItem]) -> [SDItem] {
         items.sorted { lhs, rhs in
-            if lhs.isPaid != rhs.isPaid {
-                return lhs.isPaid == false
+            if lhs.createdAt != rhs.createdAt {
+                return lhs.createdAt > rhs.createdAt
             }
 
-            return sortDate(for: lhs) > sortDate(for: rhs)
+            return lhs.id.uuidString > rhs.id.uuidString
         }
-    }
-
-    private func sortDate(for item: SDItem) -> Date {
-        item.isPaid ? (item.lastModifiedAt ?? item.createdAt) : item.createdAt
     }
 
     private func makeCurrencyFormatter() -> NumberFormatter {
