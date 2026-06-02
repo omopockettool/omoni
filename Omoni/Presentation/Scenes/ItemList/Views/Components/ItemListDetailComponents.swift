@@ -144,6 +144,7 @@ struct ItemListDetailMetaRow: View {
 struct ItemListItemsSection: View {
     let items: [SDItem]
     let formattedAmount: (SDItem) -> String
+    let quantityBreakdown: (SDItem) -> String?
     let isSearchMatch: (SDItem) -> Bool
     let onItemTap: (SDItem) -> Void
     let onTogglePaid: (SDItem) -> Void
@@ -161,6 +162,7 @@ struct ItemListItemsSection: View {
                     ItemRowView(
                         item: item,
                         formattedAmount: formattedAmount(item),
+                        quantityBreakdown: quantityBreakdown(item),
                         isSearchMatch: isSearchMatch(item),
                         onTap: { onItemTap(item) },
                         onTogglePaid: { onTogglePaid(item) }

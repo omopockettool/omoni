@@ -211,6 +211,13 @@ class ItemListDetailViewModel {
         return makeCurrencyFormatter().string(from: NSNumber(value: item.totalAmount)) ?? "\(item.totalAmount) \(currencyCode)"
     }
 
+    func getQuantityBreakdown(_ item: SDItem) -> String? {
+        guard item.quantity > 1 else { return nil }
+        let formatter = makeCurrencyFormatter()
+        guard let unitFormatted = formatter.string(from: NSNumber(value: item.amount)) else { return nil }
+        return "\(item.quantity) × \(unitFormatted)"
+    }
+
     func itemMatchesSearch(_ item: SDItem, query: String?) -> Bool {
         guard let normalizedQuery = normalizedSearchQuery(from: query) else {
             return false

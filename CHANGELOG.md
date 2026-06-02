@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.27.0] - 2026-06-02
+
+### Added
+- **Item rows now show unit price and quantity when an item has more than one unit** (`ItemRowView`, `ItemListDetailViewModel`) — a secondary line below the description displays the breakdown as "3 × 5,00 €" while the total remains on the right. Rows with a single unit are unchanged.
+
 ## [2.26.1] - 2026-06-02
 
 ### Fixed

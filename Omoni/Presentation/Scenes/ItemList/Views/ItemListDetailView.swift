@@ -193,6 +193,7 @@ struct ItemListDetailView: View {
         ItemListItemsSection(
             items: viewModel.visibleItems,
             formattedAmount: viewModel.getFormattedAmount,
+            quantityBreakdown: viewModel.getQuantityBreakdown,
             isSearchMatch: { item in
                 viewModel.itemMatchesSearch(item, query: highlightedSearchQuery)
             },
@@ -227,6 +228,7 @@ struct ItemListDetailView: View {
 struct ItemRowView: View {
     let item: SDItem
     let formattedAmount: String
+    let quantityBreakdown: String?
     let isSearchMatch: Bool
     let onTap: () -> Void
     let onTogglePaid: () -> Void
@@ -252,11 +254,20 @@ struct ItemRowView: View {
             onToggle: onTogglePaid
         ) {
             HStack(alignment: .center, spacing: 12) {
-                Text(item.itemDescription)
-                    .font(.system(size: 15, weight: isSearchMatch ? .semibold : .medium))
-                    .foregroundStyle(Color.primary.opacity(0.92))
-                    .lineLimit(1)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(item.itemDescription)
+                        .font(.system(size: 15, weight: isSearchMatch ? .semibold : .medium))
+                        .foregroundStyle(Color.primary.opacity(0.92))
+                        .lineLimit(1)
+                    if let breakdown = quantityBreakdown {
+                        Text(breakdown)
+                            .font(.system(size: 12, weight: .regular, design: .rounded))
+                            .foregroundStyle(Color.secondary)
+                            .monospacedDigit()
+                            .lineLimit(1)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
 
                 Text(formattedAmount)
                     .font(.system(size: 15, weight: .semibold, design: .rounded))
