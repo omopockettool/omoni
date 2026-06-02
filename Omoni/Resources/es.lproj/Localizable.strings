@@ -159,8 +159,8 @@
 "dashboard.searchItemSummary.single" = "%d artículo coincidente";
 "dashboard.searchItemSummary.multiple" = "%d artículos coincidentes";
 "dashboard.emptyEntryToast" = "Registro vacío";
-"dashboard.markedAllPaid" = "Todo marcado como pagado";
-"dashboard.markedAllPending" = "Todo marcado como pendiente";
+"dashboard.markedAllPaid" = "Todo pagado";
+"dashboard.markedAllPending" = "Todo pendiente";
 "dashboard.changeUndone" = "Cambio deshecho";
 "dashboard.undo" = "Deshacer";
 "dashboard.limitShort" = "Límite";

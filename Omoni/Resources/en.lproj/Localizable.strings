@@ -159,8 +159,8 @@
 "dashboard.searchItemSummary.single" = "%d matching item";
 "dashboard.searchItemSummary.multiple" = "%d matching items";
 "dashboard.emptyEntryToast" = "Empty entry";
-"dashboard.markedAllPaid" = "Everything marked as paid";
-"dashboard.markedAllPending" = "Everything marked as pending";
+"dashboard.markedAllPaid" = "All paid";
+"dashboard.markedAllPending" = "All pending";
 "dashboard.changeUndone" = "Change undone";
 "dashboard.undo" = "Undo";
 "dashboard.limitShort" = "Limit";

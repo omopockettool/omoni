@@ -14,13 +14,6 @@ private extension AnyTransition {
             removal: .move(edge: .leading).combined(with: .opacity)
         )
     }
-
-    static var dashboardTopChromeSwap: AnyTransition {
-        .asymmetric(
-            insertion: .move(edge: .top).combined(with: .opacity),
-            removal: .move(edge: .top).combined(with: .opacity)
-        )
-    }
 }
 
 struct DashboardLoadingState: View {
@@ -177,6 +170,10 @@ struct DashboardBottomInset<Hero: View, Bar: View>: View {
 }
 
 struct DashboardTopChromeView: View {
+    private enum Metrics {
+        static let baseHeight: CGFloat = 68
+    }
+
     @Binding var showingFullMonth: Bool
     let hasItemsOutsideToday: Bool
     let onOpenSettings: () -> Void
@@ -187,24 +184,24 @@ struct DashboardTopChromeView: View {
     }
 
     var body: some View {
-        ZStack(alignment: .top) {
+        DashboardTopBarView(
+            showingFullMonth: $showingFullMonth,
+            hasItemsOutsideToday: hasItemsOutsideToday,
+            onOpenSettings: onOpenSettings
+        )
+        .opacity(showsToast ? 0 : 1)
+        .allowsHitTesting(!showsToast)
+        .overlay(alignment: .top) {
             if showsToast {
                 ToastHost(
                     toast: toast,
-                    topPadding: AppConstants.UserInterface.smallPadding,
-                    bottomPadding: AppConstants.UserInterface.smallPadding
+                    topPadding: AppConstants.UserInterface.smallPadding
                 )
-                .transition(.dashboardTopChromeSwap)
-            } else {
-                DashboardTopBarView(
-                    showingFullMonth: $showingFullMonth,
-                    hasItemsOutsideToday: hasItemsOutsideToday,
-                    onOpenSettings: onOpenSettings
-                )
-                .transition(.dashboardTopChromeSwap)
+                .transition(.move(edge: .top).combined(with: .opacity))
+                .zIndex(1)
             }
         }
-        .frame(maxWidth: .infinity, minHeight: 68, alignment: .top)
+        .frame(maxWidth: .infinity, minHeight: Metrics.baseHeight, maxHeight: Metrics.baseHeight, alignment: .top)
         .background(Color(.systemBackground))
         .animation(AnimationHelper.smoothSpring, value: showsToast)
     }

@@ -51,27 +51,33 @@ struct ToastView: View {
 
             Spacer(minLength: 0)
 
-            if let actionTitle = toast.actionTitle, let action = toast.action {
+            HStack(spacing: 12) {
+                if let actionTitle = toast.actionTitle, let action = toast.action {
+                    Button {
+                        dismissTask?.cancel()
+                        onDismiss()
+                        action()
+                    } label: {
+                        Text(actionTitle)
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.accent)
+                    }
+                    .buttonStyle(PressHapticButtonStyle())
+
+                    Capsule()
+                        .fill(Color.secondary.opacity(0.18))
+                        .frame(width: 1, height: 18)
+                }
+
                 Button {
-                    dismissTask?.cancel()
-                    onDismiss()
-                    action()
+                    dismiss()
                 } label: {
-                    Text(actionTitle)
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.accent)
+                    Image(systemName: "xmark")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundStyle(.secondary)
                 }
                 .buttonStyle(PressHapticButtonStyle())
             }
-
-            Button {
-                dismiss()
-            } label: {
-                Image(systemName: "xmark")
-                    .font(.system(size: 12, weight: .bold))
-                    .foregroundStyle(.secondary)
-            }
-            .buttonStyle(PressHapticButtonStyle())
         }
         .padding(.horizontal, AppConstants.UserInterface.padding)
         .padding(.vertical, 12)
