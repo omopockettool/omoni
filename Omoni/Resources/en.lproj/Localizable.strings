@@ -228,7 +228,7 @@
 
 // MARK: - Settings (extended)
 "settings.account" = "Account";
-"settings.aboutOMO" = "About OMO";
+"settings.aboutOMO" = "About OMONI";
 "settings.requiredConfig" = "Required configuration";
 "settings.requiredConfigMsg" = "Please create a user and group to continue";
 "settings.goToSettings" = "Go to Settings";
@@ -264,7 +264,7 @@
 "about.currentVersion" = "Current version";
 "about.whatsNew" = "What's new";
 "about.viewHistory" = "View history";
-"about.title" = "About OMO";
+"about.title" = "OMONI";
 "about.descriptionLabel" = "Description";
 "about.tagline" = "Pocket tool. Financial consciousness in your pocket. No friction.";
 "about.heroTagline" = "How much did it cost you to live today?";

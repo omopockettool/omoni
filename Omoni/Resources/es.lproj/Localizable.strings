@@ -228,7 +228,7 @@
 
 // MARK: - Settings (extended)
 "settings.account" = "Cuenta";
-"settings.aboutOMO" = "Sobre OMO";
+"settings.aboutOMO" = "Sobre OMONI";
 "settings.requiredConfig" = "Configuración requerida";
 "settings.requiredConfigMsg" = "Por favor crea un usuario y grupo para continuar";
 "settings.goToSettings" = "Ir a Configuración";
@@ -264,7 +264,7 @@
 "about.currentVersion" = "Versión actual";
 "about.whatsNew" = "Novedades y cambios";
 "about.viewHistory" = "Ver historial";
-"about.title" = "Sobre OMO";
+"about.title" = "OMONI";
 "about.descriptionLabel" = "Descripción";
 "about.tagline" = "Pocket tool. Consciencia financiera en tu bolsillo. Sin fricción.";
 "about.heroTagline" = "¿Cuánto te costó vivir hoy?";
