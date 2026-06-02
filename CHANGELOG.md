@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.30.0] - 2026-06-02
+
+### Changed
+- **Animation curves and padding values are now centralized in shared constants** (`AnimationHelper`, `AppConstants`) — extracted `deleteSpring`, `expansionSpring`, `feedbackSpring`, `flashIn`, and `flashOut` from 27 inline hardcoded spring and easing definitions across ViewModels and Views; added `mediumPadding` (12 pt) to the padding scale; aligned `StatusFramedRow` content padding from 15 pt to the standard 16 pt.
+
 ## [2.29.0] - 2026-06-02
 
 ### Changed

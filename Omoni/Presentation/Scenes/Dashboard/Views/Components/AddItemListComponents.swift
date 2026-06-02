@@ -190,17 +190,17 @@ struct AddItemListCategorySection: View {
                         cornerRadius: chipCornerRadius,
                         isExpanded: showOverflow
                     ) {
-                        withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) {
+                        withAnimation(AnimationHelper.expansionSpring) {
                             showOverflow.toggle()
                         }
                     }
                 }
             }
-            .animation(.spring(response: 0.45, dampingFraction: 0.82), value: showOverflow)
+            .animation(AnimationHelper.expansionSpring, value: showOverflow)
 
             if showOverflow {
                 Button {
-                    withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) {
+                    withAnimation(AnimationHelper.expansionSpring) {
                         showOverflow = false
                     }
                 } label: {
@@ -277,7 +277,7 @@ private struct AddItemListCategoryChip: View {
                 RoundedRectangle(cornerRadius: cornerRadius)
                     .stroke(chipColor.opacity(isSelected ? 0 : 0.3), lineWidth: 1)
             )
-            .animation(.spring(response: 0.45, dampingFraction: 0.82), value: compact)
+            .animation(AnimationHelper.expansionSpring, value: compact)
         }
         .buttonStyle(.plain)
     }
@@ -356,8 +356,8 @@ private struct AddItemListCategoryOverflowChip: View {
                 RoundedRectangle(cornerRadius: cornerRadius)
                     .stroke(chipColor.opacity(isActive ? 0 : 0.3), lineWidth: 1)
             )
-            .animation(.spring(response: 0.45, dampingFraction: 0.82), value: compact)
-            .animation(.spring(response: 0.45, dampingFraction: 0.82), value: isExpanded)
+            .animation(AnimationHelper.expansionSpring, value: compact)
+            .animation(AnimationHelper.expansionSpring, value: isExpanded)
         }
         .buttonStyle(.plain)
     }
@@ -375,7 +375,7 @@ struct AddItemListMoreDetailsSection<Content: View>: View {
         VStack(spacing: 16) {
             if !isEditMode {
                 Button {
-                    withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) {
+                    withAnimation(AnimationHelper.expansionSpring) {
                         showDetails.toggle()
                     }
                     if !showDetails { onCollapse() }
@@ -402,7 +402,7 @@ struct AddItemListMoreDetailsSection<Content: View>: View {
                     content()
                 }
                 .transition(isEditMode ? .identity : .opacity.combined(with: .scale(scale: 0.97, anchor: .top)))
-                .animation(isEditMode ? nil : .spring(response: 0.45, dampingFraction: 0.82), value: showDetails)
+                .animation(isEditMode ? nil : AnimationHelper.expansionSpring, value: showDetails)
             }
         }
     }
@@ -453,12 +453,12 @@ struct AddItemListPaymentMethodSection: View {
                     }
                 }
             }
-            .animation(.spring(response: 0.45, dampingFraction: 0.82), value: showOverflow)
+            .animation(AnimationHelper.expansionSpring, value: showOverflow)
             .id("paymentMethodAnchor")
 
             if showOverflow {
                 Button {
-                    withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) {
+                    withAnimation(AnimationHelper.expansionSpring) {
                         showOverflow = false
                     }
                     onCollapseOverflow()

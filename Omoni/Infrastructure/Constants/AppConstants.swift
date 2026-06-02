@@ -25,6 +25,7 @@ struct AppConstants {
     struct UserInterface {
         static let cornerRadius: CGFloat = 16
         static let padding: CGFloat = 16
+        static let mediumPadding: CGFloat = 12
         static let smallPadding: CGFloat = 8
         static let largePadding: CGFloat = 24
     }

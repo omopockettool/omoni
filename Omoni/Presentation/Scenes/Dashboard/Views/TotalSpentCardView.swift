@@ -65,7 +65,7 @@ struct TotalSpentCardView<BottomContent: View>: View {
                             .minimumScaleFactor(0.5)
                             .lineLimit(1)
                             .contentTransition(.numericText(countsDown: isDecreasing))
-                            .animation(.spring(response: 0.45, dampingFraction: 0.75), value: displayedAmount)
+                            .animation(AnimationHelper.feedbackSpring, value: displayedAmount)
                             .transition(.push(from: .bottom).combined(with: .opacity))
                     }
 
@@ -143,13 +143,13 @@ struct TotalSpentCardView<BottomContent: View>: View {
             let oldDigits = extractDigits(from: oldValue)
             let newDigits = extractDigits(from: newValue)
             isDecreasing = newDigits < oldDigits
-            withAnimation(.spring(response: 0.45, dampingFraction: 0.75)) {
+            withAnimation(AnimationHelper.feedbackSpring) {
                 displayedAmount = newValue
             }
             guard !isSuccess else { return }
             let targetColor: Color = isDecreasing ? .red.opacity(0.12) : .green.opacity(0.12)
-            withAnimation(.easeIn(duration: 0.12)) { flashColor = targetColor }
-            withAnimation(.easeOut(duration: 0.45).delay(0.15)) { flashColor = .clear }
+            withAnimation(AnimationHelper.flashIn) { flashColor = targetColor }
+            withAnimation(AnimationHelper.flashOut) { flashColor = .clear }
             withAnimation(.spring(response: 0.25, dampingFraction: 0.45)) { cardScale = 1.025 }
             withAnimation(.spring(response: 0.35, dampingFraction: 0.6).delay(0.12)) { cardScale = 1.0 }
         }

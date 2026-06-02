@@ -109,14 +109,14 @@ class CategoryListViewModel {
     }
 
     func deleteCategory(_ category: SDCategory) {
-        withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
+        withAnimation(AnimationHelper.deleteSpring) {
             categories.removeAll { $0.id == category.id }
         }
         Task {
             do {
                 try await deleteCategoryUseCase.execute(categoryId: category.id)
             } catch {
-                withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
+                withAnimation(AnimationHelper.deleteSpring) {
                     categories.append(category)
                 }
                 errorMessage = "Error deleting category: \(error.localizedDescription)"

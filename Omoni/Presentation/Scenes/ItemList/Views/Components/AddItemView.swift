@@ -212,7 +212,7 @@ struct AddItemView: View {
                 .minimumScaleFactor(0.5)
                 .lineLimit(1)
                 .contentTransition(.numericText(countsDown: subtotalIsDecreasing))
-                .animation(.spring(response: 0.45, dampingFraction: 0.75), value: displayedSubtotal)
+                .animation(AnimationHelper.feedbackSpring, value: displayedSubtotal)
                 .frame(maxWidth: .infinity, alignment: .center)
         }
         .padding(AppConstants.UserInterface.padding)
@@ -224,7 +224,7 @@ struct AddItemView: View {
             let oldDigits = Int(displayedSubtotal.filter(\.isNumber)) ?? 0
             let newDigits = Int(newValue.filter(\.isNumber)) ?? 0
             subtotalIsDecreasing = newDigits < oldDigits
-            withAnimation(.spring(response: 0.45, dampingFraction: 0.75)) {
+            withAnimation(AnimationHelper.feedbackSpring) {
                 displayedSubtotal = newValue
             }
         }

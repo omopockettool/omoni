@@ -526,7 +526,7 @@ class DashboardViewModel {
         itemListPaidStatus[itemList.id] = ItemListPaidStatus.none
         itemListRowStatus[itemList.id] = .neutral
 
-        withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
+        withAnimation(AnimationHelper.deleteSpring) {
             itemLists = sortedItemLists
         }
         await applyTotals(calculateItemListTotalsUseCase.execute(itemLists: itemLists))
@@ -1104,7 +1104,7 @@ class DashboardViewModel {
         var updatedItemLists = currentItemLists
         updatedItemLists.remove(at: index)
 
-        withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
+        withAnimation(AnimationHelper.deleteSpring) {
             itemLists = updatedItemLists
         }
 

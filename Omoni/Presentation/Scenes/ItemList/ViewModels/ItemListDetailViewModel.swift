@@ -115,14 +115,14 @@ class ItemListDetailViewModel {
     }
 
     func deleteItem(_ item: SDItem) {
-        withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
+        withAnimation(AnimationHelper.deleteSpring) {
             items.removeAll { $0.id == item.id }
         }
         Task {
             do {
                 try await deleteItemUseCase.execute(id: item.id)
             } catch {
-                withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
+                withAnimation(AnimationHelper.deleteSpring) {
                     items.append(item)
                     items = sortItems(items)
                 }

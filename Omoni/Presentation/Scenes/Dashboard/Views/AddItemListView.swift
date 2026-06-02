@@ -133,7 +133,7 @@ struct AddItemListView: View {
             scrollToPaymentMethods = false
             Task {
                 try? await Task.sleep(for: .milliseconds(350))
-                withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) {
+                withAnimation(AnimationHelper.expansionSpring) {
                     proxy.scrollTo("paymentMethodAnchor", anchor: .top)
                 }
             }
@@ -141,7 +141,7 @@ struct AddItemListView: View {
         .onChange(of: scrollToHero) { _, fire in
             guard fire else { return }
             scrollToHero = false
-            withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) {
+            withAnimation(AnimationHelper.expansionSpring) {
                 proxy.scrollTo("heroAnchor", anchor: .top)
             }
         }

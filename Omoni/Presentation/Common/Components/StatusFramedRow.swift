@@ -70,8 +70,7 @@ struct StatusFramedRow<Content: View>: View {
         HStack(spacing: 0) {
             statusButton
             content()
-                .padding(.horizontal, 15)
-                .padding(.vertical, 15)
+                .padding(AppConstants.UserInterface.padding)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
         .background(cardBackground)

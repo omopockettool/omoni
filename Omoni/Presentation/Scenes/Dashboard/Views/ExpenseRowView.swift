@@ -158,10 +158,10 @@ struct ExpenseRowView: View {
 
             guard let flashColor else { return }
 
-            withAnimation(.easeIn(duration: 0.12)) {
+            withAnimation(AnimationHelper.flashIn) {
                 detailTitleColor = flashColor
             }
-            withAnimation(.easeOut(duration: 0.45).delay(0.15)) {
+            withAnimation(AnimationHelper.flashOut) {
                 detailTitleColor = defaultDetailTitleColor
             }
         }
