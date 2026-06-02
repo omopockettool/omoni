@@ -31,6 +31,10 @@ struct ToastMessage: Equatable {
 // MARK: - Toast View
 
 struct ToastView: View {
+    private enum Metrics {
+        static let dismissDuration: Double = 0.18
+    }
+
     let toast: ToastMessage
     let onDismiss: () -> Void
 
@@ -54,9 +58,7 @@ struct ToastView: View {
             HStack(spacing: 12) {
                 if let actionTitle = toast.actionTitle, let action = toast.action {
                     Button {
-                        dismissTask?.cancel()
-                        onDismiss()
-                        action()
+                        dismiss(perform: action)
                     } label: {
                         Text(actionTitle)
                             .font(.subheadline.weight(.semibold))
@@ -128,13 +130,18 @@ struct ToastView: View {
     }
 
     private func dismiss() {
+        dismiss(perform: nil)
+    }
+
+    private func dismiss(perform action: (() -> Void)?) {
         dismissTask?.cancel()
-        withAnimation(.easeOut(duration: 0.25)) {
+        withAnimation(.easeOut(duration: Metrics.dismissDuration)) {
             isVisible = false
         }
         Task { @MainActor in
-            try? await Task.sleep(for: .seconds(0.25))
+            try? await Task.sleep(for: .seconds(Metrics.dismissDuration))
             onDismiss()
+            action?()
         }
     }
 }
