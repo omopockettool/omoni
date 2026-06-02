@@ -233,21 +233,18 @@ struct DashboardView: View {
                             preferredCategoryId: trigger.preferredCategoryId,
                             onRequestExpandSheet: { addItemListDetent = .large },
                             onItemListCreated: { createdItemList in
-                                guard !heroIsSuccess else {
-                                    addItemListTrigger = nil
-                                    Task { await viewModel.addItemList(createdItemList) }
-                                    return
-                                }
-                                lastAddedDescription = createdItemList.itemListDescription
-                                withAnimation(AnimationHelper.smoothSpring) {
-                                    heroIsSuccess = true
-                                }
                                 addItemListTrigger = nil
                                 Task {
                                     await viewModel.addItemList(createdItemList)
-                                    try? await Task.sleep(for: .milliseconds(900))
-                                    withAnimation(AnimationHelper.smoothSpring) {
-                                        heroIsSuccess = false
+                                    if createdItemList.structure == .itemizedList {
+                                        try? await Task.sleep(for: .milliseconds(400))
+                                        navigationPath.append(itemListRoute(for: createdItemList))
+                                    } else {
+                                        guard !heroIsSuccess else { return }
+                                        lastAddedDescription = createdItemList.itemListDescription
+                                        withAnimation(AnimationHelper.smoothSpring) { heroIsSuccess = true }
+                                        try? await Task.sleep(for: .milliseconds(900))
+                                        withAnimation(AnimationHelper.smoothSpring) { heroIsSuccess = false }
                                     }
                                 }
                             },
