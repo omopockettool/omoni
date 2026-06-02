@@ -30,7 +30,7 @@ struct HeroAmountInputView<F: Hashable>: View {
 
                 if isFocused {
                     BlinkingCursor(height: fontSize * 0.78)
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(Color.accentColor)
                         .transition(.opacity)
                 }
 
@@ -58,7 +58,7 @@ struct HeroAmountInputView<F: Hashable>: View {
         .overlay {
             if !embedded {
                 RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius)
-                    .stroke(isFocused ? Color(.systemGray3) : Color.clear, lineWidth: 2.5)
+                    .stroke(isFocused ? Color.accentColor.opacity(0.35) : Color.clear, lineWidth: 2.5)
                     .animation(AnimationHelper.formFocus, value: isFocused)
             }
         }
