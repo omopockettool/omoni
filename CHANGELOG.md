@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.28.0] - 2026-06-02
+
+### Changed
+- **Day rows in the dashboard drill-in now use OMONI's current card language instead of the older flat typographic treatment** (`DashboardDateRowsComponents`) — each day now renders as a rounded card with a stronger date column, warmer rounded amount typography, and a calmer single-line weekday label in the center so the intermediate day list feels aligned with the hero, chips, and current item-list rows without repeating date information.
+
 ## [2.27.3] - 2026-06-02
 
 ### Fixed

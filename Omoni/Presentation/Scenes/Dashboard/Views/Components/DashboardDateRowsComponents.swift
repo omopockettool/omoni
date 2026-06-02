@@ -18,6 +18,7 @@ struct DashboardDateRowsView: View {
                     formattedUnpaidAmount: getFormattedUnpaidAmount(row),
                     onTap: { onSelect(row) }
                 )
+                .padding(.vertical, 4)
                 .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
@@ -37,7 +38,75 @@ struct DashboardDateRowsView: View {
 
 // MARK: - Single Date Row
 
+private enum DashboardDateRowLayoutMetrics {
+    static let cardCornerRadius: CGFloat = 18
+    static let leadingColumnWidth: CGFloat = 66
+    static let amountColumnHeight: CGFloat = 38
+}
+
+private enum DashboardDateRowTone {
+    case neutral
+    case pending
+    case today
+
+    var leadingFill: Color {
+        switch self {
+        case .neutral:
+            return Color(.systemGray5)
+        case .pending:
+            return .orange.opacity(0.18)
+        case .today:
+            return Color.accentColor.opacity(0.14)
+        }
+    }
+
+    var borderColor: Color {
+        switch self {
+        case .neutral:
+            return Color(.separator).opacity(0.72)
+        case .pending:
+            return .orange.opacity(0.58)
+        case .today:
+            return Color.accentColor.opacity(0.32)
+        }
+    }
+
+    var amountColor: Color {
+        switch self {
+        case .neutral:
+            return Color.primary.opacity(0.76)
+        case .pending:
+            return .orange
+        case .today:
+            return .accentColor
+        }
+    }
+
+    var titleColor: Color {
+        switch self {
+        case .neutral, .pending:
+            return Color.primary.opacity(0.92)
+        case .today:
+            return .accentColor
+        }
+    }
+
+    var secondaryColor: Color {
+        switch self {
+        case .neutral:
+            return .secondary
+        case .pending:
+            return .orange.opacity(0.85)
+        case .today:
+            return .accentColor.opacity(0.82)
+        }
+    }
+}
+
 struct DashboardDateRowView: View {
+    @State private var displayedPrimaryAmount = ""
+    @State private var primaryAmountIsDecreasing = false
+
     let data: DashboardDayBoxData
     let formattedAmount: String
     let formattedUnpaidAmount: String?
@@ -45,74 +114,150 @@ struct DashboardDateRowView: View {
 
     private var isToday: Bool { data.isToday }
 
+    private var rowTone: DashboardDateRowTone {
+        if isToday {
+            return .today
+        }
+        if formattedUnpaidAmount != nil {
+            return .pending
+        }
+        return .neutral
+    }
+
+    private var primaryAmountText: String {
+        formattedAmount
+    }
+
+    private var showsSecondaryAmount: Bool {
+        formattedUnpaidAmount != nil
+    }
+
     var body: some View {
         Button(action: onTap) {
-            HStack(alignment: .center, spacing: 0) {
-                // Left: day number + weekday label
-                HStack(alignment: .firstTextBaseline, spacing: 7) {
-                    if isToday {
-                        Text(LocalizationKey.Dashboard.today.localized.uppercased())
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundStyle(Color.accentColor)
-                            .tracking(1.5)
-                    } else {
-                        Text(dayNumber)
-                            .font(.system(size: 26, weight: .light, design: .default))
-                            .foregroundStyle(Color.primary.opacity(0.88))
-                            .monospacedDigit()
+            HStack(spacing: 0) {
+                leadingDateColumn
 
-                        Text(weekday)
-                            .font(.system(size: 10, weight: .medium))
-                            .foregroundStyle(Color.secondary)
-                            .tracking(1.2)
-                            .textCase(.uppercase)
-                            .offset(y: -1)
-                    }
+                HStack(alignment: .center, spacing: 12) {
+                    contentColumn
+                    trailingAmountColumn
                 }
-                .frame(minWidth: 64, alignment: .leading)
-
-                Spacer()
-
-                // Right: amounts + nav chevron
-                HStack(alignment: .center, spacing: 10) {
-                    VStack(alignment: .trailing, spacing: 2) {
-                        Text(formattedAmount)
-                            .font(.system(size: 16, weight: isToday ? .medium : .light))
-                            .foregroundStyle(isToday ? Color.accentColor : Color.primary.opacity(0.75))
-                            .monospacedDigit()
-
-                        if let unpaid = formattedUnpaidAmount {
-                            Text("\(unpaid) \(LocalizationKey.Item.unpaid.localized)")
-                                .font(.system(size: 11, weight: .regular))
-                                .foregroundStyle(.orange.opacity(0.85))
-                                .transition(.opacity.combined(with: .move(edge: .top)))
-                        }
-                    }
-                    .animation(AnimationHelper.quickEase, value: formattedUnpaidAmount)
-
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundStyle(Color(.tertiaryLabel))
-                }
+                .padding(.horizontal, 15)
+                .padding(.vertical, 15)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding(.vertical, 20)
-            .overlay(alignment: .bottom) {
-                Rectangle()
-                    .fill(Color(.separator).opacity(0.5))
-                    .frame(height: 1)
+            .background(cardBackground)
+            .clipShape(cardShape)
+            .overlay {
+                cardShape
+                    .stroke(rowTone.borderColor, lineWidth: 1)
             }
-            .contentShape(Rectangle())
+            .contentShape(cardShape)
         }
         .buttonStyle(PressHapticButtonStyle())
+        .onAppear {
+            displayedPrimaryAmount = primaryAmountText
+        }
+        .onChange(of: primaryAmountText) { oldValue, newValue in
+            let oldDigits = extractDigits(from: oldValue)
+            let newDigits = extractDigits(from: newValue)
+            primaryAmountIsDecreasing = newDigits < oldDigits
+            withAnimation(.spring(response: 0.45, dampingFraction: 0.78, blendDuration: 0.15)) {
+                displayedPrimaryAmount = newValue
+            }
+        }
+        .animation(AnimationHelper.quickEase, value: formattedUnpaidAmount)
+    }
+
+    private var leadingDateColumn: some View {
+        VStack(spacing: 0) {
+            Text(dayNumber)
+                .font(.system(size: 25, weight: .bold, design: .rounded))
+                .foregroundStyle(rowTone.titleColor)
+                .monospacedDigit()
+        }
+        .frame(width: DashboardDateRowLayoutMetrics.leadingColumnWidth)
+        .frame(maxHeight: .infinity)
+        .padding(.vertical, 14)
+        .background(rowTone.leadingFill)
+    }
+
+    private var contentColumn: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(titleLabel)
+                .font(.system(size: 15, weight: .medium))
+                .foregroundStyle(rowTone.titleColor)
+                .lineLimit(1)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    @ViewBuilder
+    private var trailingAmountColumn: some View {
+        ZStack(alignment: .trailing) {
+            primaryAmountView
+                .frame(maxWidth: .infinity, alignment: .trailing)
+                .frame(height: DashboardDateRowLayoutMetrics.amountColumnHeight, alignment: .trailing)
+                .offset(y: showsSecondaryAmount ? -7 : 0)
+
+            secondaryAmountView
+                .frame(maxWidth: .infinity, alignment: .trailing)
+                .frame(height: DashboardDateRowLayoutMetrics.amountColumnHeight, alignment: .bottomTrailing)
+                .opacity(showsSecondaryAmount ? 1 : 0)
+                .offset(y: showsSecondaryAmount ? 0 : -10)
+        }
+        .frame(height: DashboardDateRowLayoutMetrics.amountColumnHeight, alignment: .topTrailing)
+        .clipped()
+    }
+
+    private var primaryAmountView: some View {
+        Text(displayedPrimaryAmount)
+            .font(.system(size: 15, weight: .semibold, design: .rounded))
+            .foregroundStyle(rowTone.amountColor)
+            .monospacedDigit()
+            .lineLimit(1)
+            .contentTransition(.numericText(countsDown: primaryAmountIsDecreasing))
+    }
+
+    @ViewBuilder
+    private var secondaryAmountView: some View {
+        if let formattedUnpaidAmount {
+            Text("\(formattedUnpaidAmount) \(LocalizationKey.Item.unpaid.localized)")
+                .font(.caption)
+                .foregroundStyle(.orange)
+                .monospacedDigit()
+                .lineLimit(1)
+        } else {
+            Text("")
+                .font(.caption)
+        }
+    }
+
+    private var cardBackground: some View {
+        RoundedRectangle(cornerRadius: DashboardDateRowLayoutMetrics.cardCornerRadius, style: .continuous)
+            .fill(Color(.secondarySystemGroupedBackground))
+    }
+
+    private var cardShape: RoundedRectangle {
+        RoundedRectangle(cornerRadius: DashboardDateRowLayoutMetrics.cardCornerRadius, style: .continuous)
+    }
+
+    private var titleLabel: String {
+        weekday
+    }
+
+    private var weekday: String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "es_ES")
+        formatter.dateFormat = "EEEE"
+        let value = formatter.string(from: data.date)
+        return value.prefix(1).uppercased() + value.dropFirst()
+    }
+
+    private func extractDigits(from string: String) -> Int {
+        Int(string.filter(\.isNumber)) ?? 0
     }
 
     private var dayNumber: String {
         String(Calendar.current.component(.day, from: data.date))
-    }
-
-    private var weekday: String {
-        let f = DateFormatter()
-        f.dateFormat = "EEE"
-        return f.string(from: data.date)
     }
 }
