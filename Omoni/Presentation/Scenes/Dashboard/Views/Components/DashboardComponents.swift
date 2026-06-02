@@ -115,18 +115,18 @@ struct DashboardHeroSection: View {
             isSuccess: heroIsSuccess
         ) {
             if let budgetLimitText, !heroIsSuccess {
-                HStack(spacing: 8) {
-                    Text(budgetLimitText)
-                        .font(.footnote.weight(.medium))
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.85)
-
+                HStack(spacing: 6) {
                     if showsOverLimitBadge {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(.orange)
                     }
+
+                    Text(budgetLimitText)
+                        .font(.footnote.weight(.medium))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.85)
                 }
                 .padding(.top, 2)
             }

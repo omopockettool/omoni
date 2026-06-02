@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.37.1] - 2026-06-03
+
+### Fixed
+- **Budget over-limit warning icon now leads the limit text in the hero** (`DashboardComponents`) — moved the orange triangle to the left of the budget label so the warning is the first thing the eye catches, consistent with iOS conventions where status icons precede their text.
+
 ## [2.37.0] - 2026-06-03
 
 ### Changed
