@@ -5,12 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.37.6] - 2026-06-04
 
-## [2.38.0] - 2026-06-04
+### Fixed
+- **Dashboard range swaps now follow the top segmented control direction more naturally** (`DashboardComponents`) — switching between `Today` and `This month` now moves the dashboard content in the same visual direction as the selected segment, making the transition feel more coherent with the control and easier to track.
+
+## [2.37.5] - 2026-06-04
 
 ### Fixed
 - **Dashboard and item-list detail totals now use a calmer, unified numeric update animation instead of temporary hero success states** (`TotalSpentCardView`, `DashboardView`, `DashboardCategoryBoardComponents`, `ItemListDetailComponents`, `ItemListDetailView`) — creating a simple entry or adding an item now lets the amount itself communicate the change through the same rolling total treatment used across the dashboard, while category boxes gained the same numeric transition language. Dashboard simple-entry totals also wait until the creation sheet is nearly gone before animating, reducing motion overlap and making the update easier to follow.
-
 
 ## [2.37.4] - 2026-06-04
 

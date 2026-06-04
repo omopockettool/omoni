@@ -1,17 +1,17 @@
 import SwiftUI
 
 private extension AnyTransition {
-    static var dashboardFilteredViewSwap: AnyTransition {
-        .asymmetric(
-            insertion: .move(edge: .trailing).combined(with: .opacity),
-            removal: .move(edge: .trailing).combined(with: .opacity)
-        )
-    }
-
-    static var dashboardCategoryBoardSwap: AnyTransition {
+    static var dashboardTodayRangeSwap: AnyTransition {
         .asymmetric(
             insertion: .move(edge: .leading).combined(with: .opacity),
             removal: .move(edge: .leading).combined(with: .opacity)
+        )
+    }
+
+    static var dashboardMonthRangeSwap: AnyTransition {
+        .asymmetric(
+            insertion: .move(edge: .trailing).combined(with: .opacity),
+            removal: .move(edge: .trailing).combined(with: .opacity)
         )
     }
 }
@@ -246,6 +246,10 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
         selectedFilterTitle != nil
     }
 
+    private var rangeSwapTransition: AnyTransition {
+        showingFullMonth ? .dashboardMonthRangeSwap : .dashboardTodayRangeSwap
+    }
+
     private var filteredListContextID: String {
         return [
             selectedFilterTitle ?? "none",
@@ -344,14 +348,14 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
                     )
                     .id(filteredListContextID)
                     .zIndex(1)
-                    .transition(.dashboardFilteredViewSwap)
+                    .transition(rangeSwapTransition)
                 } else if showsDateRows {
                     customEmptyState
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                         .padding(.horizontal, AppConstants.UserInterface.padding)
                         .padding(.top, AppConstants.UserInterface.padding)
                         .zIndex(1)
-                        .transition(.dashboardFilteredViewSwap)
+                        .transition(rangeSwapTransition)
                 } else if selectedFilterTitle != nil {
                     ExpenseListView(
                         itemLists: filteredItemLists,
@@ -374,7 +378,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
                     )
                     .id(filteredListContextID)
                     .zIndex(2)
-                    .transition(.dashboardFilteredViewSwap)
+                    .transition(rangeSwapTransition)
                 } else {
                     DashboardCategoryBoardView(
                         boxes: categoryBoxes,
@@ -390,7 +394,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
                         onSelect: onCategoryTap
                     )
                     .zIndex(0)
-                    .transition(.dashboardCategoryBoardSwap)
+                    .transition(rangeSwapTransition)
                 }
             }
             .animation(AnimationHelper.dashboardDrill, value: isShowingFilteredList)
