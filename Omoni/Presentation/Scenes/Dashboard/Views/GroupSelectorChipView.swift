@@ -44,7 +44,7 @@ struct GroupSelectorChipView: View {
                     .foregroundStyle(.secondary)
             }
             .padding(.horizontal, compact ? 10 : 12)
-            .padding(.vertical, 8)
+            .padding(.vertical, compact ? 10 : 8)
             .background(
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
                     .fill(Color(.secondarySystemBackground).opacity(0.9))

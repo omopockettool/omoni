@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.37.4] - 2026-06-04
+
+### Fixed
+- **Compact group chip now matches the height of the scope/date chip to its right** (`GroupSelectorChipView`) — when the chip shrinks to icon-only mode, vertical padding increases from 8 to 10 pt to compensate for the missing subheadline text, keeping both chips visually aligned in the bottom bar.
+
 ## [2.37.3] - 2026-06-03
 
 ### Fixed
