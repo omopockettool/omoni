@@ -214,6 +214,10 @@ private enum DashboardCategoryBoxGridLayout {
 }
 
 struct DashboardCategoryBoxView: View {
+    @State private var displayedAmount = ""
+    @State private var amountIsDecreasing = false
+    @State private var flashColor: Color = .clear
+
     let data: DashboardCategoryBoxData
     let formattedAmount: String
     let formattedUnpaidAmount: String?
@@ -308,11 +312,14 @@ struct DashboardCategoryBoxView: View {
                 }
 
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(formattedAmount)
+                    Text(displayedAmount)
                         .font(amountFont)
                         .foregroundStyle(Color.primary)
+                        .monospacedDigit()
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)
+                        .contentTransition(.numericText(countsDown: amountIsDecreasing))
+                        .animation(AnimationHelper.feedbackSpring, value: displayedAmount)
 
                     if let formattedUnpaidAmount {
                         Text("\(formattedUnpaidAmount) \(LocalizationKey.Item.unpaid.localized)")
@@ -341,8 +348,33 @@ struct DashboardCategoryBoxView: View {
                         .fill(accentColor.opacity(0.13))
                 }
             }
+            .overlay {
+                RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius, style: .continuous)
+                    .fill(flashColor)
+                    .allowsHitTesting(false)
+            }
         }
         .buttonStyle(PressHapticButtonStyle())
+        .onAppear {
+            displayedAmount = formattedAmount
+        }
+        .onChange(of: formattedAmount) { oldValue, newValue in
+            let oldDigits = extractDigits(from: oldValue)
+            let newDigits = extractDigits(from: newValue)
+            amountIsDecreasing = newDigits < oldDigits
+
+            withAnimation(AnimationHelper.feedbackSpring) {
+                displayedAmount = newValue
+            }
+
+            let targetColor: Color = amountIsDecreasing ? .red.opacity(0.12) : .green.opacity(0.12)
+            withAnimation(AnimationHelper.flashIn) { flashColor = targetColor }
+            withAnimation(AnimationHelper.flashOut) { flashColor = .clear }
+        }
+    }
+
+    private func extractDigits(from string: String) -> Int {
+        Int(string.filter(\.isNumber)) ?? 0
     }
 }
 

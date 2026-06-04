@@ -68,8 +68,6 @@ struct DashboardChangingGroupOverlay: View {
 }
 
 struct DashboardHeroSection: View {
-    let heroIsSuccess: Bool
-    let lastAddedDescription: String
     let showingFullMonth: Bool
     let monthLabel: String
     let monthTotal: String
@@ -84,7 +82,6 @@ struct DashboardHeroSection: View {
     let onAddExpense: () -> Void
 
     private var displayLabel: String {
-        if heroIsSuccess { return lastAddedDescription }
         if let overrideLabel {
             return overrideLabelUsesCostOfPrefix
                 ? LocalizationKey.Item.costOf.localized(with: overrideLabel)
@@ -104,10 +101,9 @@ struct DashboardHeroSection: View {
             totalAmount: displayTotal,
             onAddExpense: onAddExpense,
             actionColor: overrideActionColor ?? .accentColor,
-            budgetFillRatio: budgetFillRatio,
-            isSuccess: heroIsSuccess
+            budgetFillRatio: budgetFillRatio
         ) {
-            if let budgetLimitText, !heroIsSuccess {
+            if let budgetLimitText {
                 HStack(spacing: 6) {
                     if showsOverLimitBadge {
                         Image(systemName: "exclamationmark.triangle.fill")

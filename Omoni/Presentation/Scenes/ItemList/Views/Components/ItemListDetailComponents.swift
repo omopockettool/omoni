@@ -2,8 +2,6 @@ import SwiftUI
 
 struct ItemListDetailHeroCard: View {
     let itemList: SDItemList
-    let heroIsSuccess: Bool
-    let lastAddedDescription: String
     let totalAmount: String
     let heroStatus: ItemListDetailHeroStatus
     let showMetaLabels: Bool
@@ -16,11 +14,10 @@ struct ItemListDetailHeroCard: View {
 
     var body: some View {
         TotalSpentCardView(
-            label: heroIsSuccess ? lastAddedDescription : LocalizationKey.Item.costOf.localized(with: itemList.itemListDescription),
+            label: LocalizationKey.Item.costOf.localized(with: itemList.itemListDescription),
             totalAmount: totalAmount,
             onAddExpense: onAddExpense,
-            actionColor: actionColor,
-            isSuccess: heroIsSuccess
+            actionColor: actionColor
         ) {
             ItemListDetailMetaRow(
                 itemList: itemList,

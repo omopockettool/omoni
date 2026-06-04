@@ -11,9 +11,7 @@ struct ItemListDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: ItemListDetailViewModel
     @State private var sheetMode: ItemSheetMode?
-    @State private var heroIsSuccess: Bool = false
     @State private var showMetaLabels: Bool = true
-    @State private var lastAddedDescription: String = ""
 
     enum ItemSheetMode: Identifiable {
         case create
@@ -103,12 +101,6 @@ struct ItemListDetailView: View {
                     currencyCode: currencyCode,
                     onItemSaved: { item in
                         Task { await viewModel.addItem(item) }
-                        lastAddedDescription = item.itemDescription
-                        withAnimation(AnimationHelper.smoothSpring) { heroIsSuccess = true }
-                        Task {
-                            try? await Task.sleep(for: .milliseconds(900))
-                            withAnimation(AnimationHelper.smoothSpring) { heroIsSuccess = false }
-                        }
                     },
                     createItemUseCase: container.makeCreateItemUseCase(),
                     updateItemUseCase: container.makeUpdateItemUseCase()
@@ -178,8 +170,6 @@ struct ItemListDetailView: View {
     private var heroCard: some View {
         ItemListDetailHeroCard(
             itemList: itemList,
-            heroIsSuccess: heroIsSuccess,
-            lastAddedDescription: lastAddedDescription,
             totalAmount: viewModel.getFormattedTotal(),
             heroStatus: viewModel.getHeroStatus(),
             showMetaLabels: showMetaLabels,

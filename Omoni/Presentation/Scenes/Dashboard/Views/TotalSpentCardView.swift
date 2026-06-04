@@ -13,7 +13,6 @@ struct TotalSpentCardView<BottomContent: View>: View {
     let onAddExpense: () -> Void
     var actionColor: Color = .accentColor
     var budgetFillRatio: Double? = nil
-    var isSuccess: Bool = false
     @ViewBuilder let bottomContent: () -> BottomContent
 
     @State private var displayedAmount: String = ""
@@ -29,7 +28,6 @@ struct TotalSpentCardView<BottomContent: View>: View {
         onAddExpense: @escaping () -> Void,
         actionColor: Color = .accentColor,
         budgetFillRatio: Double? = nil,
-        isSuccess: Bool = false,
         @ViewBuilder bottomContent: @escaping () -> BottomContent
     ) {
         self.label = label
@@ -37,12 +35,11 @@ struct TotalSpentCardView<BottomContent: View>: View {
         self.onAddExpense = onAddExpense
         self.actionColor = actionColor
         self.budgetFillRatio = budgetFillRatio
-        self.isSuccess = isSuccess
         self.bottomContent = bottomContent
     }
 
     var body: some View {
-        Button(action: isSuccess ? {} : onAddExpense) {
+        Button(action: onAddExpense) {
             HStack(alignment: .center, spacing: 16) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(label)
@@ -53,57 +50,38 @@ struct TotalSpentCardView<BottomContent: View>: View {
                         .truncationMode(.tail)
                         .animation(.easeInOut(duration: 0.2), value: label)
 
-                    if isSuccess {
-                        Text(LocalizationKey.Dashboard.added.localized)
-                            .font(.system(size: dynamicFontSize, weight: .bold, design: .rounded))
-                            .foregroundColor(.primary)
-                            .transition(.push(from: .top).combined(with: .opacity))
-                    } else {
-                        Text(displayedAmount)
-                            .font(.system(size: dynamicFontSize, weight: .bold, design: .rounded))
-                            .foregroundColor(.primary)
-                            .minimumScaleFactor(0.5)
-                            .lineLimit(1)
-                            .contentTransition(.numericText(countsDown: isDecreasing))
-                            .animation(AnimationHelper.feedbackSpring, value: displayedAmount)
-                            .transition(.push(from: .bottom).combined(with: .opacity))
-                    }
+                    Text(displayedAmount)
+                        .font(.system(size: dynamicFontSize, weight: .bold, design: .rounded))
+                        .foregroundColor(.primary)
+                        .minimumScaleFactor(0.5)
+                        .lineLimit(1)
+                        .contentTransition(.numericText(countsDown: isDecreasing))
+                        .animation(AnimationHelper.feedbackSpring, value: displayedAmount)
+                        .transition(.push(from: .bottom).combined(with: .opacity))
 
                     bottomContent()
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .animation(AnimationHelper.smoothSpring, value: isSuccess)
 
                 Spacer(minLength: 8)
 
                 ZStack {
                     Circle()
-                        .fill(isSuccess ? Color.green.opacity(0.45) : actionColor.opacity(0.45))
+                        .fill(actionColor.opacity(0.45))
                         .frame(width: 48, height: 48)
                         .offset(y: 4)
 
                     Circle()
-                        .fill(isSuccess ? Color.green : actionColor)
+                        .fill(actionColor)
                         .frame(width: 48, height: 48)
                         .overlay {
-                            ZStack {
-                                if isSuccess {
-                                    Image(systemName: "checkmark")
-                                        .font(.system(size: 20, weight: .semibold))
-                                        .foregroundColor(.white)
-                                        .transition(.scale(scale: 0.4).combined(with: .opacity))
-                                } else {
-                                    Image(systemName: "plus")
-                                        .font(.system(size: 21, weight: .black))
-                                        .foregroundColor(.white)
-                                        .transition(.scale(scale: 0.4).combined(with: .opacity))
-                                }
-                            }
+                            Image(systemName: "plus")
+                                .font(.system(size: 21, weight: .black))
+                                .foregroundColor(.white)
                         }
-                        .offset(y: isSuccess || isAddPressed ? 4 : 0)
+                        .offset(y: isAddPressed ? 4 : 0)
                 }
                 .frame(width: 48, height: 52)
-                .animation(.spring(response: 0.35, dampingFraction: 0.7), value: isSuccess)
                 .animation(.spring(response: 0.18, dampingFraction: 0.6), value: isAddPressed)
             }
             .padding(.horizontal, AppConstants.UserInterface.padding)
@@ -113,7 +91,7 @@ struct TotalSpentCardView<BottomContent: View>: View {
                     RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius, style: .continuous)
                         .fill(.regularMaterial)
 
-                    if budgetFillRatio != nil, !isSuccess {
+                    if budgetFillRatio != nil {
                         Rectangle()
                             .fill(actionColor.opacity(0.16))
                             .scaleEffect(x: 1, y: displayedBudgetFillRatio, anchor: .bottom)
@@ -132,7 +110,7 @@ struct TotalSpentCardView<BottomContent: View>: View {
         .buttonStyle(PressHapticButtonStyle())
         .simultaneousGesture(
             DragGesture(minimumDistance: 0)
-                .onChanged { _ in if !isSuccess { isAddPressed = true } }
+                .onChanged { _ in isAddPressed = true }
                 .onEnded   { _ in isAddPressed = false }
         )
         .onAppear {
@@ -146,7 +124,6 @@ struct TotalSpentCardView<BottomContent: View>: View {
             withAnimation(AnimationHelper.feedbackSpring) {
                 displayedAmount = newValue
             }
-            guard !isSuccess else { return }
             let targetColor: Color = isDecreasing ? .red.opacity(0.12) : .green.opacity(0.12)
             withAnimation(AnimationHelper.flashIn) { flashColor = targetColor }
             withAnimation(AnimationHelper.flashOut) { flashColor = .clear }
@@ -181,8 +158,7 @@ extension TotalSpentCardView where BottomContent == EmptyView {
         totalAmount: String,
         onAddExpense: @escaping () -> Void,
         actionColor: Color = .accentColor,
-        budgetFillRatio: Double? = nil,
-        isSuccess: Bool = false
+        budgetFillRatio: Double? = nil
     ) {
         self.init(
             label: label,
@@ -190,7 +166,6 @@ extension TotalSpentCardView where BottomContent == EmptyView {
             onAddExpense: onAddExpense,
             actionColor: actionColor,
             budgetFillRatio: budgetFillRatio,
-            isSuccess: isSuccess,
             bottomContent: { EmptyView() }
         )
     }
@@ -203,12 +178,6 @@ extension TotalSpentCardView where BottomContent == EmptyView {
             label: "Coste de hoy",
             totalAmount: "50,45 €",
             onAddExpense: {}
-        )
-        TotalSpentCardView(
-            label: "Coste de hoy",
-            totalAmount: "50,45 €",
-            onAddExpense: {},
-            isSuccess: true
         )
     }
     .padding()

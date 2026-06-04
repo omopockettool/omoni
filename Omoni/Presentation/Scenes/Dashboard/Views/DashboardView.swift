@@ -111,10 +111,6 @@ struct DashboardView: View {
     @State private var dismissSearchKeyboardToken = 0
     @State private var activeFilter: DashboardActiveFilter? = nil
 
-    // Hero success flash
-    @State private var heroIsSuccess: Bool = false
-    @State private var lastAddedDescription: String = ""
-
     init() {
         // ✅ Clean Architecture: Use DI Container for all dependencies
         let container = AppDIContainer.shared
@@ -235,16 +231,13 @@ struct DashboardView: View {
                             onItemListCreated: { createdItemList in
                                 addItemListTrigger = nil
                                 Task {
-                                    await viewModel.addItemList(createdItemList)
                                     if createdItemList.structure == .itemizedList {
+                                        await viewModel.addItemList(createdItemList)
                                         try? await Task.sleep(for: .milliseconds(400))
                                         navigationPath.append(itemListRoute(for: createdItemList))
                                     } else {
-                                        guard !heroIsSuccess else { return }
-                                        lastAddedDescription = createdItemList.itemListDescription
-                                        withAnimation(AnimationHelper.smoothSpring) { heroIsSuccess = true }
-                                        try? await Task.sleep(for: .milliseconds(900))
-                                        withAnimation(AnimationHelper.smoothSpring) { heroIsSuccess = false }
+                                        try? await Task.sleep(for: .milliseconds(320))
+                                        await viewModel.addItemList(createdItemList)
                                     }
                                 }
                             },
@@ -574,8 +567,6 @@ struct DashboardView: View {
                 Group {
                     if !isSearchActive {
                         DashboardHeroSection(
-                            heroIsSuccess: heroIsSuccess,
-                            lastAddedDescription: lastAddedDescription,
                             showingFullMonth: viewModel.showingFullMonth,
                             monthLabel: viewModel.monthHeroLabel,
                             monthTotal: viewModel.formattedCachedMonthTotal(),
