@@ -377,15 +377,16 @@ class DashboardViewModel {
     }
     
     func refreshData() async {
-        
+
         isRefreshing = true
-        
+        cacheManager.clearAllCaches()
+
         do {
             guard let group = currentGroup else {
                 isRefreshing = false
                 return
             }
-            
+
             let groupId = group.id
 
             let fetchedItemLists = try await fetchItemListsUseCase.execute(forGroupId: groupId)
