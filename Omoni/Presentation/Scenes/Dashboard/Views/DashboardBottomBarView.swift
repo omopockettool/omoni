@@ -46,12 +46,11 @@ struct DashboardBottomBarView: View {
 
             if isActive {
                 searchFocusTask = Task { @MainActor in
-                    try? await Task.sleep(for: .milliseconds(180))
+                    // Wait for the 200ms quickEase animation to finish before focusing
+                    try? await Task.sleep(for: .milliseconds(250))
                     guard !Task.isCancelled, isSearchActive else { return }
                     isSearchFieldFocused = true
                 }
-            } else {
-                isSearchFieldFocused = false
             }
         }
         .onChange(of: dismissKeyboardToken) { _, _ in
@@ -68,7 +67,17 @@ struct DashboardBottomBarView: View {
     }
 
     private var searchContent: some View {
-        HStack(spacing: AppConstants.UserInterface.smallPadding) {
+        VStack(spacing: 6) {
+            if let selectedScopeTitle {
+                SearchScopeBreadcrumb(
+                    title: selectedScopeTitle,
+                    iconName: selectedScopeIcon,
+                    colorHex: selectedScopeColorHex,
+                    onTap: onSelectedScopeTap
+                )
+                .transition(.move(edge: .top).combined(with: .opacity))
+            }
+
             HStack(spacing: 10) {
                 Image(systemName: "magnifyingglass")
                     .font(.system(size: 15, weight: .regular))
@@ -93,6 +102,7 @@ struct DashboardBottomBarView: View {
             .background(Color(.systemGray5))
             .clipShape(Capsule())
         }
+        .animation(AnimationHelper.quickEase, value: selectedScopeTitle)
     }
 
     private var inactiveContent: some View {
@@ -155,15 +165,60 @@ struct DashboardBottomBarView: View {
         searchFocusTask?.cancel()
         isSearchFieldFocused = false
 
-        withAnimation(AnimationHelper.quickEase) {
-            isSearchActive = false
-        }
-
         Task { @MainActor in
+            // Wait for the keyboard to fully dismiss before closing the bar,
+            // so the hero section doesn't reappear while the keyboard is still visible.
+            try? await Task.sleep(for: .milliseconds(280))
+            guard !Task.isCancelled else { return }
+            withAnimation(AnimationHelper.quickEase) {
+                isSearchActive = false
+            }
             try? await Task.sleep(for: .milliseconds(140))
             guard !isSearchActive else { return }
             searchText = ""
         }
+    }
+}
+
+private struct SearchScopeBreadcrumb: View {
+    let title: String
+    let iconName: String?
+    let colorHex: String?
+    let onTap: () -> Void
+
+    private var accentColor: Color {
+        guard let colorHex else { return .accentColor }
+        return Color(hex: colorHex) ?? .accentColor
+    }
+
+    var body: some View {
+        Button(action: onTap) {
+            HStack(spacing: 5) {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 12, weight: .semibold))
+
+                if let iconName {
+                    Image(systemName: iconName)
+                        .font(.caption2)
+                }
+
+                Text(title)
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+
+                Spacer(minLength: 0)
+            }
+            .foregroundStyle(accentColor)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(accentColor.opacity(0.10))
+            .clipShape(Capsule())
+            .contentShape(Capsule())
+        }
+        .buttonStyle(PressHapticButtonStyle())
     }
 }
 

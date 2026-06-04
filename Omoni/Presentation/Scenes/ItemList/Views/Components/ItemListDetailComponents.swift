@@ -88,7 +88,7 @@ struct ItemListDetailMetaRow: View {
                         .transition(.opacity.combined(with: .scale(scale: 0.85, anchor: .leading)))
                 }
             }
-            .foregroundStyle(Color.secondary)
+            .foregroundStyle(.orange)
         case .partial(let unpaidTotal):
             HStack(spacing: 4) {
                 Image(systemName: "circle.lefthalf.filled")
@@ -142,7 +142,7 @@ struct ItemListItemsSection: View {
     let items: [SDItem]
     let formattedAmount: (SDItem) -> String
     let quantityBreakdown: (SDItem) -> String?
-    let isSearchMatch: (SDItem) -> Bool
+    let highlightedQuery: (SDItem) -> String?
     let onItemTap: (SDItem) -> Void
     let onTogglePaid: (SDItem) -> Void
     let onDelete: (SDItem) -> Void
@@ -160,7 +160,7 @@ struct ItemListItemsSection: View {
                         item: item,
                         formattedAmount: formattedAmount(item),
                         quantityBreakdown: quantityBreakdown(item),
-                        isSearchMatch: isSearchMatch(item),
+                        highlightedQuery: highlightedQuery(item),
                         onTap: { onItemTap(item) },
                         onTogglePaid: { onTogglePaid(item) }
                     )

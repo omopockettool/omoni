@@ -14,6 +14,7 @@ struct ExpenseListView<EmptyState: View>: View {
     let getSearchSummary: (SDItemList) -> String?
     let getSearchMatchedSubtotal: (SDItemList) -> String?
     let getSearchMatchedUnpaid: (SDItemList) -> String?
+    let getSearchMatchedRowStatus: (SDItemList) -> ItemListRowStatus?
     let itemListRowStatus: [UUID: ItemListRowStatus]
     let onItemTap: (SDItemList) -> Void
     let onTogglePaid: (SDItemList) -> Void
@@ -35,6 +36,7 @@ struct ExpenseListView<EmptyState: View>: View {
         getSearchSummary: @escaping (SDItemList) -> String? = { _ in nil },
         getSearchMatchedSubtotal: @escaping (SDItemList) -> String? = { _ in nil },
         getSearchMatchedUnpaid: @escaping (SDItemList) -> String? = { _ in nil },
+        getSearchMatchedRowStatus: @escaping (SDItemList) -> ItemListRowStatus? = { _ in nil },
         itemListRowStatus: [UUID: ItemListRowStatus],
         onItemTap: @escaping (SDItemList) -> Void,
         onTogglePaid: @escaping (SDItemList) -> Void,
@@ -56,6 +58,7 @@ struct ExpenseListView<EmptyState: View>: View {
         self.getSearchSummary = getSearchSummary
         self.getSearchMatchedSubtotal = getSearchMatchedSubtotal
         self.getSearchMatchedUnpaid = getSearchMatchedUnpaid
+        self.getSearchMatchedRowStatus = getSearchMatchedRowStatus
         self.itemListRowStatus = itemListRowStatus
         self.onItemTap = onItemTap
         self.onTogglePaid = onTogglePaid
@@ -165,7 +168,7 @@ struct ExpenseListView<EmptyState: View>: View {
             searchSummary: getSearchSummary(itemList),
             searchMatchedSubtotal: getSearchMatchedSubtotal(itemList),
             searchMatchedUnpaid: getSearchMatchedUnpaid(itemList),
-            rowStatus: itemListRowStatus[itemList.id] ?? .neutral,
+            rowStatus: getSearchMatchedRowStatus(itemList) ?? itemListRowStatus[itemList.id] ?? .neutral,
             isCompact: isCompact,
             timelinePosition: timelinePosition,
             onTap: { onItemTap(itemList) },
@@ -243,6 +246,7 @@ extension ExpenseListView where EmptyState == EmptyView {
         getSearchSummary: @escaping (SDItemList) -> String? = { _ in nil },
         getSearchMatchedSubtotal: @escaping (SDItemList) -> String? = { _ in nil },
         getSearchMatchedUnpaid: @escaping (SDItemList) -> String? = { _ in nil },
+        getSearchMatchedRowStatus: @escaping (SDItemList) -> ItemListRowStatus? = { _ in nil },
         itemListRowStatus: [UUID: ItemListRowStatus],
         onItemTap: @escaping (SDItemList) -> Void,
         onTogglePaid: @escaping (SDItemList) -> Void,
@@ -263,6 +267,7 @@ extension ExpenseListView where EmptyState == EmptyView {
             getSearchSummary: getSearchSummary,
             getSearchMatchedSubtotal: getSearchMatchedSubtotal,
             getSearchMatchedUnpaid: getSearchMatchedUnpaid,
+            getSearchMatchedRowStatus: getSearchMatchedRowStatus,
             itemListRowStatus: itemListRowStatus,
             onItemTap: onItemTap,
             onTogglePaid: onTogglePaid,

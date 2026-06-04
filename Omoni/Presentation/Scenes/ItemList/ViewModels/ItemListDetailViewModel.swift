@@ -184,30 +184,30 @@ class ItemListDetailViewModel {
         return formatter
     }
 
-    func getFormattedTotal() -> String {
-        let total = showsPendingItemsOnly
-            ? visibleItems.reduce(0.0) { $0 + $1.totalAmount }
-            : visibleItems.filter { $0.isPaid }.reduce(0.0) { result, item in
-                result + item.totalAmount
-            }
+    func getFormattedTotal(query: String? = nil) -> String {
+        let total = relevantItems(for: query).filter(\.isPaid).reduce(0.0) { result, item in
+            result + item.totalAmount
+        }
         return makeCurrencyFormatter().string(from: NSNumber(value: total)) ?? "\(total) \(currencyCode)"
     }
 
-    func getFormattedUnpaidTotal() -> String? {
-        let unpaid = visibleItems.filter { !$0.isPaid }.reduce(0.0) { $0 + $1.totalAmount }
+    func getFormattedUnpaidTotal(query: String? = nil) -> String? {
+        let unpaid = relevantItems(for: query).filter { !$0.isPaid }.reduce(0.0) { $0 + $1.totalAmount }
         guard unpaid > 0 else { return nil }
         return makeCurrencyFormatter().string(from: NSNumber(value: unpaid)) ?? "\(unpaid) \(currencyCode)"
     }
 
-    func getHeroStatus() -> ItemListDetailHeroStatus {
-        guard !visibleItems.isEmpty else {
+    func getHeroStatus(query: String? = nil) -> ItemListDetailHeroStatus {
+        let relevantItems = relevantItems(for: query)
+
+        guard !relevantItems.isEmpty else {
             return .neutral
         }
 
-        let unpaidItems = visibleItems.filter { !$0.isPaid }
+        let unpaidItems = relevantItems.filter { !$0.isPaid }
         if !unpaidItems.isEmpty {
-            let unpaidTotal = getFormattedUnpaidTotal() ?? ""
-            return unpaidItems.count == visibleItems.count ? .unpaid(unpaidTotal) : .partial(unpaidTotal)
+            let unpaidTotal = getFormattedUnpaidTotal(query: query) ?? ""
+            return unpaidItems.count == relevantItems.count ? .unpaid(unpaidTotal) : .partial(unpaidTotal)
         }
 
         return .completed
@@ -236,5 +236,17 @@ class ItemListDetailViewModel {
         guard let query else { return nil }
         let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmedQuery.isEmpty ? nil : trimmedQuery
+    }
+
+    private func relevantItems(for query: String?) -> [SDItem] {
+        guard let normalizedQuery = normalizedSearchQuery(from: query) else {
+            return visibleItems
+        }
+
+        let matchedItems = visibleItems.filter {
+            $0.itemDescription.localizedCaseInsensitiveContains(normalizedQuery)
+        }
+
+        return matchedItems.isEmpty ? visibleItems : matchedItems
     }
 }

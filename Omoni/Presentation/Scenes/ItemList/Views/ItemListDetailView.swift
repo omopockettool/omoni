@@ -199,8 +199,8 @@ struct ItemListDetailView: View {
             items: viewModel.visibleItems,
             formattedAmount: viewModel.getFormattedAmount,
             quantityBreakdown: viewModel.getQuantityBreakdown,
-            isSearchMatch: { item in
-                viewModel.itemMatchesSearch(item, query: highlightedSearchQuery)
+            highlightedQuery: { item in
+                viewModel.itemMatchesSearch(item, query: highlightedSearchQuery) ? highlightedSearchQuery : nil
             },
             onItemTap: { sheetMode = .edit($0) },
             onTogglePaid: { item in
@@ -237,7 +237,7 @@ struct ItemRowView: View {
     let item: SDItem
     let formattedAmount: String
     let quantityBreakdown: String?
-    let isSearchMatch: Bool
+    let highlightedQuery: String?
     let onTap: () -> Void
     let onTogglePaid: () -> Void
 
@@ -253,6 +253,30 @@ struct ItemRowView: View {
         item.isPaid ? nil : Color(.systemGray2)
     }
 
+    private func buildHighlightedDescription() -> Text {
+        let description = item.itemDescription
+        guard let query = highlightedQuery,
+              !query.isEmpty,
+              let range = description.range(of: query, options: .caseInsensitive) else {
+            return Text(description)
+                .font(.system(size: 15, weight: .medium))
+                .foregroundColor(Color.primary.opacity(0.92))
+        }
+        let before = String(description[description.startIndex..<range.lowerBound])
+        let match  = String(description[range])
+        let after  = String(description[range.upperBound...])
+        let beforeText = Text(verbatim: before)
+            .font(.system(size: 15, weight: .medium))
+            .foregroundColor(Color.primary.opacity(0.92))
+        let matchText = Text(verbatim: match)
+            .font(.system(size: 15, weight: .semibold))
+            .foregroundColor(.accentColor)
+        let afterText = Text(verbatim: after)
+            .font(.system(size: 15, weight: .medium))
+            .foregroundColor(Color.primary.opacity(0.92))
+        return Text("\(beforeText)\(matchText)\(afterText)")
+    }
+
     var body: some View {
         StatusFramedRow(
             tone: rowTone,
@@ -263,9 +287,7 @@ struct ItemRowView: View {
         ) {
             HStack(alignment: .top, spacing: 12) {
                 VStack(alignment: .leading, spacing: 1) {
-                    Text(item.itemDescription)
-                        .font(.system(size: 15, weight: isSearchMatch ? .semibold : .medium))
-                        .foregroundStyle(Color.primary.opacity(0.92))
+                    buildHighlightedDescription()
                         .lineLimit(2)
                         .truncationMode(.tail)
                         .fixedSize(horizontal: false, vertical: true)

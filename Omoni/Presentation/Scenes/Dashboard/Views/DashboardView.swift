@@ -152,9 +152,7 @@ struct DashboardView: View {
             .background(Color(.systemBackground))
             .onChange(of: navigationPath) { _, path in
                 viewModel.toast = nil
-                if path.isEmpty {
-                    dismissSearchKeyboardToken += 1
-                }
+                dismissSearchKeyboardToken += 1
             }
             .onChange(of: viewModel.isChangingGroup) { _, changing in
                 if changing {
@@ -333,6 +331,7 @@ struct DashboardView: View {
             getSearchSummary: { viewModel.formattedSearchSummary(for: $0) },
             getSearchMatchedSubtotal: { viewModel.formattedSearchMatchedSubtotal(for: $0) },
             getSearchMatchedUnpaid: { viewModel.formattedSearchMatchedUnpaid(for: $0) },
+            getSearchMatchedRowStatus: { viewModel.searchMatchedRowStatus(for: $0) },
             hideExpenseListSectionHeaders: true,
             customEmptyState: { DashboardNoResultsState() },
             showCustomEmptyState: viewModel.hasActiveSearch || viewModel.isCustomMonthFilterActive || viewModel.hasActivePendingFilter,
@@ -714,6 +713,7 @@ struct DashboardView: View {
             getSearchSummary: { viewModel.formattedSearchSummary(for: $0) },
             getSearchMatchedSubtotal: { viewModel.formattedSearchMatchedSubtotal(for: $0) },
             getSearchMatchedUnpaid: { viewModel.formattedSearchMatchedUnpaid(for: $0) },
+            getSearchMatchedRowStatus: { viewModel.searchMatchedRowStatus(for: $0) },
             itemListRowStatus: viewModel.itemListRowStatus,
             onItemTap: { item in
                 if let customTap = onItemTap {

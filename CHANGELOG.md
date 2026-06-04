@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.42.1] - 2026-06-05
+
+### Fixed
+- **Search expense row icon now reflects the matched items' paid state instead of the full list** (`DashboardViewModel`) — `searchMatchedRowStatus` uses a 0.01 tolerance instead of a micro-epsilon so an all-unpaid matched item no longer falls through to `.partial` due to floating-point variance.
+- **Item list detail hero always shows the full list totals and status regardless of search context** (`ItemListDetailView`) — the hero card no longer filters by the incoming search query, so toggling any item (matched or not) correctly updates the total and status badge.
+- **Search term is highlighted inline in the item description** (`ItemListDetailView`, `ItemRowView`, `ItemListDetailComponents`) — the matched portion of each item's name renders in accent color and semibold; the pipeline was changed from a boolean `isSearchMatch` to passing the actual `highlightedQuery` string down to the row.
+- **Back navigation is available while in search mode with an active scope filter** (`DashboardBottomBarView`) — a `← scope` breadcrumb now appears above the search field when a day or category drill-down is active, letting the user step back one level without cancelling search.
+- **Keyboard is dismissed when navigating to an item list detail from search** (`DashboardView`) — `dismissSearchKeyboardToken` now increments on any `navigationPath` change (push or pop), not only on pop, so the keyboard closes immediately when entering a detail view.
+
+## [2.42.0] - 2026-06-05
+
+### Changed
+- **Search-driven amounts and states are now consistent between dashboard rows and item-list detail hero** (`DashboardViewModel`, `ExpenseListView`, `DashboardView`, `ItemListDetailViewModel`, `ItemListDetailView`) — when navigating from a dashboard search result, both surfaces now reflect the matched items instead of mixing full-list totals with filtered-state feedback, so pending toggles on a searched item remain legible and coherent across the flow.
+
+## [2.41.1] - 2026-06-05
+
+### Fixed
+- **Search term is now visually highlighted inside item list detail** (`ItemListDetailView`, `ItemRowView`) — the matching portion of an item's description is rendered in accent color and semibold when opened from a search result, so the user immediately sees why that list appeared.
+
 ## [2.41.0] - 2026-06-05
 
 ### Changed

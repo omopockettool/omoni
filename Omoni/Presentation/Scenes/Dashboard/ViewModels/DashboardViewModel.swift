@@ -928,8 +928,22 @@ class DashboardViewModel {
 
     func formattedSearchMatchedUnpaid(for itemList: SDItemList) -> String? {
         guard let summary = searchSummary(for: itemList), summary.hasItemMatches else { return nil }
-        guard summary.matchedUnpaidSubtotal > 0.000_001 else { return nil }
-        return currencyFormatter.string(from: NSNumber(value: summary.matchedUnpaidSubtotal))
+        let unpaidAmount = max(0, summary.matchedUnpaidSubtotal.isFinite ? summary.matchedUnpaidSubtotal : 0.0)
+        guard unpaidAmount > 0.000_001 else { return nil }
+        return currencyFormatter.string(from: NSNumber(value: unpaidAmount))
+    }
+
+    func searchMatchedRowStatus(for itemList: SDItemList) -> ItemListRowStatus? {
+        guard let summary = searchSummary(for: itemList), summary.hasItemMatches else { return nil }
+
+        let matchedAmount = max(0, summary.matchedSubtotal.isFinite ? summary.matchedSubtotal : 0.0)
+        let unpaidAmount = max(0, summary.matchedUnpaidSubtotal.isFinite ? summary.matchedUnpaidSubtotal : 0.0)
+
+        guard matchedAmount > 0.01 else { return unpaidAmount > 0.01 ? .unpaid : .neutral }
+        if unpaidAmount <= 0.01 { return .paid }
+        // Use relative tolerance to avoid floating-point false-partial on all-unpaid lists
+        if unpaidAmount >= matchedAmount - 0.01 { return .unpaid }
+        return .partial
     }
 
     func visiblePaidAmount(for itemList: SDItemList) -> Double {

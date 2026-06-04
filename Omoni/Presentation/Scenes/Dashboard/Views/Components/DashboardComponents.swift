@@ -224,6 +224,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
     let getSearchSummary: (SDItemList) -> String?
     let getSearchMatchedSubtotal: (SDItemList) -> String?
     let getSearchMatchedUnpaid: (SDItemList) -> String?
+    let getSearchMatchedRowStatus: (SDItemList) -> ItemListRowStatus?
     let hideExpenseListSectionHeaders: Bool
     let customEmptyState: EmptyState
     let showCustomEmptyState: Bool
@@ -277,6 +278,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
         getSearchSummary: @escaping (SDItemList) -> String?,
         getSearchMatchedSubtotal: @escaping (SDItemList) -> String?,
         getSearchMatchedUnpaid: @escaping (SDItemList) -> String?,
+        getSearchMatchedRowStatus: @escaping (SDItemList) -> ItemListRowStatus?,
         hideExpenseListSectionHeaders: Bool,
         @ViewBuilder customEmptyState: () -> EmptyState,
         showCustomEmptyState: Bool,
@@ -313,6 +315,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
         self.getSearchSummary = getSearchSummary
         self.getSearchMatchedSubtotal = getSearchMatchedSubtotal
         self.getSearchMatchedUnpaid = getSearchMatchedUnpaid
+        self.getSearchMatchedRowStatus = getSearchMatchedRowStatus
         self.hideExpenseListSectionHeaders = hideExpenseListSectionHeaders
         self.customEmptyState = customEmptyState()
         self.showCustomEmptyState = showCustomEmptyState
@@ -364,6 +367,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
                         getSearchSummary: getSearchSummary,
                         getSearchMatchedSubtotal: getSearchMatchedSubtotal,
                         getSearchMatchedUnpaid: getSearchMatchedUnpaid,
+                        getSearchMatchedRowStatus: getSearchMatchedRowStatus,
                         itemListRowStatus: itemListRowStatus,
                         onItemTap: onItemTap,
                         onTogglePaid: onTogglePaid,
