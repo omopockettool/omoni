@@ -61,8 +61,8 @@ struct DashboardCategoryBoardView<EmptyState: View>: View {
                     .padding(.horizontal, AppConstants.UserInterface.padding)
             } else {
                 VStack(spacing: rowSpacing) {
-                    ForEach(Array(rows.enumerated()), id: \.offset) { indexedRow in
-                        rowView(indexedRow.element)
+                    ForEach(rows, id: \.id) { row in
+                        rowView(row)
                     }
 
                     if !boxes.isEmpty {
@@ -93,6 +93,7 @@ struct DashboardCategoryBoardView<EmptyState: View>: View {
                 formattedUnpaidAmount: getFormattedUnpaidAmount(box),
                 onTap: { onSelect(box) }
             )
+            .id(box.id)
         case .pair(let leading, let trailing):
             HStack(alignment: .top, spacing: columnSpacing) {
                 DashboardCategoryBoxView(
@@ -101,6 +102,7 @@ struct DashboardCategoryBoardView<EmptyState: View>: View {
                     formattedUnpaidAmount: getFormattedUnpaidAmount(leading),
                     onTap: { onSelect(leading) }
                 )
+                .id(leading.id)
 
                 DashboardCategoryBoxView(
                     data: trailing,
@@ -108,6 +110,7 @@ struct DashboardCategoryBoardView<EmptyState: View>: View {
                     formattedUnpaidAmount: getFormattedUnpaidAmount(trailing),
                     onTap: { onSelect(trailing) }
                 )
+                .id(trailing.id)
             }
         }
     }
@@ -183,6 +186,15 @@ private struct DashboardAllCategoryBoxView: View {
 private enum DashboardCategoryBoardRow {
     case single(DashboardCategoryBoxData)
     case pair(DashboardCategoryBoxData, DashboardCategoryBoxData)
+
+    var id: String {
+        switch self {
+        case .single(let box):
+            return "single-\(box.id)"
+        case .pair(let leading, let trailing):
+            return "pair-\(leading.id)-\(trailing.id)"
+        }
+    }
 }
 
 private enum DashboardCategoryBoxGridLayout {

@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.41.0] - 2026-06-05
+
+### Changed
+- **Returning from item-list detail now refreshes only the affected dashboard entry instead of recalculating every list** (`DashboardViewModel`, `ItemListDetailView`, `CalculateItemListTotalsUseCase`) — item edits, deletes, and paid-state changes now mark the current list as dirty and trigger a targeted totals recomputation on back navigation, keeping dashboard aggregates in sync with less unnecessary work.
+
+### Fixed
+- **Dashboard category boxes now keep stable visual identity when their order changes after an amount update** (`DashboardCategoryBoardComponents`) — the category board no longer keys rows by positional offset, so when a box moves up or down after a total change SwiftUI keeps each category attached to its own animated state instead of briefly making two boxes look like they swapped values.
+
 ## [2.40.1] - 2026-06-04
 
 ### Fixed

@@ -22,6 +22,7 @@ class ItemListDetailViewModel {
     var items: [SDItem] = []
     var isLoading = true
     var errorMessage: String?
+    private(set) var pendingMutationCount = 0
 
     // MARK: - Use Cases
     private let fetchItemsUseCase: FetchItemsUseCase
@@ -114,23 +115,28 @@ class ItemListDetailViewModel {
         items = sortItems(items)
     }
 
-    func deleteItem(_ item: SDItem) {
+    func deleteItem(_ item: SDItem) async {
+        pendingMutationCount += 1
+        defer { pendingMutationCount = max(0, pendingMutationCount - 1) }
+
         withAnimation(AnimationHelper.deleteSpring) {
             items.removeAll { $0.id == item.id }
         }
-        Task {
-            do {
-                try await deleteItemUseCase.execute(id: item.id)
-            } catch {
-                withAnimation(AnimationHelper.deleteSpring) {
-                    items.append(item)
-                    items = sortItems(items)
-                }
+
+        do {
+            try await deleteItemUseCase.execute(id: item.id)
+        } catch {
+            withAnimation(AnimationHelper.deleteSpring) {
+                items.append(item)
+                items = sortItems(items)
             }
         }
     }
 
     func toggleItemPaid(_ item: SDItem) async {
+        pendingMutationCount += 1
+        defer { pendingMutationCount = max(0, pendingMutationCount - 1) }
+
         let newIsPaid = !item.isPaid
         let previousLastModifiedAt = item.lastModifiedAt
         withAnimation(AnimationHelper.quickSpring) {
@@ -144,6 +150,12 @@ class ItemListDetailViewModel {
                 item.isPaid = !newIsPaid
                 item.lastModifiedAt = previousLastModifiedAt
             }
+        }
+    }
+
+    func waitForPendingMutations() async {
+        while pendingMutationCount > 0 {
+            try? await Task.sleep(for: .milliseconds(50))
         }
     }
 

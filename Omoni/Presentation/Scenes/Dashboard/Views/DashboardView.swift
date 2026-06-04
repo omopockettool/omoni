@@ -45,7 +45,7 @@ struct ItemListDetailNavigationWrapper: View {
     let highlightedSearchQuery: String?
     let showsPendingItemsOnly: Bool
     let onItemListUpdated: (SDItemList) -> Void
-    let onPaidStatusChanged: (() -> Void)?
+    let onItemListItemsChanged: (SDItemList) -> Void
 
     var body: some View {
         ItemListDetailView(
@@ -55,7 +55,7 @@ struct ItemListDetailNavigationWrapper: View {
             highlightedSearchQuery: highlightedSearchQuery,
             showsPendingItemsOnly: showsPendingItemsOnly,
             onItemListUpdated: onItemListUpdated,
-            onPaidStatusChanged: onPaidStatusChanged
+            onItemListItemsChanged: onItemListItemsChanged
         )
     }
 }
@@ -193,8 +193,8 @@ struct DashboardView: View {
                             onItemListUpdated: { updated in
                                 Task { await viewModel.updateItemList(updated) }
                             },
-                            onPaidStatusChanged: {
-                                Task { await viewModel.refreshTotals() }
+                            onItemListItemsChanged: { updatedItemList in
+                                Task { await viewModel.refreshTotals(for: updatedItemList) }
                             }
                         )
                     }

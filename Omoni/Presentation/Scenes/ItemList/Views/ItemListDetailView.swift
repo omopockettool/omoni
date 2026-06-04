@@ -7,11 +7,13 @@ struct ItemListDetailView: View {
     let highlightedSearchQuery: String?
     let showsPendingItemsOnly: Bool
     let onItemListUpdated: ((SDItemList) -> Void)?
+    let onItemListItemsChanged: ((SDItemList) -> Void)?
 
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: ItemListDetailViewModel
     @State private var sheetMode: ItemSheetMode?
     @State private var showMetaLabels: Bool = true
+    @State private var hasPendingParentTotalsRefresh = false
 
     enum ItemSheetMode: Identifiable {
         case create
@@ -27,8 +29,6 @@ struct ItemListDetailView: View {
         }
     }
 
-    let onPaidStatusChanged: (() -> Void)?
-
     init(
         itemList: SDItemList,
         currencyCode: String = "EUR",
@@ -36,7 +36,7 @@ struct ItemListDetailView: View {
         highlightedSearchQuery: String? = nil,
         showsPendingItemsOnly: Bool = false,
         onItemListUpdated: ((SDItemList) -> Void)? = nil,
-        onPaidStatusChanged: (() -> Void)? = nil
+        onItemListItemsChanged: ((SDItemList) -> Void)? = nil
     ) {
         self.itemList = itemList
         self.currencyCode = currencyCode
@@ -44,7 +44,7 @@ struct ItemListDetailView: View {
         self.highlightedSearchQuery = highlightedSearchQuery
         self.showsPendingItemsOnly = showsPendingItemsOnly
         self.onItemListUpdated = onItemListUpdated
-        self.onPaidStatusChanged = onPaidStatusChanged
+        self.onItemListItemsChanged = onItemListItemsChanged
 
         let container = AppDIContainer.shared
         self._viewModel = State(wrappedValue: ItemListDetailViewModel(
@@ -88,6 +88,15 @@ struct ItemListDetailView: View {
             try? await Task.sleep(for: .seconds(3))
             withAnimation(.easeInOut(duration: 0.5)) { showMetaLabels = false }
         }
+        .onDisappear {
+            guard hasPendingParentTotalsRefresh else { return }
+            hasPendingParentTotalsRefresh = false
+
+            Task {
+                await viewModel.waitForPendingMutations()
+                onItemListItemsChanged?(itemList)
+            }
+        }
         .sheet(item: $sheetMode) { mode in
             let container = AppDIContainer.shared
             switch mode {
@@ -98,7 +107,10 @@ struct ItemListDetailView: View {
                     itemListDescription: itemList.itemListDescription,
                     currencyCode: currencyCode,
                     onItemSaved: { item in
-                        Task { await viewModel.addItem(item) }
+                        Task {
+                            await viewModel.addItem(item)
+                            hasPendingParentTotalsRefresh = true
+                        }
                     },
                     createItemUseCase: container.makeCreateItemUseCase(),
                     updateItemUseCase: container.makeUpdateItemUseCase()
@@ -109,7 +121,12 @@ struct ItemListDetailView: View {
                     itemToEdit: item,
                     itemListDescription: itemList.itemListDescription,
                     currencyCode: currencyCode,
-                    onItemSaved: { item in Task { await viewModel.updateItem(item) } },
+                    onItemSaved: { item in
+                        Task {
+                            await viewModel.updateItem(item)
+                            hasPendingParentTotalsRefresh = true
+                        }
+                    },
                     createItemUseCase: container.makeCreateItemUseCase(),
                     updateItemUseCase: container.makeUpdateItemUseCase()
                 )
@@ -189,10 +206,13 @@ struct ItemListDetailView: View {
             onTogglePaid: { item in
                 Task {
                     await viewModel.toggleItemPaid(item)
-                    onPaidStatusChanged?()
+                    hasPendingParentTotalsRefresh = true
                 }
             },
-            onDelete: { viewModel.deleteItem($0) },
+            onDelete: { item in
+                hasPendingParentTotalsRefresh = true
+                Task { await viewModel.deleteItem(item) }
+            },
             onRefresh: { await viewModel.loadItems() }
         )
     }

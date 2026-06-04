@@ -649,6 +649,15 @@ class DashboardViewModel {
         await applyTotals(calculateItemListTotalsUseCase.execute(itemLists: itemLists))
     }
 
+    func refreshTotals(for itemList: SDItemList, animated: Bool = true) async {
+        guard itemLists.contains(where: { $0.id == itemList.id }) else {
+            return
+        }
+
+        let result = await calculateItemListTotalsUseCase.execute(itemList: itemList)
+        applyComputedTotals(result, animated: animated)
+    }
+
     func applyDashboardFilters(selectedMonth month: Date, pendingFilter: DashboardPendingFilter) {
         let normalizedMonth = Calendar.current.startOfMonth(for: month)
         let currentMonth = Calendar.current.startOfMonth(for: Date())
@@ -800,6 +809,24 @@ class DashboardViewModel {
             self.todayUnpaidTotal = self.todayItemLists.reduce(0.0) { $0 + (result.itemListUnpaidTotals[$1.id] ?? 0) }
             self.currentMonthTotal = self.currentMonthItemLists.reduce(0.0) { $0 + (result.itemListTotals[$1.id] ?? 0) }
             self.currentMonthUnpaidTotal = self.currentMonthItemLists.reduce(0.0) { $0 + (result.itemListUnpaidTotals[$1.id] ?? 0) }
+        }
+
+        if animated {
+            withAnimation(AnimationHelper.quickSpring, updates)
+        } else {
+            updates()
+        }
+    }
+
+    private func applyComputedTotals(_ result: ItemListComputedTotals, animated: Bool) {
+        let updates = {
+            self.itemListTotals[result.itemListId] = result.paidTotal
+            self.itemListUnpaidTotals[result.itemListId] = result.unpaidTotal
+            self.itemListCounts[result.itemListId] = result.itemCount
+            self.itemListPaidStatus[result.itemListId] = result.paidStatus
+            self.itemListRowStatus[result.itemListId] = result.rowStatus
+            self.cachedSearchItems[result.itemListId] = result.searchItems
+            self.recomputeTotalsFromCurrentState()
         }
 
         if animated {
@@ -1131,6 +1158,7 @@ class DashboardViewModel {
             itemListCounts[itemList.id] = nil
             itemListPaidStatus[itemList.id] = nil
             itemListRowStatus[itemList.id] = nil
+            cachedSearchItems[itemList.id] = nil
             recomputeTotalsFromCurrentState()
         }
     }
@@ -1138,7 +1166,6 @@ class DashboardViewModel {
     func updateItemList(_ itemList: SDItemList) async {
         if !isItemListInCurrentContext(itemList) {
             removeItemList(itemList)
-            await applyTotals(calculateItemListTotalsUseCase.execute(itemLists: itemLists))
             return
         }
 
@@ -1155,7 +1182,7 @@ class DashboardViewModel {
             return d0 == d1 ? $0.createdAt > $1.createdAt : d0 > d1
         }
 
-        await applyTotals(calculateItemListTotalsUseCase.execute(itemLists: itemLists))
+        await refreshTotals(for: itemList, animated: false)
     }
 
     private func isItemListInCurrentContext(_ itemList: SDItemList) -> Bool {
