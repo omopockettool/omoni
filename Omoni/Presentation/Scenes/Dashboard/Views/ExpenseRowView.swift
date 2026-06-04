@@ -84,9 +84,9 @@ struct ExpenseRowView: View {
 
     private var secondaryAmountColor: Color {
         switch rowStatus {
-        case .partial:
+        case .partial, .unpaid:
             return .orange
-        case .unpaid, .paid, .neutral:
+        case .paid, .neutral:
             return .secondary
         }
     }
@@ -207,7 +207,7 @@ struct ExpenseRowView: View {
 
     private var secondaryAmountLabel: String {
         guard let secondaryAmountText else { return "" }
-        return "\(secondaryAmountText) \(LocalizationKey.Item.unpaid.localized)"
+        return secondaryAmountText
     }
 
     private func extractDigits(from string: String) -> Int {

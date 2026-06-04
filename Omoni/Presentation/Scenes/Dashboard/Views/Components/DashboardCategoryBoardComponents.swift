@@ -322,9 +322,10 @@ struct DashboardCategoryBoxView: View {
                         .animation(AnimationHelper.feedbackSpring, value: displayedAmount)
 
                     if let formattedUnpaidAmount {
-                        Text("\(formattedUnpaidAmount) \(LocalizationKey.Item.unpaid.localized)")
+                        Text(formattedUnpaidAmount)
                             .font(.footnote.weight(.medium))
-                            .foregroundStyle(Color.secondary)
+                            .foregroundStyle(.orange)
+                            .monospacedDigit()
                             .lineLimit(1)
                             .minimumScaleFactor(0.75)
                     }

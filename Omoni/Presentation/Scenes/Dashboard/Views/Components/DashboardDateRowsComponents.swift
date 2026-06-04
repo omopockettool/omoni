@@ -219,7 +219,7 @@ struct DashboardDateRowView: View {
     @ViewBuilder
     private var secondaryAmountView: some View {
         if let formattedUnpaidAmount {
-            Text("\(formattedUnpaidAmount) \(LocalizationKey.Item.unpaid.localized)")
+            Text(formattedUnpaidAmount)
                 .font(.caption)
                 .foregroundStyle(.orange)
                 .monospacedDigit()

@@ -243,12 +243,14 @@ struct ItemRowView: View {
             onTap: onTap,
             onToggle: onTogglePaid
         ) {
-            HStack(alignment: .center, spacing: 12) {
+            HStack(alignment: .top, spacing: 12) {
                 VStack(alignment: .leading, spacing: 1) {
                     Text(item.itemDescription)
                         .font(.system(size: 15, weight: isSearchMatch ? .semibold : .medium))
                         .foregroundStyle(Color.primary.opacity(0.92))
-                        .lineLimit(1)
+                        .lineLimit(2)
+                        .truncationMode(.tail)
+                        .fixedSize(horizontal: false, vertical: true)
                     if let breakdown = quantityBreakdown {
                         Text(breakdown)
                             .font(.system(size: 12, weight: .regular, design: .rounded))
@@ -264,6 +266,7 @@ struct ItemRowView: View {
                     .foregroundStyle(rowTone.amountColor)
                     .monospacedDigit()
                     .lineLimit(1)
+                    .fixedSize(horizontal: true, vertical: false)
                     .contentTransition(.numericText())
             }
         }

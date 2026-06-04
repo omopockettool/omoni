@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.39.0] - 2026-06-04
+
+### Fixed
+- **Item-list detail rows now give descriptions more space before truncating** (`ItemListDetailView`) — item names can now expand to two lines while the amount column keeps its natural width, so long descriptions no longer get cut off prematurely just because the right-side value is present.
+- **Pending amounts across the dashboard now show only the orange value without the extra `unpaid` suffix** (`DashboardCategoryBoardComponents`, `DashboardDateRowsComponents`, `ExpenseRowView`) — this removes noisy trailing text that was causing awkward truncation on large numbers while keeping the pending state clear through color alone.
+
 ## [2.38.0] - 2026-06-04
 
 ### Changed
