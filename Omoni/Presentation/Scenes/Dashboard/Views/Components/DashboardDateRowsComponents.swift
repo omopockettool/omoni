@@ -171,7 +171,7 @@ struct DashboardDateRowView: View {
     private var leadingDateColumn: some View {
         VStack(spacing: 0) {
             Text(dayNumber)
-                .font(.system(size: 25, weight: .bold, design: .rounded))
+                .font(.system(size: 22, weight: .bold, design: .rounded))
                 .foregroundStyle(rowTone.titleColor)
                 .monospacedDigit()
         }
@@ -195,18 +195,16 @@ struct DashboardDateRowView: View {
     private var trailingAmountColumn: some View {
         ZStack(alignment: .trailing) {
             primaryAmountView
-                .frame(maxWidth: .infinity, alignment: .trailing)
                 .frame(height: DashboardDateRowLayoutMetrics.amountColumnHeight, alignment: .trailing)
                 .offset(y: showsSecondaryAmount ? -7 : 0)
 
             secondaryAmountView
-                .frame(maxWidth: .infinity, alignment: .trailing)
                 .frame(height: DashboardDateRowLayoutMetrics.amountColumnHeight, alignment: .bottomTrailing)
                 .opacity(showsSecondaryAmount ? 1 : 0)
                 .offset(y: showsSecondaryAmount ? 0 : -10)
         }
+        .fixedSize(horizontal: true, vertical: false)
         .frame(height: DashboardDateRowLayoutMetrics.amountColumnHeight, alignment: .topTrailing)
-        .clipped()
     }
 
     private var primaryAmountView: some View {

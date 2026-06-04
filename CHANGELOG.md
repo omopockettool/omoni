@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.38.0] - 2026-06-04
+
+### Changed
+- **Day-of-month number in date rows is slightly smaller** (`DashboardDateRowsComponents`) — reduced from 25 pt to 22 pt so the date no longer competes visually with the expense amount on the right.
+
+### Fixed
+- **Large amounts no longer truncate on the right in date rows** (`DashboardDateRowsComponents`) — the amount column now sizes to its natural content width via `fixedSize`, so the weekday label yields space instead of the number getting clipped.
+
 ## [2.37.6] - 2026-06-04
 
 ### Fixed
