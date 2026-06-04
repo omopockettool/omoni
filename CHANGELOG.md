@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.40.0] - 2026-06-04
+
+### Changed
+- **Item list detail toolbar now shows a direct edit button instead of a 3-dot menu** (`ItemListDetailView`) — removed the ellipsis menu since edit was the only option; tapping the pencil icon opens the edit sheet immediately with one tap less.
+
 ## [2.39.0] - 2026-06-04
 
 ### Fixed

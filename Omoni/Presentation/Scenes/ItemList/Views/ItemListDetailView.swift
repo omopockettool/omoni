@@ -74,12 +74,10 @@ struct ItemListDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    Button(LocalizationKey.Entry.edit.localized, systemImage: "pencil") {
-                        sheetMode = .editRegistry
-                    }
+                Button {
+                    sheetMode = .editRegistry
                 } label: {
-                    Image(systemName: "ellipsis")
+                    Image(systemName: "square.and.pencil")
                 }
             }
         }
