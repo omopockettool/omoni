@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.44.1] - 2026-06-05
+
+### Fixed
+- **Users who had an account but no groups are no longer left on a dead-end setup screen** (`AppContentView`, `AppContentViewModel`) — the `Required configuration` state now opens group creation for the current user instead of showing an inactive placeholder path, allowing the app to recover cleanly into the main dashboard flow.
+
 ## [2.44.0] - 2026-06-05
 
 ### Fixed

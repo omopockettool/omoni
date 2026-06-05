@@ -12,6 +12,7 @@ struct AppContentView: View {
     @State private var navigationPath = NavigationPath()
     @State private var viewModel: AppContentViewModel
     @State private var hasLoadedInitialData = false
+    @State private var isShowingCreateGroup = false
 
     private static let logger = Logger(subsystem: "Omoni", category: "Lifecycle.AppContentView")
 
@@ -33,6 +34,16 @@ struct AppContentView: View {
         }
         .navigationTitle("OMONI")
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $isShowingCreateGroup) {
+            if let userId = viewModel.currentUser?.id {
+                CreateGroupView(
+                    userId: userId,
+                    onGroupCreated: { _ in
+                        Task { await viewModel.loadInitialData() }
+                    }
+                )
+            }
+        }
         .task {
             guard !hasLoadedInitialData else {
                 Self.logger.debug("task skipped because initial content load already ran")
@@ -67,9 +78,10 @@ struct AppContentView: View {
                 .multilineTextAlignment(.center)
 
             Button(LocalizationKey.Settings.goToSettings.localized) {
-                // TODO: Navigate to settings or user management
+                isShowingCreateGroup = true
             }
             .buttonStyle(.borderedProminent)
+            .disabled(viewModel.currentUser == nil)
         }
         .padding()
     }
