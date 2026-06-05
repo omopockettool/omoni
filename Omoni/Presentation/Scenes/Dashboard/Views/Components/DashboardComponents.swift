@@ -1,6 +1,14 @@
 import SwiftUI
 
 private extension AnyTransition {
+    static var dashboardForwardDrill: AnyTransition {
+        .push(from: .trailing).combined(with: .opacity)
+    }
+
+    static var dashboardBackwardDrill: AnyTransition {
+        .push(from: .leading).combined(with: .opacity)
+    }
+
     static var dashboardTodayRangeSwap: AnyTransition {
         .asymmetric(
             insertion: .move(edge: .leading).combined(with: .opacity),
@@ -14,6 +22,13 @@ private extension AnyTransition {
             removal: .move(edge: .trailing).combined(with: .opacity)
         )
     }
+}
+
+enum DashboardContentTransitionMode {
+    case drillForward
+    case drillBackward
+    case todayRange
+    case monthRange
 }
 
 struct DashboardLoadingState: View {
@@ -238,6 +253,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
     let onTogglePaid: (SDItemList) -> Void
     let onDelete: (SDItemList) -> Void
     @Binding var showingFullMonth: Bool
+    let transitionMode: DashboardContentTransitionMode
     let hasItemsOutsideToday: Bool
     let onOpenSettings: () -> Void
     let toast: Binding<ToastMessage?>
@@ -247,8 +263,17 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
         selectedFilterTitle != nil
     }
 
-    private var rangeSwapTransition: AnyTransition {
-        showingFullMonth ? .dashboardMonthRangeSwap : .dashboardTodayRangeSwap
+    private var contentTransition: AnyTransition {
+        switch transitionMode {
+        case .drillForward:
+            .dashboardForwardDrill
+        case .drillBackward:
+            .dashboardBackwardDrill
+        case .todayRange:
+            .dashboardTodayRangeSwap
+        case .monthRange:
+            .dashboardMonthRangeSwap
+        }
     }
 
     private var filteredListContextID: String {
@@ -292,6 +317,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
         onTogglePaid: @escaping (SDItemList) -> Void,
         onDelete: @escaping (SDItemList) -> Void,
         showingFullMonth: Binding<Bool>,
+        transitionMode: DashboardContentTransitionMode,
         hasItemsOutsideToday: Bool,
         onOpenSettings: @escaping () -> Void,
         toast: Binding<ToastMessage?>,
@@ -329,6 +355,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
         self.onTogglePaid = onTogglePaid
         self.onDelete = onDelete
         self._showingFullMonth = showingFullMonth
+        self.transitionMode = transitionMode
         self.hasItemsOutsideToday = hasItemsOutsideToday
         self.onOpenSettings = onOpenSettings
         self.toast = toast
@@ -351,14 +378,14 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
                     )
                     .id(filteredListContextID)
                     .zIndex(1)
-                    .transition(rangeSwapTransition)
+                    .transition(contentTransition)
                 } else if showsDateRows {
                     customEmptyState
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                         .padding(.horizontal, AppConstants.UserInterface.padding)
                         .padding(.top, AppConstants.UserInterface.padding)
                         .zIndex(1)
-                        .transition(rangeSwapTransition)
+                        .transition(contentTransition)
                 } else if selectedFilterTitle != nil {
                     ExpenseListView(
                         itemLists: filteredItemLists,
@@ -382,7 +409,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
                     )
                     .id(filteredListContextID)
                     .zIndex(2)
-                    .transition(rangeSwapTransition)
+                    .transition(contentTransition)
                 } else {
                     DashboardCategoryBoardView(
                         boxes: categoryBoxes,
@@ -398,7 +425,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
                         onSelect: onCategoryTap
                     )
                     .zIndex(0)
-                    .transition(rangeSwapTransition)
+                    .transition(contentTransition)
                 }
             }
             .animation(AnimationHelper.dashboardDrill, value: isShowingFilteredList)

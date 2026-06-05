@@ -110,6 +110,7 @@ struct DashboardView: View {
     @State private var isSearchActive = false
     @State private var dismissSearchKeyboardToken = 0
     @State private var activeFilter: DashboardActiveFilter? = nil
+    @State private var contentTransitionMode: DashboardContentTransitionMode = .drillForward
 
     init() {
         // ✅ Clean Architecture: Use DI Container for all dependencies
@@ -311,17 +312,15 @@ struct DashboardView: View {
             getDateRowAmount: { viewModel.formattedCurrency($0.paidAmount) },
             getDateRowUnpaidAmount: { $0.unpaidAmount > 0.000_001 ? viewModel.formattedCurrency($0.unpaidAmount) : nil },
             onDateRowTap: { box in
-                switch resolvedActiveFilter {
-                case .all(let range):
-                    withAnimation(AnimationHelper.smoothSpring) {
+                performDashboardTransition(.drillForward) {
+                    switch resolvedActiveFilter {
+                    case .all(let range):
                         activeFilter = .allDay(range: range, date: box.date)
-                    }
-                case .category(let categoryId, let range):
-                    withAnimation(AnimationHelper.smoothSpring) {
+                    case .category(let categoryId, let range):
                         activeFilter = .categoryDay(categoryId: categoryId, range: range, date: box.date)
+                    default:
+                        break
                     }
-                default:
-                    break
                 }
             },
             filteredItemLists: activeFilteredItemLists,
@@ -337,7 +336,7 @@ struct DashboardView: View {
             showCustomEmptyState: viewModel.hasActiveSearch || viewModel.isCustomMonthFilterActive || viewModel.hasActivePendingFilter,
             onRefresh: { await viewModel.refreshData() },
             onAllTap: {
-                withAnimation(AnimationHelper.smoothSpring) {
+                performDashboardTransition(.drillForward) {
                     if viewModel.showingFullMonth {
                         activeFilter = .all(.month)
                     } else {
@@ -346,7 +345,7 @@ struct DashboardView: View {
                 }
             },
             onCategoryTap: { box in
-                withAnimation(AnimationHelper.smoothSpring) {
+                performDashboardTransition(.drillForward) {
                     if box.range == .today {
                         activeFilter = .categoryDay(categoryId: box.categoryId, range: .today, date: Date())
                     } else {
@@ -362,7 +361,8 @@ struct DashboardView: View {
             },
             onTogglePaid: { viewModel.togglePaid(for: $0) },
             onDelete: { viewModel.deleteItemList($0) },
-            showingFullMonth: $viewModel.showingFullMonth,
+            showingFullMonth: showingFullMonthBinding,
+            transitionMode: contentTransitionMode,
             hasItemsOutsideToday: viewModel.hasItemsOutsideToday,
             onOpenSettings: { viewModel.openSettings() },
             toast: $viewModel.toast,
@@ -417,6 +417,41 @@ struct DashboardView: View {
             ? viewModel.filteredMonthItemLists
             : viewModel.filteredTodayItemLists
         return !visibleRangeItemLists.isEmpty
+    }
+
+    private var showingFullMonthBinding: Binding<Bool> {
+        Binding(
+            get: { viewModel.showingFullMonth },
+            set: { newValue in
+                let mode: DashboardContentTransitionMode = newValue ? .monthRange : .todayRange
+                performDashboardTransition(mode) {
+                    viewModel.showingFullMonth = newValue
+                }
+            }
+        )
+    }
+
+    private func performDashboardTransition(
+        _ mode: DashboardContentTransitionMode,
+        mutation: @escaping @MainActor () -> Void
+    ) {
+        let applyMutation = {
+            withAnimation(AnimationHelper.smoothSpring) {
+                mutation()
+            }
+        }
+
+        guard contentTransitionMode != mode else {
+            applyMutation()
+            return
+        }
+
+        contentTransitionMode = mode
+
+        Task { @MainActor in
+            await Task.yield()
+            applyMutation()
+        }
     }
 
     private func refreshActiveFilter() {
@@ -610,7 +645,7 @@ struct DashboardView: View {
                     onGroupCreated: { newGroup in viewModel.addGroup(newGroup) },
                     onDeleteGroup: { deletedGroup in try await viewModel.deleteGroup(deletedGroup) },
                     onSelectedScopeTap: {
-                        withAnimation(AnimationHelper.smoothSpring) {
+                        performDashboardTransition(.drillBackward) {
                             if case .allDay(let range, _) = activeFilter {
                                 activeFilter = range == .today ? nil : .all(range)
                             } else if case .categoryDay(let categoryId, let range, _) = activeFilter {
