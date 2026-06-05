@@ -606,9 +606,8 @@ struct DashboardView: View {
                             monthTotal: viewModel.formattedCachedMonthTotal(),
                             todayTotal: viewModel.formattedTodayTotal,
                             overrideLabel: activeAllDayContext.map { viewModel.heroDayLabel(for: $0.date) }
-                                ?? activeCategoryDayContext.map { viewModel.heroDayLabel(for: $0.date) }
                                 ?? activeCategoryBox?.categoryName,
-                            overrideLabelUsesCostOfPrefix: activeAllDayContext == nil && activeCategoryDayContext == nil,
+                            overrideLabelUsesCostOfPrefix: activeAllDayContext == nil,
                             overrideTotal: activeAllDayContext.map {
                                 viewModel.formattedTotal(in: $0.range, day: $0.date)
                             } ?? activeCategoryDayContext.map {

@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.44.0] - 2026-06-05
+
+### Fixed
+- **Dashboard category-day drill-down now keeps the hero focused on the selected category instead of repeating the date** (`DashboardView`) — when the user enters a specific day inside a category, the bottom chip remains the navigation breadcrumb for the date while the hero stays on the action context (`Coste de <categoría>`), removing redundant duplicated context between the two surfaces.
+
 ## [2.43.0] - 2026-06-05
 
 ### Changed
