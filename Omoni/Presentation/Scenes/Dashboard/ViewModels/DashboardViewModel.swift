@@ -512,7 +512,9 @@ class DashboardViewModel {
             var dict: [UUID: (name: String, color: String, icon: String)] = [:]
             for cat in sdCategories { dict[cat.id] = (name: cat.name, color: cat.color, icon: cat.icon) }
             categories = dict
-        } catch {}
+        } catch {
+            toast = ToastMessage(LocalizationKey.General.unknownError.localized, type: .error)
+        }
     }
 
     func addItemList(_ itemList: SDItemList) async {
