@@ -76,7 +76,7 @@ private enum DashboardDateRowTone {
         case .neutral:
             return Color.primary.opacity(0.76)
         case .pending:
-            return .orange
+            return .primary
         case .today:
             return .accentColor
         }

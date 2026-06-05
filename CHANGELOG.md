@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.42.3] - 2026-06-05
+
+### Fixed
+- **Dashboard date rows now keep the paid amount in white even when a pending subtotal is present** (`DashboardDateRowsComponents`) — the primary amount no longer turns orange just because the day also has unpaid spend, so the orange secondary line reads clearly as the pending portion instead of competing with the already-paid total.
+
 ## [2.42.2] - 2026-06-05
 
 ### Fixed
