@@ -24,17 +24,15 @@ struct DashboardBottomBarView: View {
 
     var body: some View {
         ZStack(alignment: .trailing) {
-            inactiveContent
-                .opacity(isSearchActive ? 0 : 1)
-                .offset(y: isSearchActive ? 8 : 0)
-                .scaleEffect(isSearchActive ? 0.98 : 1, anchor: .trailing)
-                .allowsHitTesting(!isSearchActive)
+            if !isSearchActive {
+                inactiveContent
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
 
-            searchContent
-                .opacity(isSearchActive ? 1 : 0)
-                .offset(y: isSearchActive ? 0 : 8)
-                .scaleEffect(isSearchActive ? 1 : 0.98, anchor: .trailing)
-                .allowsHitTesting(isSearchActive)
+            if isSearchActive {
+                searchContent
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
         }
         .padding(.horizontal, AppConstants.UserInterface.padding)
         .padding(.top, AppConstants.UserInterface.smallPadding)

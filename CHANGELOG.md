@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.42.2] - 2026-06-05
+
+### Fixed
+- **Dashboard category drill-down no longer inflates the bottom bar height when search is inactive** (`DashboardBottomBarView`) — the hidden search layout is now removed from the view tree unless search mode is actually active, so entering a category no longer creates a phantom gap between the hero card and the bottom chips.
+
 ## [2.42.1] - 2026-06-05
 
 ### Fixed
