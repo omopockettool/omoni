@@ -411,6 +411,7 @@ class DashboardViewModel {
             
         } catch {
             isRefreshing = false
+            toast = ToastMessage(LocalizationKey.General.unknownError.localized, type: .error)
         }
     }
 
@@ -455,6 +456,7 @@ class DashboardViewModel {
             isChangingGroup = false
         } catch {
             isChangingGroup = false
+            toast = ToastMessage(LocalizationKey.General.unknownError.localized, type: .error)
         }
     }
     
@@ -470,6 +472,7 @@ class DashboardViewModel {
 
             availableGroups = groups
         } catch {
+            toast = ToastMessage(LocalizationKey.General.unknownError.localized, type: .error)
         }
     }
     
@@ -1148,6 +1151,7 @@ class DashboardViewModel {
                 calculateItemListTotalsUseCase.clearCache(for: itemList)
             } catch {
                 restoreItemListCollectionSnapshot(snapshot)
+                toast = ToastMessage(LocalizationKey.General.unknownError.localized, type: .error)
             }
         }
     }

@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.44.3] - 2026-06-05
+
+### Fixed
+- **Dashboard actions no longer fail silently when key refresh or mutation flows error out** (`DashboardViewModel`) — category refresh after closing settings, pull-to-refresh, group switching, available-group refresh, and item-list deletion now surface a standard error toast instead of leaving the user with stale or reverted UI and no explanation.
+
 ## [2.44.2] - 2026-06-05
 
 ### Fixed
