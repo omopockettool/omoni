@@ -496,6 +496,7 @@ class DashboardViewModel {
         } catch {
             availableGroups.append(group)
             availableGroups.sort { $0.name < $1.name }
+            toast = ToastMessage(LocalizationKey.General.unknownError.localized, type: .error)
             throw error
         }
     }

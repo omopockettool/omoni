@@ -25,6 +25,8 @@ struct AppContentView: View {
         NavigationStack(path: $navigationPath) {
             if viewModel.isLoading {
                 loadingView
+            } else if let errorMessage = viewModel.errorMessage {
+                errorView(errorMessage)
             } else if viewModel.isSetupComplete {
                 DashboardView()
                     .navigationBarHidden(true)
@@ -60,6 +62,28 @@ struct AppContentView: View {
     // MARK: - Loading View
     private var loadingView: some View {
         Color(.systemBackground).ignoresSafeArea()
+    }
+
+    private func errorView(_ message: String) -> some View {
+        VStack(spacing: 20) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(.largeTitle)
+                .foregroundColor(.orange)
+
+            Text(LocalizationKey.General.error.localized)
+                .font(.title)
+
+            Text(message)
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+
+            Button(LocalizationKey.General.retry.localized) {
+                Task { await viewModel.loadInitialData() }
+            }
+            .buttonStyle(.borderedProminent)
+        }
+        .padding()
     }
     
     // MARK: - Setup Required View
