@@ -601,6 +601,10 @@ struct AddItemListDateCard: View {
             : LocalizationKey.Dashboard.today.localized.capitalized
     }
 
+    private var activeDateTint: Color {
+        Color(.systemGray)
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 12) {
@@ -619,7 +623,7 @@ struct AddItemListDateCard: View {
                     HStack(spacing: 8) {
                         Image(systemName: "calendar")
                             .font(.system(size: 14))
-                            .foregroundStyle(showDatePicker ? Color.accentColor : Color.secondary)
+                            .foregroundStyle(showDatePicker ? activeDateTint : Color.secondary)
 
                         Text(dateLabel)
                             .font(.subheadline)

@@ -97,7 +97,7 @@ struct DashboardBottomBarView: View {
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 10)
-            .background(Color(.systemGray5))
+            .background(Color(.secondarySystemBackground).opacity(0.9))
             .clipShape(Capsule())
         }
         .animation(AnimationHelper.quickEase, value: selectedScopeTitle)
@@ -136,7 +136,7 @@ struct DashboardBottomBarView: View {
                         .font(.system(size: 15, weight: .regular))
                         .foregroundColor(isFilterActive ? .accentColor : .primary)
                         .padding(.horizontal, 12)
-                        .padding(.vertical, 7)
+                        .padding(.vertical, 8)
                 }
                 .buttonStyle(PressHapticButtonStyle())
 
@@ -150,12 +150,16 @@ struct DashboardBottomBarView: View {
                         .font(.system(size: 15, weight: .regular))
                         .foregroundColor(.primary)
                         .padding(.horizontal, 12)
-                        .padding(.vertical, 7)
+                        .padding(.vertical, 8)
                 }
                 .buttonStyle(PressHapticButtonStyle())
             }
-            .background(Color(.systemGray5))
+            .background(Color(.secondarySystemBackground).opacity(0.9))
             .clipShape(Capsule())
+            .overlay(
+                Capsule()
+                    .stroke(Color(.systemGray4).opacity(0.5), lineWidth: 1)
+            )
         }
     }
 
@@ -184,9 +188,21 @@ private struct SearchScopeBreadcrumb: View {
     let colorHex: String?
     let onTap: () -> Void
 
-    private var accentColor: Color {
-        guard let colorHex else { return .accentColor }
-        return Color(hex: colorHex) ?? .accentColor
+    private var hasCategoryTint: Bool {
+        colorHex != nil
+    }
+
+    private var contentColor: Color {
+        guard let colorHex else { return .primary }
+        return Color(hex: colorHex) ?? .primary
+    }
+
+    private var backgroundColor: Color {
+        hasCategoryTint ? contentColor.opacity(0.10) : Color(.secondarySystemBackground).opacity(0.9)
+    }
+
+    private var borderColor: Color {
+        hasCategoryTint ? contentColor.opacity(0.18) : Color(.systemGray4).opacity(0.5)
     }
 
     var body: some View {
@@ -208,12 +224,16 @@ private struct SearchScopeBreadcrumb: View {
 
                 Spacer(minLength: 0)
             }
-            .foregroundStyle(accentColor)
+            .foregroundStyle(contentColor)
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(accentColor.opacity(0.10))
+            .background(backgroundColor)
             .clipShape(Capsule())
+            .overlay(
+                Capsule()
+                    .stroke(borderColor, lineWidth: 1)
+            )
             .contentShape(Capsule())
         }
         .buttonStyle(PressHapticButtonStyle())
@@ -226,9 +246,21 @@ private struct DashboardSelectedScopeChip: View {
     let colorHex: String?
     let onTap: () -> Void
 
-    private var accentColor: Color {
-        guard let colorHex else { return .accentColor }
-        return Color(hex: colorHex) ?? .accentColor
+    private var hasCategoryTint: Bool {
+        colorHex != nil
+    }
+
+    private var contentColor: Color {
+        guard let colorHex else { return .primary }
+        return Color(hex: colorHex) ?? .primary
+    }
+
+    private var backgroundColor: Color {
+        hasCategoryTint ? contentColor.opacity(0.12) : Color(.secondarySystemBackground).opacity(0.9)
+    }
+
+    private var borderColor: Color {
+        hasCategoryTint ? contentColor.opacity(0.2) : Color(.systemGray4).opacity(0.5)
     }
 
     var body: some View {
@@ -237,6 +269,7 @@ private struct DashboardSelectedScopeChip: View {
                 if let iconName {
                     Image(systemName: iconName)
                         .font(.caption2)
+                        .foregroundStyle(contentColor)
                 }
 
                 Text(title)
@@ -244,18 +277,23 @@ private struct DashboardSelectedScopeChip: View {
                     .fontWeight(.medium)
                     .lineLimit(1)
                     .truncationMode(.tail)
+                    .foregroundStyle(contentColor)
 
                 Spacer(minLength: 4)
 
                 Image(systemName: "xmark")
                     .font(.caption2)
+                    .foregroundStyle(contentColor)
             }
-            .foregroundStyle(accentColor)
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(accentColor.opacity(0.12))
+            .background(backgroundColor)
             .clipShape(Capsule())
+            .overlay(
+                Capsule()
+                    .stroke(borderColor, lineWidth: 1)
+            )
             .contentShape(Capsule())
         }
         .buttonStyle(.plain)

@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.45.1] - 2026-06-09
+
+### Fixed
+- **Dashboard scope chips now use calmer, more coherent fallback styling when no category color is available** (`DashboardBottomBarView`, `DashboardView`) — `All`, `Today`, search breadcrumbs, and day scope chips without a category now render with the intended gray chip background and OMONI ancient-red content instead of falling back to the global accent red, while category-driven day chips correctly preserve their parent category color for better drill-down continuity.
+- **Bottom bar controls now align more cleanly as a single chip family** (`DashboardBottomBarView`) — the filter/search capsule now matches the chips' background tone and uses slightly taller vertical padding, while the dynamic middle scope chip gained a soft border so it no longer looks visually flatter or disconnected next to the group chip.
+- **The date picker trigger in the add-item-list form no longer reuses the app's primary red accent for passive date metadata** (`AddItemListComponents`) — the active calendar icon now uses a neutral gray tint so the date control feels calmer and less action-heavy.
+
 ## [2.45.0] - 2026-06-08
 
 ### Changed

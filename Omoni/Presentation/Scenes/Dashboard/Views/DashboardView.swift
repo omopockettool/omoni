@@ -572,9 +572,6 @@ struct DashboardView: View {
         case .allDay:
             return nil
         case .category(let categoryId, let range), .categoryDay(let categoryId, let range, _):
-            if case .categoryDay(_, let r, _) = activeFilter, r == .month {
-                return nil
-            }
             return activeCategoryBox?.categoryColorHex ?? viewModel.categoryDisplayColorHex(forCategoryId: categoryId, in: range)
         }
     }
