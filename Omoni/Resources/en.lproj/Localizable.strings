@@ -164,6 +164,7 @@
 "dashboard.changeUndone" = "Change undone";
 "dashboard.undo" = "Undo";
 "dashboard.limitShort" = "Limit";
+"dashboard.expensesByCategory" = "Expenses by category";
 
 // MARK: - Entry (extended)
 "entry.newEntry" = "New Entry";

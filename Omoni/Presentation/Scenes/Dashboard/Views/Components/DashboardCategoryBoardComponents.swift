@@ -60,7 +60,13 @@ struct DashboardCategoryBoardView<EmptyState: View>: View {
                     .padding(.top, 72)
                     .padding(.horizontal, AppConstants.UserInterface.padding)
             } else {
-                VStack(spacing: rowSpacing) {
+                VStack(alignment: .leading, spacing: rowSpacing) {
+                    Text(LocalizationKey.Dashboard.expensesByCategory.localized)
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                        .textCase(.uppercase)
+                        .padding(.bottom, 2)
+
                     ForEach(rows, id: \.id) { row in
                         rowView(row)
                     }

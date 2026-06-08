@@ -164,6 +164,7 @@
 "dashboard.changeUndone" = "Cambio deshecho";
 "dashboard.undo" = "Deshacer";
 "dashboard.limitShort" = "Límite";
+"dashboard.expensesByCategory" = "Gastos por categoría";
 
 // MARK: - Entry (extended)
 "entry.newEntry" = "Nuevo Registro";

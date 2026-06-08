@@ -242,6 +242,7 @@ enum LocalizationKey {
         static let changeUndone = "dashboard.changeUndone"
         static let undo = "dashboard.undo"
         static let limitShort = "dashboard.limitShort"
+        static let expensesByCategory = "dashboard.expensesByCategory"
     }
     
     // MARK: - Settings
