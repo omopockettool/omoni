@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.45.3] - 2026-06-09
+
+### Fixed
+- **New entry form now shows section labels above category and payment method chip grids** (`AddItemListView`) — "Categoría" and "Origen" headings make it immediately clear what each group of chips represents, reducing confusion for first-time users and anyone unfamiliar with the flow.
+
+## [2.45.2] - 2026-06-09
+
+### Fixed
+- **Dashboard content container now sits flush against the top bar, eliminating the excess gap** (`DashboardComponents`) — the top chrome height was reduced from 68 pt to 56 pt and the top padding between the chrome and the rounded content container was removed, so the category board occupies noticeably more vertical screen space.
+- **Dashboard category board now shows an "Expenses by category" section header** (`DashboardCategoryBoardComponents`) — a subtle uppercase label above the chip grid contextualises what is being displayed, removing the ambiguity between expenses, budget, and other potential views.
+
 ## [2.45.1] - 2026-06-09
 
 ### Fixed

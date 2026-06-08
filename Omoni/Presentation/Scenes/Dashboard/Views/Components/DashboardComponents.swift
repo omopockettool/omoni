@@ -182,7 +182,7 @@ struct DashboardBottomInset<Hero: View, Bar: View>: View {
 
 struct DashboardTopChromeView: View {
     private enum Metrics {
-        static let baseHeight: CGFloat = 68
+        static let baseHeight: CGFloat = 56
     }
 
     @Binding var showingFullMonth: Bool
@@ -434,7 +434,6 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
             .background(Color(.secondarySystemBackground))
             .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
             .padding(.horizontal, AppConstants.UserInterface.padding)
-            .padding(.top, 4)
             .padding(.bottom, 2)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
