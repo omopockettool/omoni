@@ -287,18 +287,25 @@ struct AddItemListView: View {
     // MARK: - Category Grid
 
     private var categoryGridSection: some View {
-        AddItemListCategorySection(
-            displayedCategories: displayedCategories,
-            overflowCategories: overflowCategories,
-            showOverflow: $showCategoryOverflow,
-            compact: showDetails || showCategoryOverflow,
-            selectedCategoryID: viewModel.selectedCategory?.id,
-            chipMinHeight: categoryChipMinHeight,
-            chipCornerRadius: categoryChipCornerRadius
-        ) { category in
-            withAnimation(AnimationHelper.quickSpring) {
-                viewModel.selectedCategory = category
-                showCategoryOverflow = false
+        VStack(alignment: .leading, spacing: 8) {
+            Text(LocalizationKey.Entry.category.localized)
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 4)
+
+            AddItemListCategorySection(
+                displayedCategories: displayedCategories,
+                overflowCategories: overflowCategories,
+                showOverflow: $showCategoryOverflow,
+                compact: showDetails || showCategoryOverflow,
+                selectedCategoryID: viewModel.selectedCategory?.id,
+                chipMinHeight: categoryChipMinHeight,
+                chipCornerRadius: categoryChipCornerRadius
+            ) { category in
+                withAnimation(AnimationHelper.quickSpring) {
+                    viewModel.selectedCategory = category
+                    showCategoryOverflow = false
+                }
             }
         }
     }
@@ -326,29 +333,36 @@ struct AddItemListView: View {
     // MARK: - Payment Method Grid
 
     private var paymentMethodGridSection: some View {
-        AddItemListPaymentMethodSection(
-            displayedPaymentMethods: displayedPaymentMethods,
-            overflowPaymentMethods: overflowPaymentMethods,
-            showOverflow: $showPaymentMethodOverflow,
-            selectedPaymentMethodID: viewModel.selectedPaymentMethod?.id,
-            colorForType: paymentMethodColor,
-            iconForMethod: paymentMethodIcon,
-            onSelect: { method in
-                withAnimation(AnimationHelper.quickSpring) {
-                    viewModel.selectedPaymentMethod = method
-                    showPaymentMethodOverflow = false
-                    scrollToPaymentMethods = true
-                }
-            },
-            onToggleOffSelected: {
-                withAnimation(AnimationHelper.quickSpring) {
-                    viewModel.deselectPaymentMethodManually()
-                    showPaymentMethodOverflow = false
-                    scrollToPaymentMethods = true
-                }
-            },
-            onCollapseOverflow: { scrollToPaymentMethods = true }
-        )
+        VStack(alignment: .leading, spacing: 8) {
+            Text(LocalizationKey.Entry.paymentMethod.localized)
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 4)
+
+            AddItemListPaymentMethodSection(
+                displayedPaymentMethods: displayedPaymentMethods,
+                overflowPaymentMethods: overflowPaymentMethods,
+                showOverflow: $showPaymentMethodOverflow,
+                selectedPaymentMethodID: viewModel.selectedPaymentMethod?.id,
+                colorForType: paymentMethodColor,
+                iconForMethod: paymentMethodIcon,
+                onSelect: { method in
+                    withAnimation(AnimationHelper.quickSpring) {
+                        viewModel.selectedPaymentMethod = method
+                        showPaymentMethodOverflow = false
+                        scrollToPaymentMethods = true
+                    }
+                },
+                onToggleOffSelected: {
+                    withAnimation(AnimationHelper.quickSpring) {
+                        viewModel.deselectPaymentMethodManually()
+                        showPaymentMethodOverflow = false
+                        scrollToPaymentMethods = true
+                    }
+                },
+                onCollapseOverflow: { scrollToPaymentMethods = true }
+            )
+        }
     }
 
     // MARK: - Date Card
