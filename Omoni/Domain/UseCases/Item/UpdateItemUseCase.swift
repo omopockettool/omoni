@@ -15,7 +15,7 @@ final class DefaultUpdateItemUseCase: UpdateItemUseCase {
         let trimmedDescription = item.itemDescription.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedDescription.isEmpty else { throw ValidationError.invalidDescription }
         guard item.amount >= 0 else { throw ValidationError.invalidAmount }
-        guard item.quantity > 0 else { throw ValidationError.invalidQuantity }
+        guard ValidationHelper.isValidItemQuantity(item.quantity) else { throw ValidationError.invalidQuantity }
         try await itemRepository.updateItem(item)
     }
 }

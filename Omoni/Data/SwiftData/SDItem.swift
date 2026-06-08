@@ -36,7 +36,7 @@ extension SDItem: Identifiable {}
 
 extension SDItem {
     var isValid: Bool {
-        !itemDescription.isEmpty && amount > 0 && quantity > 0
+        !itemDescription.isEmpty && amount > 0 && ValidationHelper.isValidItemQuantity(quantity)
     }
     
     func validate() throws {
@@ -48,7 +48,7 @@ extension SDItem {
             throw ValidationError.invalidAmount
         }
         
-        guard quantity > 0 else {
+        guard ValidationHelper.isValidItemQuantity(quantity) else {
             throw ValidationError.invalidQuantity
         }
     }
@@ -100,7 +100,7 @@ extension SDItem {
     }
     
     func updateQuantity(to newQuantity: Int) throws {
-        guard newQuantity > 0 else {
+        guard ValidationHelper.isValidItemQuantity(newQuantity) else {
             throw ValidationError.invalidQuantity
         }
         quantity = newQuantity

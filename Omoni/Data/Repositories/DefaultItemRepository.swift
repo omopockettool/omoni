@@ -21,7 +21,7 @@ final class DefaultItemRepository: ItemRepository {
     func createItem(
         description: String,
         amount: Decimal,
-        quantity: Int32,
+        quantity: Int,
         itemListId: UUID?,
         isPaid: Bool
     ) async throws -> SDItem {
@@ -30,7 +30,7 @@ final class DefaultItemRepository: ItemRepository {
         let item = SDItem(
             itemDescription: description,
             amount: Double(truncating: amount as NSDecimalNumber),
-            quantity: Int(quantity),
+            quantity: quantity,
             isPaid: isPaid
         )
         let targetId = itemListId

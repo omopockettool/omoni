@@ -143,7 +143,7 @@ struct AddItemListDescriptionField: View {
             icon: "textformat",
             placeholder: placeholder,
             text: $description,
-            maxLength: 200,
+            maxLength: AppConstants.Validation.maxItemDescriptionLength,
             axis: .horizontal,
             style: .embedded,
             submitLabel: .done,

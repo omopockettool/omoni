@@ -37,13 +37,12 @@ final class AddItemViewModel {
     var showsTotalPreview: Bool {
         let normalized = amount.replacingOccurrences(of: ",", with: ".")
         guard let price = Decimal(string: normalized), price > 0,
-              let qty = Int(quantity), qty > 1 else { return false }
+              let qty = ValidationHelper.itemQuantityValue(from: quantity), qty > 1 else { return false }
         return true
     }
 
     private var isQuantityValid: Bool {
-        guard let quantityInt = Int(quantity) else { return false }
-        return quantityInt > 0
+        ValidationHelper.itemQuantityValue(from: quantity) != nil
     }
 
     private var isAmountValid: Bool {
@@ -97,7 +96,7 @@ final class AddItemViewModel {
             return nil
         }
 
-        guard let quantityInt = Int32(quantity), quantityInt > 0 else {
+        guard let quantityValue = ValidationHelper.itemQuantityValue(from: quantity) else {
             errorMessage = "Unidades inválidas"
             showError = true
             return nil
@@ -114,7 +113,7 @@ final class AddItemViewModel {
                 // Edit mode — mutate SD* reference type directly
                 existingItem.itemDescription = finalDescription
                 existingItem.amount = Double(truncating: NSDecimalNumber(decimal: amountDecimal))
-                existingItem.quantity = Int(quantityInt)
+                existingItem.quantity = quantityValue
                 try await updateItemUseCase.execute(existingItem)
                 item = existingItem
             } else {
@@ -123,7 +122,7 @@ final class AddItemViewModel {
                 item = try await createItemUseCase.execute(
                     description: finalDescription,
                     amount: amountDecimal,
-                    quantity: quantityInt,
+                    quantity: quantityValue,
                     itemListId: itemListId,
                     isPaid: false
                 )
@@ -149,9 +148,19 @@ final class AddItemViewModel {
     }
 
     func sanitizeQuantityInput(_ input: String) -> String {
-        let digits = input.filter(\.isNumber)
-        guard let number = Int(digits) else { return digits }
-        return String(min(max(number, 1), 999999))
+        ValidationHelper.sanitizeItemQuantityEditingInput(input)
+    }
+
+    func normalizeQuantityInputAfterEditing() {
+        quantity = ValidationHelper.normalizeItemQuantityAfterEditing(quantity)
+    }
+
+    func setQuantity(_ newValue: Int) {
+        let boundedValue = min(
+            max(newValue, AppConstants.Validation.minItemQuantity),
+            AppConstants.Validation.maxItemQuantity
+        )
+        quantity = String(boundedValue)
     }
 
     // MARK: - Private Methods

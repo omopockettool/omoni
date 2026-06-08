@@ -82,4 +82,27 @@ struct ValidationHelper {
         }
         return nil
     }
+
+    // MARK: - Item Quantity Validation
+    static func isValidItemQuantity(_ quantity: Int) -> Bool {
+        (AppConstants.Validation.minItemQuantity...AppConstants.Validation.maxItemQuantity).contains(quantity)
+    }
+
+    static func itemQuantityValue(from input: String) -> Int? {
+        guard let quantity = Int(input), isValidItemQuantity(quantity) else { return nil }
+        return quantity
+    }
+
+    static func sanitizeItemQuantityEditingInput(_ input: String) -> String {
+        let digits = input.filter(\.isNumber)
+        return String(digits.prefix(AppConstants.Validation.maxItemQuantityDigits))
+    }
+
+    static func normalizeItemQuantityAfterEditing(_ input: String) -> String {
+        let sanitized = sanitizeItemQuantityEditingInput(input)
+        guard let quantity = itemQuantityValue(from: sanitized) else {
+            return String(AppConstants.Validation.minItemQuantity)
+        }
+        return String(quantity)
+    }
 }

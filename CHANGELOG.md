@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.45.0] - 2026-06-08
+
+### Changed
+- **Item quantity and detail inputs now use shared, tighter limits across creation and editing flows** (`AddItemView`, `AddItemListComponents`, `AppConstants`, `ValidationHelper`) — quantity is now constrained to numeric input with a 10-digit cap, while item detail text is limited to 30 characters in both the item sheet and the dashboard quick-add flow so these fields stay controlled and predictable instead of accepting effectively unbounded input.
+
+### Fixed
+- **The item quantity field now clamps visually while typing and no longer falls into an invalid save state after large inputs** (`AddItemView`, `AddItemViewModel`, `CreateItemUseCase`, `ItemRepository`, `SDItem`) — the visible quantity text now behaves like the hero amount input and stops growing past the allowed limit, the subtotal/save state no longer breaks because of an `Int32` bottleneck behind the scenes, and quantity validation is now enforced consistently from UI through persistence.
+
 ## [2.44.4] - 2026-06-05
 
 ### Fixed

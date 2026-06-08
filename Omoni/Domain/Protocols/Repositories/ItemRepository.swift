@@ -6,7 +6,7 @@ protocol ItemRepository {
     func createItem(
         description: String,
         amount: Decimal,
-        quantity: Int32,
+        quantity: Int,
         itemListId: UUID?,
         isPaid: Bool
     ) async throws -> SDItem

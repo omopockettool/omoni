@@ -50,7 +50,7 @@ struct AddItemView: View {
         return formatter.currencySymbol
     }
 
-    private var quantityValue: Int { Int(viewModel.quantity) ?? 1 }
+    private var quantityValue: Int { ValidationHelper.itemQuantityValue(from: viewModel.quantity) ?? 1 }
 
     private var subtotalAmount: String {
         let normalized = viewModel.amount.replacingOccurrences(of: ",", with: ".")
@@ -90,6 +90,10 @@ struct AddItemView: View {
             )
             .onAppear {
                 selectedDetent = viewModel.showsTotalPreview ? subtotalDetent : compactDetent
+            }
+            .onChange(of: focusedField) { oldValue, newValue in
+                guard oldValue == .quantity, newValue != .quantity else { return }
+                viewModel.normalizeQuantityInputAfterEditing()
             }
             .onChange(of: viewModel.showsTotalPreview) { _, showsPreview in
                 withAnimation(AnimationHelper.quickSpring) {
@@ -186,7 +190,7 @@ struct AddItemView: View {
             icon: "textformat",
             placeholder: itemListDescription,
             text: $viewModel.description,
-            maxLength: 200,
+            maxLength: AppConstants.Validation.maxItemDescriptionLength,
             axis: .horizontal,
             submitLabel: .done,
             onSubmit: { focusedField = nil },
@@ -197,8 +201,8 @@ struct AddItemView: View {
 
     private var quantityBinding: Binding<Int> {
         Binding(
-            get: { max(1, Int(viewModel.quantity) ?? 1) },
-            set: { viewModel.quantity = String($0) }
+            get: { ValidationHelper.itemQuantityValue(from: viewModel.quantity) ?? AppConstants.Validation.minItemQuantity },
+            set: { viewModel.setQuantity($0) }
         )
     }
 
@@ -222,12 +226,13 @@ struct AddItemView: View {
                     .foregroundStyle(.secondary)
                     .frame(width: 20)
 
-                TextField("1", text: quantityTextBinding)
-                    .keyboardType(.numberPad)
-                    .font(.subheadline.weight(.semibold))
-                    .focused($focusedField, equals: .quantity)
+                quantityInputDisplay
 
-                Stepper("", value: quantityBinding, in: 1...999999)
+                Stepper(
+                    "",
+                    value: quantityBinding,
+                    in: AppConstants.Validation.minItemQuantity...AppConstants.Validation.maxItemQuantity
+                )
                     .labelsHidden()
                     .fixedSize()
             }
@@ -236,10 +241,32 @@ struct AddItemView: View {
             .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
             .overlay(
                 RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius)
-                    .stroke(focusedField == .quantity ? Color(.systemGray3) : Color.clear, lineWidth: 1.5)
-                    .animation(AnimationHelper.formFocus, value: focusedField == .quantity)
+                    .stroke(Color(.systemGray5), lineWidth: 1)
             )
+            .contentShape(Rectangle())
+            .onTapGesture { focusedField = .quantity }
         }
+    }
+
+    private var quantityInputDisplay: some View {
+        HStack(alignment: .lastTextBaseline, spacing: 2) {
+            Text(viewModel.quantity.isEmpty ? "1" : viewModel.quantity)
+                .font(.subheadline.weight(.semibold))
+                .monospacedDigit()
+                .foregroundStyle(viewModel.quantity.isEmpty ? Color(.tertiaryLabel) : .primary)
+
+            if focusedField == .quantity {
+                BlinkingCursor(height: 18)
+                    .foregroundStyle(Color.accentColor)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .overlay(
+            TextField("", text: quantityTextBinding)
+                .keyboardType(.numberPad)
+                .focused($focusedField, equals: .quantity)
+                .opacity(0.01)
+        )
     }
 
     private var subtotalCard: some View {

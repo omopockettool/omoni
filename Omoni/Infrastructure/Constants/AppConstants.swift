@@ -19,6 +19,10 @@ struct AppConstants {
         static let maxNameLength = 50
         static let minEmailLength = 5
         static let maxEmailLength = 100
+        static let minItemQuantity = 1
+        static let maxItemQuantity = 9_999_999_999
+        static let maxItemQuantityDigits = 10
+        static let maxItemDescriptionLength = 30
     }
     
     // MARK: - UI Constants
