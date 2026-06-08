@@ -245,7 +245,7 @@ struct DashboardDateRowView: View {
 
     private var weekday: String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "es_ES")
+        formatter.locale = .autoupdatingCurrent
         formatter.dateFormat = "EEEE"
         let value = formatter.string(from: data.date)
         return value.prefix(1).uppercased() + value.dropFirst()
