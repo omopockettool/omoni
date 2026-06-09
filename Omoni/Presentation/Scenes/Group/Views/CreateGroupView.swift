@@ -26,7 +26,7 @@ struct CreateGroupView: View {
                         icon: "person.2.fill",
                         placeholder: LocalizationKey.Group.name.localized,
                         text: $groupName,
-                        maxLength: 30,
+                        maxLength: AppConstants.Validation.maxGroupNameLength,
                         focusedField: $groupNameFocused,
                         fieldValue: true
                     )

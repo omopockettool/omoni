@@ -33,7 +33,7 @@ struct UserProfileView: View {
                     icon: "person.fill",
                     placeholder: LocalizationKey.User.name.localized,
                     text: $viewModel.name,
-                    maxLength: 40,
+                    maxLength: AppConstants.Validation.maxUserNameLength,
                     focusedField: $nameFocused,
                     fieldValue: true
                 )

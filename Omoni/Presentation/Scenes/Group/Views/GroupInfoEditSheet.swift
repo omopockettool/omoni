@@ -33,7 +33,7 @@ struct GroupInfoEditSheet: View {
                         icon: "person.2.fill",
                         placeholder: LocalizationKey.Group.name.localized,
                         text: $name,
-                        maxLength: 30,
+                        maxLength: AppConstants.Validation.maxGroupNameLength,
                         focusedField: $nameFocused,
                         fieldValue: true
                     )

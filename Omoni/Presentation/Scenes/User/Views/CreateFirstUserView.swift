@@ -229,6 +229,11 @@ struct CreateFirstUserView: View {
                 .onSubmit {
                     focusedField = nil
                 }
+                .onChange(of: text.wrappedValue) { _, newValue in
+                    if newValue.count > AppConstants.Validation.maxUserNameLength {
+                        text.wrappedValue = String(newValue.prefix(AppConstants.Validation.maxUserNameLength))
+                    }
+                }
         }
         .padding(.horizontal, 18)
         .padding(.vertical, 16)

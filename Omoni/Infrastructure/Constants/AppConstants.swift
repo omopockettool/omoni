@@ -23,6 +23,8 @@ struct AppConstants {
         static let maxItemQuantity = 9_999_999_999
         static let maxItemQuantityDigits = 10
         static let maxItemDescriptionLength = 30
+        static let maxGroupNameLength = 30
+        static let maxUserNameLength = 40
     }
     
     // MARK: - UI Constants

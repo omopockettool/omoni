@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.49.0] - 2026-06-09
+
+### Added
+- **All text inputs now hard-block entry once the character limit is reached** (`LimitedTextField`, `CreateFirstUserView`, `AppConstants`) — switching focus or tapping a chip no longer causes a visible truncation after the fact; characters beyond the limit are rejected on every keystroke via `onChange`. Group name, user name, and item description limits are now defined as named constants in `AppConstants.Validation` (`maxGroupNameLength`, `maxUserNameLength`) and referenced consistently across all forms instead of using scattered magic numbers.
+
 ## [2.48.0] - 2026-06-09
 
 ### Fixed
