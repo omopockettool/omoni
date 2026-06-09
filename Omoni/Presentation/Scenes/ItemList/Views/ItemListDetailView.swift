@@ -70,8 +70,6 @@ struct ItemListDetailView: View {
                 mainContentView
             }
         }
-        .navigationTitle(itemList.itemListDescription)
-        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {

@@ -171,14 +171,14 @@ struct ExpenseRowView: View {
     private var trailingAmountColumn: some View {
         // Keep the right column height stable so paid/unpaid toggles animate internally
         // instead of changing the overall row height.
+        // No maxWidth: .infinity here — the column sizes to its content so the title
+        // gets all remaining space when the amount is short.
         ZStack(alignment: .trailing) {
             primaryAmountView
-                .frame(maxWidth: .infinity, alignment: .trailing)
                 .frame(height: trailingAmountColumnHeight, alignment: .trailing)
                 .offset(y: primaryAmountVerticalOffset)
 
             secondaryAmountView
-                .frame(maxWidth: .infinity, alignment: .trailing)
                 .frame(height: trailingAmountColumnHeight, alignment: .bottomTrailing)
                 .opacity(showsSecondaryAmount ? 1 : 0)
                 .offset(y: showsSecondaryAmount ? 0 : -10)

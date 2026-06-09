@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.47.0] - 2026-06-09
+
+### Changed
+- **Expense row title now uses all available space when the amount is short** (`ExpenseRowView`) — the trailing amount column no longer claims half the row width unconditionally; it sizes to its content so a small amount like "12,00 $" leaves the description room to show more characters before truncating.
+- **Item list detail view no longer shows the entry title in the navigation bar** (`ItemListDetailView`) — the inline nav title was redundant with the "Cost of …" hero card already visible at the bottom; removing it gives the screen a cleaner, less crowded top bar.
+
 ## [2.46.0] - 2026-06-09
 
 ### Added
