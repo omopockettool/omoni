@@ -246,6 +246,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
     let onRefresh: () async -> Void
     let onAllTap: () -> Void
     let onCategoryTap: (DashboardCategoryBoxData) -> Void
+    let onBack: (() -> Void)?
     let selectedFilterTitle: String?
     @Binding var collapsedDays: Set<Date>
     let itemListRowStatus: [UUID: ItemListRowStatus]
@@ -310,6 +311,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
         onRefresh: @escaping () async -> Void,
         onAllTap: @escaping () -> Void,
         onCategoryTap: @escaping (DashboardCategoryBoxData) -> Void,
+        onBack: (() -> Void)? = nil,
         selectedFilterTitle: String?,
         collapsedDays: Binding<Set<Date>>,
         itemListRowStatus: [UUID: ItemListRowStatus],
@@ -348,6 +350,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
         self.onRefresh = onRefresh
         self.onAllTap = onAllTap
         self.onCategoryTap = onCategoryTap
+        self.onBack = onBack
         self.selectedFilterTitle = selectedFilterTitle
         self._collapsedDays = collapsedDays
         self.itemListRowStatus = itemListRowStatus
@@ -437,6 +440,24 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
             .padding(.bottom, 2)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .overlay(alignment: .leading) {
+            if isShowingFilteredList, let onBack {
+                Color.clear
+                    .frame(width: 28)
+                    .frame(maxHeight: .infinity)
+                    .contentShape(Rectangle())
+                    .ignoresSafeArea()
+                    .gesture(
+                        DragGesture(minimumDistance: 20, coordinateSpace: .local)
+                            .onEnded { value in
+                                guard value.translation.width > 60,
+                                      abs(value.translation.width) > abs(value.translation.height)
+                                else { return }
+                                onBack()
+                            }
+                    )
+            }
+        }
         .safeAreaInset(edge: .top, spacing: 0) {
             DashboardTopChromeView(
                 showingFullMonth: $showingFullMonth,

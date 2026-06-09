@@ -353,6 +353,7 @@ struct DashboardView: View {
                     }
                 }
             },
+            onBack: { navigateBack() },
             selectedFilterTitle: activeFilterTitle,
             collapsedDays: $collapsedMonthDays,
             itemListRowStatus: viewModel.itemListRowStatus,
@@ -592,6 +593,18 @@ struct DashboardView: View {
         hasVisibleItemListsInSelectedRange && viewModel.visibleCategoryBoxes.isEmpty
     }
 
+    private func navigateBack() {
+        performDashboardTransition(.drillBackward) {
+            if case .allDay(let range, _) = activeFilter {
+                activeFilter = range == .today ? nil : .all(range)
+            } else if case .categoryDay(let categoryId, let range, _) = activeFilter {
+                activeFilter = range == .today ? nil : .category(categoryId: categoryId, range: range)
+            } else {
+                activeFilter = nil
+            }
+        }
+    }
+
     private var bottomInset: some View {
         DashboardBottomInset(
             heroSection: {
@@ -640,17 +653,7 @@ struct DashboardView: View {
                     onGroupChange: { newGroup in Task { await viewModel.changeGroup(to: newGroup) } },
                     onGroupCreated: { newGroup in viewModel.addGroup(newGroup) },
                     onDeleteGroup: { deletedGroup in try await viewModel.deleteGroup(deletedGroup) },
-                    onSelectedScopeTap: {
-                        performDashboardTransition(.drillBackward) {
-                            if case .allDay(let range, _) = activeFilter {
-                                activeFilter = range == .today ? nil : .all(range)
-                            } else if case .categoryDay(let categoryId, let range, _) = activeFilter {
-                                activeFilter = range == .today ? nil : .category(categoryId: categoryId, range: range)
-                            } else {
-                                activeFilter = nil
-                            }
-                        }
-                    },
+                    onSelectedScopeTap: { navigateBack() },
                     onOpenFilters: { showingFiltersSheet = true }
                 )
             }
