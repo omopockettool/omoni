@@ -27,16 +27,7 @@ final class AddItemListViewModel {
     var price = ""
     var date = Date()
     var entryStructure: ItemListStructure = .singleEntry
-    var selectedCategory: SDCategory? {
-        didSet {
-            guard !isEditMode, !didManuallyChoosePaymentMethod else { return }
-            selectedPaymentMethod = suggestedPaymentMethod(
-                forCategoryId: selectedCategory?.id,
-                snapshots: usageMemorySnapshots,
-                in: paymentMethods
-            )
-        }
-    }
+    var selectedCategory: SDCategory?
     var selectedPaymentMethod: SDPaymentMethod?
     var suggestions: [ConceptSuggestion] = []
     var lastUsedConcept: String?
@@ -224,16 +215,15 @@ final class AddItemListViewModel {
             if restoringEditSelections {
                 selectedCategory = categories.first { $0.id == itemListToEdit?.category?.id }
                 selectedPaymentMethod = paymentMethods.first { $0.id == itemListToEdit?.paymentMethod?.id }
+                updateSuggestions()
             } else {
                 let snapshots = (try? await loadUsageMemorySnapshots(forGroupId: groupId)) ?? []
                 usageMemorySnapshots = snapshots
                 let categoryIdToSelect = preferredCategoryId
                     ?? snapshots.max { $0.createdAt < $1.createdAt }.flatMap { $0.categoryId }
                 selectedCategory = categoryIdToSelect.flatMap { id in categories.first { $0.id == id } }
-                // selectedPaymentMethod is set by selectedCategory's didSet via suggestedPaymentMethod
+                updateConceptAssists()
             }
-
-            updateSuggestions()
         } catch {
             errorMessage = "Error al cargar datos del formulario: \(error.localizedDescription)"
             showError = true
@@ -547,12 +537,12 @@ final class AddItemListViewModel {
     }
 
     func validateAndCorrectPrice() {
-        price = correctPriceInput(price)
+        setPrice(correctPriceInput(price))
     }
 
     func pastePrice() {
         guard let raw = UIPasteboard.general.string else { return }
-        price = correctPriceInput(raw)
+        setPrice(correctPriceInput(raw))
     }
 
     // MARK: - Private Methods
@@ -588,6 +578,24 @@ final class AddItemListViewModel {
             .replacingOccurrences(of: "\\.?0+$", with: "", options: .regularExpression)
     }
 
+    func setDescription(_ newValue: String) {
+        guard description != newValue else { return }
+        description = newValue
+        updateConceptAssists()
+    }
+
+    func setPrice(_ newValue: String) {
+        guard price != newValue else { return }
+        price = newValue
+        updateConceptAssists()
+    }
+
+    func selectCategory(_ category: SDCategory?) {
+        guard selectedCategory?.id != category?.id else { return }
+        selectedCategory = category
+        updateConceptAssists()
+    }
+
     func updateSuggestions() {
         suggestions = ConceptSuggestionEngine.getSuggestions(
             query: description,
@@ -600,36 +608,50 @@ final class AddItemListViewModel {
 
     func updateConceptAssists() {
         updateSuggestions()
-        applyPaymentMethodSuggestionForCurrentConcept()
+        refreshAutomaticPaymentMethodSelection()
     }
 
     func applySuggestion(_ suggestion: ConceptSuggestion, forGroupId groupId: UUID) {
         description = suggestion.description
         if suggestion.category.id != selectedCategory?.id {
-            selectedCategory = suggestion.category
             recordCategoryUsage(suggestion.category, forGroupId: groupId)
+            selectCategory(suggestion.category)
+            return
         }
         updateConceptAssists()
     }
 
-    private func applyPaymentMethodSuggestionForCurrentConcept() {
+    private func refreshAutomaticPaymentMethodSelection() {
         guard !isEditMode, !didManuallyChoosePaymentMethod else { return }
-        guard let selectedCategory else { return }
+        let conceptPaymentMethodId = paymentMethodIdForCurrentConcept()
+        let categoryPaymentMethod = suggestedPaymentMethod(
+            forCategoryId: selectedCategory?.id,
+            snapshots: usageMemorySnapshots,
+            in: paymentMethods
+        )
+
+        if let conceptPaymentMethodId {
+            selectedPaymentMethod = paymentMethods.first { $0.id == conceptPaymentMethodId }
+        } else {
+            selectedPaymentMethod = categoryPaymentMethod
+        }
+
+        lastUsedPaymentMethodId = selectedPaymentMethod?.id
+    }
+
+    private func paymentMethodIdForCurrentConcept() -> UUID? {
+        guard let selectedCategory else { return nil }
 
         let normalizedDescription = normalizedConcept(description)
-        guard !normalizedDescription.isEmpty else { return }
+        guard !normalizedDescription.isEmpty else { return nil }
 
-        let matchingSnapshot = usageMemorySnapshots
+        return usageMemorySnapshots
             .filter {
                 $0.categoryId == selectedCategory.id &&
                 normalizedConcept($0.itemListDescription) == normalizedDescription
             }
-            .max { $0.createdAt < $1.createdAt }
-
-        guard let paymentMethodId = matchingSnapshot?.paymentMethodId else { return }
-
-        selectedPaymentMethod = paymentMethods.first { $0.id == paymentMethodId }
-        lastUsedPaymentMethodId = selectedPaymentMethod?.id
+            .max { $0.createdAt < $1.createdAt }?
+            .paymentMethodId
     }
 
     private func normalizedConcept(_ value: String) -> String {

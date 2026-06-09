@@ -111,6 +111,20 @@ struct AddItemListView: View {
         return LocalizationKey.Entry.concept.localized
     }
 
+    private var descriptionBinding: Binding<String> {
+        Binding(
+            get: { viewModel.description },
+            set: { viewModel.setDescription($0) }
+        )
+    }
+
+    private var priceBinding: Binding<String> {
+        Binding(
+            get: { viewModel.price },
+            set: { viewModel.setPrice($0) }
+        )
+    }
+
     // MARK: - Body
 
     var body: some View {
@@ -272,10 +286,10 @@ struct AddItemListView: View {
         AddItemListTopCard(
             showsHeroAmountInput: viewModel.showsHeroAmountInput,
             usesExpandedDescriptionLayout: viewModel.usesExpandedDescriptionLayout,
-            price: $viewModel.price,
+            price: priceBinding,
             currencySymbol: currencySymbol,
             descriptionPlaceholder: descriptionPlaceholder,
-            description: $viewModel.description,
+            description: descriptionBinding,
             suggestions: viewModel.suggestions,
             focusedField: $focusedField,
             onValidate: viewModel.validateAndCorrectPrice,
@@ -303,7 +317,7 @@ struct AddItemListView: View {
                 chipCornerRadius: categoryChipCornerRadius
             ) { category in
                 withAnimation(AnimationHelper.quickSpring) {
-                    viewModel.selectedCategory = category
+                    viewModel.selectCategory(category)
                     showCategoryOverflow = false
                 }
             }

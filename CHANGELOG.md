@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.48.0] - 2026-06-09
+
+### Fixed
+- **New entry recommendations now stay anchored to the currently selected category while typing** (`AddItemListView`, `AddItemListViewModel`, `ConceptSuggestionEngine`) — changing the category in the quick-add sheet now immediately refreshes the concept memory for that category, and typing a prefix like `Sal...` searches only within the active category instead of leaking suggestions from the previously selected one.
+
 ## [2.47.0] - 2026-06-09
 
 ### Changed
