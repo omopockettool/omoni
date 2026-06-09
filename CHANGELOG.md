@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.50.0] - 2026-06-10
+
+### Changed
+- **Dashboard day drill-down hero now uses contextual cost copy instead of showing only the raw date** (`DashboardView`, `DashboardViewModel`, `Localizable.strings`) — day-focused hero states now read naturally as `Coste de hoy` or `Coste del viernes 5 jun`, aligning the dashboard with the clearer `Coste de …` pattern already used in item-list detail while preserving category-based hero labels.
+
 ## [2.49.0] - 2026-06-09
 
 ### Added

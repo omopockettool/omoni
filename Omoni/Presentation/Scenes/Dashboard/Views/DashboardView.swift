@@ -615,9 +615,9 @@ struct DashboardView: View {
                             monthLabel: viewModel.monthHeroLabel,
                             monthTotal: viewModel.formattedCachedMonthTotal(),
                             todayTotal: viewModel.formattedTodayTotal,
-                            overrideLabel: activeAllDayContext.map { viewModel.heroDayLabel(for: $0.date) }
+                            overrideLabel: activeDayHeroLabel
                                 ?? activeCategoryBox?.categoryName,
-                            overrideLabelUsesCostOfPrefix: activeAllDayContext == nil,
+                            overrideLabelUsesCostOfPrefix: activeDayHeroLabel == nil,
                             overrideTotal: activeAllDayContext.map {
                                 viewModel.formattedTotal(in: $0.range, day: $0.date)
                             } ?? activeCategoryDayContext.map {
@@ -678,6 +678,13 @@ struct DashboardView: View {
     private var activeCategoryDayContext: (categoryId: UUID, range: DashboardCategoryRange, date: Date)? {
         guard case .categoryDay(let categoryId, let range, let date) = resolvedActiveFilter else { return nil }
         return (categoryId, range, date)
+    }
+
+    private var activeDayHeroLabel: String? {
+        activeAllDayContext.map { viewModel.heroCostLabel(for: $0.date) }
+            ?? activeCategoryDayContext.flatMap {
+                $0.range == .month ? viewModel.heroCostLabel(for: $0.date) : nil
+            }
     }
 
     private var resolvedInitialEntryDate: Date {

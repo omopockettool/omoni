@@ -235,6 +235,13 @@ class DashboardViewModel {
         return heroDateFormatter.string(from: date).capitalized
     }
 
+    func heroCostLabel(for date: Date) -> String {
+        if Calendar.current.isDateInToday(date) {
+            return LocalizationKey.Dashboard.costToday.localized
+        }
+        return LocalizationKey.Dashboard.costOnDay.localized(with: heroDateFormatter.string(from: date))
+    }
+
     var hasItemsOutsideToday: Bool {
         monthItemLists.count > todayItemLists.count || isCustomMonthFilterActive
     }

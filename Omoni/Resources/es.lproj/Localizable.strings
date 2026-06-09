@@ -148,6 +148,7 @@
 "dashboard.yesterday" = "Ayer";
 "dashboard.costThisMonth" = "Coste de este mes";
 "dashboard.costToday" = "Coste de hoy";
+"dashboard.costOnDay" = "Coste del %@";
 "dashboard.added" = "¡Listo!";
 "dashboard.filters" = "Filtros";
 "dashboard.itemStatus" = "Estado de artículos";
