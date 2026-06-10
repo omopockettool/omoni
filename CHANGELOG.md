@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.51.1] - 2026-06-10
+
+### Fixed
+- **Dashboard category board no longer animates the neighboring category box when only one category total changes** (`DashboardCategoryBoardComponents`) — adding a new record from the dashboard now keeps the visual refresh isolated to the affected category box instead of making the adjacent box look like it also reloaded or changed value.
+
 ## [2.51.0] - 2026-06-10
 
 ### Added

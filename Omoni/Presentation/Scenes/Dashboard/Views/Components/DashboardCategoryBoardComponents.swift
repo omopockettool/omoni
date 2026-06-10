@@ -75,6 +75,7 @@ struct DashboardCategoryBoardView<EmptyState: View>: View {
                         DashboardAllCategoryBoxView(onTap: onSelectAll)
                     }
                 }
+                .animation(AnimationHelper.smoothSpring, value: rows.map(\.id))
                 .padding(.horizontal, AppConstants.UserInterface.padding)
                 .padding(.top, AppConstants.UserInterface.padding)
                 .padding(.bottom, 32)
@@ -235,11 +236,26 @@ struct DashboardCategoryBoxView: View {
     @State private var displayedAmount = ""
     @State private var amountIsDecreasing = false
     @State private var flashColor: Color = .clear
+    @State private var displayedFillRatio: Double = 0
 
     let data: DashboardCategoryBoxData
     let formattedAmount: String
     let formattedUnpaidAmount: String?
     let onTap: () -> Void
+
+    init(
+        data: DashboardCategoryBoxData,
+        formattedAmount: String,
+        formattedUnpaidAmount: String?,
+        onTap: @escaping () -> Void
+    ) {
+        self.data = data
+        self.formattedAmount = formattedAmount
+        self.formattedUnpaidAmount = formattedUnpaidAmount
+        self.onTap = onTap
+        _displayedAmount = State(initialValue: formattedAmount)
+        _displayedFillRatio = State(initialValue: DashboardCategoryBoxView.makeFillRatio(for: data))
+    }
 
     private var accentColor: Color {
         Color(hex: data.categoryColorHex) ?? .accentColor
@@ -256,8 +272,7 @@ struct DashboardCategoryBoxView: View {
     }
 
     private var fillRatio: Double {
-        guard let limit = data.categoryEffectiveLimit, limit > 0 else { return 1.0 }
-        return min(data.categoryBudgetProgressAmount / limit, 1.0)
+        Self.makeFillRatio(for: data)
     }
 
     private var minHeight: CGFloat {
@@ -359,7 +374,7 @@ struct DashboardCategoryBoxView: View {
                             .fill(Color(.systemGray4))
                         Rectangle()
                             .fill(accentColor.opacity(0.18))
-                            .scaleEffect(x: 1, y: fillRatio, anchor: .bottom)
+                            .scaleEffect(x: 1, y: displayedFillRatio, anchor: .bottom)
                     }
                     .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius, style: .continuous))
                 } else {
@@ -374,9 +389,6 @@ struct DashboardCategoryBoxView: View {
             }
         }
         .buttonStyle(PressHapticButtonStyle())
-        .onAppear {
-            displayedAmount = formattedAmount
-        }
         .onChange(of: formattedAmount) { oldValue, newValue in
             let oldDigits = extractDigits(from: oldValue)
             let newDigits = extractDigits(from: newValue)
@@ -390,10 +402,20 @@ struct DashboardCategoryBoxView: View {
             withAnimation(AnimationHelper.flashIn) { flashColor = targetColor }
             withAnimation(AnimationHelper.flashOut) { flashColor = .clear }
         }
+        .onChange(of: fillRatio) { _, newValue in
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.86)) {
+                displayedFillRatio = newValue
+            }
+        }
     }
 
     private func extractDigits(from string: String) -> Int {
         Int(string.filter(\.isNumber)) ?? 0
+    }
+
+    private static func makeFillRatio(for data: DashboardCategoryBoxData) -> Double {
+        guard let limit = data.categoryEffectiveLimit, limit > 0 else { return 1.0 }
+        return min(data.categoryBudgetProgressAmount / limit, 1.0)
     }
 }
 
