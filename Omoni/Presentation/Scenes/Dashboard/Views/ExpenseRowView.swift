@@ -6,16 +6,9 @@ private enum ExpenseRowLayoutMetrics {
     static func trailingAmountColumnHeight(isCompact: Bool) -> CGFloat {
         isCompact ? 36 : 42
     }
-
-    static func primaryAmountVerticalOffset(hasSecondaryAmount: Bool, isCompact: Bool) -> CGFloat {
-        guard hasSecondaryAmount else { return 0 }
-        return isCompact ? -7 : -8
-    }
 }
 
 struct ExpenseRowView: View {
-    @State private var displayedPrimaryAmount = ""
-    @State private var primaryAmountIsDecreasing = false
     @State private var detailTitleColor: Color = Color.primary.opacity(0.92)
 
     let itemList: SDItemList
@@ -34,8 +27,17 @@ struct ExpenseRowView: View {
         searchMatchedSubtotal ?? formattedAmount
     }
 
-    private var secondaryAmountText: String? {
+    private var targetSecondaryAmountText: String? {
         searchMatchedSubtotal != nil ? searchMatchedUnpaid : formattedUnpaidAmount
+    }
+
+    private var showsSplitAmounts: Bool {
+        switch rowStatus {
+        case .partial, .unpaid:
+            return targetSecondaryAmountText != nil
+        case .paid, .neutral:
+            return false
+        }
     }
 
     private var rowTone: StatusFramedRowTone {
@@ -73,15 +75,6 @@ struct ExpenseRowView: View {
         }
     }
 
-    private var showsSecondaryAmount: Bool {
-        switch rowStatus {
-        case .partial, .unpaid:
-            return secondaryAmountText != nil
-        case .paid, .neutral:
-            return false
-        }
-    }
-
     private var secondaryAmountColor: Color {
         switch rowStatus {
         case .partial, .unpaid:
@@ -96,14 +89,7 @@ struct ExpenseRowView: View {
     }
 
     private var trailingAmountAnimationCurve: Animation {
-        .spring(response: 0.45, dampingFraction: 0.78, blendDuration: 0.15)
-    }
-
-    private var primaryAmountVerticalOffset: CGFloat {
-        ExpenseRowLayoutMetrics.primaryAmountVerticalOffset(
-            hasSecondaryAmount: showsSecondaryAmount,
-            isCompact: isCompact
-        )
+        .easeInOut(duration: 0.2)
     }
 
     private var defaultDetailTitleColor: Color {
@@ -129,20 +115,8 @@ struct ExpenseRowView: View {
             }
         }
         .padding(.vertical, isCompact ? 4 : 6)
-        .animation(trailingAmountAnimationCurve, value: showsSecondaryAmount)
-        .animation(trailingAmountAnimationCurve, value: secondaryAmountText)
-        .onAppear {
-            displayedPrimaryAmount = primaryAmountText
-            detailTitleColor = defaultDetailTitleColor
-        }
-        .onChange(of: primaryAmountText) { oldValue, newValue in
-            let oldDigits = extractDigits(from: oldValue)
-            let newDigits = extractDigits(from: newValue)
-            primaryAmountIsDecreasing = newDigits < oldDigits
-            withAnimation(trailingAmountAnimationCurve) {
-                displayedPrimaryAmount = newValue
-            }
-        }
+        .animation(trailingAmountAnimationCurve, value: showsSplitAmounts)
+        .onAppear { detailTitleColor = defaultDetailTitleColor }
         .onChange(of: rowStatus) { oldValue, newValue in
             guard oldValue != newValue else { return }
 
@@ -174,44 +148,69 @@ struct ExpenseRowView: View {
         // No maxWidth: .infinity here — the column sizes to its content so the title
         // gets all remaining space when the amount is short.
         ZStack(alignment: .trailing) {
-            primaryAmountView
-                .frame(height: trailingAmountColumnHeight, alignment: .trailing)
-                .offset(y: primaryAmountVerticalOffset)
+            primaryAmountReservationView
 
-            secondaryAmountView
-                .frame(height: trailingAmountColumnHeight, alignment: .bottomTrailing)
-                .opacity(showsSecondaryAmount ? 1 : 0)
-                .offset(y: showsSecondaryAmount ? 0 : -10)
+            centeredPrimaryAmountView
+                .frame(height: trailingAmountColumnHeight, alignment: .trailing)
+                .opacity(showsSplitAmounts ? 0 : 1)
+
+            splitAmountsView
+                .frame(height: trailingAmountColumnHeight, alignment: .trailing)
+                .opacity(showsSplitAmounts ? 1 : 0)
         }
+        .fixedSize(horizontal: true, vertical: false)
         .frame(height: trailingAmountColumnHeight, alignment: .topTrailing)
         .clipped()
     }
 
-    private var primaryAmountView: some View {
-        Text(displayedPrimaryAmount)
+    @ViewBuilder
+    private var primaryAmountReservationView: some View {
+        primaryAmountReservationText(primaryAmountText)
+
+        if let targetSecondaryAmountText {
+            primaryAmountReservationText(targetSecondaryAmountText)
+        }
+    }
+
+    private var centeredPrimaryAmountView: some View {
+        primaryAmountTextView(primaryAmountText)
+    }
+
+    private var splitAmountsView: some View {
+        ZStack(alignment: .trailing) {
+            primaryAmountTextView(primaryAmountText)
+                .frame(height: trailingAmountColumnHeight, alignment: .topTrailing)
+
+            if let targetSecondaryAmountText {
+                secondaryAmountTextView(targetSecondaryAmountText)
+                    .frame(height: trailingAmountColumnHeight, alignment: .bottomTrailing)
+            }
+        }
+    }
+
+    private func primaryAmountTextView(_ text: String) -> some View {
+        Text(text)
             .font(.system(size: isCompact ? 14 : 15, weight: .semibold, design: .rounded))
             .foregroundStyle(rowTone.amountColor)
             .monospacedDigit()
             .lineLimit(1)
-            .contentTransition(.numericText(countsDown: primaryAmountIsDecreasing))
-            .animation(trailingAmountAnimationCurve, value: displayedPrimaryAmount)
+            .animation(.none, value: rowTone)
     }
 
-    private var secondaryAmountView: some View {
-        Text(secondaryAmountLabel)
+    private func primaryAmountReservationText(_ text: String) -> some View {
+        Text(text)
+            .font(.system(size: isCompact ? 14 : 15, weight: .semibold, design: .rounded))
+            .monospacedDigit()
+            .lineLimit(1)
+            .hidden()
+    }
+
+    private func secondaryAmountTextView(_ text: String) -> some View {
+        Text(text)
             .font(.caption)
             .foregroundStyle(secondaryAmountColor)
             .monospacedDigit()
             .lineLimit(1)
-    }
-
-    private var secondaryAmountLabel: String {
-        guard let secondaryAmountText else { return "" }
-        return secondaryAmountText
-    }
-
-    private func extractDigits(from string: String) -> Int {
-        Int(string.filter(\.isNumber)) ?? 0
     }
 }
 

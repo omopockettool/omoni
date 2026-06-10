@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.55.2] - 2026-06-10
+
+### Fixed
+- **Amount in expense rows no longer flashes "0.00" when toggling a paid list back to unpaid** (`ExpenseRowView`, `TotalSpentCardView`) — replaced the `contentTransition(.numericText())` + `displayedPrimaryAmount` state pattern with a plain opacity crossfade between the single-amount and split-amount views; added `.animation(.none, value: rowTone)` so the color change (green → orange) is never caught by the container's layout animation. Moved `isDecreasing` inside the `withAnimation` block in `TotalSpentCardView` so the numeric scroll direction resolves in the same animation transaction as the displayed amount.
+
 ## [2.55.1] - 2026-06-10
 
 ### Fixed

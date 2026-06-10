@@ -57,7 +57,6 @@ struct TotalSpentCardView<BottomContent: View>: View {
                         .lineLimit(1)
                         .contentTransition(.numericText(countsDown: isDecreasing))
                         .animation(AnimationHelper.feedbackSpring, value: displayedAmount)
-                        .transition(.push(from: .bottom).combined(with: .opacity))
 
                     bottomContent()
                 }
@@ -120,8 +119,8 @@ struct TotalSpentCardView<BottomContent: View>: View {
         .onChange(of: totalAmount) { oldValue, newValue in
             let oldDigits = extractDigits(from: oldValue)
             let newDigits = extractDigits(from: newValue)
-            isDecreasing = newDigits < oldDigits
             withAnimation(AnimationHelper.feedbackSpring) {
+                isDecreasing = newDigits < oldDigits
                 displayedAmount = newValue
             }
             let targetColor: Color = isDecreasing ? .red.opacity(0.12) : .green.opacity(0.12)
