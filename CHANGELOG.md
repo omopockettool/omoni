@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.52.0] - 2026-06-10
+
+### Changed
+- **SwiftData edit flows now use idempotent model mutation helpers instead of repeatedly writing persisted fields directly** (`SDGroup`, `SDUser`, `SDPaymentMethod`, `SDCategory`, `SDItem`, `SDItemList`, `GroupFormViewModel`, `UserProfileViewModel`, `PaymentMethodFormViewModel`, `AddItemViewModel`, `AddItemListViewModel`, `UpdateCategoryUseCase`, `UpdateItemListUseCase`, `DashboardViewModel`) — editing groups, users, payment methods, items, and item lists now avoids no-op writes, keeps `lastModifiedAt` updates tied to real changes, and reduces the chance of SwiftData setter instability in live edit flows.
+- **Repository update/save paths now skip unnecessary persistence work when the context has no effective changes** (`DefaultGroupRepository`, `DefaultUserRepository`, `DefaultPaymentMethodRepository`, `DefaultCategoryRepository`, `DefaultItemListRepository`, `DefaultItemRepository`) — save operations now touch timestamps and write to disk only when the model context is actually dirty, keeping persistence behavior calmer and more predictable.
+- **Create flows now fail fast when required related records are missing instead of persisting orphaned SwiftData objects** (`DefaultCategoryRepository`, `DefaultPaymentMethodRepository`, `DefaultItemListRepository`, `DefaultItemRepository`, `DefaultUserGroupRepository`) — invalid foreign IDs now raise `RepositoryError.notFound` before insertion, protecting the store from partial or relationship-less records.
+
+### Added
+- **Persistence integrity coverage now includes no-op edit safety and failed-create relationship validation** (`CreateGroupUseCaseTests`, `ItemUseCaseTests`, `CreateRepositoryIntegrityTests`, `SwiftDataTestContainer`) — the test suite now explicitly checks that unchanged edits do not dirty timestamps unnecessarily and that create operations reject missing linked records without leaving partial data behind.
+
 ## [2.51.1] - 2026-06-10
 
 ### Fixed

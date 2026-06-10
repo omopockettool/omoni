@@ -110,10 +110,11 @@ final class AddItemViewModel {
             let item: SDItem
 
             if let existingItem = itemToEdit {
-                // Edit mode — mutate SD* reference type directly
-                existingItem.itemDescription = finalDescription
-                existingItem.amount = Double(truncating: NSDecimalNumber(decimal: amountDecimal))
-                existingItem.quantity = quantityValue
+                try existingItem.applyEdits(
+                    description: finalDescription,
+                    amount: Double(truncating: NSDecimalNumber(decimal: amountDecimal)),
+                    quantity: quantityValue
+                )
                 try await updateItemUseCase.execute(existingItem)
                 item = existingItem
             } else {

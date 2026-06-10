@@ -24,12 +24,20 @@ final class SwiftDataTestContainer {
         DefaultCategoryRepository(context: context)
     }
 
+    func makePaymentMethodRepository() -> PaymentMethodRepository {
+        DefaultPaymentMethodRepository(context: context)
+    }
+
     func makeItemListRepository() -> ItemListRepository {
         DefaultItemListRepository(context: context)
     }
 
     func makeItemRepository() -> ItemRepository {
         DefaultItemRepository(context: context)
+    }
+
+    func makeUserGroupRepository() -> UserGroupRepository {
+        DefaultUserGroupRepository(context: context)
     }
 
     func makeBackupRepository() -> BackupRepository {

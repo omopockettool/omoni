@@ -35,8 +35,11 @@ final class DefaultItemRepository: ItemRepository {
         )
         let targetId = itemListId
         let descriptor = FetchDescriptor<SDItemList>(predicate: #Predicate { $0.id == targetId })
-        item.itemList = try context.fetch(descriptor).first
-        item.itemList?.lastModifiedAt = Date()
+        guard let itemList = try context.fetch(descriptor).first else {
+            throw RepositoryError.notFound
+        }
+        item.itemList = itemList
+        item.itemList?.touch()
         context.insert(item)
         do {
             try context.save()
@@ -48,9 +51,10 @@ final class DefaultItemRepository: ItemRepository {
     }
 
     func updateItem(_ item: SDItem) async throws {
+        guard context.hasChanges else { return }
         let modifiedAt = Date()
-        item.lastModifiedAt = modifiedAt
-        item.itemList?.lastModifiedAt = modifiedAt
+        item.touch(modifiedAt)
+        item.itemList?.touch(modifiedAt)
         do {
             try context.save()
         } catch {
@@ -65,7 +69,7 @@ final class DefaultItemRepository: ItemRepository {
         guard let item = try context.fetch(descriptor).first else {
             throw RepositoryError.notFound
         }
-        item.itemList?.lastModifiedAt = Date()
+        item.itemList?.touch()
         context.delete(item)
         do {
             try context.save()
@@ -80,10 +84,21 @@ final class DefaultItemRepository: ItemRepository {
         let descriptor = FetchDescriptor<SDItem>(predicate: #Predicate { $0.itemList?.id == targetId })
         let items = try context.fetch(descriptor)
         let modifiedAt = Date()
+        var didChange = false
         items.forEach {
-            $0.isPaid = isPaid
-            $0.lastModifiedAt = modifiedAt
-            $0.itemList?.lastModifiedAt = modifiedAt
+            let previousStatus = $0.isPaid
+            $0.setPaidStatus(isPaid, modifiedAt: modifiedAt)
+            if previousStatus != $0.isPaid {
+                didChange = true
+            }
+        }
+
+        if didChange {
+            items.first?.itemList?.touch(modifiedAt)
+        }
+
+        guard context.hasChanges else {
+            return
         }
         do {
             try context.save()
@@ -99,10 +114,14 @@ final class DefaultItemRepository: ItemRepository {
         guard let item = try context.fetch(descriptor).first else {
             throw RepositoryError.notFound
         }
-        let modifiedAt = Date()
-        item.isPaid = isPaid
-        item.lastModifiedAt = modifiedAt
-        item.itemList?.lastModifiedAt = modifiedAt
+
+        if item.isPaid != isPaid {
+            let modifiedAt = Date()
+            item.setPaidStatus(isPaid, modifiedAt: modifiedAt)
+            item.itemList?.touch(modifiedAt)
+        }
+
+        guard context.hasChanges else { return }
         do {
             try context.save()
         } catch {

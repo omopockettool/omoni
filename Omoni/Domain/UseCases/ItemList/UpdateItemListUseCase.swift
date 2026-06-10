@@ -50,12 +50,14 @@ final class DefaultUpdateSingleEntryUseCase: UpdateSingleEntryUseCase {
         guard !trimmedDescription.isEmpty else { throw ValidationError.invalidDescription }
         guard amount >= 0 else { throw ValidationError.invalidAmount }
 
-        itemList.itemListDescription = trimmedDescription
-        itemList.setStructure(.singleEntry)
-        itemList.date = date
-        itemList.category = category
-        itemList.paymentMethod = paymentMethod
-        itemList.group = group
+        itemList.applyEdits(
+            description: trimmedDescription,
+            structure: .singleEntry,
+            date: date,
+            category: category,
+            paymentMethod: paymentMethod,
+            group: group
+        )
 
         let item: SDItem
         let needsCreateItem: Bool
@@ -72,9 +74,11 @@ final class DefaultUpdateSingleEntryUseCase: UpdateSingleEntryUseCase {
             needsCreateItem = true
         }
 
-        item.itemDescription = trimmedDescription
-        item.amount = Double(truncating: amount as NSDecimalNumber)
-        item.quantity = 1
+        try item.applyEdits(
+            description: trimmedDescription,
+            amount: Double(truncating: amount as NSDecimalNumber),
+            quantity: 1
+        )
 
         if needsCreateItem {
             _ = try await itemRepository.createItem(

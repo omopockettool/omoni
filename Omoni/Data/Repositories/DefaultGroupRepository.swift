@@ -63,7 +63,8 @@ final class DefaultGroupRepository: GroupRepository {
     }
 
     func updateGroup(_ group: SDGroup) async throws {
-        group.lastModifiedAt = Date()
+        guard context.hasChanges else { return }
+        group.touch()
         do {
             try context.save()
         } catch {

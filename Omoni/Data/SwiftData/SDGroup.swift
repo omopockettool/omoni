@@ -57,7 +57,39 @@ extension SDGroup {
     }
 
     func setGroupKind(_ kind: SDGroupKind) {
-        groupKind = kind.rawValue
+        let rawValue = kind.rawValue
+        guard groupKind != rawValue else { return }
+        groupKind = rawValue
+    }
+
+    func applyEdits(name: String, currency: String, kind: SDGroupKind? = nil) {
+        var didChange = false
+
+        if self.name != name {
+            self.name = name
+            didChange = true
+        }
+
+        if self.currency != currency {
+            self.currency = currency
+            didChange = true
+        }
+
+        if let kind {
+            let previousGroupKind = groupKind
+            setGroupKind(kind)
+            if previousGroupKind != groupKind {
+                didChange = true
+            }
+        }
+
+        if didChange {
+            touch()
+        }
+    }
+
+    func touch(_ modifiedAt: Date = Date()) {
+        lastModifiedAt = modifiedAt
     }
 
     var isValid: Bool {

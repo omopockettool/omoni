@@ -515,12 +515,14 @@ final class AddItemListViewModel {
                     group: selectedGroup ?? toEdit.group
                 )
             case .itemizedList:
-                toEdit.itemListDescription = resolvedDescriptionForSave()
-                toEdit.setStructure(.itemizedList)
-                toEdit.date = date
-                toEdit.category = selectedCategory
-                toEdit.paymentMethod = selectedPaymentMethod
-                toEdit.group = selectedGroup ?? toEdit.group
+                toEdit.applyEdits(
+                    description: resolvedDescriptionForSave(),
+                    structure: .itemizedList,
+                    date: date,
+                    category: selectedCategory,
+                    paymentMethod: selectedPaymentMethod,
+                    group: selectedGroup ?? toEdit.group
+                )
                 try await updateItemListUseCase.execute(toEdit)
                 updatedItemList = toEdit
             }

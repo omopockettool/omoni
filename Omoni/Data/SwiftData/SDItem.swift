@@ -84,35 +84,85 @@ extension SDItem {
 }
 
 extension SDItem {
+    func applyEdits(description: String, amount: Double, quantity: Int) throws {
+        guard !description.isEmpty else {
+            throw ValidationError.emptyItemDescription
+        }
+
+        guard amount >= 0 else {
+            throw ValidationError.invalidAmount
+        }
+
+        guard ValidationHelper.isValidItemQuantity(quantity) else {
+            throw ValidationError.invalidQuantity
+        }
+
+        var didChange = false
+
+        if itemDescription != description {
+            itemDescription = description
+            didChange = true
+        }
+
+        if self.amount != amount {
+            self.amount = amount
+            didChange = true
+        }
+
+        if self.quantity != quantity {
+            self.quantity = quantity
+            didChange = true
+        }
+
+        if didChange {
+            touch()
+        }
+    }
+
+    func touch(_ modifiedAt: Date = Date()) {
+        lastModifiedAt = modifiedAt
+    }
+
     func togglePaid() {
-        isPaid.toggle()
-        lastModifiedAt = Date()
+        setPaidStatus(!isPaid)
     }
     
     func markAsPaid() {
-        isPaid = true
-        lastModifiedAt = Date()
+        setPaidStatus(true)
     }
     
     func markAsUnpaid() {
-        isPaid = false
-        lastModifiedAt = Date()
+        setPaidStatus(false)
+    }
+
+    func setPaidStatus(_ isPaid: Bool, modifiedAt: Date = Date()) {
+        guard self.isPaid != isPaid else { return }
+        self.isPaid = isPaid
+        lastModifiedAt = modifiedAt
+    }
+
+    func restorePaidStatus(_ isPaid: Bool, lastModifiedAt: Date?) {
+        guard self.isPaid != isPaid || self.lastModifiedAt != lastModifiedAt else { return }
+        self.isPaid = isPaid
+        self.lastModifiedAt = lastModifiedAt
     }
     
     func updateQuantity(to newQuantity: Int) throws {
         guard ValidationHelper.isValidItemQuantity(newQuantity) else {
             throw ValidationError.invalidQuantity
         }
+        guard quantity != newQuantity else { return }
         quantity = newQuantity
-        lastModifiedAt = Date()
+        touch()
     }
     
     func updateAmount(to newAmount: Double) throws {
         guard newAmount > 0 else {
             throw ValidationError.invalidAmount
         }
+        guard amount != newAmount else { return }
         amount = newAmount
-        lastModifiedAt = Date()
+        touch()
     }
 }
 

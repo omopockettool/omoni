@@ -41,6 +41,49 @@ final class SDPaymentMethod {
 extension SDPaymentMethod: Identifiable {}
 
 extension SDPaymentMethod {
+    func applyEdits(
+        name: String,
+        type: String,
+        icon: String,
+        color: String,
+        isActive: Bool
+    ) {
+        var didChange = false
+
+        if self.name != name {
+            self.name = name
+            didChange = true
+        }
+
+        if self.type != type {
+            self.type = type
+            didChange = true
+        }
+
+        if self.icon != icon {
+            self.icon = icon
+            didChange = true
+        }
+
+        if self.color != color {
+            self.color = color
+            didChange = true
+        }
+
+        if self.isActive != isActive {
+            self.isActive = isActive
+            didChange = true
+        }
+
+        if didChange {
+            touch()
+        }
+    }
+
+    func touch(_ modifiedAt: Date = Date()) {
+        lastModifiedAt = modifiedAt
+    }
+
     var isValid: Bool {
         !name.isEmpty
     }

@@ -30,7 +30,10 @@ final class DefaultPaymentMethodRepository: PaymentMethodRepository {
         if let groupId {
             let targetId = groupId
             let descriptor = FetchDescriptor<SDGroup>(predicate: #Predicate { $0.id == targetId })
-            pm.group = try context.fetch(descriptor).first
+            guard let group = try context.fetch(descriptor).first else {
+                throw RepositoryError.notFound
+            }
+            pm.group = group
         }
         context.insert(pm)
         do {
@@ -43,7 +46,8 @@ final class DefaultPaymentMethodRepository: PaymentMethodRepository {
     }
 
     func updatePaymentMethod(_ paymentMethod: SDPaymentMethod) async throws {
-        paymentMethod.lastModifiedAt = Date()
+        guard context.hasChanges else { return }
+        paymentMethod.touch()
         do {
             try context.save()
         } catch {

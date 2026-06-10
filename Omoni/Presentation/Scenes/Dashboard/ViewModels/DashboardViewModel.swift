@@ -714,10 +714,20 @@ class DashboardViewModel {
         itemCount: Int
     ) {
         let paidStatus: ItemListPaidStatus = isPaid ? .all : .none
+        let modifiedAt = Date()
 
         withAnimation(AnimationHelper.quickSpring) {
-            itemList.lastModifiedAt = Date()
-            items.forEach { $0.isPaid = isPaid }
+            var didChange = false
+            items.forEach {
+                let previousStatus = $0.isPaid
+                $0.setPaidStatus(isPaid, modifiedAt: modifiedAt)
+                if previousStatus != $0.isPaid {
+                    didChange = true
+                }
+            }
+            if didChange {
+                itemList.touch(modifiedAt)
+            }
             applyOptimisticTotals(
                 for: itemList,
                 items: items,
@@ -766,7 +776,7 @@ class DashboardViewModel {
         var allSucceeded = true
 
         for state in snapshot {
-            currentItems.first { $0.id == state.id }?.isPaid = state.isPaid
+            currentItems.first { $0.id == state.id }?.setPaidStatus(state.isPaid)
             do {
                 try await toggleItemPaidUseCase.execute(itemId: state.id, isPaid: state.isPaid)
             } catch {
@@ -774,7 +784,7 @@ class DashboardViewModel {
             }
         }
 
-        itemList.lastModifiedAt = Date()
+        itemList.touch()
         let restoredStatus = paidStatus(from: snapshot)
         let restoredItemCount = currentItems.reduce(0) { $0 + $1.quantity }
         withAnimation(AnimationHelper.quickSpring) {

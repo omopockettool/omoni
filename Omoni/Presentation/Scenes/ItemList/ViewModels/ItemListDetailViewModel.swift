@@ -140,15 +140,13 @@ class ItemListDetailViewModel {
         let newIsPaid = !item.isPaid
         let previousLastModifiedAt = item.lastModifiedAt
         withAnimation(AnimationHelper.quickSpring) {
-            item.isPaid = newIsPaid
-            item.lastModifiedAt = Date()
+            item.setPaidStatus(newIsPaid)
         }
         do {
             try await toggleItemPaidUseCase.execute(itemId: item.id, isPaid: newIsPaid)
         } catch {
             withAnimation(AnimationHelper.quickSpring) {
-                item.isPaid = !newIsPaid
-                item.lastModifiedAt = previousLastModifiedAt
+                item.restorePaidStatus(!newIsPaid, lastModifiedAt: previousLastModifiedAt)
             }
         }
     }

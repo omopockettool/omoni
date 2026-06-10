@@ -30,9 +30,13 @@ import Foundation
 
         do {
             if let pm = methodToEdit {
-                pm.name = name
-                pm.type = type
-                pm.icon = icon
+                pm.applyEdits(
+                    name: name,
+                    type: type,
+                    icon: icon,
+                    color: pm.color,
+                    isActive: pm.isActive
+                )
                 try await updatePaymentMethodUseCase.execute(pm)
             } else {
                 _ = try await createPaymentMethodUseCase.execute(

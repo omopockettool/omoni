@@ -42,7 +42,10 @@ final class DefaultCategoryRepository: CategoryRepository {
         if let groupId {
             let targetId = groupId
             let descriptor = FetchDescriptor<SDGroup>(predicate: #Predicate { $0.id == targetId })
-            category.group = try context.fetch(descriptor).first
+            guard let group = try context.fetch(descriptor).first else {
+                throw RepositoryError.notFound
+            }
+            category.group = group
         }
         context.insert(category)
         do {
@@ -55,7 +58,8 @@ final class DefaultCategoryRepository: CategoryRepository {
     }
 
     func updateCategory(_ category: SDCategory) async throws {
-        category.lastModifiedAt = Date()
+        guard context.hasChanges else { return }
+        category.touch()
         do {
             try context.save()
         } catch {

@@ -76,7 +76,59 @@ extension SDItemList {
     }
 
     func setStructure(_ structure: ItemListStructure) {
-        isList = (structure == .itemizedList)
+        let targetIsList = (structure == .itemizedList)
+        guard isList != targetIsList else { return }
+        isList = targetIsList
+    }
+
+    func applyEdits(
+        description: String,
+        structure: ItemListStructure,
+        date: Date,
+        category: SDCategory?,
+        paymentMethod: SDPaymentMethod?,
+        group: SDGroup?
+    ) {
+        var didChange = false
+
+        if itemListDescription != description {
+            itemListDescription = description
+            didChange = true
+        }
+
+        let previousIsList = isList
+        setStructure(structure)
+        if previousIsList != isList {
+            didChange = true
+        }
+
+        if self.date != date {
+            self.date = date
+            didChange = true
+        }
+
+        if self.category?.id != category?.id {
+            self.category = category
+            didChange = true
+        }
+
+        if self.paymentMethod?.id != paymentMethod?.id {
+            self.paymentMethod = paymentMethod
+            didChange = true
+        }
+
+        if self.group?.id != group?.id {
+            self.group = group
+            didChange = true
+        }
+
+        if didChange {
+            touch()
+        }
+    }
+
+    func touch(_ modifiedAt: Date = Date()) {
+        lastModifiedAt = modifiedAt
     }
 
     var totalAmount: Double {
@@ -157,19 +209,31 @@ extension SDItemList {
 
 extension SDItemList {
     func toggleAllItemsPaid(to isPaid: Bool) {
-        items.forEach { $0.isPaid = isPaid }
-        lastModifiedAt = Date()
+        let modifiedAt = Date()
+        var didChange = false
+
+        items.forEach {
+            let previousValue = $0.isPaid
+            $0.setPaidStatus(isPaid, modifiedAt: modifiedAt)
+            if previousValue != $0.isPaid {
+                didChange = true
+            }
+        }
+
+        if didChange {
+            lastModifiedAt = modifiedAt
+        }
     }
     
     func addItem(_ item: SDItem) {
         items.append(item)
         item.itemList = self
-        lastModifiedAt = Date()
+        touch()
     }
     
     func removeItem(_ item: SDItem) {
         items.removeAll { $0.id == item.id }
-        lastModifiedAt = Date()
+        touch()
     }
 }
 
