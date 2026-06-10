@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.55.1] - 2026-06-10
+
+### Fixed
+- **Check toggle no longer causes the row to slide sideways in the item list** (`ItemListDetailViewModel`, `StatusFramedRow`) — removing the ambient `withAnimation` that was propagating into SwiftUI's `List` layer and triggering an unintended UITableView reload animation. The status button (icon + background) and border now use explicit value-driven animations, keeping the animation correctly scoped to those elements without affecting row layout.
+
 ## [2.55.0] - 2026-06-10
 
 ### Added

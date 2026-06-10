@@ -78,6 +78,7 @@ struct StatusFramedRow<Content: View>: View {
         .overlay {
             cardShape
                 .stroke(tone.borderColor, lineWidth: 1)
+                .animation(AnimationHelper.quickSpring, value: tone)
         }
         .contentShape(cardShape)
         .onTapGesture(perform: onTap)
