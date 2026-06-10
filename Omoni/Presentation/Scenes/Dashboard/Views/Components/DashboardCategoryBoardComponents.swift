@@ -189,7 +189,7 @@ private struct DashboardAllCategoryBoxView: View {
             }
             .overlay {
                 RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius, style: .continuous)
-                    .stroke(Color.black.opacity(0.08), lineWidth: 1)
+                    .stroke(Color.black.opacity(0.18), lineWidth: DashboardCategoryBoxBorderMetrics.lineWidth)
             }
         }
         .buttonStyle(PressHapticButtonStyle())
@@ -273,6 +273,10 @@ private enum DashboardCategoryBoxGridLayout {
 private enum DashboardCategoryBoxDisplayStyle: Equatable {
     case hero
     case standard
+}
+
+private enum DashboardCategoryBoxBorderMetrics {
+    static let lineWidth: CGFloat = 1.35
 }
 
 private struct DashboardCategoryBoxView: View {
@@ -363,7 +367,15 @@ private struct DashboardCategoryBoxView: View {
     }
 
     private var overLimitStrokeColor: Color {
-        .orange.opacity(displayStyle == .hero ? 0.46 : 0.34)
+        .orange.opacity(displayStyle == .hero ? 0.82 : 0.76)
+    }
+
+    private var baseStrokeColor: Color {
+        if hasLimit {
+            return Color.black.opacity(displayStyle == .hero ? 0.24 : 0.2)
+        } else {
+            return Color.black.opacity(displayStyle == .hero ? 0.2 : 0.17)
+        }
     }
 
     var body: some View {
@@ -437,13 +449,16 @@ private struct DashboardCategoryBoxView: View {
             }
             .overlay {
                 ZStack {
-                    if isOverLimit {
-                        RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius, style: .continuous)
-                            .stroke(overLimitStrokeColor, lineWidth: 1.2)
-                    }
-
                     RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius, style: .continuous)
                         .fill(flashColor)
+
+                    RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius, style: .continuous)
+                        .stroke(baseStrokeColor, lineWidth: DashboardCategoryBoxBorderMetrics.lineWidth)
+
+                    if isOverLimit {
+                        RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius, style: .continuous)
+                            .stroke(overLimitStrokeColor, lineWidth: DashboardCategoryBoxBorderMetrics.lineWidth)
+                    }
                 }
                 .allowsHitTesting(false)
             }
