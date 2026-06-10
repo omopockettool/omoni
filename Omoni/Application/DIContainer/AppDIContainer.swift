@@ -89,6 +89,9 @@ final class AppDIContainer {
     func makeToggleItemPaidUseCase() -> ToggleItemPaidUseCase {
         DefaultToggleItemPaidUseCase(itemRepository: itemRepository)
     }
+    func makeFetchItemSuggestionsUseCase() -> FetchItemSuggestionsUseCase {
+        DefaultFetchItemSuggestionsUseCase(itemRepository: itemRepository)
+    }
 
     // MARK: - Category Use Cases
 

@@ -101,6 +101,8 @@ struct ItemListDetailView: View {
             case .create:
                 AddItemView(
                     itemListId: itemList.id,
+                    groupId: group.id,
+                    categoryId: itemList.category?.id,
                     itemToEdit: nil,
                     itemListDescription: itemList.itemListDescription,
                     currencyCode: currencyCode,
@@ -111,11 +113,14 @@ struct ItemListDetailView: View {
                         }
                     },
                     createItemUseCase: container.makeCreateItemUseCase(),
-                    updateItemUseCase: container.makeUpdateItemUseCase()
+                    updateItemUseCase: container.makeUpdateItemUseCase(),
+                    fetchItemSuggestionsUseCase: container.makeFetchItemSuggestionsUseCase()
                 )
             case .edit(let item):
                 AddItemView(
                     itemListId: itemList.id,
+                    groupId: group.id,
+                    categoryId: itemList.category?.id,
                     itemToEdit: item,
                     itemListDescription: itemList.itemListDescription,
                     currencyCode: currencyCode,
@@ -126,7 +131,8 @@ struct ItemListDetailView: View {
                         }
                     },
                     createItemUseCase: container.makeCreateItemUseCase(),
-                    updateItemUseCase: container.makeUpdateItemUseCase()
+                    updateItemUseCase: container.makeUpdateItemUseCase(),
+                    fetchItemSuggestionsUseCase: container.makeFetchItemSuggestionsUseCase()
                 )
             case .editRegistry:
                 NavigationStack {

@@ -18,6 +18,46 @@ final class DefaultItemRepository: ItemRepository {
         return try context.fetch(descriptor)
     }
 
+    func fetchItems(forCategoryId categoryId: UUID) async throws -> [SDItem] {
+        let targetId = categoryId
+        let listDescriptor = FetchDescriptor<SDItemList>(
+            predicate: #Predicate { $0.category?.id == targetId }
+        )
+        let itemLists = try context.fetch(listDescriptor)
+        let itemListIds = Set(itemLists.map(\.id))
+        guard !itemListIds.isEmpty else { return [] }
+
+        let itemDescriptor = FetchDescriptor<SDItem>(
+            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+        )
+        let allItems = try context.fetch(itemDescriptor)
+        return allItems.filter { item in
+            guard let listId = item.itemList?.id else { return false }
+            return itemListIds.contains(listId)
+        }
+    }
+
+    func fetchItems(forGroupId groupId: UUID) async throws -> [SDItem] {
+        let targetId = groupId
+        // Two-hop optional predicates (itemList?.group?.id) are not supported by SwiftData.
+        // Resolve in two steps: one-hop fetch of item lists, then in-memory filter on items.
+        let listDescriptor = FetchDescriptor<SDItemList>(
+            predicate: #Predicate { $0.group?.id == targetId }
+        )
+        let itemLists = try context.fetch(listDescriptor)
+        let itemListIds = Set(itemLists.map(\.id))
+        guard !itemListIds.isEmpty else { return [] }
+
+        let itemDescriptor = FetchDescriptor<SDItem>(
+            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+        )
+        let allItems = try context.fetch(itemDescriptor)
+        return allItems.filter { item in
+            guard let listId = item.itemList?.id else { return false }
+            return itemListIds.contains(listId)
+        }
+    }
+
     func createItem(
         description: String,
         amount: Decimal,

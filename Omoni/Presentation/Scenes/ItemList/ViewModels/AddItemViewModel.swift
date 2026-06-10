@@ -17,13 +17,19 @@ final class AddItemViewModel {
     var isSaving = false
     var errorMessage: String?
     var showError = false
+    var suggestions: [ItemSuggestion] = []
 
     // MARK: - Dependencies
     private let itemListId: UUID
+    private let groupId: UUID
+    private let categoryId: UUID?
     private let itemToEdit: SDItem?
     private let itemListDescription: String
     private let createItemUseCase: CreateItemUseCase
     private let updateItemUseCase: UpdateItemUseCase
+    private let fetchItemSuggestionsUseCase: FetchItemSuggestionsUseCase
+    private var suggestionTask: Task<Void, Never>?
+    private var suppressNextSuggestionLoad = false
 
     // MARK: - Computed Properties
     var isEditMode: Bool { itemToEdit != nil }
@@ -57,22 +63,63 @@ final class AddItemViewModel {
     // MARK: - Initialization
     init(
         itemListId: UUID,
+        groupId: UUID,
+        categoryId: UUID?,
         itemToEdit: SDItem? = nil,
         itemListDescription: String,
         createItemUseCase: CreateItemUseCase,
-        updateItemUseCase: UpdateItemUseCase
+        updateItemUseCase: UpdateItemUseCase,
+        fetchItemSuggestionsUseCase: FetchItemSuggestionsUseCase
     ) {
         self.itemListId = itemListId
+        self.groupId = groupId
+        self.categoryId = categoryId
         self.itemToEdit = itemToEdit
         self.itemListDescription = itemListDescription
         self.createItemUseCase = createItemUseCase
         self.updateItemUseCase = updateItemUseCase
+        self.fetchItemSuggestionsUseCase = fetchItemSuggestionsUseCase
 
         if let item = itemToEdit {
             self.description = item.itemDescription
             self.amount = item.amount == 0 ? "" : String(format: "%.2f", item.amount).replacingOccurrences(of: "\\.?0+$", with: "", options: .regularExpression)
             self.quantity = String(item.quantity)
         }
+    }
+
+    // MARK: - Suggestions
+
+    func loadSuggestions(for query: String) {
+        if suppressNextSuggestionLoad {
+            suppressNextSuggestionLoad = false
+            return
+        }
+        suggestionTask?.cancel()
+        guard query.count >= 2, !isEditMode else {
+            suggestions = []
+            return
+        }
+        suggestionTask = Task {
+            try? await Task.sleep(for: .milliseconds(250))
+            guard !Task.isCancelled else { return }
+            suggestions = await fetchItemSuggestionsUseCase.execute(query: query, categoryId: categoryId, groupId: groupId)
+        }
+    }
+
+    func applySuggestion(_ suggestion: ItemSuggestion) {
+        suppressNextSuggestionLoad = true
+        description = suggestion.description
+        let formatted = suggestion.amount == 0
+            ? ""
+            : String(format: "%.2f", suggestion.amount)
+                .replacingOccurrences(of: "\\.?0+$", with: "", options: .regularExpression)
+        amount = formatted
+        suggestions = []
+    }
+
+    func clearSuggestions() {
+        suggestionTask?.cancel()
+        suggestions = []
     }
 
     // MARK: - Public Methods

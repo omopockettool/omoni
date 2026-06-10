@@ -23,22 +23,28 @@ struct AddItemView: View {
 
     init(
         itemListId: UUID,
+        groupId: UUID,
+        categoryId: UUID?,
         itemToEdit: SDItem? = nil,
         itemListDescription: String,
         currencyCode: String = "EUR",
         onItemSaved: @escaping (SDItem) -> Void,
         createItemUseCase: CreateItemUseCase,
-        updateItemUseCase: UpdateItemUseCase
+        updateItemUseCase: UpdateItemUseCase,
+        fetchItemSuggestionsUseCase: FetchItemSuggestionsUseCase
     ) {
         self.onItemSaved = onItemSaved
         self.currencyCode = currencyCode
         self.itemListDescription = itemListDescription
         self._viewModel = State(wrappedValue: AddItemViewModel(
             itemListId: itemListId,
+            groupId: groupId,
+            categoryId: categoryId,
             itemToEdit: itemToEdit,
             itemListDescription: itemListDescription,
             createItemUseCase: createItemUseCase,
-            updateItemUseCase: updateItemUseCase
+            updateItemUseCase: updateItemUseCase,
+            fetchItemSuggestionsUseCase: fetchItemSuggestionsUseCase
         ))
     }
 
@@ -68,8 +74,12 @@ struct AddItemView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
-                    heroAmountInput
                     descriptionCard
+                    if !viewModel.suggestions.isEmpty && focusedField == .description {
+                        suggestionsStrip
+                            .transition(.opacity.combined(with: .move(edge: .top)))
+                    }
+                    heroAmountInput
                     quantityStepper
                     if viewModel.showsTotalPreview {
                         subtotalCard
@@ -77,6 +87,7 @@ struct AddItemView: View {
                 }
                 .padding(AppConstants.UserInterface.padding)
                 .padding(.bottom, 8)
+                .animation(AnimationHelper.quickEase, value: viewModel.suggestions.isEmpty)
             }
             .background(Color(.systemGroupedBackground))
             .navigationTitle(viewModel.isEditMode ? LocalizationKey.Item.editItem.localized : LocalizationKey.Item.newItem.localized)
@@ -92,8 +103,15 @@ struct AddItemView: View {
                 selectedDetent = viewModel.showsTotalPreview ? subtotalDetent : compactDetent
             }
             .onChange(of: focusedField) { oldValue, newValue in
-                guard oldValue == .quantity, newValue != .quantity else { return }
-                viewModel.normalizeQuantityInputAfterEditing()
+                if oldValue == .quantity, newValue != .quantity {
+                    viewModel.normalizeQuantityInputAfterEditing()
+                }
+                if oldValue == .description, newValue != .description {
+                    viewModel.clearSuggestions()
+                }
+            }
+            .onChange(of: viewModel.description) { _, newValue in
+                viewModel.loadSuggestions(for: newValue)
             }
             .onChange(of: viewModel.showsTotalPreview) { _, showsPreview in
                 withAnimation(AnimationHelper.quickSpring) {
@@ -137,7 +155,7 @@ struct AddItemView: View {
 
     private var canMoveFocusBackward: Bool {
         switch focusedField {
-        case .description, .quantity:
+        case .amount, .quantity:
             return true
         default:
             return false
@@ -146,7 +164,7 @@ struct AddItemView: View {
 
     private var canMoveFocusForward: Bool {
         switch focusedField {
-        case .amount, .description:
+        case .description, .amount:
             return true
         default:
             return false
@@ -155,10 +173,10 @@ struct AddItemView: View {
 
     private func moveFocusBackward() {
         switch focusedField {
-        case .description:
-            focusedField = .amount
-        case .quantity:
+        case .amount:
             focusedField = .description
+        case .quantity:
+            focusedField = .amount
         default:
             break
         }
@@ -166,9 +184,9 @@ struct AddItemView: View {
 
     private func moveFocusForward() {
         switch focusedField {
-        case .amount:
-            focusedField = .description
         case .description:
+            focusedField = .amount
+        case .amount:
             focusedField = .quantity
         default:
             break
@@ -198,6 +216,59 @@ struct AddItemView: View {
             fieldValue: .description
         )
     }
+
+    // MARK: - Suggestions Strip
+
+    private var suggestionsStrip: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(viewModel.suggestions) { suggestion in
+                    suggestionChip(suggestion)
+                }
+            }
+            .padding(.horizontal, AppConstants.UserInterface.padding)
+            .padding(.vertical, 2)
+        }
+    }
+
+    private func suggestionChip(_ suggestion: ItemSuggestion) -> some View {
+        Button {
+            viewModel.applySuggestion(suggestion)
+        } label: {
+            HStack(spacing: 4) {
+                Text(suggestion.description)
+                    .font(.caption.weight(.medium))
+                    .lineLimit(1)
+
+                if suggestion.amount > 0 {
+                    Text("·")
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
+                    Text(formattedChipAmount(suggestion.amount))
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .monospacedDigit()
+                }
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(Color(.secondarySystemGroupedBackground))
+            .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
+            .overlay(
+                RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius)
+                    .stroke(Color(.systemGray5), lineWidth: 1)
+            )
+        }
+        .buttonStyle(PressHapticButtonStyle())
+    }
+
+    private func formattedChipAmount(_ amount: Double) -> String {
+        let formatted = String(format: "%.2f", amount)
+            .replacingOccurrences(of: "\\.?0+$", with: "", options: .regularExpression)
+        return formatted + " " + currencySymbol
+    }
+
+    // MARK: - Quantity
 
     private var quantityBinding: Binding<Int> {
         Binding(

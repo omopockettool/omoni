@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.54.0] - 2026-06-10
+
+### Added
+- **Item suggestion chips now appear in the add-item form when typing a description** (`FetchItemSuggestionsUseCase`, `ItemSuggestion`, `AddItemViewModel`, `AddItemView`, `ItemListDetailView`, `DefaultItemRepository`, `AppDIContainer`) — as the user types at least two characters in the description field, a horizontal strip of chips surfaces items previously created in the same category (falling back to the same group when the list has no category). Tapping a chip fills in the description and last recorded price. Suggestions are suppressed in edit mode, cleared on focus loss, debounced at 250 ms, capped at five results, and sorted by frequency of past use. The description field is now the first input in the form, placing the suggestion strip immediately below where the user types.
+
+### Fixed
+- **Item suggestion chips no longer reappear immediately after tapping one** (`AddItemViewModel`) — applying a suggestion now suppresses the next suggestion load triggered by the programmatic description change, preventing the strip from flickering back into view.
+
 ## [2.53.0] - 2026-06-10
 
 ### Changed
