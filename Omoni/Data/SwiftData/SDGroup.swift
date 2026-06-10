@@ -1,11 +1,19 @@
 import Foundation
 import SwiftData
 
+enum SDGroupKind: String, Codable, CaseIterable {
+    case expense
+    case income
+}
+
 @Model
 final class SDGroup {
     @Attribute(.unique) var id: UUID
     var name: String
     var currency: String
+    /// Persisted optional during the first rollout so older backups and pre-UI records stay compatible.
+    /// `nil` is treated as `.expense` until the UI exposes this field.
+    var groupKind: String?
     var createdAt: Date
     var lastModifiedAt: Date?
     
@@ -25,12 +33,14 @@ final class SDGroup {
         id: UUID = UUID(),
         name: String,
         currency: String = "USD",
+        groupKind: String? = nil,
         createdAt: Date = Date(),
         lastModifiedAt: Date? = nil
     ) {
         self.id = id
         self.name = name
         self.currency = currency
+        self.groupKind = groupKind
         self.createdAt = createdAt
         self.lastModifiedAt = lastModifiedAt
     }
@@ -39,6 +49,17 @@ final class SDGroup {
 extension SDGroup: Identifiable {}
 
 extension SDGroup {
+    var resolvedGroupKind: SDGroupKind {
+        guard let groupKind, let resolved = SDGroupKind(rawValue: groupKind) else {
+            return .expense
+        }
+        return resolved
+    }
+
+    func setGroupKind(_ kind: SDGroupKind) {
+        groupKind = kind.rawValue
+    }
+
     var isValid: Bool {
         !name.isEmpty && !currency.isEmpty
     }
@@ -75,6 +96,7 @@ extension SDGroup {
         id: UUID = UUID(),
         name: String = "My Group",
         currency: String = "USD",
+        groupKind: String? = SDGroupKind.expense.rawValue,
         createdAt: Date = Date(),
         lastModifiedAt: Date? = nil
     ) -> SDGroup {
@@ -82,6 +104,7 @@ extension SDGroup {
             id: id,
             name: name,
             currency: currency,
+            groupKind: groupKind,
             createdAt: createdAt,
             lastModifiedAt: lastModifiedAt
         )

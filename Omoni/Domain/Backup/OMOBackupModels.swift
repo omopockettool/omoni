@@ -15,8 +15,8 @@ struct OMOBackupEnvelope: Codable {
     let itemLists: [OMOBackupItemListRecord]
     let items: [OMOBackupItemRecord]
 
-    static let currentSchemaVersion = 2
-    static let supportedSchemaVersions: Set<Int> = [1, 2]
+    static let currentSchemaVersion = 3
+    static let supportedSchemaVersions: Set<Int> = [1, 2, 3]
 }
 
 struct OMOBackupStatistics: Codable {
@@ -45,6 +45,7 @@ struct OMOBackupGroupRecord: Codable {
     let id: UUID
     let name: String
     let currency: String
+    let groupKind: String?
     let createdAt: Date
     let lastModifiedAt: Date?
 }

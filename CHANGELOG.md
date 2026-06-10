@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.51.0] - 2026-06-10
+
+### Added
+- **Groups now support a persisted financial lane type for future expense/income flows** (`SDGroup`, `DefaultGroupRepository`, `OMOBackupModels`, `DefaultBackupRepository`) — introduced optional stored `groupKind` with current values `expense` and `income`, while preserving compatibility with older records and backups that do not include the field yet.
+
+### Changed
+- **SwiftData versioning now uses a real frozen historical schema plus a live current schema** (`OmoniSchema`, `ModelContainer+Shared`, `SWIFTDATA_MIGRATION_GUIDE`, `production-migration-playbook`) — `SchemaV1` is now treated as an immutable snapshot and `SchemaV2` as the live app schema, giving the project a valid path for post-launch store evolution instead of versioning-by-name only.
+- **Backup compatibility coverage is now explicit for legacy payloads missing `groupKind`** (`BackupRepositoryCompatibilityTests`, `SwiftDataTestContainer`) — importing an older backup keeps the stored value absent when appropriate, resolves it safely as `expense` at runtime, and exports the normalized current shape on the next backup.
+- **Shared Xcode test scheme now runs only unit tests serially by default** (`Omoni.xcscheme`) — `Cmd+U` no longer includes UI tests and no longer marks test bundles as parallelizable, reducing the cloned-simulator load during local validation.
+
 ## [2.50.0] - 2026-06-10
 
 ### Changed

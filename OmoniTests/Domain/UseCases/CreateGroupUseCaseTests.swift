@@ -35,6 +35,12 @@ final class CreateGroupUseCaseTests: XCTestCase {
         XCTAssertEqual(group.currency, "EUR")
     }
 
+    func testCreateGroup_DefaultsGroupKindToExpense() async throws {
+        let group = try await useCase.execute(name: "Personal", currency: "EUR")
+        XCTAssertEqual(group.groupKind, SDGroupKind.expense.rawValue)
+        XCTAssertEqual(group.resolvedGroupKind, .expense)
+    }
+
     // MARK: - Validation
 
     func testCreateGroup_EmptyName_ThrowsEmptyGroupName() async {

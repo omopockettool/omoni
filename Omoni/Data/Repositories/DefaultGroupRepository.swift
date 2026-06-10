@@ -17,6 +17,7 @@ final class DefaultGroupRepository: GroupRepository {
 
     func createGroup(name: String, currency: String) async throws -> SDGroup {
         let group = SDGroup(name: name, currency: currency)
+        group.setGroupKind(.expense)
         context.insert(group)
 
         let defaultPaymentMethods: [(String, String, String, String)] = [

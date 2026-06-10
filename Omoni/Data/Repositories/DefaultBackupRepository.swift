@@ -33,6 +33,7 @@ final class DefaultBackupRepository: BackupRepository {
                 id: $0.id,
                 name: $0.name,
                 currency: $0.currency,
+                groupKind: $0.resolvedGroupKind.rawValue,
                 createdAt: $0.createdAt,
                 lastModifiedAt: $0.lastModifiedAt
             )
@@ -158,6 +159,7 @@ final class DefaultBackupRepository: BackupRepository {
                 id: record.id,
                 name: record.name,
                 currency: record.currency,
+                groupKind: record.groupKind.flatMap { SDGroupKind(rawValue: $0)?.rawValue },
                 createdAt: record.createdAt,
                 lastModifiedAt: record.lastModifiedAt
             )

@@ -10,7 +10,8 @@ It exists to prevent accidental store breakage before and after production launc
 
 OMONI now uses:
 
-- `SchemaV1` as the baseline production schema
+- `SchemaV1` as a frozen historical snapshot
+- `SchemaV2` as the current live app schema
 - `OmoniMigrationPlan` as the migration entry point
 - `ModelContainer` initialized with both the schema and the migration plan
 
@@ -46,7 +47,7 @@ Examples of persisted changes:
 
 ### 1. Add a New Schema Version
 
-Create `SchemaV2`, `SchemaV3`, and so on in `OmoniSchema.swift`.
+Create the next schema version (`SchemaV3`, `SchemaV4`, and so on) in `OmoniSchema.swift`.
 
 ### 2. Update the Migration Plan
 
@@ -97,14 +98,25 @@ Examples:
 
 ## Important Limitation
 
-`SchemaV1` currently points at the live model classes.
+Historical schemas must not point at the live model classes forever.
 
-That is fine as the preproduction baseline, but future migrations should be treated carefully. Once production data exists, historical schema versions should represent the old persisted shape intentionally and not drift casually with unrelated edits.
+Once production data exists, historical schema versions should represent the old persisted shape intentionally and not drift casually with unrelated edits.
 
 In other words:
 
-- `V1` is now a baseline
-- `V2+` changes should be deliberate
+- `V1`, `V2`, and later versions are snapshots
+- only the newest live schema should point at the current global `SD*` models
+
+## What "Frozen Schema" Means In OMONI
+
+For an old schema version:
+
+- Keep the old stored fields exactly as they were
+- Keep the old relationships exactly as they were
+- Use version-scoped `@Model` types inside the schema snapshot
+- Do not keep historical versions pointing at the same live `SD*` classes
+
+If two schema versions point at the same live model shape, SwiftData can detect duplicate checksums and the migration plan is not real.
 
 ## Practical Rule For OMONI
 
@@ -139,8 +151,21 @@ Usually requires schema review:
 3. Create the new schema version
 4. Add the migration stage
 5. Update backup if needed
-6. Keep view logic out of migration logic
-7. Validate manually on device before release
+6. Add or update compatibility tests for store/backup behavior
+7. Keep view logic out of migration logic
+8. Validate manually on device before release
+
+## Required Tests Before Release
+
+For every persisted change after launch, cover at least:
+
+- A compatibility test for old backup payloads if the backup shape changed
+- A migration test or fixture plan for opening older stores with the new schema
+- A regression test for any new default/fallback behavior introduced by the migration
+
+## Operational Playbook
+
+See `docs/production-migration-playbook.md` for the release-oriented checklist the team should follow once public data exists.
 
 ## Decision
 
