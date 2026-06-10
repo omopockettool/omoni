@@ -34,6 +34,7 @@ struct DashboardTopBarView: View {
                 .labelsHidden()
                 .frame(maxWidth: 220)
                 .animation(AnimationHelper.quickSpring, value: showingFullMonth)
+                .sensoryFeedback(.selection, trigger: showingFullMonth)
             }
 
             Spacer()

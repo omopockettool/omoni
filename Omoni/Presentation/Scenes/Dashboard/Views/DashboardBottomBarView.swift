@@ -246,6 +246,8 @@ private struct DashboardSelectedScopeChip: View {
     let colorHex: String?
     let onTap: () -> Void
 
+    @State private var hapticTrigger = false
+
     private var hasCategoryTint: Bool {
         colorHex != nil
     }
@@ -264,7 +266,10 @@ private struct DashboardSelectedScopeChip: View {
     }
 
     var body: some View {
-        Button(action: onTap) {
+        Button {
+            hapticTrigger.toggle()
+            onTap()
+        } label: {
             HStack(spacing: 6) {
                 if let iconName {
                     Image(systemName: iconName)
@@ -297,5 +302,6 @@ private struct DashboardSelectedScopeChip: View {
             .contentShape(Capsule())
         }
         .buttonStyle(.plain)
+        .sensoryFeedback(.selection, trigger: hapticTrigger)
     }
 }
