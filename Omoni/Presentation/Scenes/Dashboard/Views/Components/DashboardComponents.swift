@@ -220,11 +220,9 @@ struct DashboardTopChromeView: View {
 
 struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
     let allFormattedAmount: String
-    let allFormattedUnpaidAmount: String?
     let categoryBoxes: [DashboardCategoryBoxData]
     let hasVisibleItemLists: Bool
     let getFormattedAmount: (DashboardCategoryBoxData) -> String
-    let getFormattedUnpaidAmount: (DashboardCategoryBoxData) -> String?
     // Date rows (intermediate level: category → days)
     let showsDateRows: Bool
     let dateRows: [DashboardDayBoxData]
@@ -287,11 +285,9 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
 
     init(
         allFormattedAmount: String,
-        allFormattedUnpaidAmount: String?,
         categoryBoxes: [DashboardCategoryBoxData],
         hasVisibleItemLists: Bool,
         getFormattedAmount: @escaping (DashboardCategoryBoxData) -> String,
-        getFormattedUnpaidAmount: @escaping (DashboardCategoryBoxData) -> String?,
         showsDateRows: Bool,
         dateRows: [DashboardDayBoxData],
         getDateRowAmount: @escaping (DashboardDayBoxData) -> String,
@@ -326,11 +322,9 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
         @ViewBuilder bottomInset: () -> BottomInset
     ) {
         self.allFormattedAmount = allFormattedAmount
-        self.allFormattedUnpaidAmount = allFormattedUnpaidAmount
         self.categoryBoxes = categoryBoxes
         self.hasVisibleItemLists = hasVisibleItemLists
         self.getFormattedAmount = getFormattedAmount
-        self.getFormattedUnpaidAmount = getFormattedUnpaidAmount
         self.showsDateRows = showsDateRows
         self.dateRows = dateRows
         self.getDateRowAmount = getDateRowAmount
@@ -418,9 +412,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
                         boxes: categoryBoxes,
                         hasVisibleItemLists: hasVisibleItemLists,
                         allFormattedAmount: allFormattedAmount,
-                        allFormattedUnpaidAmount: allFormattedUnpaidAmount,
                         getFormattedAmount: getFormattedAmount,
-                        getFormattedUnpaidAmount: getFormattedUnpaidAmount,
                         onRefresh: onRefresh,
                         customEmptyState: { customEmptyState },
                         showCustomEmptyState: showCustomEmptyState,

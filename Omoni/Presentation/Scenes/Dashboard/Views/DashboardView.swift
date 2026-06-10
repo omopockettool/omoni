@@ -302,11 +302,9 @@ struct DashboardView: View {
     private var mainContentView: some View {
         DashboardMainContent(
             allFormattedAmount: viewModel.formattedVisibleRangePaidTotal(showingFullMonth: viewModel.showingFullMonth),
-            allFormattedUnpaidAmount: viewModel.formattedVisibleRangeUnpaidTotal(showingFullMonth: viewModel.showingFullMonth),
             categoryBoxes: viewModel.visibleCategoryBoxes,
             hasVisibleItemLists: hasVisibleItemListsInSelectedRange,
             getFormattedAmount: { viewModel.formattedAmount(for: $0) },
-            getFormattedUnpaidAmount: { viewModel.formattedUnpaidAmount(for: $0) },
             showsDateRows: showsDateRows,
             dateRows: activeDateRows,
             getDateRowAmount: { viewModel.formattedCurrency($0.paidAmount) },

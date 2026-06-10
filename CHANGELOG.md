@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.53.0] - 2026-06-10
+
+### Changed
+- **Dashboard category board now uses a tighter hero-plus-grid layout with clearer budget emphasis** (`DashboardCategoryBoardComponents`, `DashboardComponents`, `DashboardView`, `Localizable.strings`) — the board now promotes only the top category as a full-width hero, packs the remaining categories into a more compact half-width mosaic, uses a calmer and more consistent `All` tile, and reserves warning emphasis for over-limit state instead of mixing it with per-category pending amounts. This makes the category overview feel more like a coherent scan-first dashboard and less like a loosely stacked list of uneven cards.
+
 ## [2.52.0] - 2026-06-10
 
 ### Changed

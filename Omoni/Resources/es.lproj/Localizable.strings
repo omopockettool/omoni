@@ -166,6 +166,7 @@
 "dashboard.undo" = "Deshacer";
 "dashboard.limitShort" = "Límite";
 "dashboard.expensesByCategory" = "Gastos por categoría";
+"dashboard.overLimit" = "Sobre límite";
 
 // MARK: - Entry (extended)
 "entry.newEntry" = "Nuevo Registro";
