@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.56.1] - 2026-06-10
+
+### Fixed
+- **Date chip in new-entry form no longer shows "Hoy" when a specific date was pre-selected** (`AddItemListComponents`, `AddItemListView`) — `dateLabel` now shows "Hoy" only when the picker is closed and the date is actually today; any other date always renders as a formatted string. `startsWithDatePicker` no longer requires edit mode to activate — any non-today date (including an `initialDate` passed from a day view) now starts with the chip correctly shown.
+
 ## [2.56.0] - 2026-06-10
 
 ### Added

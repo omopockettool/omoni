@@ -45,7 +45,7 @@ struct AddItemListView: View {
         )
         initialViewModel.configure(defaultGroup: group, availableGroups: availableGroups)
         let startsExpandedForEdit = initialViewModel.isEditMode
-        let startsWithDatePicker = startsExpandedForEdit && !Calendar.current.isDateInToday(initialViewModel.date)
+        let startsWithDatePicker = !Calendar.current.isDateInToday(initialViewModel.date)
         self._viewModel = State(
             wrappedValue: initialViewModel
         )

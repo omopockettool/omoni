@@ -596,9 +596,9 @@ struct AddItemListDateCard: View {
     let onToggleChanged: (Bool) -> Void
 
     private var dateLabel: String {
-        showDatePicker
-            ? formattedDate
-            : LocalizationKey.Dashboard.today.localized.capitalized
+        !showDatePicker && Calendar.current.isDateInToday(date)
+            ? LocalizationKey.Dashboard.today.localized.capitalized
+            : formattedDate
     }
 
     private var activeDateTint: Color {
