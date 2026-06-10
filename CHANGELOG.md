@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.55.0] - 2026-06-10
+
+### Added
+- **Quick Add sheet lets users add recurring items to a list with a single tap** (`FetchFrequentItemsUseCase`, `QuickAddItemsViewModel`, `QuickAddItemsView`, `ItemListDetailView`, `AppDIContainer`) — a clock icon in the item list toolbar opens a sheet showing the most relevant past items from the same category (falling back to the same group when no category is assigned). Each row shows description and last recorded price; tapping adds the item instantly and marks it with a checkmark so the sheet can stay open for multiple taps. Items are ranked by a recency-weighted frequency score (`frequency / (daysSinceLastPurchase + 1)`) so frequently bought and recently bought items surface first.
+
+### Changed
+- **Inline suggestion chips removed from the add-item form** (`AddItemViewModel`, `AddItemView`, `ItemListDetailView`, `AppDIContainer`) — the Quick Add sheet covers the history-based workflow more naturally and with less friction; the add-item form returns to its original focused state for entering new items. The description field remains the first input in the form.
+
 ## [2.54.0] - 2026-06-10
 
 ### Added

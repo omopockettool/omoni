@@ -19,12 +19,14 @@ struct ItemListDetailView: View {
         case create
         case edit(SDItem)
         case editRegistry
+        case quickAdd
 
         var id: String {
             switch self {
             case .create:       return "create"
             case .edit(let i):  return "edit-\(i.id)"
             case .editRegistry: return "editRegistry"
+            case .quickAdd:     return "quickAdd"
             }
         }
     }
@@ -78,6 +80,13 @@ struct ItemListDetailView: View {
                     Image(systemName: "square.and.pencil")
                 }
             }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    sheetMode = .quickAdd
+                } label: {
+                    Image(systemName: "clock.arrow.circlepath")
+                }
+            }
         }
         .task {
             await viewModel.loadItems()
@@ -101,8 +110,6 @@ struct ItemListDetailView: View {
             case .create:
                 AddItemView(
                     itemListId: itemList.id,
-                    groupId: group.id,
-                    categoryId: itemList.category?.id,
                     itemToEdit: nil,
                     itemListDescription: itemList.itemListDescription,
                     currencyCode: currencyCode,
@@ -113,14 +120,11 @@ struct ItemListDetailView: View {
                         }
                     },
                     createItemUseCase: container.makeCreateItemUseCase(),
-                    updateItemUseCase: container.makeUpdateItemUseCase(),
-                    fetchItemSuggestionsUseCase: container.makeFetchItemSuggestionsUseCase()
+                    updateItemUseCase: container.makeUpdateItemUseCase()
                 )
             case .edit(let item):
                 AddItemView(
                     itemListId: itemList.id,
-                    groupId: group.id,
-                    categoryId: itemList.category?.id,
                     itemToEdit: item,
                     itemListDescription: itemList.itemListDescription,
                     currencyCode: currencyCode,
@@ -131,8 +135,23 @@ struct ItemListDetailView: View {
                         }
                     },
                     createItemUseCase: container.makeCreateItemUseCase(),
-                    updateItemUseCase: container.makeUpdateItemUseCase(),
-                    fetchItemSuggestionsUseCase: container.makeFetchItemSuggestionsUseCase()
+                    updateItemUseCase: container.makeUpdateItemUseCase()
+                )
+            case .quickAdd:
+                let container = AppDIContainer.shared
+                QuickAddItemsView(
+                    itemListId: itemList.id,
+                    groupId: group.id,
+                    categoryId: itemList.category?.id,
+                    currencyCode: currencyCode,
+                    onItemAdded: { item in
+                        Task {
+                            await viewModel.addItem(item)
+                            hasPendingParentTotalsRefresh = true
+                        }
+                    },
+                    fetchFrequentItemsUseCase: container.makeFetchFrequentItemsUseCase(),
+                    createItemUseCase: container.makeCreateItemUseCase()
                 )
             case .editRegistry:
                 NavigationStack {
