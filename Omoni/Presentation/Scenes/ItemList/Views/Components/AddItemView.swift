@@ -213,6 +213,10 @@ struct AddItemView: View {
         )
     }
 
+    private var quantityTextFont: Font {
+        .subheadline.weight(.semibold)
+    }
+
     private var quantityStepper: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text(LocalizationKey.Item.quantity.localized)
@@ -222,11 +226,16 @@ struct AddItemView: View {
                 .padding(.horizontal, 4)
 
             HStack(spacing: 12) {
-                Image(systemName: "number")
-                    .foregroundStyle(.secondary)
-                    .frame(width: 20)
+                HStack(spacing: 12) {
+                    Image(systemName: "number")
+                        .foregroundStyle(.secondary)
+                        .frame(width: 20)
 
-                quantityInputDisplay
+                    quantityInputDisplay
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
+                .onTapGesture { focusedField = .quantity }
 
                 Stepper(
                     "",
@@ -243,30 +252,25 @@ struct AddItemView: View {
                 RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius)
                     .stroke(Color(.systemGray5), lineWidth: 1)
             )
-            .contentShape(Rectangle())
-            .onTapGesture { focusedField = .quantity }
         }
     }
 
     private var quantityInputDisplay: some View {
-        HStack(alignment: .lastTextBaseline, spacing: 2) {
+        ZStack(alignment: .leading) {
             Text(viewModel.quantity.isEmpty ? "1" : viewModel.quantity)
-                .font(.subheadline.weight(.semibold))
+                .font(quantityTextFont)
                 .monospacedDigit()
                 .foregroundStyle(viewModel.quantity.isEmpty ? Color(.tertiaryLabel) : .primary)
 
-            if focusedField == .quantity {
-                BlinkingCursor(height: 18)
-                    .foregroundStyle(Color.accentColor)
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .overlay(
             TextField("", text: quantityTextBinding)
                 .keyboardType(.numberPad)
+                .font(quantityTextFont)
+                .monospacedDigit()
+                .foregroundStyle(.clear)
+                .tint(Color.accentColor)
                 .focused($focusedField, equals: .quantity)
-                .opacity(0.01)
-        )
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var subtotalCard: some View {

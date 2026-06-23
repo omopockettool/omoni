@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.56.3] - 2026-06-23
+
+### Fixed
+- **Item quantity editing now keeps keyboard focus on the value area instead of the `- / +` controls** (`AddItemView`) — the quantity row now routes tap-to-edit only through the left-side value region, leaving the stepper controls dedicated to increment/decrement. The quantity field also uses the same semibold monospaced styling for the hidden keyboard-backed input, keeping the caret aligned with the displayed digits.
+
 ## [2.56.2] - 2026-06-10
 
 ### Fixed
