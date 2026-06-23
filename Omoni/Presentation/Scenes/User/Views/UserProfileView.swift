@@ -50,7 +50,7 @@ struct UserProfileView: View {
                 }
                 .padding(AppConstants.UserInterface.padding)
                 .background(Color(.secondarySystemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
+                .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius))
             }
             .padding(AppConstants.UserInterface.padding)
         }

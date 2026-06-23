@@ -39,7 +39,7 @@ struct DashboardDateRowsView: View {
 // MARK: - Single Date Row
 
 private enum DashboardDateRowLayoutMetrics {
-    static let cardCornerRadius: CGFloat = 18
+    static let cardCornerRadius: CGFloat = AppConstants.UserInterface.rowCornerRadius
     static let leadingColumnWidth: CGFloat = 66
     static let amountColumnHeight: CGFloat = 38
     static let borderLineWidth: CGFloat = 4

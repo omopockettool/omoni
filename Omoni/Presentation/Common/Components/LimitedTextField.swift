@@ -78,13 +78,13 @@ struct LimitedTextField<F: Hashable>: View {
     }
 
     private var clipShape: RoundedRectangle {
-        RoundedRectangle(cornerRadius: usesGroupedCardChrome ? AppConstants.UserInterface.cornerRadius : 12)
+        RoundedRectangle(cornerRadius: usesGroupedCardChrome ? AppConstants.UserInterface.rowCornerRadius : 12)
     }
 
     @ViewBuilder
     private var overlayView: some View {
         if usesGroupedCardChrome {
-            RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius)
+            RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius)
                 .stroke(isFocused ? Color(.systemGray3) : Color.clear, lineWidth: 1.5)
                 .animation(AnimationHelper.formFocus, value: isFocused)
         } else if usesEmbeddedChrome {

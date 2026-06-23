@@ -54,10 +54,10 @@ struct HeroAmountInputView<F: Hashable>: View {
         .padding(.vertical, embedded ? 12 : 18)
         .padding(.horizontal, AppConstants.UserInterface.padding)
         .background(embedded ? Color.clear : Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: embedded ? 0 : AppConstants.UserInterface.cornerRadius))
+        .clipShape(RoundedRectangle(cornerRadius: embedded ? 0 : AppConstants.UserInterface.rowCornerRadius))
         .overlay {
             if !embedded {
-                RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius)
+                RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius)
                     .stroke(isFocused ? Color.accentColor.opacity(0.35) : Color.clear, lineWidth: 2.5)
                     .animation(AnimationHelper.formFocus, value: isFocused)
             }

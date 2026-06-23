@@ -30,6 +30,7 @@ struct AppConstants {
     // MARK: - UI Constants
     struct UserInterface {
         static let cornerRadius: CGFloat = 16
+        static let rowCornerRadius: CGFloat = 20
         static let padding: CGFloat = 16
         static let mediumPadding: CGFloat = 12
         static let smallPadding: CGFloat = 8

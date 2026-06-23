@@ -113,11 +113,11 @@ struct StatusFramedRow<Content: View>: View {
     }
 
     private var cardBackground: some View {
-        RoundedRectangle(cornerRadius: 18, style: .continuous)
+        RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius, style: .continuous)
             .fill(Color(.secondarySystemGroupedBackground))
     }
 
     private var cardShape: RoundedRectangle {
-        RoundedRectangle(cornerRadius: 18, style: .continuous)
+        RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius, style: .continuous)
     }
 }

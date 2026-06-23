@@ -238,10 +238,10 @@ struct CreateFirstUserView: View {
         .padding(.horizontal, 18)
         .padding(.vertical, 16)
         .background(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius)
                 .fill(Color(.secondarySystemGroupedBackground))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 16)
+                    RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius)
                         .strokeBorder(
                             focusedField == field ? Color(.systemGray3) : Color.clear,
                             lineWidth: 2
@@ -313,7 +313,7 @@ struct CreateFirstUserView: View {
                     }
                 }
             )
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius))
             .shadow(
                 color: viewModel.isFormValid && acceptedLegal ? Color.omoniInteractiveRed.opacity(0.28) : .clear,
                 radius: 8,
@@ -364,10 +364,10 @@ struct CreateFirstUserView: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 18)
             .background(
-                RoundedRectangle(cornerRadius: 16)
+                RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius)
                     .fill(Color(.secondarySystemGroupedBackground))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 16)
+                        RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius)
                             .stroke(Color(.separator).opacity(0.35), lineWidth: 1)
                     )
             )

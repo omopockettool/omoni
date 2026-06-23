@@ -115,7 +115,7 @@ struct CategoryFormView: View {
                     }
                     .padding(AppConstants.UserInterface.padding)
                     .background(Color(.secondarySystemGroupedBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
+                    .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius))
                 }
 
                 // Icon picker
@@ -142,7 +142,7 @@ struct CategoryFormView: View {
                     }
                     .padding(AppConstants.UserInterface.padding)
                     .background(Color(.secondarySystemGroupedBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
+                    .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius))
                 }
 
                 BudgetLimitField(
@@ -168,7 +168,7 @@ struct CategoryFormView: View {
                 }
                 .padding(AppConstants.UserInterface.padding)
                 .background(Color(.secondarySystemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
+                .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius))
             }
             .padding(AppConstants.UserInterface.padding)
         }

@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.56.6] - 2026-06-23
+
+### Fixed
+- **Large cards and grouped settings surfaces now follow a more coherent corner-radius language across the app** (`AppConstants`, `SettingsSheetView`, `AboutOMOView`, `UserProfileView`, `CreateFirstUserView`, `GroupInfoEditSheet`, `CreateGroupView`, `GroupFormView`, `CategoryManagementView`, `CategoryFormView`, `PaymentMethodManagementView`, `PaymentMethodFormView`, `LimitedTextField`, `NativeGroupedSheetComponents`, `HeroAmountInputView`, `BudgetLimitField`, `AddItemListComponents`, `AddItemView`, `QuickAddItemsView`, `StatusFramedRow`, `DashboardDateRowsComponents`) — introduced a shared large-row corner radius, removed the overly rounded system-grouped feel from Settings/About/group editors by moving key screens to custom card layouts, and aligned profile, onboarding, group, category, payment-method, quick-add, dashboard, and item-edit cards so single-row and multi-row surfaces now feel like part of the same visual family.
+
 ## [2.56.5] - 2026-06-23
 
 ### Fixed

@@ -128,7 +128,7 @@ struct AddItemListTopCard: View {
             }
         }
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
+        .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius))
     }
 }
 
@@ -681,7 +681,7 @@ struct AddItemListDateCard: View {
             .opacity((showDatePicker && calendarExpanded) ? 1 : 0)
         }
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
+        .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius))
         .animation(.spring(response: 0.45, dampingFraction: 0.88), value: calendarExpanded)
         .animation(.spring(response: 0.45, dampingFraction: 0.88), value: showDatePicker)
     }
@@ -734,7 +734,7 @@ struct AddItemListGroupCard: View {
             }
             .padding(AppConstants.UserInterface.padding)
             .background(Color(.secondarySystemGroupedBackground))
-            .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
+            .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius))
             .buttonStyle(.plain)
         }
     }

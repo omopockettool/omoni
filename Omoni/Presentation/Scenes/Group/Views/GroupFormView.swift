@@ -99,7 +99,7 @@ private struct GroupSettingsSection<Content: View>: View {
                 content
             }
             .background(Color(.secondarySystemGroupedBackground))
-            .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
+            .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius))
         }
     }
 }

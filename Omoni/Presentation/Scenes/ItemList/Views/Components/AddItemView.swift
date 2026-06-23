@@ -247,9 +247,9 @@ struct AddItemView: View {
             }
             .padding(AppConstants.UserInterface.padding)
             .background(Color(.secondarySystemGroupedBackground))
-            .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
+            .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius))
             .overlay(
-                RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius)
+                RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius)
                     .stroke(Color(.systemGray5), lineWidth: 1)
             )
         }
@@ -297,7 +297,7 @@ struct AddItemView: View {
         }
         .padding(AppConstants.UserInterface.padding)
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
+        .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius))
         .transition(.opacity.combined(with: .scale(scale: 0.96, anchor: .top)))
         .onAppear { displayedSubtotal = subtotalAmount }
         .onChange(of: subtotalAmount) { _, newValue in
