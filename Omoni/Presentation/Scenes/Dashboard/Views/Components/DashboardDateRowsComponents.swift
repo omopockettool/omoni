@@ -42,7 +42,7 @@ private enum DashboardDateRowLayoutMetrics {
     static let cardCornerRadius: CGFloat = 18
     static let leadingColumnWidth: CGFloat = 66
     static let amountColumnHeight: CGFloat = 38
-    static let borderLineWidth: CGFloat = 4.5
+    static let borderLineWidth: CGFloat = 4
 }
 
 private enum DashboardDateRowTone {

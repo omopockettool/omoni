@@ -1,7 +1,7 @@
 import SwiftUI
 
 private enum StatusFramedRowLayoutMetrics {
-    static let borderLineWidth: CGFloat = 4.5
+    static let borderLineWidth: CGFloat = 4
     static let statusColumnWidth: CGFloat = 58
 }
 

@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.56.4] - 2026-06-23
+## [2.56.5] - 2026-06-23
 
 ### Fixed
 - **Dashboard day rows, item-list rows, and item rows now use thicker, more intentional status borders** (`DashboardDateRowsComponents`, `StatusFramedRow`) — increased the row outline weight so the cards read with more presence, matched the completed-state green border to the check column exactly, and rebalanced the neutral state by unifying its gray and widening the leading status column so the thicker stroke does not crowd the toggle area.
