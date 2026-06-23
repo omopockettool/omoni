@@ -42,6 +42,7 @@ private enum DashboardDateRowLayoutMetrics {
     static let cardCornerRadius: CGFloat = 18
     static let leadingColumnWidth: CGFloat = 66
     static let amountColumnHeight: CGFloat = 38
+    static let borderLineWidth: CGFloat = 4.5
 }
 
 private enum DashboardDateRowTone {
@@ -149,7 +150,7 @@ struct DashboardDateRowView: View {
             .clipShape(cardShape)
             .overlay {
                 cardShape
-                    .stroke(rowTone.borderColor, lineWidth: 1)
+                    .stroke(rowTone.borderColor, lineWidth: DashboardDateRowLayoutMetrics.borderLineWidth)
             }
             .contentShape(cardShape)
         }
