@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.58.0] - 2026-06-24
+
+### Added
+- **GitHub Actions now provides a real base CI flow for OMONI on `develop` and `main`** (`.github/workflows/pr-checks.yml`) — pull requests, direct pushes to the integration and production branches, and manual runs now execute `SwiftLint`, an unsigned simulator build, and the shared `OmoniTests` suite so branch protection can rely on concrete status checks instead of placeholder jobs.
+- **The repository now includes a general entrypoint README** (`README.md`) — added a root-level overview of the app, repository structure, branch strategy, and CI behavior so the project is easier to understand from GitHub without jumping straight into internal docs.
+
+### Changed
+- **GitHub CI documentation now matches the workflow that actually exists** (`.github/README.md`) — replaced the outdated CI/CD description with the current setup, including the pinned macOS/Xcode choices, dynamic iOS 26 simulator resolution, and the exact branch-protection configuration needed in GitHub.
+- **The app release version now aligns with this infrastructure release** (`Omoni.xcodeproj/project.pbxproj`) — updated `MARKETING_VERSION` to `2.58.0` and advanced `CURRENT_PROJECT_VERSION` to `44` so project metadata, future backups, and release bookkeeping stay in sync with the changelog.
+
+### Fixed
+- **CI builds can now access the tracked app Info plist instead of failing during `ProcessInfoPlistFile`** (`.gitignore`, `AppInfo.plist`) — the repository-wide `*.plist` ignore rule was unintentionally excluding `AppInfo.plist`, so GitHub Actions checkouts were missing the file required by the `Omoni` target even though local builds still saw it in the working tree.
+- **The base CI lint step now checks only changed Swift files instead of the entire legacy codebase** (`.github/workflows/pr-checks.yml`, `.github/README.md`, `README.md`) — this keeps the new PR gate useful and reliable while the repo still contains older SwiftLint debt unrelated to the branch being reviewed.
+- **Build and test logs no longer leak raw simulator stderr into GitHub Actions annotations** (`.github/workflows/pr-checks.yml`, `.github/README.md`, `README.md`) — `xcodebuild` now runs with unbuffered I/O, redirects stderr through the formatter, and uses `xcbeautify --renderer terminal` so low-level CoreData/CoreSimulator noise is captured in logs without looking like real failed checks in the GitHub UI.
+
 ## [2.57.4] - 2026-06-24
 
 ### Fixed

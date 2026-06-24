@@ -1,81 +1,227 @@
-name: Pull Request Checks
+name: CI
 
 on:
+  workflow_dispatch:
+  push:
+    branches:
+      - develop
+      - main
   pull_request:
-    branches: [ main, develop ]
-    types: [ opened, synchronize, reopened ]
+    branches:
+      - develop
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 env:
-  XCODE_VERSION: '16.4.0'
-  IOS_VERSION: '26.0'
+  PROJECT_PATH: Omoni.xcodeproj
+  SCHEME: Omoni
+  XCODE_VERSION: "26.3"
+  IOS_RUNTIME_PREFIX: com.apple.CoreSimulator.SimRuntime.iOS-26
+  DERIVED_DATA_PATH: ${{ github.workspace }}/DerivedData
+  TEST_RESULTS_PATH: ${{ github.workspace }}/TestResults/OmoniTests.xcresult
 
 jobs:
-  # MARK: - Quick Build Check
-  quick-build:
-    name: Quick Build Check
-    runs-on: macos-latest
-    timeout-minutes: 15
-    
+  swiftlint:
+    name: SwiftLint
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
-      - name: Setup Xcode
+        with:
+          fetch-depth: 0
+
+      - name: Collect changed Swift files
+        id: changed-swift
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            base_ref="${{ github.event.pull_request.base.sha }}"
+            head_ref="${{ github.event.pull_request.head.sha }}"
+          elif [[ "${{ github.event_name }}" == "push" ]]; then
+            base_ref="${{ github.event.before }}"
+            head_ref="${{ github.sha }}"
+          else
+            base_ref="$(git rev-list --max-parents=0 HEAD | tail -n 1)"
+            head_ref="${{ github.sha }}"
+          fi
+
+          mapfile -t changed_files < <(
+            git diff --name-only "${base_ref}" "${head_ref}" -- \
+              '*.swift' \
+              ':(exclude)OmoniTests/**' \
+              ':(exclude)OmoniUITests/**'
+          )
+
+          if [[ ${#changed_files[@]} -eq 0 ]]; then
+            echo "count=0" >> "$GITHUB_OUTPUT"
+            {
+              echo "### SwiftLint"
+              echo "- No changed Swift files to lint in this run."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          echo "count=${#changed_files[@]}" >> "$GITHUB_OUTPUT"
+
+          for index in "${!changed_files[@]}"; do
+            echo "SCRIPT_INPUT_FILE_${index}=${changed_files[$index]}" >> "$GITHUB_ENV"
+          done
+          echo "SCRIPT_INPUT_FILE_COUNT=${#changed_files[@]}" >> "$GITHUB_ENV"
+
+          {
+            echo "### SwiftLint"
+            echo "- Linting ${#changed_files[@]} changed Swift file(s)."
+            for file in "${changed_files[@]}"; do
+              echo "- \`${file}\`"
+            done
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Run SwiftLint on changed files
+        if: steps.changed-swift.outputs.count != '0'
+        uses: norio-nomura/action-swiftlint@3.2.1
+        with:
+          args: lint --strict --use-script-input-files
+
+  build:
+    name: Build
+    runs-on: macos-15
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: ${{ env.XCODE_VERSION }}
-          
-      - name: Cache Xcode Derived Data
-        uses: actions/cache@v3
-        with:
-          path: ~/Library/Developer/Xcode/DerivedData
-          key: ${{ runner.os }}-xcode-${{ env.XCODE_VERSION }}-derived-data-${{ hashFiles('**/*.xcodeproj') }}
-          restore-keys: |
-            ${{ runner.os }}-xcode-${{ env.XCODE_VERSION }}-derived-data-
-            
-      - name: Build Project
+
+      - name: Resolve iOS simulator destination
+        id: simulator
+        shell: bash
         run: |
-          xcodebuild clean build \
-            -project Omoni.xcodeproj \
-            -scheme Omoni \
-            -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' \
-            -derivedDataPath ~/Library/Developer/Xcode/DerivedData \
+          set -euo pipefail
+
+          runtime_id="$(xcrun simctl list runtimes available -j | jq -r --arg prefix "${IOS_RUNTIME_PREFIX}" '[.runtimes[] | select(.identifier | startswith($prefix)) | .identifier] | sort | last // empty')"
+
+          if [[ -z "${runtime_id}" ]]; then
+            echo "No iOS simulator runtime matching ${IOS_RUNTIME_PREFIX} was found on the runner." >&2
+            exit 1
+          fi
+
+          destination="$(xcrun simctl list devices available -j | jq -r --arg runtime_id "${runtime_id}" '.devices[$runtime_id][] | select(.name | startswith("iPhone")) | "platform=iOS Simulator,id=\(.udid)"' | head -n 1)"
+
+          if [[ -z "${destination}" ]]; then
+            echo "No available iPhone simulator was found for runtime ${runtime_id}." >&2
+            exit 1
+          fi
+
+          echo "runtime_id=${runtime_id}" >> "$GITHUB_OUTPUT"
+          echo "destination=${destination}" >> "$GITHUB_OUTPUT"
+
+      - name: Build app
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p Logs
+
+          NSUnbufferedIO=YES xcodebuild clean build \
+            -project "${PROJECT_PATH}" \
+            -scheme "${SCHEME}" \
+            -destination "${{ steps.simulator.outputs.destination }}" \
+            -derivedDataPath "${DERIVED_DATA_PATH}" \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
-            | xcpretty
-            
-  # MARK: - Unit Tests (Fast)
+            2>&1 \
+            | tee Logs/build.log \
+            | xcbeautify --renderer terminal
+
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: Logs/build.log
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Add build summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "### Build"
+            echo "- Xcode: ${XCODE_VERSION}"
+            echo "- Runtime: ${{ steps.simulator.outputs.runtime_id }}"
+            echo "- Destination: \`${{ steps.simulator.outputs.destination }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
   unit-tests:
     name: Unit Tests
-    runs-on: macos-latest
-    needs: quick-build
-    timeout-minutes: 20
-    
+    runs-on: macos-15
+    needs: build
+    timeout-minutes: 25
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
-      - name: Setup Xcode
+
+      - name: Select Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: ${{ env.XCODE_VERSION }}
-          
-      - name: Cache Xcode Derived Data
-        uses: actions/cache@v3
-        with:
-          path: ~/Library/Developer/Xcode/DerivedData
-          key: ${{ runner.os }}-xcode-${{ env.XCODE_VERSION }}-derived-data-${{ hashFiles('**/*.xcodeproj') }}
-          restore-keys: |
-            ${{ runner.os }}-xcode-${{ env.XCODE_VERSION }}-derived-data-
-            
-      - name: Run Unit Tests
+
+      - name: Resolve iOS simulator destination
+        id: simulator
+        shell: bash
         run: |
-          xcodebuild test \
-            -project Omoni.xcodeproj \
-            -scheme Omoni \
-            -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' \
-            -derivedDataPath ~/Library/Developer/Xcode/DerivedData \
+          set -euo pipefail
+
+          runtime_id="$(xcrun simctl list runtimes available -j | jq -r --arg prefix "${IOS_RUNTIME_PREFIX}" '[.runtimes[] | select(.identifier | startswith($prefix)) | .identifier] | sort | last // empty')"
+
+          if [[ -z "${runtime_id}" ]]; then
+            echo "No iOS simulator runtime matching ${IOS_RUNTIME_PREFIX} was found on the runner." >&2
+            exit 1
+          fi
+
+          destination="$(xcrun simctl list devices available -j | jq -r --arg runtime_id "${runtime_id}" '.devices[$runtime_id][] | select(.name | startswith("iPhone")) | "platform=iOS Simulator,id=\(.udid)"' | head -n 1)"
+
+          if [[ -z "${destination}" ]]; then
+            echo "No available iPhone simulator was found for runtime ${runtime_id}." >&2
+            exit 1
+          fi
+
+          echo "runtime_id=${runtime_id}" >> "$GITHUB_OUTPUT"
+          echo "destination=${destination}" >> "$GITHUB_OUTPUT"
+
+      - name: Run unit tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p Logs "$(dirname "${TEST_RESULTS_PATH}")"
+
+          NSUnbufferedIO=YES xcodebuild test \
+            -project "${PROJECT_PATH}" \
+            -scheme "${SCHEME}" \
+            -destination "${{ steps.simulator.outputs.destination }}" \
+            -derivedDataPath "${DERIVED_DATA_PATH}" \
+            -resultBundlePath "${TEST_RESULTS_PATH}" \
             -only-testing:OmoniTests \
             -enableCodeCoverage NO \
             -enableThreadSanitizer NO \
@@ -83,101 +229,29 @@ jobs:
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
-            | xcpretty
-            
-  # MARK: - Code Quality Check
-  code-quality:
-    name: Code Quality
-    runs-on: ubuntu-latest
-    needs: quick-build
-    timeout-minutes: 10
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        
-      - name: Setup Python
-        uses: actions/setup-python@v4
+            2>&1 \
+            | tee Logs/unit-tests.log \
+            | xcbeautify --renderer terminal
+
+      - name: Upload unit test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          python-version: '3.11'
-          
-      - name: Run SwiftLint
-        uses: norio-nomura/action-swiftlint@3.2.1
-        with:
-          args: lint --reporter github-actions-logging
-          
-      - name: Check File Sizes
+          name: unit-test-artifacts
+          path: |
+            Logs/unit-tests.log
+            ${{ env.TEST_RESULTS_PATH }}
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Add test summary
+        if: always()
+        shell: bash
         run: |
-          echo "Checking for large files..."
-          find . -type f -size +10M -not -path "./.git/*" -not -path "./.github/*" | head -10
-          
-      - name: Check for Secrets
-        run: |
-          echo "Checking for potential secrets..."
-          if grep -r -i "password\|secret\|key\|token" . --exclude-dir=.git --exclude-dir=.github --exclude-dir=Omoni.xcodeproj; then
-            echo "⚠️  Potential secrets found. Please review."
-          else
-            echo "✅ No obvious secrets found."
-          fi
-          
-  # MARK: - Dependency Check
-  dependency-check:
-    name: Dependency Check
-    runs-on: ubuntu-latest
-    needs: quick-build
-    timeout-minutes: 10
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        
-      - name: Check for Vulnerable Dependencies
-        run: |
-          echo "Checking for known vulnerabilities..."
-          # This would integrate with tools like Snyk or GitHub's dependency scanning
-          echo "✅ Dependency check completed"
-          
-      - name: Check License Compliance
-        run: |
-          echo "Checking license compliance..."
-          # This would check for license compatibility
-          echo "✅ License check completed"
-          
-  # MARK: - PR Summary
-  pr-summary:
-    name: PR Summary
-    runs-on: ubuntu-latest
-    needs: [quick-build, unit-tests, code-quality, dependency-check]
-    if: always()
-    
-    steps:
-      - name: Generate PR Summary
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const summary = `## 🔍 Pull Request Check Summary
-            
-            **Status:** ${needs.quick-build.result === 'success' && needs.unit-tests.result === 'success' && needs.code-quality.result === 'success' && needs.dependency-check.result === 'success' ? '✅ All Checks Passed' : '❌ Some Checks Failed'}
-            
-            **Build Status:**
-            - 🏗️  Quick Build: ${needs.quick-build.result === 'success' ? '✅ Success' : '❌ Failed'}
-            - 🧪 Unit Tests: ${needs.unit-tests.result === 'success' ? '✅ Success' : '❌ Failed'}
-            - 📏 Code Quality: ${needs.code-quality.result === 'success' ? '✅ Success' : '❌ Failed'}
-            - 📦 Dependencies: ${needs.dependency-check.result === 'success' ? '✅ Success' : '❌ Failed'}
-            
-            **Coverage:** Available in unit-tests artifacts
-            
-            **Next Steps:**
-            ${needs.quick-build.result === 'success' && needs.unit-tests.result === 'success' && needs.code-quality.result === 'success' && needs.dependency-check.result === 'success' 
-              ? '🚀 Ready for review and merge!' 
-              : '🔧 Please fix the failing checks before merging.'}
-            
-            ---
-            *Generated by GitHub Actions*`;
-            
-            await github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: summary,
-            });
+          {
+            echo "### Unit Tests"
+            echo "- Xcode: ${XCODE_VERSION}"
+            echo "- Runtime: ${{ steps.simulator.outputs.runtime_id }}"
+            echo "- Destination: \`${{ steps.simulator.outputs.destination }}\`"
+            echo "- Result bundle: \`${TEST_RESULTS_PATH}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
