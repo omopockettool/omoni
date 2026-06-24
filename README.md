@@ -21,7 +21,7 @@ OMONI is a local-first iOS app for tracking everyday spending with a calm, nativ
 
 The repository currently uses GitHub Actions for base CI:
 
-- `SwiftLint`
+- `SwiftLint` on changed Swift files
 - unsigned simulator build validation
 - `OmoniTests` unit tests
 

@@ -40,11 +40,62 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Run SwiftLint
+      - name: Collect changed Swift files
+        id: changed-swift
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            base_ref="${{ github.event.pull_request.base.sha }}"
+            head_ref="${{ github.event.pull_request.head.sha }}"
+          elif [[ "${{ github.event_name }}" == "push" ]]; then
+            base_ref="${{ github.event.before }}"
+            head_ref="${{ github.sha }}"
+          else
+            base_ref="$(git rev-list --max-parents=0 HEAD | tail -n 1)"
+            head_ref="${{ github.sha }}"
+          fi
+
+          mapfile -t changed_files < <(
+            git diff --name-only "${base_ref}" "${head_ref}" -- \
+              '*.swift' \
+              ':(exclude)OmoniTests/**' \
+              ':(exclude)OmoniUITests/**'
+          )
+
+          if [[ ${#changed_files[@]} -eq 0 ]]; then
+            echo "count=0" >> "$GITHUB_OUTPUT"
+            {
+              echo "### SwiftLint"
+              echo "- No changed Swift files to lint in this run."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          echo "count=${#changed_files[@]}" >> "$GITHUB_OUTPUT"
+
+          for index in "${!changed_files[@]}"; do
+            echo "SCRIPT_INPUT_FILE_${index}=${changed_files[$index]}" >> "$GITHUB_ENV"
+          done
+          echo "SCRIPT_INPUT_FILE_COUNT=${#changed_files[@]}" >> "$GITHUB_ENV"
+
+          {
+            echo "### SwiftLint"
+            echo "- Linting ${#changed_files[@]} changed Swift file(s)."
+            for file in "${changed_files[@]}"; do
+              echo "- \`${file}\`"
+            done
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Run SwiftLint on changed files
+        if: steps.changed-swift.outputs.count != '0'
         uses: norio-nomura/action-swiftlint@3.2.1
         with:
-          args: lint --strict
+          args: lint --strict --use-script-input-files
 
   build:
     name: Build
