@@ -50,25 +50,36 @@ private enum DashboardDateRowTone {
     case pending
     case today
 
+    private var baseColor: Color {
+        switch self {
+        case .neutral:
+            return Color(.systemGray3)
+        case .pending:
+            return .orange
+        case .today:
+            return .accentColor
+        }
+    }
+
     var leadingFill: Color {
         switch self {
         case .neutral:
-            return Color(.systemGray5)
+            return baseColor.opacity(0.22)
         case .pending:
-            return .orange.opacity(0.18)
+            return baseColor.opacity(0.24)
         case .today:
-            return Color.accentColor.opacity(0.14)
+            return baseColor.opacity(0.22)
         }
     }
 
     var borderColor: Color {
         switch self {
         case .neutral:
-            return Color(.separator).opacity(0.72)
+            return baseColor
         case .pending:
-            return .orange.opacity(0.58)
+            return baseColor.opacity(0.82)
         case .today:
-            return Color.accentColor.opacity(0.32)
+            return baseColor.opacity(0.82)
         }
     }
 
@@ -170,16 +181,18 @@ struct DashboardDateRowView: View {
     }
 
     private var leadingDateColumn: some View {
-        VStack(spacing: 0) {
+        ZStack {
+            Rectangle()
+                .fill(rowTone.leadingFill)
+
             Text(dayNumber)
                 .font(.system(size: 22, weight: .bold, design: .rounded))
                 .foregroundStyle(rowTone.titleColor)
                 .monospacedDigit()
+                .padding(.vertical, 14)
         }
         .frame(width: DashboardDateRowLayoutMetrics.leadingColumnWidth)
         .frame(maxHeight: .infinity)
-        .padding(.vertical, 14)
-        .background(rowTone.leadingFill)
     }
 
     private var contentColumn: some View {

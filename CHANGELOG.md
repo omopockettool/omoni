@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.56.7] - 2026-06-24
+
+### Fixed
+- **Calendar day rows now use the same cleaner structural treatment as item-list and item rows** (`DashboardDateRowsComponents`) — removed the patchy inset-compensation approach from the left date block and rebuilt the row so the leading date pane behaves like a real full-height column inside the card, with a more coherent shared color family between the border and the leading panel.
+
 ## [2.56.6] - 2026-06-23
 
 ### Fixed
