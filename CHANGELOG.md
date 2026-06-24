@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.57.4] - 2026-06-24
+
+### Fixed
+- **The Dashboard day row for today now states "Today" explicitly instead of relying on red alone** (`DashboardDateRowsComponents`) — the current-day row keeps the brand-red emphasis, but now shows a clear localized "Today" label with the weekday as secondary context so the highlight reads as temporal context rather than warning or danger.
+
 ## [2.57.3] - 2026-06-24
 
 ### Fixed

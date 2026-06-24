@@ -197,10 +197,17 @@ struct DashboardDateRowView: View {
 
     private var contentColumn: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(titleLabel)
+            Text(primaryTitleLabel)
                 .font(.system(size: 15, weight: .medium))
                 .foregroundStyle(rowTone.titleColor)
                 .lineLimit(1)
+
+            if let secondaryTitleLabel {
+                Text(secondaryTitleLabel)
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(rowTone.secondaryColor)
+                    .lineLimit(1)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -253,8 +260,12 @@ struct DashboardDateRowView: View {
         RoundedRectangle(cornerRadius: DashboardDateRowLayoutMetrics.cardCornerRadius, style: .continuous)
     }
 
-    private var titleLabel: String {
-        weekday
+    private var primaryTitleLabel: String {
+        isToday ? LocalizationKey.Dashboard.today.localized : weekday
+    }
+
+    private var secondaryTitleLabel: String? {
+        isToday ? weekday : nil
     }
 
     private var weekday: String {
