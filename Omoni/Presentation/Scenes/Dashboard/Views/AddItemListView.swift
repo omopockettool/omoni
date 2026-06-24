@@ -41,7 +41,8 @@ struct AddItemListView: View {
         let initialViewModel = AddItemListViewModel(
             itemListToEdit: itemListToEdit,
             initialDate: initialDate,
-            preferredCategoryId: preferredCategoryId
+            preferredCategoryId: preferredCategoryId,
+            excludedCategoryIds: excludedCategoryIds
         )
         initialViewModel.configure(defaultGroup: group, availableGroups: availableGroups)
         let startsExpandedForEdit = initialViewModel.isEditMode
@@ -234,6 +235,9 @@ struct AddItemListView: View {
         )
         .task(id: activeGroup.id) {
             await viewModel.loadOptionsForSelectedGroup()
+            if viewModel.hasPriorityCategory {
+                focusedField = viewModel.showsHeroAmountInput ? .price : .description
+            }
         }
         .toast($viewModel.toast)
     }
@@ -455,9 +459,13 @@ struct AddItemListView: View {
 
     private func handleStructureChange(_ structure: ItemListStructure) {
         if structure == .singleEntry {
-            scrollToTop = true
-        } else if focusedField == .price {
-            focusedField = nil
+            if focusedField == .description {
+                focusedField = .price
+            } else {
+                scrollToTop = true
+            }
+        } else {
+            focusedField = .description
         }
     }
 

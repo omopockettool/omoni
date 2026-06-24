@@ -51,6 +51,7 @@ final class AddItemListViewModel {
     @ObservationIgnored private var usageMemorySnapshots: [UsageMemorySnapshot] = []
     @ObservationIgnored private var didManuallyChoosePaymentMethod = false
     @ObservationIgnored private var hasLoadedFormData = false
+    @ObservationIgnored private let excludedCategoryIds: [UUID]
 
     // MARK: - Computed
 
@@ -80,10 +81,12 @@ final class AddItemListViewModel {
         fetchPaymentMethodsUseCase: FetchPaymentMethodsUseCase,
         getCurrentUserUseCase: GetCurrentUserUseCase,
         fetchGroupsForUserUseCase: FetchGroupsForUserUseCase,
-        preferredCategoryId: UUID? = nil
+        preferredCategoryId: UUID? = nil,
+        excludedCategoryIds: [UUID] = []
     ) {
         self.itemListToEdit = itemListToEdit
         self.preferredCategoryId = preferredCategoryId
+        self.excludedCategoryIds = excludedCategoryIds
         self.createItemListUseCase = createItemListUseCase
         self.createSingleEntryUseCase = createSingleEntryUseCase
         self.updateItemListUseCase = updateItemListUseCase
@@ -111,7 +114,8 @@ final class AddItemListViewModel {
     convenience init(
         itemListToEdit: SDItemList? = nil,
         initialDate: Date? = nil,
-        preferredCategoryId: UUID? = nil
+        preferredCategoryId: UUID? = nil,
+        excludedCategoryIds: [UUID] = []
     ) {
         let appContainer = AppDIContainer.shared
         self.init(
@@ -125,7 +129,8 @@ final class AddItemListViewModel {
             fetchPaymentMethodsUseCase: appContainer.makeFetchPaymentMethodsUseCase(),
             getCurrentUserUseCase: appContainer.makeGetCurrentUserUseCase(),
             fetchGroupsForUserUseCase: appContainer.makeFetchGroupsForUserUseCase(),
-            preferredCategoryId: preferredCategoryId
+            preferredCategoryId: preferredCategoryId,
+            excludedCategoryIds: excludedCategoryIds
         )
         if itemListToEdit == nil, let initialDate {
             self.date = initialDate
@@ -221,7 +226,10 @@ final class AddItemListViewModel {
                 let snapshots = (try? await loadUsageMemorySnapshots(forGroupId: groupId)) ?? []
                 usageMemorySnapshots = snapshots
                 let categoryIdToSelect = preferredCategoryId
-                    ?? snapshots.max { $0.createdAt < $1.createdAt }.flatMap { $0.categoryId }
+                    ?? snapshots
+                        .sorted { $0.createdAt > $1.createdAt }
+                        .first { $0.categoryId.map { !excludedCategoryIds.contains($0) } ?? false }?
+                        .categoryId
                 selectedCategory = categoryIdToSelect.flatMap { id in categories.first { $0.id == id } }
                 updateConceptAssists()
             }
