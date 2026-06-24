@@ -541,9 +541,6 @@ struct DashboardView: View {
         case .allDay(_, let date):
             return viewModel.dayFilterLabel(for: date)
         case .category(let categoryId, let range), .categoryDay(let categoryId, let range, _):
-            if case .categoryDay(_, let r, let date) = activeFilter, r == .month {
-                return viewModel.dayFilterLabel(for: date)
-            }
             return activeCategoryBox?.categoryName ?? viewModel.categoryDisplayName(forCategoryId: categoryId, in: range)
         }
     }
@@ -556,9 +553,6 @@ struct DashboardView: View {
         case .allDay:
             return "calendar"
         case .category(let categoryId, let range), .categoryDay(let categoryId, let range, _):
-            if case .categoryDay(_, let r, _) = activeFilter, r == .month {
-                return "calendar"
-            }
             return activeCategoryBox?.categoryIcon ?? viewModel.categoryDisplayIcon(forCategoryId: categoryId, in: range)
         }
     }
