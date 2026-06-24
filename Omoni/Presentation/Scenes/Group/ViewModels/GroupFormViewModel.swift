@@ -54,9 +54,7 @@ final class GroupFormViewModel {
         errorMessage = nil
         showError = false
         defer { isLoading = false }
-        group.name = name
-        group.currency = currency
-        group.lastModifiedAt = Date()
+        group.applyEdits(name: name, currency: currency)
         do {
             try await updateGroupUseCase.execute(group: group)
             return true

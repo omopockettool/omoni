@@ -44,6 +44,49 @@ final class SDCategory {
 extension SDCategory: Identifiable {}
 
 extension SDCategory {
+    func applyEdits(
+        name: String,
+        color: String,
+        icon: String,
+        limit: Double?,
+        limitFrequency: String
+    ) {
+        var didChange = false
+
+        if self.name != name {
+            self.name = name
+            didChange = true
+        }
+
+        if self.color != color {
+            self.color = color
+            didChange = true
+        }
+
+        if self.icon != icon {
+            self.icon = icon
+            didChange = true
+        }
+
+        if self.limit != limit {
+            self.limit = limit
+            didChange = true
+        }
+
+        if self.limitFrequency != limitFrequency {
+            self.limitFrequency = limitFrequency
+            didChange = true
+        }
+
+        if didChange {
+            touch()
+        }
+    }
+
+    func touch(_ modifiedAt: Date = Date()) {
+        lastModifiedAt = modifiedAt
+    }
+
     var isValid: Bool {
         !name.isEmpty
     }

@@ -2,8 +2,6 @@ import SwiftUI
 
 struct ItemListDetailHeroCard: View {
     let itemList: SDItemList
-    let heroIsSuccess: Bool
-    let lastAddedDescription: String
     let totalAmount: String
     let heroStatus: ItemListDetailHeroStatus
     let showMetaLabels: Bool
@@ -16,11 +14,10 @@ struct ItemListDetailHeroCard: View {
 
     var body: some View {
         TotalSpentCardView(
-            label: heroIsSuccess ? lastAddedDescription : LocalizationKey.Item.costOf.localized(with: itemList.itemListDescription),
+            label: LocalizationKey.Item.costOf.localized(with: itemList.itemListDescription),
             totalAmount: totalAmount,
             onAddExpense: onAddExpense,
-            actionColor: actionColor,
-            isSuccess: heroIsSuccess
+            actionColor: actionColor
         ) {
             ItemListDetailMetaRow(
                 itemList: itemList,
@@ -82,9 +79,19 @@ struct ItemListDetailMetaRow: View {
     @ViewBuilder
     private var statusBadge: some View {
         switch heroStatus {
-        case .pending(let unpaidTotal):
+        case .unpaid(let unpaidTotal):
             HStack(spacing: 4) {
-                Image(systemName: "clock")
+                Image(systemName: "circle")
+                if !showMetaLabels && !unpaidTotal.isEmpty {
+                    Text(unpaidTotal)
+                        .fontWeight(.medium)
+                        .transition(.opacity.combined(with: .scale(scale: 0.85, anchor: .leading)))
+                }
+            }
+            .foregroundStyle(.orange)
+        case .partial(let unpaidTotal):
+            HStack(spacing: 4) {
+                Image(systemName: "circle.lefthalf.filled")
                 if !showMetaLabels && !unpaidTotal.isEmpty {
                     Text(unpaidTotal)
                         .fontWeight(.medium)
@@ -104,8 +111,10 @@ struct ItemListDetailMetaRow: View {
         switch heroStatus {
         case .neutral:
             return "neutral"
-        case .pending:
-            return "pending"
+        case .unpaid:
+            return "unpaid"
+        case .partial:
+            return "partial"
         case .completed:
             return "completed"
         }
@@ -131,9 +140,9 @@ struct ItemListDetailMetaRow: View {
 
 struct ItemListItemsSection: View {
     let items: [SDItem]
-    let currencyCode: String
     let formattedAmount: (SDItem) -> String
-    let isSearchMatch: (SDItem) -> Bool
+    let quantityBreakdown: (SDItem) -> String?
+    let highlightedQuery: (SDItem) -> String?
     let onItemTap: (SDItem) -> Void
     let onTogglePaid: (SDItem) -> Void
     let onDelete: (SDItem) -> Void
@@ -150,8 +159,8 @@ struct ItemListItemsSection: View {
                     ItemRowView(
                         item: item,
                         formattedAmount: formattedAmount(item),
-                        currencyCode: currencyCode,
-                        isSearchMatch: isSearchMatch(item),
+                        quantityBreakdown: quantityBreakdown(item),
+                        highlightedQuery: highlightedQuery(item),
                         onTap: { onItemTap(item) },
                         onTogglePaid: { onTogglePaid(item) }
                     )

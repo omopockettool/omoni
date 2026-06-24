@@ -3,10 +3,12 @@ import Foundation
 @MainActor
 protocol ItemRepository {
     func fetchItems(forItemListId itemListId: UUID) async throws -> [SDItem]
+    func fetchItems(forGroupId groupId: UUID) async throws -> [SDItem]
+    func fetchItems(forCategoryId categoryId: UUID) async throws -> [SDItem]
     func createItem(
         description: String,
         amount: Decimal,
-        quantity: Int32,
+        quantity: Int,
         itemListId: UUID?,
         isPaid: Bool
     ) async throws -> SDItem

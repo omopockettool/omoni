@@ -29,11 +29,13 @@ final class DefaultUpdateCategoryUseCase: UpdateCategoryUseCase {
         guard let category = try await categoryRepository.fetchCategory(id: categoryId) else {
             throw RepositoryError.notFound
         }
-        if let name { category.name = name }
-        if let icon { category.icon = icon }
-        if let color { category.color = color }
-        if let limit { category.limit = Double(truncating: limit as NSDecimalNumber) }
-        if let limitFrequency { category.limitFrequency = limitFrequency }
+        category.applyEdits(
+            name: name ?? category.name,
+            color: color ?? category.color,
+            icon: icon ?? category.icon,
+            limit: limit.map { Double(truncating: $0 as NSDecimalNumber) } ?? category.limit,
+            limitFrequency: limitFrequency ?? category.limitFrequency
+        )
         try await categoryRepository.updateCategory(category)
     }
 }

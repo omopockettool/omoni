@@ -155,6 +155,9 @@ enum LocalizationKey {
         static let emptyMessage = "entry.empty.message"
         static let newEntry = "entry.newEntry"
         static let concept = "entry.concept"
+        static let singleEntry = "entry.singleEntry"
+        static let itemizedList = "entry.itemizedList"
+        static let singleEntryDisabledHint = "entry.singleEntryDisabledHint"
         static let viewLess = "entry.viewLess"
         static let moreDetails = "entry.moreDetails"
         static let tapToAdd = "entry.tapToAdd"
@@ -223,6 +226,7 @@ enum LocalizationKey {
         static let yesterday = "dashboard.yesterday"
         static let costThisMonth = "dashboard.costThisMonth"
         static let costToday = "dashboard.costToday"
+        static let costOnDay = "dashboard.costOnDay"
         static let added = "dashboard.added"
         static let filters = "dashboard.filters"
         static let itemStatus = "dashboard.itemStatus"
@@ -239,6 +243,8 @@ enum LocalizationKey {
         static let changeUndone = "dashboard.changeUndone"
         static let undo = "dashboard.undo"
         static let limitShort = "dashboard.limitShort"
+        static let expensesByCategory = "dashboard.expensesByCategory"
+        static let overLimit = "dashboard.overLimit"
     }
     
     // MARK: - Settings

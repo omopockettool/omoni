@@ -12,7 +12,9 @@ class CacheManager: ObservableObject {
     private var dataCache: [String: Any] = [:]
     private var validationCache: [String: Bool] = [:]
     private var calculationCache: [String: Any] = [:]
-    private var cacheTimestamps: [String: Date] = [:]
+    private var dataCacheTimestamps: [String: Date] = [:]
+    private var validationCacheTimestamps: [String: Date] = [:]
+    private var calculationCacheTimestamps: [String: Date] = [:]
     
     // MARK: - Cache Configuration
     private let dataCacheExpiration: TimeInterval = 300 // 5 minutes
@@ -27,17 +29,17 @@ class CacheManager: ObservableObject {
     /// Cache Core Data results with expiration
     func cacheData<T>(_ data: T, for key: String) {
         dataCache[key] = data
-        cacheTimestamps[key] = Date()
+        dataCacheTimestamps[key] = Date()
     }
     
     /// Retrieve cached data if not expired
     func getCachedData<T>(for key: String) -> T? {
-        guard let timestamp = cacheTimestamps[key],
+        guard let timestamp = dataCacheTimestamps[key],
               let data = dataCache[key] as? T,
               Date().timeIntervalSince(timestamp) < dataCacheExpiration else {
             // Cache expired or not found, remove it
             dataCache.removeValue(forKey: key)
-            cacheTimestamps.removeValue(forKey: key)
+            dataCacheTimestamps.removeValue(forKey: key)
             recordCacheMiss()
             return nil
         }
@@ -48,13 +50,13 @@ class CacheManager: ObservableObject {
     /// Clear specific data cache
     func clearDataCache(for key: String) {
         dataCache.removeValue(forKey: key)
-        cacheTimestamps.removeValue(forKey: key)
+        dataCacheTimestamps.removeValue(forKey: key)
     }
     
     /// Clear all data cache
     func clearAllDataCache() {
         dataCache.removeAll()
-        cacheTimestamps.removeAll()
+        dataCacheTimestamps.removeAll()
     }
     
     // MARK: - Validation Cache Methods
@@ -62,17 +64,17 @@ class CacheManager: ObservableObject {
     /// Cache validation results
     func cacheValidation(_ isValid: Bool, for key: String) {
         validationCache[key] = isValid
-        cacheTimestamps[key] = Date()
+        validationCacheTimestamps[key] = Date()
     }
     
     /// Get cached validation result
     func getCachedValidation(for key: String) -> Bool? {
-        guard let timestamp = cacheTimestamps[key],
+        guard let timestamp = validationCacheTimestamps[key],
               let isValid = validationCache[key],
               Date().timeIntervalSince(timestamp) < validationCacheExpiration else {
             // Cache expired or not found, remove it
             validationCache.removeValue(forKey: key)
-            cacheTimestamps.removeValue(forKey: key)
+            validationCacheTimestamps.removeValue(forKey: key)
             return nil
         }
         return isValid
@@ -81,7 +83,7 @@ class CacheManager: ObservableObject {
     /// Clear validation cache for specific key
     func clearValidationCache(for key: String) {
         validationCache.removeValue(forKey: key)
-        cacheTimestamps.removeValue(forKey: key)
+        validationCacheTimestamps.removeValue(forKey: key)
     }
     
     // MARK: - Calculation Cache Methods
@@ -89,17 +91,17 @@ class CacheManager: ObservableObject {
     /// Cache calculation results
     func cacheCalculation<T>(_ result: T, for key: String) {
         calculationCache[key] = result
-        cacheTimestamps[key] = Date()
+        calculationCacheTimestamps[key] = Date()
     }
     
     /// Get cached calculation result
     func getCachedCalculation<T>(for key: String) -> T? {
-        guard let timestamp = cacheTimestamps[key],
+        guard let timestamp = calculationCacheTimestamps[key],
               let result = calculationCache[key] as? T,
               Date().timeIntervalSince(timestamp) < calculationCacheExpiration else {
             // Cache expired or not found, remove it
             calculationCache.removeValue(forKey: key)
-            cacheTimestamps.removeValue(forKey: key)
+            calculationCacheTimestamps.removeValue(forKey: key)
             return nil
         }
         return result
@@ -108,7 +110,7 @@ class CacheManager: ObservableObject {
     /// Clear calculation cache for specific key
     func clearCalculationCache(for key: String) {
         calculationCache.removeValue(forKey: key)
-        cacheTimestamps.removeValue(forKey: key)
+        calculationCacheTimestamps.removeValue(forKey: key)
     }
     
     // MARK: - Cache Management
@@ -135,7 +137,8 @@ class CacheManager: ObservableObject {
         clearAllDataCache()
         validationCache.removeAll()
         calculationCache.removeAll()
-        cacheTimestamps.removeAll()
+        validationCacheTimestamps.removeAll()
+        calculationCacheTimestamps.removeAll()
     }
     
     /// Clean expired cache itemLists
@@ -143,19 +146,19 @@ class CacheManager: ObservableObject {
         let now = Date()
         
         // Clean data cache
-        let expiredDataKeys = cacheTimestamps.compactMap { key, timestamp in
+        let expiredDataKeys = dataCacheTimestamps.compactMap { key, timestamp in
             now.timeIntervalSince(timestamp) >= dataCacheExpiration ? key : nil
         }
         expiredDataKeys.forEach { clearDataCache(for: $0) }
         
         // Clean validation cache
-        let expiredValidationKeys = cacheTimestamps.compactMap { key, timestamp in
+        let expiredValidationKeys = validationCacheTimestamps.compactMap { key, timestamp in
             now.timeIntervalSince(timestamp) >= validationCacheExpiration ? key : nil
         }
         expiredValidationKeys.forEach { clearValidationCache(for: $0) }
         
         // Clean calculation cache
-        let expiredCalculationKeys = cacheTimestamps.compactMap { key, timestamp in
+        let expiredCalculationKeys = calculationCacheTimestamps.compactMap { key, timestamp in
             now.timeIntervalSince(timestamp) >= calculationCacheExpiration ? key : nil
         }
         expiredCalculationKeys.forEach { clearCalculationCache(for: $0) }
@@ -183,7 +186,7 @@ class CacheManager: ObservableObject {
     func preloadCache(with data: [String: Any]) {
         for (key, value) in data {
             dataCache[key] = value
-            cacheTimestamps[key] = Date()
+            dataCacheTimestamps[key] = Date()
         }
     }
     

@@ -50,7 +50,7 @@ struct AddItemView: View {
         return formatter.currencySymbol
     }
 
-    private var quantityValue: Int { Int(viewModel.quantity) ?? 1 }
+    private var quantityValue: Int { ValidationHelper.itemQuantityValue(from: viewModel.quantity) ?? 1 }
 
     private var subtotalAmount: String {
         let normalized = viewModel.amount.replacingOccurrences(of: ",", with: ".")
@@ -68,8 +68,8 @@ struct AddItemView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
-                    heroAmountInput
                     descriptionCard
+                    heroAmountInput
                     quantityStepper
                     if viewModel.showsTotalPreview {
                         subtotalCard
@@ -90,6 +90,10 @@ struct AddItemView: View {
             )
             .onAppear {
                 selectedDetent = viewModel.showsTotalPreview ? subtotalDetent : compactDetent
+            }
+            .onChange(of: focusedField) { oldValue, newValue in
+                guard oldValue == .quantity, newValue != .quantity else { return }
+                viewModel.normalizeQuantityInputAfterEditing()
             }
             .onChange(of: viewModel.showsTotalPreview) { _, showsPreview in
                 withAnimation(AnimationHelper.quickSpring) {
@@ -113,12 +117,61 @@ struct AddItemView: View {
             }
             .toolbar {
                 ToolbarItemGroup(placement: .keyboard) {
-                    Spacer()
-                    if focusedField == .amount || focusedField == .quantity {
-                        Button(LocalizationKey.General.done.localized) { focusedField = nil }
+                    Button(action: moveFocusBackward) {
+                        Image(systemName: "chevron.up")
                     }
+                    .disabled(!canMoveFocusBackward)
+
+                    Button(action: moveFocusForward) {
+                        Image(systemName: "chevron.down")
+                    }
+                    .disabled(!canMoveFocusForward)
+
+                    Spacer()
+
+                    Button(LocalizationKey.General.done.localized) { focusedField = nil }
                 }
             }
+        }
+    }
+
+    private var canMoveFocusBackward: Bool {
+        switch focusedField {
+        case .amount, .quantity:
+            return true
+        default:
+            return false
+        }
+    }
+
+    private var canMoveFocusForward: Bool {
+        switch focusedField {
+        case .description, .amount:
+            return true
+        default:
+            return false
+        }
+    }
+
+    private func moveFocusBackward() {
+        switch focusedField {
+        case .amount:
+            focusedField = .description
+        case .quantity:
+            focusedField = .amount
+        default:
+            break
+        }
+    }
+
+    private func moveFocusForward() {
+        switch focusedField {
+        case .description:
+            focusedField = .amount
+        case .amount:
+            focusedField = .quantity
+        default:
+            break
         }
     }
 
@@ -137,7 +190,7 @@ struct AddItemView: View {
             icon: "textformat",
             placeholder: itemListDescription,
             text: $viewModel.description,
-            maxLength: 200,
+            maxLength: AppConstants.Validation.maxItemDescriptionLength,
             axis: .horizontal,
             submitLabel: .done,
             onSubmit: { focusedField = nil },
@@ -148,8 +201,8 @@ struct AddItemView: View {
 
     private var quantityBinding: Binding<Int> {
         Binding(
-            get: { max(1, Int(viewModel.quantity) ?? 1) },
-            set: { viewModel.quantity = String($0) }
+            get: { ValidationHelper.itemQuantityValue(from: viewModel.quantity) ?? AppConstants.Validation.minItemQuantity },
+            set: { viewModel.setQuantity($0) }
         )
     }
 
@@ -158,6 +211,10 @@ struct AddItemView: View {
             get: { viewModel.quantity },
             set: { viewModel.quantity = viewModel.sanitizeQuantityInput($0) }
         )
+    }
+
+    private var quantityTextFont: Font {
+        .subheadline.weight(.semibold)
     }
 
     private var quantityStepper: some View {
@@ -169,28 +226,51 @@ struct AddItemView: View {
                 .padding(.horizontal, 4)
 
             HStack(spacing: 12) {
-                Image(systemName: "number")
-                    .foregroundStyle(.secondary)
-                    .frame(width: 20)
+                HStack(spacing: 12) {
+                    Image(systemName: "number")
+                        .foregroundStyle(.secondary)
+                        .frame(width: 20)
 
-                TextField("1", text: quantityTextBinding)
-                    .keyboardType(.numberPad)
-                    .font(.subheadline.weight(.semibold))
-                    .focused($focusedField, equals: .quantity)
+                    quantityInputDisplay
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
+                .onTapGesture { focusedField = .quantity }
 
-                Stepper("", value: quantityBinding, in: 1...999999)
+                Stepper(
+                    "",
+                    value: quantityBinding,
+                    in: AppConstants.Validation.minItemQuantity...AppConstants.Validation.maxItemQuantity
+                )
                     .labelsHidden()
                     .fixedSize()
             }
             .padding(AppConstants.UserInterface.padding)
             .background(Color(.secondarySystemGroupedBackground))
-            .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
+            .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius))
             .overlay(
-                RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius)
-                    .stroke(focusedField == .quantity ? Color(.systemGray3) : Color.clear, lineWidth: 1.5)
-                    .animation(AnimationHelper.formFocus, value: focusedField == .quantity)
+                RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius)
+                    .stroke(Color(.systemGray5), lineWidth: 1)
             )
         }
+    }
+
+    private var quantityInputDisplay: some View {
+        ZStack(alignment: .leading) {
+            Text(viewModel.quantity.isEmpty ? "1" : viewModel.quantity)
+                .font(quantityTextFont)
+                .monospacedDigit()
+                .foregroundStyle(viewModel.quantity.isEmpty ? Color(.tertiaryLabel) : .primary)
+
+            TextField("", text: quantityTextBinding)
+                .keyboardType(.numberPad)
+                .font(quantityTextFont)
+                .monospacedDigit()
+                .foregroundStyle(.clear)
+                .tint(Color.accentColor)
+                .focused($focusedField, equals: .quantity)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var subtotalCard: some View {
@@ -212,19 +292,19 @@ struct AddItemView: View {
                 .minimumScaleFactor(0.5)
                 .lineLimit(1)
                 .contentTransition(.numericText(countsDown: subtotalIsDecreasing))
-                .animation(.spring(response: 0.45, dampingFraction: 0.75), value: displayedSubtotal)
+                .animation(AnimationHelper.feedbackSpring, value: displayedSubtotal)
                 .frame(maxWidth: .infinity, alignment: .center)
         }
         .padding(AppConstants.UserInterface.padding)
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
+        .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius))
         .transition(.opacity.combined(with: .scale(scale: 0.96, anchor: .top)))
         .onAppear { displayedSubtotal = subtotalAmount }
         .onChange(of: subtotalAmount) { _, newValue in
             let oldDigits = Int(displayedSubtotal.filter(\.isNumber)) ?? 0
             let newDigits = Int(newValue.filter(\.isNumber)) ?? 0
             subtotalIsDecreasing = newDigits < oldDigits
-            withAnimation(.spring(response: 0.45, dampingFraction: 0.75)) {
+            withAnimation(AnimationHelper.feedbackSpring) {
                 displayedSubtotal = newValue
             }
         }

@@ -1,19 +1,34 @@
 import SwiftUI
 
 private extension AnyTransition {
-    static var dashboardFilteredViewSwap: AnyTransition {
-        .asymmetric(
-            insertion: .move(edge: .trailing).combined(with: .opacity),
-            removal: .move(edge: .trailing).combined(with: .opacity)
-        )
+    static var dashboardForwardDrill: AnyTransition {
+        .push(from: .trailing).combined(with: .opacity)
     }
 
-    static var dashboardCategoryBoardSwap: AnyTransition {
+    static var dashboardBackwardDrill: AnyTransition {
+        .push(from: .leading).combined(with: .opacity)
+    }
+
+    static var dashboardTodayRangeSwap: AnyTransition {
         .asymmetric(
             insertion: .move(edge: .leading).combined(with: .opacity),
             removal: .move(edge: .leading).combined(with: .opacity)
         )
     }
+
+    static var dashboardMonthRangeSwap: AnyTransition {
+        .asymmetric(
+            insertion: .move(edge: .trailing).combined(with: .opacity),
+            removal: .move(edge: .trailing).combined(with: .opacity)
+        )
+    }
+}
+
+enum DashboardContentTransitionMode {
+    case drillForward
+    case drillBackward
+    case todayRange
+    case monthRange
 }
 
 struct DashboardLoadingState: View {
@@ -68,13 +83,12 @@ struct DashboardChangingGroupOverlay: View {
 }
 
 struct DashboardHeroSection: View {
-    let heroIsSuccess: Bool
-    let lastAddedDescription: String
     let showingFullMonth: Bool
     let monthLabel: String
     let monthTotal: String
     let todayTotal: String
     var overrideLabel: String? = nil
+    var overrideLabelUsesCostOfPrefix: Bool = true
     var overrideTotal: String? = nil
     var budgetLimitText: String? = nil
     var budgetFillRatio: Double? = nil
@@ -83,8 +97,11 @@ struct DashboardHeroSection: View {
     let onAddExpense: () -> Void
 
     private var displayLabel: String {
-        if heroIsSuccess { return lastAddedDescription }
-        if let overrideLabel { return LocalizationKey.Item.costOf.localized(with: overrideLabel) }
+        if let overrideLabel {
+            return overrideLabelUsesCostOfPrefix
+                ? LocalizationKey.Item.costOf.localized(with: overrideLabel)
+                : overrideLabel
+        }
         return showingFullMonth ? monthLabel : LocalizationKey.Dashboard.costToday.localized
     }
 
@@ -99,22 +116,21 @@ struct DashboardHeroSection: View {
             totalAmount: displayTotal,
             onAddExpense: onAddExpense,
             actionColor: overrideActionColor ?? .accentColor,
-            budgetFillRatio: budgetFillRatio,
-            isSuccess: heroIsSuccess
+            budgetFillRatio: budgetFillRatio
         ) {
-            if let budgetLimitText, !heroIsSuccess {
-                HStack(spacing: 8) {
-                    Text(budgetLimitText)
-                        .font(.footnote.weight(.medium))
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.85)
-
+            if let budgetLimitText {
+                HStack(spacing: 6) {
                     if showsOverLimitBadge {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(.orange)
                     }
+
+                    Text(budgetLimitText)
+                        .font(.footnote.weight(.medium))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.85)
                 }
                 .padding(.top, 2)
             }
@@ -164,13 +180,49 @@ struct DashboardBottomInset<Hero: View, Bar: View>: View {
     }
 }
 
+struct DashboardTopChromeView: View {
+    private enum Metrics {
+        static let baseHeight: CGFloat = 56
+    }
+
+    @Binding var showingFullMonth: Bool
+    let hasItemsOutsideToday: Bool
+    let onOpenSettings: () -> Void
+    let toast: Binding<ToastMessage?>
+
+    private var showsToast: Bool {
+        toast.wrappedValue != nil
+    }
+
+    var body: some View {
+        DashboardTopBarView(
+            showingFullMonth: $showingFullMonth,
+            hasItemsOutsideToday: hasItemsOutsideToday,
+            onOpenSettings: onOpenSettings
+        )
+        .opacity(showsToast ? 0 : 1)
+        .allowsHitTesting(!showsToast)
+        .overlay(alignment: .top) {
+            if showsToast {
+                ToastHost(
+                    toast: toast,
+                    topPadding: AppConstants.UserInterface.smallPadding
+                )
+                .transition(.move(edge: .top).combined(with: .opacity))
+                .zIndex(1)
+            }
+        }
+        .frame(maxWidth: .infinity, minHeight: Metrics.baseHeight, maxHeight: Metrics.baseHeight, alignment: .top)
+        .background(Color(.systemBackground))
+        .animation(AnimationHelper.smoothSpring, value: showsToast)
+    }
+}
+
 struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
     let allFormattedAmount: String
-    let allFormattedUnpaidAmount: String?
     let categoryBoxes: [DashboardCategoryBoxData]
     let hasVisibleItemLists: Bool
     let getFormattedAmount: (DashboardCategoryBoxData) -> String
-    let getFormattedUnpaidAmount: (DashboardCategoryBoxData) -> String?
     // Date rows (intermediate level: category → days)
     let showsDateRows: Bool
     let dateRows: [DashboardDayBoxData]
@@ -179,18 +231,21 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
     let onDateRowTap: (DashboardDayBoxData) -> Void
     // Expense list (deepest level: day → expense rows)
     let filteredItemLists: [SDItemList]
+    let getItemListCategoryContext: (SDItemList) -> String?
     let getItemListAmount: (SDItemList) -> String
     let getItemListUnpaidAmount: (SDItemList) -> String?
     let getDayTotal: (Date) -> String
     let getSearchSummary: (SDItemList) -> String?
     let getSearchMatchedSubtotal: (SDItemList) -> String?
     let getSearchMatchedUnpaid: (SDItemList) -> String?
+    let getSearchMatchedRowStatus: (SDItemList) -> ItemListRowStatus?
     let hideExpenseListSectionHeaders: Bool
     let customEmptyState: EmptyState
     let showCustomEmptyState: Bool
     let onRefresh: () async -> Void
     let onAllTap: () -> Void
     let onCategoryTap: (DashboardCategoryBoxData) -> Void
+    let onBack: (() -> Void)?
     let selectedFilterTitle: String?
     @Binding var collapsedDays: Set<Date>
     let itemListRowStatus: [UUID: ItemListRowStatus]
@@ -198,12 +253,27 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
     let onTogglePaid: (SDItemList) -> Void
     let onDelete: (SDItemList) -> Void
     @Binding var showingFullMonth: Bool
+    let transitionMode: DashboardContentTransitionMode
     let hasItemsOutsideToday: Bool
     let onOpenSettings: () -> Void
+    let toast: Binding<ToastMessage?>
     let bottomInset: BottomInset
 
     private var isShowingFilteredList: Bool {
         selectedFilterTitle != nil
+    }
+
+    private var contentTransition: AnyTransition {
+        switch transitionMode {
+        case .drillForward:
+            .dashboardForwardDrill
+        case .drillBackward:
+            .dashboardBackwardDrill
+        case .todayRange:
+            .dashboardTodayRangeSwap
+        case .monthRange:
+            .dashboardMonthRangeSwap
+        }
     }
 
     private var filteredListContextID: String {
@@ -216,29 +286,30 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
 
     init(
         allFormattedAmount: String,
-        allFormattedUnpaidAmount: String?,
         categoryBoxes: [DashboardCategoryBoxData],
         hasVisibleItemLists: Bool,
         getFormattedAmount: @escaping (DashboardCategoryBoxData) -> String,
-        getFormattedUnpaidAmount: @escaping (DashboardCategoryBoxData) -> String?,
         showsDateRows: Bool,
         dateRows: [DashboardDayBoxData],
         getDateRowAmount: @escaping (DashboardDayBoxData) -> String,
         getDateRowUnpaidAmount: @escaping (DashboardDayBoxData) -> String?,
         onDateRowTap: @escaping (DashboardDayBoxData) -> Void,
         filteredItemLists: [SDItemList],
+        getItemListCategoryContext: @escaping (SDItemList) -> String? = { _ in nil },
         getItemListAmount: @escaping (SDItemList) -> String,
         getItemListUnpaidAmount: @escaping (SDItemList) -> String?,
         getDayTotal: @escaping (Date) -> String,
         getSearchSummary: @escaping (SDItemList) -> String?,
         getSearchMatchedSubtotal: @escaping (SDItemList) -> String?,
         getSearchMatchedUnpaid: @escaping (SDItemList) -> String?,
+        getSearchMatchedRowStatus: @escaping (SDItemList) -> ItemListRowStatus?,
         hideExpenseListSectionHeaders: Bool,
         @ViewBuilder customEmptyState: () -> EmptyState,
         showCustomEmptyState: Bool,
         onRefresh: @escaping () async -> Void,
         onAllTap: @escaping () -> Void,
         onCategoryTap: @escaping (DashboardCategoryBoxData) -> Void,
+        onBack: (() -> Void)? = nil,
         selectedFilterTitle: String?,
         collapsedDays: Binding<Set<Date>>,
         itemListRowStatus: [UUID: ItemListRowStatus],
@@ -246,34 +317,37 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
         onTogglePaid: @escaping (SDItemList) -> Void,
         onDelete: @escaping (SDItemList) -> Void,
         showingFullMonth: Binding<Bool>,
+        transitionMode: DashboardContentTransitionMode,
         hasItemsOutsideToday: Bool,
         onOpenSettings: @escaping () -> Void,
+        toast: Binding<ToastMessage?>,
         @ViewBuilder bottomInset: () -> BottomInset
     ) {
         self.allFormattedAmount = allFormattedAmount
-        self.allFormattedUnpaidAmount = allFormattedUnpaidAmount
         self.categoryBoxes = categoryBoxes
         self.hasVisibleItemLists = hasVisibleItemLists
         self.getFormattedAmount = getFormattedAmount
-        self.getFormattedUnpaidAmount = getFormattedUnpaidAmount
         self.showsDateRows = showsDateRows
         self.dateRows = dateRows
         self.getDateRowAmount = getDateRowAmount
         self.getDateRowUnpaidAmount = getDateRowUnpaidAmount
         self.onDateRowTap = onDateRowTap
         self.filteredItemLists = filteredItemLists
+        self.getItemListCategoryContext = getItemListCategoryContext
         self.getItemListAmount = getItemListAmount
         self.getItemListUnpaidAmount = getItemListUnpaidAmount
         self.getDayTotal = getDayTotal
         self.getSearchSummary = getSearchSummary
         self.getSearchMatchedSubtotal = getSearchMatchedSubtotal
         self.getSearchMatchedUnpaid = getSearchMatchedUnpaid
+        self.getSearchMatchedRowStatus = getSearchMatchedRowStatus
         self.hideExpenseListSectionHeaders = hideExpenseListSectionHeaders
         self.customEmptyState = customEmptyState()
         self.showCustomEmptyState = showCustomEmptyState
         self.onRefresh = onRefresh
         self.onAllTap = onAllTap
         self.onCategoryTap = onCategoryTap
+        self.onBack = onBack
         self.selectedFilterTitle = selectedFilterTitle
         self._collapsedDays = collapsedDays
         self.itemListRowStatus = itemListRowStatus
@@ -281,8 +355,10 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
         self.onTogglePaid = onTogglePaid
         self.onDelete = onDelete
         self._showingFullMonth = showingFullMonth
+        self.transitionMode = transitionMode
         self.hasItemsOutsideToday = hasItemsOutsideToday
         self.onOpenSettings = onOpenSettings
+        self.toast = toast
         self.bottomInset = bottomInset()
     }
 
@@ -302,22 +378,24 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
                     )
                     .id(filteredListContextID)
                     .zIndex(1)
-                    .transition(.dashboardFilteredViewSwap)
+                    .transition(contentTransition)
                 } else if showsDateRows {
                     customEmptyState
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                         .padding(.horizontal, AppConstants.UserInterface.padding)
                         .padding(.top, AppConstants.UserInterface.padding)
                         .zIndex(1)
-                        .transition(.dashboardFilteredViewSwap)
+                        .transition(contentTransition)
                 } else if selectedFilterTitle != nil {
                     ExpenseListView(
                         itemLists: filteredItemLists,
+                        getCategoryContext: getItemListCategoryContext,
                         getFormattedAmount: getItemListAmount,
                         getFormattedUnpaidAmount: getItemListUnpaidAmount,
                         getSearchSummary: getSearchSummary,
                         getSearchMatchedSubtotal: getSearchMatchedSubtotal,
                         getSearchMatchedUnpaid: getSearchMatchedUnpaid,
+                        getSearchMatchedRowStatus: getSearchMatchedRowStatus,
                         itemListRowStatus: itemListRowStatus,
                         onItemTap: onItemTap,
                         onTogglePaid: onTogglePaid,
@@ -332,15 +410,13 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
                     )
                     .id(filteredListContextID)
                     .zIndex(2)
-                    .transition(.dashboardFilteredViewSwap)
+                    .transition(contentTransition)
                 } else {
                     DashboardCategoryBoardView(
                         boxes: categoryBoxes,
                         hasVisibleItemLists: hasVisibleItemLists,
                         allFormattedAmount: allFormattedAmount,
-                        allFormattedUnpaidAmount: allFormattedUnpaidAmount,
                         getFormattedAmount: getFormattedAmount,
-                        getFormattedUnpaidAmount: getFormattedUnpaidAmount,
                         onRefresh: onRefresh,
                         customEmptyState: { customEmptyState },
                         showCustomEmptyState: showCustomEmptyState,
@@ -348,7 +424,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
                         onSelect: onCategoryTap
                     )
                     .zIndex(0)
-                    .transition(.dashboardCategoryBoardSwap)
+                    .transition(contentTransition)
                 }
             }
             .animation(AnimationHelper.dashboardDrill, value: isShowingFilteredList)
@@ -357,17 +433,34 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
             .background(Color(.secondarySystemBackground))
             .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
             .padding(.horizontal, AppConstants.UserInterface.padding)
-            .padding(.top, 4)
             .padding(.bottom, 2)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .overlay(alignment: .leading) {
+            if isShowingFilteredList, let onBack {
+                Color.clear
+                    .frame(width: 28)
+                    .frame(maxHeight: .infinity)
+                    .contentShape(Rectangle())
+                    .ignoresSafeArea()
+                    .gesture(
+                        DragGesture(minimumDistance: 20, coordinateSpace: .local)
+                            .onEnded { value in
+                                guard value.translation.width > 60,
+                                      abs(value.translation.width) > abs(value.translation.height)
+                                else { return }
+                                onBack()
+                            }
+                    )
+            }
+        }
         .safeAreaInset(edge: .top, spacing: 0) {
-            DashboardTopBarView(
+            DashboardTopChromeView(
                 showingFullMonth: $showingFullMonth,
                 hasItemsOutsideToday: hasItemsOutsideToday,
-                onOpenSettings: onOpenSettings
+                onOpenSettings: onOpenSettings,
+                toast: toast
             )
-            .background(Color(.systemBackground))
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
             bottomInset

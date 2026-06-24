@@ -2,27 +2,34 @@ import Foundation
 import SwiftData
 
 extension ModelContainer {
+    private static var omoniSchema: Schema {
+        Schema(versionedSchema: OmoniSchema.self)
+    }
+
+    private static var omoniMigrationPlan: (any SchemaMigrationPlan.Type) {
+        OmoniMigrationPlan.self
+    }
+
+    private static func makeConfiguration(isStoredInMemoryOnly: Bool) -> ModelConfiguration {
+        ModelConfiguration(
+            schema: omoniSchema,
+            isStoredInMemoryOnly: isStoredInMemoryOnly,
+            cloudKitDatabase: .none
+        )
+    }
+
+    private static func makeContainer(isStoredInMemoryOnly: Bool) throws -> ModelContainer {
+        try ModelContainer(
+            for: omoniSchema,
+            migrationPlan: omoniMigrationPlan,
+            configurations: [makeConfiguration(isStoredInMemoryOnly: isStoredInMemoryOnly)]
+        )
+    }
     
     @MainActor
     static var shared: ModelContainer = {
-        let schema = Schema([
-            SDUser.self,
-            SDGroup.self,
-            SDUserGroup.self,
-            SDCategory.self,
-            SDPaymentMethod.self,
-            SDItemList.self,
-            SDItem.self
-        ])
-        
-        let configuration = ModelConfiguration(
-            schema: schema,
-            isStoredInMemoryOnly: false,
-            cloudKitDatabase: .none
-        )
-        
         do {
-            return try ModelContainer(for: schema, configurations: configuration)
+            return try makeContainer(isStoredInMemoryOnly: false)
         } catch {
             fatalError("Failed to create ModelContainer: \(error.localizedDescription)")
         }
@@ -30,23 +37,8 @@ extension ModelContainer {
     
     @MainActor
     static var preview: ModelContainer = {
-        let schema = Schema([
-            SDUser.self,
-            SDGroup.self,
-            SDUserGroup.self,
-            SDCategory.self,
-            SDPaymentMethod.self,
-            SDItemList.self,
-            SDItem.self
-        ])
-        
-        let configuration = ModelConfiguration(
-            schema: schema,
-            isStoredInMemoryOnly: true
-        )
-        
         do {
-            let container = try ModelContainer(for: schema, configurations: configuration)
+            let container = try makeContainer(isStoredInMemoryOnly: true)
             let context = container.mainContext
             
             let user = SDUser.mock(name: "Preview User", email: "preview@omoni.app")
@@ -80,6 +72,7 @@ extension ModelContainer {
             
             let itemList = SDItemList.mock(
                 itemListDescription: "Weekly Shopping",
+                isList: true,
                 date: Date(),
                 category: category,
                 paymentMethod: paymentMethod,
@@ -114,23 +107,8 @@ extension ModelContainer {
     
     @MainActor
     static func test() -> ModelContainer {
-        let schema = Schema([
-            SDUser.self,
-            SDGroup.self,
-            SDUserGroup.self,
-            SDCategory.self,
-            SDPaymentMethod.self,
-            SDItemList.self,
-            SDItem.self
-        ])
-        
-        let configuration = ModelConfiguration(
-            schema: schema,
-            isStoredInMemoryOnly: true
-        )
-        
         do {
-            return try ModelContainer(for: schema, configurations: configuration)
+            return try makeContainer(isStoredInMemoryOnly: true)
         } catch {
             fatalError("Failed to create test ModelContainer: \(error)")
         }

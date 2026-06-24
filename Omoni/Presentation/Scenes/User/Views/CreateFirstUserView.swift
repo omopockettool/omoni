@@ -229,14 +229,19 @@ struct CreateFirstUserView: View {
                 .onSubmit {
                     focusedField = nil
                 }
+                .onChange(of: text.wrappedValue) { _, newValue in
+                    if newValue.count > AppConstants.Validation.maxUserNameLength {
+                        text.wrappedValue = String(newValue.prefix(AppConstants.Validation.maxUserNameLength))
+                    }
+                }
         }
         .padding(.horizontal, 18)
         .padding(.vertical, 16)
         .background(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius)
                 .fill(Color(.secondarySystemGroupedBackground))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 16)
+                    RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius)
                         .strokeBorder(
                             focusedField == field ? Color(.systemGray3) : Color.clear,
                             lineWidth: 2
@@ -278,7 +283,6 @@ struct CreateFirstUserView: View {
             HStack(spacing: 12) {
                 Image(systemName: "person.badge.plus")
                     .font(.system(size: 17, weight: .semibold))
-                    .symbolEffect(.bounce, value: viewModel.isFormValid)
                 
                 Text(LocalizationKey.User.create.localized)
                     .font(.headline)
@@ -288,7 +292,7 @@ struct CreateFirstUserView: View {
             .padding(.vertical, 18)
             .background(
                 Group {
-                    if viewModel.isFormValid {
+                    if viewModel.isFormValid && acceptedLegal {
                         LinearGradient(
                             colors: [
                                 Color.omoniInteractiveRed,
@@ -309,9 +313,9 @@ struct CreateFirstUserView: View {
                     }
                 }
             )
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius))
             .shadow(
-                color: viewModel.isFormValid ? Color.omoniInteractiveRed.opacity(0.28) : .clear,
+                color: viewModel.isFormValid && acceptedLegal ? Color.omoniInteractiveRed.opacity(0.28) : .clear,
                 radius: 8,
                 y: 4
             )
@@ -360,10 +364,10 @@ struct CreateFirstUserView: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 18)
             .background(
-                RoundedRectangle(cornerRadius: 16)
+                RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius)
                     .fill(Color(.secondarySystemGroupedBackground))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 16)
+                        RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius)
                             .stroke(Color(.separator).opacity(0.35), lineWidth: 1)
                     )
             )

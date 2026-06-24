@@ -44,11 +44,23 @@ final class AppDIContainer {
     func makeCreateItemListUseCase() -> CreateItemListUseCase {
         DefaultCreateItemListUseCase(itemListRepository: itemListRepository)
     }
+    func makeCreateSingleEntryUseCase() -> CreateSingleEntryUseCase {
+        DefaultCreateSingleEntryUseCase(
+            itemListRepository: itemListRepository,
+            itemRepository: itemRepository
+        )
+    }
     func makeFetchItemListsUseCase() -> FetchItemListsUseCase {
         DefaultFetchItemListsUseCase(itemListRepository: itemListRepository)
     }
     func makeUpdateItemListUseCase() -> UpdateItemListUseCase {
         DefaultUpdateItemListUseCase(itemListRepository: itemListRepository)
+    }
+    func makeUpdateSingleEntryUseCase() -> UpdateSingleEntryUseCase {
+        DefaultUpdateSingleEntryUseCase(
+            itemRepository: itemRepository,
+            itemListRepository: itemListRepository
+        )
     }
     func makeDeleteItemListUseCase() -> DeleteItemListUseCase {
         DefaultDeleteItemListUseCase(itemListRepository: itemListRepository)
@@ -76,6 +88,9 @@ final class AppDIContainer {
     }
     func makeToggleItemPaidUseCase() -> ToggleItemPaidUseCase {
         DefaultToggleItemPaidUseCase(itemRepository: itemRepository)
+    }
+    func makeFetchFrequentItemsUseCase() -> FetchFrequentItemsUseCase {
+        DefaultFetchFrequentItemsUseCase(itemRepository: itemRepository)
     }
 
     // MARK: - Category Use Cases

@@ -76,6 +76,18 @@ final class CreateItemUseCaseTests: XCTestCase {
         XCTAssertEqual(item.totalAmount, 4.50, accuracy: 0.001)
     }
 
+    func testCreate_MaximumQuantity_Succeeds() async throws {
+        let item = try await useCase.execute(
+            description: "Agua",
+            amount: 1.50,
+            quantity: AppConstants.Validation.maxItemQuantity,
+            itemListId: itemList.id,
+            isPaid: false
+        )
+
+        XCTAssertEqual(item.quantity, AppConstants.Validation.maxItemQuantity)
+    }
+
     func testCreate_IsPaidTrue_PersistsCorrectly() async throws {
         let item = try await useCase.execute(
             description: "Alquiler",
@@ -164,6 +176,23 @@ final class CreateItemUseCaseTests: XCTestCase {
                 description: "Item",
                 amount: 5.0,
                 quantity: -2,
+                itemListId: itemList.id,
+                isPaid: false
+            )
+            XCTFail("Expected ValidationError.invalidQuantity")
+        } catch ValidationError.invalidQuantity {
+            // pass
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    func testCreate_QuantityAboveMaximum_ThrowsInvalidQuantity() async {
+        do {
+            _ = try await useCase.execute(
+                description: "Item",
+                amount: 5.0,
+                quantity: AppConstants.Validation.maxItemQuantity + 1,
                 itemListId: itemList.id,
                 isPaid: false
             )

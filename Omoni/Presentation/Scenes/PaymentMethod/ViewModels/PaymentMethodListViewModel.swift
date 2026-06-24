@@ -39,14 +39,14 @@ import SwiftUI
     }
 
     func deletePaymentMethod(_ pm: SDPaymentMethod) {
-        withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
+        withAnimation(AnimationHelper.deleteSpring) {
             paymentMethods.removeAll { $0.id == pm.id }
         }
         Task {
             do {
                 try await deletePaymentMethodUseCase.execute(id: pm.id)
             } catch {
-                withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
+                withAnimation(AnimationHelper.deleteSpring) {
                     paymentMethods.append(pm)
                 }
                 errorMessage = "Error al eliminar método de pago: \(error.localizedDescription)"

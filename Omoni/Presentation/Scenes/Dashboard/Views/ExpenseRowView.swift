@@ -1,47 +1,18 @@
 import SwiftUI
 
-// MARK: - Status toggle button (left side)
+// MARK: - Expense Row
 
-private struct RowStatusButton: View {
-    let rowStatus: ItemListRowStatus
-    let action: () -> Void
-
-    private var iconName: String {
-        switch rowStatus {
-        case .neutral:  return "minus"
-        case .unpaid:   return "circle"
-        case .partial:  return "circle.lefthalf.filled"
-        case .paid:     return "checkmark.circle.fill"
-        }
-    }
-
-    private var iconColor: Color {
-        switch rowStatus {
-        case .neutral:  return Color(.systemGray4)
-        case .unpaid:   return Color(.systemGray3)
-        case .partial:  return .orange
-        case .paid:     return .paidGreen
-        }
-    }
-
-    var body: some View {
-        Button(action: action) {
-            Image(systemName: iconName)
-                .font(.system(size: 24, weight: rowStatus == .paid ? .regular : .light))
-                .foregroundStyle(iconColor)
-                .frame(width: 34, height: 34)
-                .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .toggleHaptic(trigger: rowStatus)
-        .animation(.spring(response: 0.3, dampingFraction: 0.75), value: rowStatus)
+private enum ExpenseRowLayoutMetrics {
+    static func trailingAmountColumnHeight(isCompact: Bool) -> CGFloat {
+        isCompact ? 36 : 42
     }
 }
 
-// MARK: - Expense Row
-
 struct ExpenseRowView: View {
+    @State private var detailTitleColor: Color = Color.primary.opacity(0.92)
+
     let itemList: SDItemList
+    let categoryContext: String?
     let formattedAmount: String
     let formattedUnpaidAmount: String?
     let searchSummary: String?
@@ -57,75 +28,199 @@ struct ExpenseRowView: View {
         searchMatchedSubtotal ?? formattedAmount
     }
 
-    private var secondaryAmountText: String? {
+    private var targetSecondaryAmountText: String? {
         searchMatchedSubtotal != nil ? searchMatchedUnpaid : formattedUnpaidAmount
     }
 
-    private var amountColor: Color {
+    private var showsSplitAmounts: Bool {
         switch rowStatus {
-        case .paid:    return .paidGreen
-        case .partial: return .orange
-        case .unpaid:  return Color.primary.opacity(0.6)
-        case .neutral: return Color.secondary
+        case .partial, .unpaid:
+            return targetSecondaryAmountText != nil
+        case .paid, .neutral:
+            return false
         }
     }
 
-    private var showsZeroAmountStyle: Bool {
-        abs(itemList.totalPaidAmount) < 0.000_001
+    private var rowTone: StatusFramedRowTone {
+        switch rowStatus {
+        case .paid:
+            return .completed
+        case .partial, .unpaid:
+            return .neutral
+        case .neutral:
+            return .neutral
+        }
+    }
+
+    private var statusIconName: String {
+        switch rowStatus {
+        case .paid:
+            return "checkmark"
+        case .partial:
+            return "circle.lefthalf.filled"
+        case .unpaid:
+            return "circle"
+        case .neutral:
+            return "minus"
+        }
+    }
+
+    private var statusIconColor: Color? {
+        switch rowStatus {
+        case .partial:
+            return .orange
+        case .unpaid, .neutral:
+            return Color(.systemGray2)
+        case .paid:
+            return nil
+        }
+    }
+
+    private var secondaryAmountColor: Color {
+        switch rowStatus {
+        case .partial, .unpaid:
+            return .orange
+        case .paid, .neutral:
+            return .secondary
+        }
+    }
+
+    private var trailingAmountColumnHeight: CGFloat {
+        ExpenseRowLayoutMetrics.trailingAmountColumnHeight(isCompact: isCompact)
+    }
+
+    private var trailingAmountAnimationCurve: Animation {
+        .easeInOut(duration: 0.2)
+    }
+
+    private var defaultDetailTitleColor: Color {
+        Color.primary.opacity(0.92)
     }
 
     var body: some View {
-        HStack(alignment: .center, spacing: 10) {
-            // Status toggle
-            RowStatusButton(rowStatus: rowStatus, action: onTogglePaid)
-
-            // Description + optional search summary
-            VStack(alignment: .leading, spacing: 2) {
-                Text(itemList.itemListDescription)
-                    .font(.system(size: isCompact ? 14 : 15, weight: .regular))
-                    .foregroundStyle(Color.primary.opacity(0.9))
-                    .lineLimit(1)
-
-                if let searchSummary {
-                    Text(searchSummary)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+        StatusFramedRow(
+            tone: rowTone,
+            statusIconName: statusIconName,
+            statusIconColor: statusIconColor,
+            onTap: onTap,
+            onToggle: onTogglePaid
+        ) {
+            HStack(alignment: .center, spacing: 12) {
+                VStack(alignment: .leading, spacing: categoryContext == nil ? 0 : 3) {
+                    Text(itemList.itemListDescription)
+                        .font(.system(size: isCompact ? 14 : 15, weight: .medium))
+                        .foregroundStyle(detailTitleColor)
                         .lineLimit(1)
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
 
-            // Amount column
-            VStack(alignment: .trailing, spacing: 2) {
-                Text(primaryAmountText)
-                    .font(.system(size: isCompact ? 14 : 15,
-                                  weight: showsZeroAmountStyle ? .light : .light,
-                                  design: .default))
-                    .foregroundStyle(showsZeroAmountStyle ? Color.secondary : amountColor)
-                    .monospacedDigit()
-                    .lineLimit(1)
-                    .contentTransition(.numericText())
-
-                if let secondary = secondaryAmountText {
-                    Text("\(secondary) \(LocalizationKey.Item.unpaid.localized)")
-                        .font(.caption2)
-                        .foregroundStyle(.orange.opacity(0.75))
-                        .monospacedDigit()
-                        .lineLimit(1)
-                        .transition(.opacity.combined(with: .move(edge: .top)))
+                    if let categoryContext {
+                        Text(categoryContext)
+                            .font(.caption.weight(.medium))
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+
+                trailingAmountColumn
             }
-            .animation(AnimationHelper.quickEase, value: formattedAmount)
-            .animation(AnimationHelper.quickEase, value: secondaryAmountText)
         }
-        .padding(.vertical, isCompact ? 14 : 17)
-        .overlay(alignment: .bottom) {
-            Rectangle()
-                .fill(Color(.separator).opacity(0.3))
-                .frame(height: 0.5)
+        .padding(.vertical, isCompact ? 4 : 6)
+        .animation(trailingAmountAnimationCurve, value: showsSplitAmounts)
+        .onAppear { detailTitleColor = defaultDetailTitleColor }
+        .onChange(of: rowStatus) { oldValue, newValue in
+            guard oldValue != newValue else { return }
+
+            let flashColor: Color?
+            switch (oldValue, newValue) {
+            case (_, .paid):
+                flashColor = .paidGreen
+            case (.paid, _):
+                flashColor = Color(.systemGray2)
+            default:
+                flashColor = nil
+            }
+
+            guard let flashColor else { return }
+
+            withAnimation(AnimationHelper.flashIn) {
+                detailTitleColor = flashColor
+            }
+            withAnimation(AnimationHelper.flashOut) {
+                detailTitleColor = defaultDetailTitleColor
+            }
         }
-        .contentShape(Rectangle())
-        .onTapGesture { onTap() }
+    }
+
+    @ViewBuilder
+    private var trailingAmountColumn: some View {
+        // Keep the right column height stable so paid/unpaid toggles animate internally
+        // instead of changing the overall row height.
+        // No maxWidth: .infinity here — the column sizes to its content so the title
+        // gets all remaining space when the amount is short.
+        ZStack(alignment: .trailing) {
+            primaryAmountReservationView
+
+            centeredPrimaryAmountView
+                .frame(height: trailingAmountColumnHeight, alignment: .trailing)
+                .opacity(showsSplitAmounts ? 0 : 1)
+
+            splitAmountsView
+                .frame(height: trailingAmountColumnHeight, alignment: .trailing)
+                .opacity(showsSplitAmounts ? 1 : 0)
+        }
+        .fixedSize(horizontal: true, vertical: false)
+        .frame(height: trailingAmountColumnHeight, alignment: .topTrailing)
+        .clipped()
+    }
+
+    @ViewBuilder
+    private var primaryAmountReservationView: some View {
+        primaryAmountReservationText(primaryAmountText)
+
+        if let targetSecondaryAmountText {
+            primaryAmountReservationText(targetSecondaryAmountText)
+        }
+    }
+
+    private var centeredPrimaryAmountView: some View {
+        primaryAmountTextView(primaryAmountText)
+    }
+
+    private var splitAmountsView: some View {
+        ZStack(alignment: .trailing) {
+            primaryAmountTextView(primaryAmountText)
+                .frame(height: trailingAmountColumnHeight, alignment: .topTrailing)
+
+            if let targetSecondaryAmountText {
+                secondaryAmountTextView(targetSecondaryAmountText)
+                    .frame(height: trailingAmountColumnHeight, alignment: .bottomTrailing)
+            }
+        }
+    }
+
+    private func primaryAmountTextView(_ text: String) -> some View {
+        Text(text)
+            .font(.system(size: isCompact ? 14 : 15, weight: .semibold, design: .rounded))
+            .foregroundStyle(rowTone.amountColor)
+            .monospacedDigit()
+            .lineLimit(1)
+            .animation(.none, value: rowTone)
+    }
+
+    private func primaryAmountReservationText(_ text: String) -> some View {
+        Text(text)
+            .font(.system(size: isCompact ? 14 : 15, weight: .semibold, design: .rounded))
+            .monospacedDigit()
+            .lineLimit(1)
+            .hidden()
+    }
+
+    private func secondaryAmountTextView(_ text: String) -> some View {
+        Text(text)
+            .font(.caption)
+            .foregroundStyle(secondaryAmountColor)
+            .monospacedDigit()
+            .lineLimit(1)
     }
 }
 
@@ -133,6 +228,7 @@ struct ExpenseRowView: View {
     VStack(spacing: 0) {
         ExpenseRowView(
             itemList: SDItemList.mock(itemListDescription: "Compras del supermercado"),
+            categoryContext: "Comida",
             formattedAmount: "12,89 €",
             formattedUnpaidAmount: nil,
             searchSummary: nil,
@@ -144,6 +240,7 @@ struct ExpenseRowView: View {
         )
         ExpenseRowView(
             itemList: SDItemList.mock(itemListDescription: "Cena en restaurante"),
+            categoryContext: "Ocio",
             formattedAmount: "8,00 €",
             formattedUnpaidAmount: "37,60 €",
             searchSummary: nil,
@@ -155,6 +252,7 @@ struct ExpenseRowView: View {
         )
         ExpenseRowView(
             itemList: SDItemList.mock(itemListDescription: "Farmacia"),
+            categoryContext: nil,
             formattedAmount: "22,00 €",
             formattedUnpaidAmount: nil,
             searchSummary: nil,

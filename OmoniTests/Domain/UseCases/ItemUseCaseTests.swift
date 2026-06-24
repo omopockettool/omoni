@@ -140,4 +140,14 @@ final class ToggleAllItemsPaidUseCaseTests: XCTestCase {
         XCTAssertTrue(targetItems.allSatisfy { $0.isPaid })
         XCTAssertTrue(otherItems.allSatisfy { !$0.isPaid })
     }
+
+    func testToggle_WhenAllItemsAlreadyMatch_DoesNotTouchListTimestamp() async throws {
+        itemList.lastModifiedAt = Date(timeIntervalSince1970: 1_700_000_000)
+        try swiftData.insertItem(isPaid: true, itemList: itemList)
+        try swiftData.insertItem(isPaid: true, itemList: itemList)
+
+        try await toggleUseCase.execute(itemListId: itemList.id, isPaid: true)
+
+        XCTAssertEqual(itemList.lastModifiedAt, Date(timeIntervalSince1970: 1_700_000_000))
+    }
 }

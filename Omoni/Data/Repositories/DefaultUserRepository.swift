@@ -23,13 +23,24 @@ final class DefaultUserRepository: UserRepository {
     func createUser(name: String, email: String) async throws -> SDUser {
         let user = SDUser(name: name, email: email)
         context.insert(user)
-        try context.save()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
         return user
     }
 
     func updateUser(_ user: SDUser) async throws {
-        user.lastModifiedAt = Date()
-        try context.save()
+        guard context.hasChanges else { return }
+        user.touch()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
     }
 
     func deleteUser(id: UUID) async throws {
@@ -39,7 +50,12 @@ final class DefaultUserRepository: UserRepository {
             throw RepositoryError.notFound
         }
         context.delete(user)
-        try context.save()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
     }
 
     func searchUsers(query: String) async throws -> [SDUser] {

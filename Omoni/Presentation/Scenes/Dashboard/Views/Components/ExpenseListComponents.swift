@@ -8,6 +8,7 @@ struct ExpenseListEmptyState: View {
 
 struct ExpenseListRowContainer: View {
     let itemList: SDItemList
+    let categoryContext: String?
     let formattedAmount: String
     let formattedUnpaidAmount: String?
     let searchSummary: String?
@@ -22,6 +23,7 @@ struct ExpenseListRowContainer: View {
     var body: some View {
         ExpenseRowView(
             itemList: itemList,
+            categoryContext: categoryContext,
             formattedAmount: formattedAmount,
             formattedUnpaidAmount: formattedUnpaidAmount,
             searchSummary: searchSummary,

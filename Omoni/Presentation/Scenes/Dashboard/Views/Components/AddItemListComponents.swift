@@ -5,10 +5,99 @@ enum AddItemListField {
     case price
 }
 
+struct AddItemListStructureSection: View {
+    let selection: ItemListStructure
+    let canConvertToSingleEntry: Bool
+    let helperText: String?
+    let onSelect: (ItemListStructure) -> Void
+
+    private var singleEntryEnabled: Bool {
+        canConvertToSingleEntry || selection == .singleEntry
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 6) {
+                structureSegment(
+                    title: LocalizationKey.Entry.singleEntry.localized,
+                    systemImage: "bolt.fill",
+                    structure: .singleEntry,
+                    isEnabled: singleEntryEnabled
+                )
+
+                structureSegment(
+                    title: LocalizationKey.Entry.itemizedList.localized,
+                    systemImage: "list.bullet",
+                    structure: .itemizedList,
+                    isEnabled: true
+                )
+            }
+            .padding(4)
+            .background(Color(.secondarySystemGroupedBackground))
+            .clipShape(Capsule())
+            .sensoryFeedback(.selection, trigger: selection)
+
+            if let helperText {
+                Text(helperText)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 4)
+            }
+        }
+    }
+
+    private func structureSegment(
+        title: String,
+        systemImage: String,
+        structure: ItemListStructure,
+        isEnabled: Bool
+    ) -> some View {
+        let isSelected = selection == structure
+
+        return Button {
+            guard isEnabled else { return }
+            withAnimation(AnimationHelper.quickSpring) {
+                onSelect(structure)
+            }
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: systemImage)
+                    .font(.subheadline.weight(.semibold))
+
+                Text(title)
+                    .font(.subheadline.weight(.semibold))
+                    .lineLimit(1)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 12)
+            .foregroundStyle(segmentForegroundColor(isSelected: isSelected, isEnabled: isEnabled))
+            .background(
+                Capsule()
+                    .fill(isSelected ? Color(.tertiarySystemGroupedBackground) : Color.clear)
+            )
+            .opacity(isEnabled ? 1 : 0.5)
+            .contentShape(Capsule())
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func segmentForegroundColor(isSelected: Bool, isEnabled: Bool) -> Color {
+        if isSelected {
+            return .primary
+        }
+        if isEnabled {
+            return Color.primary.opacity(0.92)
+        }
+        return .secondary
+    }
+}
+
 // MARK: - Top Card (Amount + Description)
 
 struct AddItemListTopCard: View {
-    let isEditMode: Bool
+    let showsHeroAmountInput: Bool
+    let usesExpandedDescriptionLayout: Bool
     @Binding var price: String
     let currencySymbol: String
     let descriptionPlaceholder: String
@@ -21,7 +110,7 @@ struct AddItemListTopCard: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            if !isEditMode {
+            if showsHeroAmountInput {
                 HeroAmountInputView(
                     text: $price,
                     currencySymbol: currencySymbol,
@@ -39,7 +128,7 @@ struct AddItemListTopCard: View {
             }
 
             AddItemListDescriptionField(
-                isEditMode: isEditMode,
+                usesExpandedLayout: usesExpandedDescriptionLayout,
                 description: $description,
                 placeholder: descriptionPlaceholder,
                 focusedField: focusedField
@@ -54,12 +143,12 @@ struct AddItemListTopCard: View {
             }
         }
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
+        .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius))
     }
 }
 
 struct AddItemListDescriptionField: View {
-    let isEditMode: Bool
+    let usesExpandedLayout: Bool
     @Binding var description: String
     let placeholder: String
     let focusedField: FocusState<AddItemListField?>.Binding
@@ -69,7 +158,7 @@ struct AddItemListDescriptionField: View {
             icon: "textformat",
             placeholder: placeholder,
             text: $description,
-            maxLength: 200,
+            maxLength: AppConstants.Validation.maxItemDescriptionLength,
             axis: .horizontal,
             style: .embedded,
             submitLabel: .done,
@@ -77,7 +166,7 @@ struct AddItemListDescriptionField: View {
             focusedField: focusedField,
             fieldValue: .description
         )
-        .padding(isEditMode ? AppConstants.UserInterface.largePadding : AppConstants.UserInterface.padding)
+        .padding(usesExpandedLayout ? AppConstants.UserInterface.largePadding : AppConstants.UserInterface.padding)
     }
 }
 
@@ -116,17 +205,17 @@ struct AddItemListCategorySection: View {
                         cornerRadius: chipCornerRadius,
                         isExpanded: showOverflow
                     ) {
-                        withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) {
+                        withAnimation(AnimationHelper.expansionSpring) {
                             showOverflow.toggle()
                         }
                     }
                 }
             }
-            .animation(.spring(response: 0.45, dampingFraction: 0.82), value: showOverflow)
+            .animation(AnimationHelper.expansionSpring, value: showOverflow)
 
             if showOverflow {
                 Button {
-                    withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) {
+                    withAnimation(AnimationHelper.expansionSpring) {
                         showOverflow = false
                     }
                 } label: {
@@ -147,6 +236,7 @@ struct AddItemListCategorySection: View {
             }
         }
     }
+
 }
 
 private struct AddItemListCategoryChip: View {
@@ -203,7 +293,7 @@ private struct AddItemListCategoryChip: View {
                 RoundedRectangle(cornerRadius: cornerRadius)
                     .stroke(chipColor.opacity(isSelected ? 0 : 0.3), lineWidth: 1)
             )
-            .animation(.spring(response: 0.45, dampingFraction: 0.82), value: compact)
+            .animation(AnimationHelper.expansionSpring, value: compact)
         }
         .buttonStyle(.plain)
     }
@@ -282,8 +372,8 @@ private struct AddItemListCategoryOverflowChip: View {
                 RoundedRectangle(cornerRadius: cornerRadius)
                     .stroke(chipColor.opacity(isActive ? 0 : 0.3), lineWidth: 1)
             )
-            .animation(.spring(response: 0.45, dampingFraction: 0.82), value: compact)
-            .animation(.spring(response: 0.45, dampingFraction: 0.82), value: isExpanded)
+            .animation(AnimationHelper.expansionSpring, value: compact)
+            .animation(AnimationHelper.expansionSpring, value: isExpanded)
         }
         .buttonStyle(.plain)
     }
@@ -294,20 +384,32 @@ private struct AddItemListCategoryOverflowChip: View {
 struct AddItemListMoreDetailsSection<Content: View>: View {
     let isEditMode: Bool
     @Binding var showDetails: Bool
-    let onCollapse: () -> Void
     @ViewBuilder let content: () -> Content
+
+    private var triggerTransition: AnyTransition {
+        .asymmetric(
+            insertion: .move(edge: .top).combined(with: .opacity),
+            removal: .move(edge: .top).combined(with: .opacity)
+        )
+    }
+
+    private var detailsTransition: AnyTransition {
+        .asymmetric(
+            insertion: .move(edge: .bottom).combined(with: .opacity),
+            removal: .move(edge: .bottom).combined(with: .opacity)
+        )
+    }
 
     var body: some View {
         VStack(spacing: 16) {
-            if !isEditMode {
+            if !isEditMode && !showDetails {
                 Button {
-                    withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) {
-                        showDetails.toggle()
+                    withAnimation(AnimationHelper.expansionSpring) {
+                        showDetails = true
                     }
-                    if !showDetails { onCollapse() }
                 } label: {
                     HStack(spacing: 6) {
-                        Image(systemName: showDetails ? "chevron.up" : "chevron.down")
+                        Image(systemName: "chevron.down")
                             .font(.system(size: 11, weight: .semibold))
                         Text(LocalizationKey.Entry.moreDetails.localized)
                             .font(.subheadline)
@@ -321,14 +423,18 @@ struct AddItemListMoreDetailsSection<Content: View>: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(PressHapticButtonStyle())
+                .zIndex(1)
+                .transition(triggerTransition)
             }
 
             if isEditMode || showDetails {
                 VStack(spacing: 16) {
                     content()
                 }
-                .transition(isEditMode ? .identity : .opacity.combined(with: .scale(scale: 0.97, anchor: .top)))
-                .animation(isEditMode ? nil : .spring(response: 0.45, dampingFraction: 0.82), value: showDetails)
+                .zIndex(0)
+                .clipped()
+                .transition(isEditMode ? .identity : detailsTransition)
+                .animation(isEditMode ? nil : AnimationHelper.expansionSpring, value: showDetails)
             }
         }
     }
@@ -379,12 +485,12 @@ struct AddItemListPaymentMethodSection: View {
                     }
                 }
             }
-            .animation(.spring(response: 0.45, dampingFraction: 0.82), value: showOverflow)
+            .animation(AnimationHelper.expansionSpring, value: showOverflow)
             .id("paymentMethodAnchor")
 
             if showOverflow {
                 Button {
-                    withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) {
+                    withAnimation(AnimationHelper.expansionSpring) {
                         showOverflow = false
                     }
                     onCollapseOverflow()
@@ -506,9 +612,13 @@ struct AddItemListDateCard: View {
     let onToggleChanged: (Bool) -> Void
 
     private var dateLabel: String {
-        showDatePicker
-            ? formattedDate
-            : LocalizationKey.Dashboard.today.localized.capitalized
+        !showDatePicker && Calendar.current.isDateInToday(date)
+            ? LocalizationKey.Dashboard.today.localized.capitalized
+            : formattedDate
+    }
+
+    private var activeDateTint: Color {
+        Color(.systemGray)
     }
 
     var body: some View {
@@ -529,7 +639,7 @@ struct AddItemListDateCard: View {
                     HStack(spacing: 8) {
                         Image(systemName: "calendar")
                             .font(.system(size: 14))
-                            .foregroundStyle(showDatePicker ? Color.accentColor : Color.secondary)
+                            .foregroundStyle(showDatePicker ? activeDateTint : Color.secondary)
 
                         Text(dateLabel)
                             .font(.subheadline)
@@ -587,7 +697,7 @@ struct AddItemListDateCard: View {
             .opacity((showDatePicker && calendarExpanded) ? 1 : 0)
         }
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
+        .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius))
         .animation(.spring(response: 0.45, dampingFraction: 0.88), value: calendarExpanded)
         .animation(.spring(response: 0.45, dampingFraction: 0.88), value: showDatePicker)
     }
@@ -640,7 +750,7 @@ struct AddItemListGroupCard: View {
             }
             .padding(AppConstants.UserInterface.padding)
             .background(Color(.secondarySystemGroupedBackground))
-            .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
+            .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius))
             .buttonStyle(.plain)
         }
     }

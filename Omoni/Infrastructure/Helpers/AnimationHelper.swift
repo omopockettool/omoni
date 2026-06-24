@@ -44,12 +44,29 @@ struct AnimationHelper {
     static let scale = Animation.spring(response: 0.5, dampingFraction: 0.8, blendDuration: 0.2)
     
     // MARK: - List Animations
-    
+
     /// List item appearance animation
     static let listItem = Animation.easeInOut(duration: 0.3).delay(0.1)
-    
+
     /// List item removal animation
     static let listItemRemoval = Animation.easeInOut(duration: 0.2)
+
+    /// Delete / toggle spring — used for item removal and paid-state toggles in lists
+    static let deleteSpring = Animation.spring(response: 0.38, dampingFraction: 0.82)
+
+    /// Expansion spring — used for dashboard and form expansion transitions
+    static let expansionSpring = Animation.spring(response: 0.45, dampingFraction: 0.82)
+
+    /// Feedback spring — used for toast, alert, and inline validation feedback
+    static let feedbackSpring = Animation.spring(response: 0.45, dampingFraction: 0.75)
+
+    // MARK: - Flash Animations
+
+    /// Flash in — fast easeIn for color highlights (title flash, icon flash)
+    static let flashIn = Animation.easeIn(duration: 0.12)
+
+    /// Flash out — slower easeOut after a flash highlight settles
+    static let flashOut = Animation.easeOut(duration: 0.45).delay(0.15)
     
     // MARK: - Form Animations
     

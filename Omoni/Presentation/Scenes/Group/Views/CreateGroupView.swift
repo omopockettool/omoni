@@ -20,39 +20,42 @@ struct CreateGroupView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
                     LimitedTextField(
                         icon: "person.2.fill",
                         placeholder: LocalizationKey.Group.name.localized,
                         text: $groupName,
-                        maxLength: 30,
+                        maxLength: AppConstants.Validation.maxGroupNameLength,
                         focusedField: $groupNameFocused,
                         fieldValue: true
                     )
                     .textInputAutocapitalization(.words)
-                    .listRowBackground(Color.clear)
-                    .listRowInsets(EdgeInsets(
-                        top: 0,
-                        leading: 0,
-                        bottom: 0,
-                        trailing: 0
-                    ))
-                } header: {
-                    Text(LocalizationKey.Group.info.localized)
-                }
 
-                Section {
-                    Picker(LocalizationKey.Group.currency.localized, selection: $selectedCurrency) {
-                        ForEach(availableCurrencies, id: \.0) { currency in
-                            Text(currency.1).tag(currency.0)
+                    VStack(alignment: .leading, spacing: 10) {
+                        sectionHeader(LocalizationKey.Group.currency.localized)
+
+                        NativeSettingsCard {
+                            ForEach(Array(availableCurrencies.enumerated()), id: \.element.0) { index, currency in
+                                Button {
+                                    withAnimation(AnimationHelper.quickSpring) { selectedCurrency = currency.0 }
+                                } label: {
+                                    currencyRow(code: currency.0, label: currency.1)
+                                        .padding(AppConstants.UserInterface.padding)
+                                }
+                                .buttonStyle(.plain)
+
+                                if index < availableCurrencies.count - 1 {
+                                    Divider()
+                                        .padding(.leading, AppConstants.UserInterface.padding)
+                                }
+                            }
                         }
                     }
-                    .pickerStyle(.menu)
-                } header: {
-                    Text(LocalizationKey.Group.settings.localized)
                 }
+                .padding(AppConstants.UserInterface.padding)
             }
+            .background(Color(.systemGroupedBackground))
             .navigationTitle(LocalizationKey.Group.create.localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -75,6 +78,27 @@ struct CreateGroupView: View {
             message: viewModel.errorMessage,
             onDismiss: viewModel.clearError
         )
+    }
+
+    private func sectionHeader(_ title: String) -> some View {
+        Text(title)
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 4)
+    }
+
+    private func currencyRow(code: String, label: String) -> some View {
+        HStack {
+            Text(label)
+                .foregroundStyle(.primary)
+            Spacer()
+            if selectedCurrency == code {
+                Image(systemName: "checkmark")
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(Color.accentColor)
+            }
+        }
+        .contentShape(Rectangle())
     }
 
     private func createGroup() async {

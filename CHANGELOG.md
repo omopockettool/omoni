@@ -5,6 +5,481 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.57.4] - 2026-06-24
+
+### Fixed
+- **The Dashboard day row for today now states "Today" explicitly instead of relying on red alone** (`DashboardDateRowsComponents`) — the current-day row keeps the brand-red emphasis, but now shows a clear localized "Today" label with the weekday as secondary context so the highlight reads as temporal context rather than warning or danger.
+
+## [2.57.3] - 2026-06-24
+
+### Fixed
+- **Dashboard today states and shared interactive reds now match the real OMONI logo red** (`AccentColor`, `Color+Hex`) — aligned the app accent color and interactive red helper to the logo-derived `FF3D4B` tone so date highlights and red UI accents feel more consistent with the brand.
+
+## [2.57.2] - 2026-06-24
+
+### Fixed
+- **The Item List form now uses a more polished segmented control for switching between Simple and List modes without losing the helpful icons** (`AddItemListComponents`) — replaced the heavier custom chips with a more compact capsule-style selector inspired by the Dashboard range control while preserving the bolt and list glyphs for fast recognition.
+
+## [2.57.1] - 2026-06-24
+
+### Fixed
+- **Add form no longer silently pre-selects a hidden category when opened from the Dashboard without a category context** (`AddItemListViewModel`) — usage-memory auto-selection now skips categories already represented by a Dashboard box, so the visible grid and the actual selection are always in sync.
+- **Keyboard focus follows entry-mode switches intentionally** (`AddItemListView`) — switching to List mode auto-focuses the description field; switching back to Single Entry focuses the amount field only if the description was already active, otherwise the form scrolls to the top without reopening the keyboard; opening the form with a pre-selected Dashboard category auto-focuses the relevant field for the current mode.
+
+## [2.57.0] - 2026-06-24
+
+### Added
+- **Adding from the Dashboard now routes category selection responsibility more intentionally** (`DashboardView`, `AddItemListView`, `AddItemListViewModel`) — tapping "+" from a Dashboard category box pre-selects that category and hides the category grid entirely; tapping "+" from a generic context shows only the categories not yet represented by a Dashboard box, so the grid surfaces new or unused categories rather than duplicating what is already visible on the board.
+
+## [2.56.11] - 2026-06-24
+
+### Fixed
+- **Category and payment-method forms now dismiss the keyboard more naturally while keeping their inputs visually simple** (`BudgetLimitField`, `CategoryFormView`, `PaymentMethodFormView`) — removed the custom keyboard toolbar from the category budget field and aligned both forms to dismiss the keyboard through scroll interaction instead of extra inline or toolbar controls.
+
+## [2.56.10] - 2026-06-24
+
+### Fixed
+- **Dashboard day entry rows now show subtle category context when browsing All categories for a specific date** (`DashboardView`, `DashboardComponents`, `ExpenseListView`, `ExpenseListComponents`, `ExpenseRowView`) — kept the direct `All -> day -> entries` flow, but added a quiet secondary category label only for that mixed-category day context so each row stays easier to parse without introducing extra navigation or noisy category colors.
+
+## [2.56.9] - 2026-06-24
+
+### Fixed
+- **New Entry now opens as a full-height sheet to avoid unstable intermediate-detent behavior** (`DashboardView`, `AddItemListView`) — removed the half-open dashboard entry-sheet state and its expansion plumbing so the form always presents in `.large`, which simplifies the flow and avoids focus, keyboard-toolbar, and scroll-dismiss inconsistencies tied to the smaller detent.
+
+## [2.56.8] - 2026-06-24
+
+### Fixed
+- **Dashboard day drill-down now preserves category context in the bottom chip** (`DashboardView`) — when entering a specific day from a category flow, the hero can still reflect the selected day, but the lower chip now keeps the active category name and icon so the current navigation context stays clear.
+
+## [2.56.7] - 2026-06-24
+
+### Fixed
+- **Calendar day rows now use the same cleaner structural treatment as item-list and item rows** (`DashboardDateRowsComponents`) — removed the patchy inset-compensation approach from the left date block and rebuilt the row so the leading date pane behaves like a real full-height column inside the card, with a more coherent shared color family between the border and the leading panel.
+
+## [2.56.6] - 2026-06-23
+
+### Fixed
+- **Large cards and grouped settings surfaces now follow a more coherent corner-radius language across the app** (`AppConstants`, `SettingsSheetView`, `AboutOMOView`, `UserProfileView`, `CreateFirstUserView`, `GroupInfoEditSheet`, `CreateGroupView`, `GroupFormView`, `CategoryManagementView`, `CategoryFormView`, `PaymentMethodManagementView`, `PaymentMethodFormView`, `LimitedTextField`, `NativeGroupedSheetComponents`, `HeroAmountInputView`, `BudgetLimitField`, `AddItemListComponents`, `AddItemView`, `QuickAddItemsView`, `StatusFramedRow`, `DashboardDateRowsComponents`) — introduced a shared large-row corner radius, removed the overly rounded system-grouped feel from Settings/About/group editors by moving key screens to custom card layouts, and aligned profile, onboarding, group, category, payment-method, quick-add, dashboard, and item-edit cards so single-row and multi-row surfaces now feel like part of the same visual family.
+
+## [2.56.5] - 2026-06-23
+
+### Fixed
+- **Dashboard day rows, item-list rows, and item rows now use thicker, more intentional status borders** (`DashboardDateRowsComponents`, `StatusFramedRow`) — increased the row outline weight so the cards read with more presence, matched the completed-state green border to the check column exactly, and rebalanced the neutral state by unifying its gray and widening the leading status column so the thicker stroke does not crowd the toggle area.
+
+## [2.56.3] - 2026-06-23
+
+### Fixed
+- **Item quantity editing now keeps keyboard focus on the value area instead of the `- / +` controls** (`AddItemView`) — the quantity row now routes tap-to-edit only through the left-side value region, leaving the stepper controls dedicated to increment/decrement. The quantity field also uses the same semibold monospaced styling for the hidden keyboard-backed input, keeping the caret aligned with the displayed digits.
+
+## [2.56.2] - 2026-06-10
+
+### Fixed
+- **Dashboard category board borders now render with consistent thickness and clearer over-limit emphasis** (`DashboardCategoryBoardComponents`) — unified the stroke width across the hero card, regular category boxes, and the `All` tile, and strengthened the orange over-limit outline so warning cards read clearly without making the neutral cards feel borderless.
+
+## [2.56.1] - 2026-06-10
+
+### Fixed
+- **Date chip in new-entry form no longer shows "Hoy" when a specific date was pre-selected** (`AddItemListComponents`, `AddItemListView`) — `dateLabel` now shows "Hoy" only when the picker is closed and the date is actually today; any other date always renders as a formatted string. `startsWithDatePicker` no longer requires edit mode to activate — any non-today date (including an `initialDate` passed from a day view) now starts with the chip correctly shown.
+
+## [2.56.0] - 2026-06-10
+
+### Added
+- **Selection haptic feedback on the Hoy / This Month picker and on dynamic filter chips** (`DashboardTopBarView`, `DashboardBottomBarView`) — tapping the segmented period picker or dismissing an active scope chip (category, date, All, Today) now fires a `.selection` haptic, giving the controls the tactile feel of a detented reel.
+
+## [2.55.2] - 2026-06-10
+
+### Fixed
+- **Amount in expense rows no longer flashes "0.00" when toggling a paid list back to unpaid** (`ExpenseRowView`, `TotalSpentCardView`) — replaced the `contentTransition(.numericText())` + `displayedPrimaryAmount` state pattern with a plain opacity crossfade between the single-amount and split-amount views; added `.animation(.none, value: rowTone)` so the color change (green → orange) is never caught by the container's layout animation. Moved `isDecreasing` inside the `withAnimation` block in `TotalSpentCardView` so the numeric scroll direction resolves in the same animation transaction as the displayed amount.
+
+## [2.55.1] - 2026-06-10
+
+### Fixed
+- **Check toggle no longer causes the row to slide sideways in the item list** (`ItemListDetailViewModel`, `StatusFramedRow`) — removing the ambient `withAnimation` that was propagating into SwiftUI's `List` layer and triggering an unintended UITableView reload animation. The status button (icon + background) and border now use explicit value-driven animations, keeping the animation correctly scoped to those elements without affecting row layout.
+
+## [2.55.0] - 2026-06-10
+
+### Added
+- **Quick Add sheet lets users add recurring items to a list with a single tap** (`FetchFrequentItemsUseCase`, `QuickAddItemsViewModel`, `QuickAddItemsView`, `ItemListDetailView`, `AppDIContainer`) — a clock icon in the item list toolbar opens a sheet showing the most relevant past items from the same category (falling back to the same group when no category is assigned). Each row shows description and last recorded price; tapping adds the item instantly and marks it with a checkmark so the sheet can stay open for multiple taps. Items are ranked by a recency-weighted frequency score (`frequency / (daysSinceLastPurchase + 1)`) so frequently bought and recently bought items surface first.
+
+### Changed
+- **Inline suggestion chips removed from the add-item form** (`AddItemViewModel`, `AddItemView`, `ItemListDetailView`, `AppDIContainer`) — the Quick Add sheet covers the history-based workflow more naturally and with less friction; the add-item form returns to its original focused state for entering new items. The description field remains the first input in the form.
+
+## [2.54.0] - 2026-06-10
+
+### Added
+- **Item suggestion chips now appear in the add-item form when typing a description** (`FetchItemSuggestionsUseCase`, `ItemSuggestion`, `AddItemViewModel`, `AddItemView`, `ItemListDetailView`, `DefaultItemRepository`, `AppDIContainer`) — as the user types at least two characters in the description field, a horizontal strip of chips surfaces items previously created in the same category (falling back to the same group when the list has no category). Tapping a chip fills in the description and last recorded price. Suggestions are suppressed in edit mode, cleared on focus loss, debounced at 250 ms, capped at five results, and sorted by frequency of past use. The description field is now the first input in the form, placing the suggestion strip immediately below where the user types.
+
+### Fixed
+- **Item suggestion chips no longer reappear immediately after tapping one** (`AddItemViewModel`) — applying a suggestion now suppresses the next suggestion load triggered by the programmatic description change, preventing the strip from flickering back into view.
+
+## [2.53.0] - 2026-06-10
+
+### Changed
+- **Dashboard category board now uses a tighter hero-plus-grid layout with clearer budget emphasis** (`DashboardCategoryBoardComponents`, `DashboardComponents`, `DashboardView`, `Localizable.strings`) — the board now promotes only the top category as a full-width hero, packs the remaining categories into a more compact half-width mosaic, uses a calmer and more consistent `All` tile, and reserves warning emphasis for over-limit state instead of mixing it with per-category pending amounts. This makes the category overview feel more like a coherent scan-first dashboard and less like a loosely stacked list of uneven cards.
+
+## [2.52.0] - 2026-06-10
+
+### Changed
+- **SwiftData edit flows now use idempotent model mutation helpers instead of repeatedly writing persisted fields directly** (`SDGroup`, `SDUser`, `SDPaymentMethod`, `SDCategory`, `SDItem`, `SDItemList`, `GroupFormViewModel`, `UserProfileViewModel`, `PaymentMethodFormViewModel`, `AddItemViewModel`, `AddItemListViewModel`, `UpdateCategoryUseCase`, `UpdateItemListUseCase`, `DashboardViewModel`) — editing groups, users, payment methods, items, and item lists now avoids no-op writes, keeps `lastModifiedAt` updates tied to real changes, and reduces the chance of SwiftData setter instability in live edit flows.
+- **Repository update/save paths now skip unnecessary persistence work when the context has no effective changes** (`DefaultGroupRepository`, `DefaultUserRepository`, `DefaultPaymentMethodRepository`, `DefaultCategoryRepository`, `DefaultItemListRepository`, `DefaultItemRepository`) — save operations now touch timestamps and write to disk only when the model context is actually dirty, keeping persistence behavior calmer and more predictable.
+- **Create flows now fail fast when required related records are missing instead of persisting orphaned SwiftData objects** (`DefaultCategoryRepository`, `DefaultPaymentMethodRepository`, `DefaultItemListRepository`, `DefaultItemRepository`, `DefaultUserGroupRepository`) — invalid foreign IDs now raise `RepositoryError.notFound` before insertion, protecting the store from partial or relationship-less records.
+
+### Added
+- **Persistence integrity coverage now includes no-op edit safety and failed-create relationship validation** (`CreateGroupUseCaseTests`, `ItemUseCaseTests`, `CreateRepositoryIntegrityTests`, `SwiftDataTestContainer`) — the test suite now explicitly checks that unchanged edits do not dirty timestamps unnecessarily and that create operations reject missing linked records without leaving partial data behind.
+
+## [2.51.1] - 2026-06-10
+
+### Fixed
+- **Dashboard category board no longer animates the neighboring category box when only one category total changes** (`DashboardCategoryBoardComponents`) — adding a new record from the dashboard now keeps the visual refresh isolated to the affected category box instead of making the adjacent box look like it also reloaded or changed value.
+
+## [2.51.0] - 2026-06-10
+
+### Added
+- **Groups now support a persisted financial lane type for future expense/income flows** (`SDGroup`, `DefaultGroupRepository`, `OMOBackupModels`, `DefaultBackupRepository`) — introduced optional stored `groupKind` with current values `expense` and `income`, while preserving compatibility with older records and backups that do not include the field yet.
+
+### Changed
+- **SwiftData versioning now uses a real frozen historical schema plus a live current schema** (`OmoniSchema`, `ModelContainer+Shared`, `SWIFTDATA_MIGRATION_GUIDE`, `production-migration-playbook`) — `SchemaV1` is now treated as an immutable snapshot and `SchemaV2` as the live app schema, giving the project a valid path for post-launch store evolution instead of versioning-by-name only.
+- **Backup compatibility coverage is now explicit for legacy payloads missing `groupKind`** (`BackupRepositoryCompatibilityTests`, `SwiftDataTestContainer`) — importing an older backup keeps the stored value absent when appropriate, resolves it safely as `expense` at runtime, and exports the normalized current shape on the next backup.
+- **Shared Xcode test scheme now runs only unit tests serially by default** (`Omoni.xcscheme`) — `Cmd+U` no longer includes UI tests and no longer marks test bundles as parallelizable, reducing the cloned-simulator load during local validation.
+
+## [2.50.0] - 2026-06-10
+
+### Changed
+- **Dashboard day drill-down hero now uses contextual cost copy instead of showing only the raw date** (`DashboardView`, `DashboardViewModel`, `Localizable.strings`) — day-focused hero states now read naturally as `Coste de hoy` or `Coste del viernes 5 jun`, aligning the dashboard with the clearer `Coste de …` pattern already used in item-list detail while preserving category-based hero labels.
+
+## [2.49.0] - 2026-06-09
+
+### Added
+- **All text inputs now hard-block entry once the character limit is reached** (`LimitedTextField`, `CreateFirstUserView`, `AppConstants`) — switching focus or tapping a chip no longer causes a visible truncation after the fact; characters beyond the limit are rejected on every keystroke via `onChange`. Group name, user name, and item description limits are now defined as named constants in `AppConstants.Validation` (`maxGroupNameLength`, `maxUserNameLength`) and referenced consistently across all forms instead of using scattered magic numbers.
+
+## [2.48.0] - 2026-06-09
+
+### Fixed
+- **New entry recommendations now stay anchored to the currently selected category while typing** (`AddItemListView`, `AddItemListViewModel`, `ConceptSuggestionEngine`) — changing the category in the quick-add sheet now immediately refreshes the concept memory for that category, and typing a prefix like `Sal...` searches only within the active category instead of leaking suggestions from the previously selected one.
+
+## [2.47.0] - 2026-06-09
+
+### Changed
+- **Expense row title now uses all available space when the amount is short** (`ExpenseRowView`) — the trailing amount column no longer claims half the row width unconditionally; it sizes to its content so a small amount like "12,00 $" leaves the description room to show more characters before truncating.
+- **Item list detail view no longer shows the entry title in the navigation bar** (`ItemListDetailView`) — the inline nav title was redundant with the "Cost of …" hero card already visible at the bottom; removing it gives the screen a cleaner, less crowded top bar.
+
+## [2.46.0] - 2026-06-09
+
+### Added
+- **Dashboard category drill-down now supports a left-edge swipe gesture to go back** (`DashboardComponents`, `DashboardView`) — swiping right from the left edge of the screen while a category or day filter is active navigates back to the previous level using the same animated transition as the chip dismiss button, making back navigation more discoverable and thumb-friendly.
+
+## [2.45.3] - 2026-06-09
+
+### Fixed
+- **New entry form now shows section labels above category and payment method chip grids** (`AddItemListView`) — "Categoría" and "Origen" headings make it immediately clear what each group of chips represents, reducing confusion for first-time users and anyone unfamiliar with the flow.
+
+## [2.45.2] - 2026-06-09
+
+### Fixed
+- **Dashboard content container now sits flush against the top bar, eliminating the excess gap** (`DashboardComponents`) — the top chrome height was reduced from 68 pt to 56 pt and the top padding between the chrome and the rounded content container was removed, so the category board occupies noticeably more vertical screen space.
+- **Dashboard category board now shows an "Expenses by category" section header** (`DashboardCategoryBoardComponents`) — a subtle uppercase label above the chip grid contextualises what is being displayed, removing the ambiguity between expenses, budget, and other potential views.
+
+## [2.45.1] - 2026-06-09
+
+### Fixed
+- **Dashboard scope chips now use calmer, more coherent fallback styling when no category color is available** (`DashboardBottomBarView`, `DashboardView`) — `All`, `Today`, search breadcrumbs, and day scope chips without a category now render with the intended gray chip background and OMONI ancient-red content instead of falling back to the global accent red, while category-driven day chips correctly preserve their parent category color for better drill-down continuity.
+- **Bottom bar controls now align more cleanly as a single chip family** (`DashboardBottomBarView`) — the filter/search capsule now matches the chips' background tone and uses slightly taller vertical padding, while the dynamic middle scope chip gained a soft border so it no longer looks visually flatter or disconnected next to the group chip.
+- **The date picker trigger in the add-item-list form no longer reuses the app's primary red accent for passive date metadata** (`AddItemListComponents`) — the active calendar icon now uses a neutral gray tint so the date control feels calmer and less action-heavy.
+
+## [2.45.0] - 2026-06-08
+
+### Changed
+- **Item quantity and detail inputs now use shared, tighter limits across creation and editing flows** (`AddItemView`, `AddItemListComponents`, `AppConstants`, `ValidationHelper`) — quantity is now constrained to numeric input with a 10-digit cap, while item detail text is limited to 30 characters in both the item sheet and the dashboard quick-add flow so these fields stay controlled and predictable instead of accepting effectively unbounded input.
+
+### Fixed
+- **The item quantity field now clamps visually while typing and no longer falls into an invalid save state after large inputs** (`AddItemView`, `AddItemViewModel`, `CreateItemUseCase`, `ItemRepository`, `SDItem`) — the visible quantity text now behaves like the hero amount input and stops growing past the allowed limit, the subtotal/save state no longer breaks because of an `Int32` bottleneck behind the scenes, and quantity validation is now enforced consistently from UI through persistence.
+
+## [2.44.4] - 2026-06-05
+
+### Fixed
+- **Root loading failures and group deletion errors no longer leave the user without clear feedback** (`AppContentView`, `DashboardViewModel`) — the app now shows a dedicated retry state when initial bootstrap fails instead of falling through to the misleading setup-required screen, and failed group deletions surface the standard error toast instead of only reverting state silently.
+
+## [2.44.3] - 2026-06-05
+
+### Fixed
+- **Dashboard actions no longer fail silently when key refresh or mutation flows error out** (`DashboardViewModel`) — category refresh after closing settings, pull-to-refresh, group switching, available-group refresh, and item-list deletion now surface a standard error toast instead of leaving the user with stale or reverted UI and no explanation.
+
+## [2.44.2] - 2026-06-05
+
+### Fixed
+- **Dashboard category refresh errors are no longer swallowed silently after closing settings** (`DashboardViewModel`) — if reloading category metadata fails during the settings dismiss refresh, the app now surfaces a standard error toast instead of failing invisibly and leaving the user with stale UI and no feedback.
+
+## [2.44.1] - 2026-06-05
+
+### Fixed
+- **Users who had an account but no groups are no longer left on a dead-end setup screen** (`AppContentView`, `AppContentViewModel`) — the `Required configuration` state now opens group creation for the current user instead of showing an inactive placeholder path, allowing the app to recover cleanly into the main dashboard flow.
+
+## [2.44.0] - 2026-06-05
+
+### Fixed
+- **Dashboard category-day drill-down now keeps the hero focused on the selected category instead of repeating the date** (`DashboardView`) — when the user enters a specific day inside a category, the bottom chip remains the navigation breadcrumb for the date while the hero stays on the action context (`Coste de <categoría>`), removing redundant duplicated context between the two surfaces.
+
+## [2.43.0] - 2026-06-05
+
+### Changed
+- **Dashboard drill-down transitions now follow a consistent navigation direction across category, date, and item-list levels** (`DashboardView`, `DashboardComponents`) — forward navigation now behaves like a real push transition, with the current layer leaving to the left while the next layer enters from the right; stepping back uses the opposite direction, so the hierarchy feels spatially coherent instead of visually ambiguous.
+
+## [2.42.3] - 2026-06-05
+
+### Fixed
+- **Dashboard date rows now keep the paid amount in white even when a pending subtotal is present** (`DashboardDateRowsComponents`) — the primary amount no longer turns orange just because the day also has unpaid spend, so the orange secondary line reads clearly as the pending portion instead of competing with the already-paid total.
+
+## [2.42.2] - 2026-06-05
+
+### Fixed
+- **Dashboard category drill-down no longer inflates the bottom bar height when search is inactive** (`DashboardBottomBarView`) — the hidden search layout is now removed from the view tree unless search mode is actually active, so entering a category no longer creates a phantom gap between the hero card and the bottom chips.
+
+## [2.42.1] - 2026-06-05
+
+### Fixed
+- **Search expense row icon now reflects the matched items' paid state instead of the full list** (`DashboardViewModel`) — `searchMatchedRowStatus` uses a 0.01 tolerance instead of a micro-epsilon so an all-unpaid matched item no longer falls through to `.partial` due to floating-point variance.
+- **Item list detail hero always shows the full list totals and status regardless of search context** (`ItemListDetailView`) — the hero card no longer filters by the incoming search query, so toggling any item (matched or not) correctly updates the total and status badge.
+- **Search term is highlighted inline in the item description** (`ItemListDetailView`, `ItemRowView`, `ItemListDetailComponents`) — the matched portion of each item's name renders in accent color and semibold; the pipeline was changed from a boolean `isSearchMatch` to passing the actual `highlightedQuery` string down to the row.
+- **Back navigation is available while in search mode with an active scope filter** (`DashboardBottomBarView`) — a `← scope` breadcrumb now appears above the search field when a day or category drill-down is active, letting the user step back one level without cancelling search.
+- **Keyboard is dismissed when navigating to an item list detail from search** (`DashboardView`) — `dismissSearchKeyboardToken` now increments on any `navigationPath` change (push or pop), not only on pop, so the keyboard closes immediately when entering a detail view.
+
+## [2.42.0] - 2026-06-05
+
+### Changed
+- **Search-driven amounts and states are now consistent between dashboard rows and item-list detail hero** (`DashboardViewModel`, `ExpenseListView`, `DashboardView`, `ItemListDetailViewModel`, `ItemListDetailView`) — when navigating from a dashboard search result, both surfaces now reflect the matched items instead of mixing full-list totals with filtered-state feedback, so pending toggles on a searched item remain legible and coherent across the flow.
+
+## [2.41.1] - 2026-06-05
+
+### Fixed
+- **Search term is now visually highlighted inside item list detail** (`ItemListDetailView`, `ItemRowView`) — the matching portion of an item's description is rendered in accent color and semibold when opened from a search result, so the user immediately sees why that list appeared.
+
+## [2.41.0] - 2026-06-05
+
+### Changed
+- **Returning from item-list detail now refreshes only the affected dashboard entry instead of recalculating every list** (`DashboardViewModel`, `ItemListDetailView`, `CalculateItemListTotalsUseCase`) — item edits, deletes, and paid-state changes now mark the current list as dirty and trigger a targeted totals recomputation on back navigation, keeping dashboard aggregates in sync with less unnecessary work.
+
+### Fixed
+- **Dashboard category boxes now keep stable visual identity when their order changes after an amount update** (`DashboardCategoryBoardComponents`) — the category board no longer keys rows by positional offset, so when a box moves up or down after a total change SwiftUI keeps each category attached to its own animated state instead of briefly making two boxes look like they swapped values.
+
+## [2.40.1] - 2026-06-04
+
+### Fixed
+- **Pull-to-refresh on dashboard and date rows now returns fresh data** (`DashboardViewModel`) — `refreshData()` now clears the totals cache before recalculating, so swiping down always reflects the actual repository state instead of serving stale cached amounts.
+
+## [2.40.0] - 2026-06-04
+
+### Changed
+- **Item list detail toolbar now shows a direct edit button instead of a 3-dot menu** (`ItemListDetailView`) — removed the ellipsis menu since edit was the only option; tapping the pencil icon opens the edit sheet immediately with one tap less.
+
+## [2.39.0] - 2026-06-04
+
+### Fixed
+- **Item-list detail rows now give descriptions more space before truncating** (`ItemListDetailView`) — item names can now expand to two lines while the amount column keeps its natural width, so long descriptions no longer get cut off prematurely just because the right-side value is present.
+- **Pending amounts across the dashboard now show only the orange value without the extra `unpaid` suffix** (`DashboardCategoryBoardComponents`, `DashboardDateRowsComponents`, `ExpenseRowView`) — this removes noisy trailing text that was causing awkward truncation on large numbers while keeping the pending state clear through color alone.
+
+## [2.38.0] - 2026-06-04
+
+### Changed
+- **Day-of-month number in date rows is slightly smaller** (`DashboardDateRowsComponents`) — reduced from 25 pt to 22 pt so the date no longer competes visually with the expense amount on the right.
+
+### Fixed
+- **Large amounts no longer truncate on the right in date rows** (`DashboardDateRowsComponents`) — the amount column now sizes to its natural content width via `fixedSize`, so the weekday label yields space instead of the number getting clipped.
+
+## [2.37.6] - 2026-06-04
+
+### Fixed
+- **Dashboard range swaps now follow the top segmented control direction more naturally** (`DashboardComponents`) — switching between `Today` and `This month` now moves the dashboard content in the same visual direction as the selected segment, making the transition feel more coherent with the control and easier to track.
+
+## [2.37.5] - 2026-06-04
+
+### Fixed
+- **Dashboard and item-list detail totals now use a calmer, unified numeric update animation instead of temporary hero success states** (`TotalSpentCardView`, `DashboardView`, `DashboardCategoryBoardComponents`, `ItemListDetailComponents`, `ItemListDetailView`) — creating a simple entry or adding an item now lets the amount itself communicate the change through the same rolling total treatment used across the dashboard, while category boxes gained the same numeric transition language. Dashboard simple-entry totals also wait until the creation sheet is nearly gone before animating, reducing motion overlap and making the update easier to follow.
+
+## [2.37.4] - 2026-06-04
+
+### Fixed
+- **Compact group chip now matches the height of the scope/date chip to its right** (`GroupSelectorChipView`) — when the chip shrinks to icon-only mode, vertical padding increases from 8 to 10 pt to compensate for the missing subheadline text, keeping both chips visually aligned in the bottom bar.
+
+## [2.37.3] - 2026-06-03
+
+### Fixed
+- **Undo toast follow-up now appears faster after dismissing the previous dashboard toast** (`ToastView`) — shortened the toast dismissal handoff used by the undo action so `Cambio deshecho` no lingers behind the previous banner longer than necessary while still avoiding visual overlap.
+
+## [2.37.2] - 2026-06-03
+
+### Fixed
+- **Tall dashboard toasts no longer cause a harsh list resize or temporarily mask the list container's top curvature** (`DashboardComponents`) — the dashboard top chrome now keeps a stable height while the toast appears as an overlay within the same slot, so longer messages no longer push the content down abruptly or leave a dark block over the rounded top edge during dismissal.
+
+## [2.37.1] - 2026-06-03
+
+### Fixed
+- **Budget over-limit warning icon now leads the limit text in the hero** (`DashboardComponents`) — moved the orange triangle to the left of the budget label so the warning is the first thing the eye catches, consistent with iOS conventions where status icons precede their text.
+
+## [2.37.0] - 2026-06-03
+
+### Changed
+- **Checking an item in item-list detail now keeps the row in place and animates the state change more softly** (`ItemListDetailViewModel`) — toggling paid no longer moves completed items around by status, and the row now uses the same quick spring family for its in-place paid/unpaid transition, reducing visual disorientation while preserving a calmer, more polished feedback.
+
+## [2.36.0] - 2026-06-03
+
+### Changed
+- **Date chip now shows the weekday abbreviation alongside the day and month** (`DashboardViewModel`) — format changed from `"5 JUN"` to `"JUE 5 JUN"` so the chip carries useful temporal context without requiring the user to count back from a calendar.
+- **Hero label for date filters no longer uses the "Cost of" prefix** (`DashboardHeroSection`, `DashboardViewModel`) — when filtering by a specific day, the hero now shows a full weekday label such as `"Jueves 5 jun"` directly instead of the awkward `"Coste de 5 JUN"`. Category filters keep the `"Coste de"` prefix as before.
+
+## [2.35.0] - 2026-06-02
+
+### Changed
+- **Group chip collapses to icon-only when a scope filter is active** (`GroupSelectorChipView`, `DashboardBottomBarView`) — once the user has selected a group and is navigating within a category or day filter, the chip hides the group name and shows just the icon and chevron, freeing space for the scope chip. The name reappears with a spring animation when the filter is cleared.
+
+## [2.34.0] - 2026-06-02
+
+### Changed
+- **Dashboard toast now temporarily replaces the top header instead of stacking above it** (`ToastView`, `DashboardComponents`, `DashboardView`) — extracted a reusable `ToastHost` and moved dashboard notifications into the same safe-area slot as the `Today / This month` chrome, so the segmented control and brand icon yield to the toast while it is visible. This avoids visual overlap and makes the top-area transition feel calmer and more intentional.
+
+## [2.33.1] - 2026-06-02
+
+### Fixed
+- **Settings row and About page title now read "OMONI" instead of "OMO"** (`Localizable.strings` ES + EN) — updated `settings.aboutOMO` and `about.title` keys in both localisations.
+
+## [2.33.0] - 2026-06-02
+
+### Added
+- **Creating a list entry now navigates directly to its detail screen** (`DashboardView`) — after the sheet closes and the list is inserted in the dashboard, a 400 ms pause lets the dismiss animation complete before pushing `ItemListDetailView`, so the user lands exactly where they need to add items. Single entries keep the existing success banner behaviour.
+
+## [2.32.0] - 2026-06-02
+
+### Added
+- **Item form keyboard toolbar now includes up/down field navigation** (`AddItemView`) — the `New Item` and item edit sheet now let the user move directly between amount, description, and quantity from the keyboard toolbar, while keeping the `Done` action available at the end.
+
+## [2.31.1] - 2026-06-02
+
+### Fixed
+- **Hero amount cursor and focus border now use the app accent color** (`HeroAmountInputView`) — the blinking cursor was using `.primary` while all native text fields in the app use `.accentColor`; both the cursor and the focus ring border are now red, consistent with the rest of the app.
+
+## [2.31.0] - 2026-06-02
+
+### Changed
+- **`More details` in New Entry now behaves like a one-way form expansion instead of a reversible accordion** (`AddItemListComponents`, `AddItemListView`, `DashboardView`) — after the user opens the extra fields, the trigger row disappears and exits upward while the detailed section enters from below, creating a calmer progressive-reveal flow that feels more intentional and avoids the previous overlap between the tappable row and the expanding content. The sheet also now opens slightly taller, giving the trigger more breathing room above the bottom edge.
+
+## [2.30.4] - 2026-06-02
+
+### Fixed
+- **Switching from list to simple mode no longer hides the Simple/List toggle row** (`AddItemListView`) — the scroll now resets to the top of the form via a dedicated `scrollToTop` flag, following the same pattern as `scrollToHero`, ensuring the structure selector stays fully visible after the transition.
+
+## [2.30.3] - 2026-06-02
+
+### Fixed
+- **Saving a date change from the dashboard single-entry editor no longer risks a navigation-dismiss conflict** (`DashboardView`) — the dashboard now defers the editor dismiss to the next SwiftUI cycle after propagating the updated item list, reducing the chance of a crash when a date edit causes the parent dashboard context to recompose at the same time.
+
+## [2.30.2] - 2026-06-02
+
+### Fixed
+- **Switching from list to simple mode no longer hides the Simple/List toggle row** (`AddItemListView`) — the scroll now resets to the top of the form instead of snapping to the hero amount input, ensuring the structure selector stays visible after the transition.
+
+## [2.30.1] - 2026-06-02
+
+### Fixed
+- **Closing `More details` no longer visually resets a chosen date back to Today** (`AddItemListView`) — collapsing the section now preserves the selected date chip whenever the user picked a date other than today, matching the persistent behavior already used by the payment-method selection.
+
+## [2.30.0] - 2026-06-02
+
+### Changed
+- **Animation curves and padding values are now centralized in shared constants** (`AnimationHelper`, `AppConstants`) — extracted `deleteSpring`, `expansionSpring`, `feedbackSpring`, `flashIn`, and `flashOut` from 27 inline hardcoded spring and easing definitions across ViewModels and Views; added `mediumPadding` (12 pt) to the padding scale; aligned `StatusFramedRow` content padding from 15 pt to the standard 16 pt.
+
+## [2.29.0] - 2026-06-02
+
+### Changed
+- **New entries created from the dashboard now inherit the current date context more reliably** (`DashboardView`) — if the user is standing on a specific day, the entry sheet now preloads that day in the date field; if the user is standing on the intermediate day list, the sheet falls back to today instead of carrying an unrelated date.
+
+## [2.28.0] - 2026-06-02
+
+### Changed
+- **Day rows in the dashboard drill-in now use OMONI's current card language instead of the older flat typographic treatment** (`DashboardDateRowsComponents`) — each day now renders as a rounded card with a stronger date column, warmer rounded amount typography, and a calmer single-line weekday label in the center so the intermediate day list feels aligned with the hero, chips, and current item-list rows without repeating date information.
+
+## [2.27.3] - 2026-06-02
+
+### Fixed
+- **Currency, category, and payment method rows are now fully tappable across their entire width** (`GroupInfoEditSheet`, `CategoryManagementView`, `PaymentMethodManagementView`) — added `contentShape` after `clipShape` on all affected rows so tapping anywhere in the row registers, not just on the text.
+
+## [2.27.2] - 2026-06-02
+
+### Fixed
+- **Pending amount label now fades upward when an item list is marked as paid** (`ExpenseRowView`) — the offset and opacity transitions are now co-located at the call site so both are driven by the same animation curve, producing a directional fade that matches the primary amount sliding down from above.
+
+## [2.27.1] - 2026-06-02
+
+### Fixed
+- **Empty item list rows now show the dash icon in gray instead of white** (`ExpenseRowView`) — the neutral status icon now uses `systemGray2` on `systemGray3`, consistent with the unpaid state. White is reserved for the paid checkmark on green.
+
+## [2.27.0] - 2026-06-02
+
+### Added
+- **Item rows now show unit price and quantity when an item has more than one unit** (`ItemRowView`, `ItemListDetailViewModel`) — a secondary line below the description displays the breakdown as "3 × 5,00 €" while the total remains on the right. Rows with a single unit are unchanged.
+
+## [2.26.1] - 2026-06-02
+
+### Fixed
+- **Simple entries can now be saved with no amount, acting as a reminder or pending payment placeholder** (`AddItemListViewModel`, `CreateSingleEntryUseCase`, `UpdateSingleEntryUseCase`) — the save button is active as soon as the form opens; leaving the amount field empty saves the entry with 0.00 automatically. Only the category is needed to give the record meaningful context. When editing an existing Simple entry with no amount, the field shows the placeholder instead of "0".
+
+## [2.26.0] - 2026-05-31
+
+### Fixed
+- **Create User button no longer appears active until the legal checkbox is checked** (`CreateFirstUserView`) — the button background and shadow now require both a valid name and acceptance of the Terms & Privacy before turning red, instead of activating visually as soon as the name field was filled.
+- **Create User button icon no longer animates when the form becomes valid or invalid** (`CreateFirstUserView`) — the bounce symbol effect on the `person.badge.plus` icon was removed; the button state change is now communicated through color only.
+- **Converting a list entry to Simple no longer risks a simultaneous dismiss conflict** (`ItemListDetailView`) — the parent screen dismiss is now deferred to a separate SwiftUI cycle from the sheet close, preventing both operations from competing for the view hierarchy at the same time.
+- **Saving a converted Simple entry now performs a single atomic write** (`UpdateSingleEntryUseCase`) — the redundant intermediate `context.save()` was removed so the item and all itemList mutations are committed together in one operation.
+- **All repository write operations now rollback on a failed save** (`DefaultItemRepository`, `DefaultItemListRepository`, `DefaultCategoryRepository`, `DefaultPaymentMethodRepository`, `DefaultGroupRepository`, `DefaultUserRepository`, `DefaultUserGroupRepository`) — if `context.save()` throws, the context is rolled back to its last clean state so in-memory objects never remain in a partially-mutated, unsaved condition.
+- **Dashboard navigation recovers automatically if a destination can no longer be resolved** (`DashboardView`) — if a navigation route points to an entry that no longer exists in the loaded data, the navigation stack resets to the dashboard root instead of showing a blank screen.
+- **Bulk paid toggle and undo now surface errors instead of failing silently** (`DashboardViewModel`) — if persisting a bulk paid/unpaid change or its undo fails, the user now sees an error toast instead of the UI reverting without explanation.
+
+## [2.25.0] - 2026-05-31
+
+### Added
+- **SwiftData persistence now runs through an explicit versioned schema and migration-plan path** (`OmoniSchema`, `ModelContainer+Shared`) — the live app container, preview container, and test container now initialize from the same versioned SwiftData baseline instead of bypassing schema versioning with an ad hoc `Schema([...])` setup, giving OMONI a safer foundation for future store migrations before production launch.
+- **SwiftData migration workflow is now documented in the project entry docs** (`SWIFTDATA_MIGRATION_GUIDE.md`, `START_HERE.md`) — future persisted-model changes now have a clear documented path covering schema version bumps, migration stages, and backup review so storage-level work is treated as intentional migration work instead of casual model edits.
+
+## [2.24.2] - 2026-05-31
+
+### Fixed
+- **Dashboard item-list rows now animate paid-to-pending transitions more cleanly without layout drift or clipped amounts** (`ExpenseRowView`) — the right-side amount column now keeps a stable reserved height while the total and unpaid labels animate internally with a smoother vertical motion, preventing the currency symbol from being clipped and avoiding the awkward horizontal sweep during state changes. The item-list title also flashes subtly on full completion and full rollback, adding a lightweight sense of progress without making the row feel noisy.
+
+## [2.24.1] - 2026-05-31
+
+### Fixed
+- **Unpaid entry states now use neutral gray while orange is reserved strictly for partial payment progress** (`ExpenseRowView`, `ItemListDetailView`, `ItemListDetailViewModel`, `ItemListDetailComponents`, `StatusFramedRow`) — fully unpaid dashboard item lists, single-entry records, item rows, and detail hero badges now show an empty gray circle and neutral unpaid label treatment, while only genuinely partial states use the half-filled orange icon. This removes the false sense of "in progress" from entries that are simply still unpaid and makes partial settlement easier to recognize at a glance.
+
+## [2.24.0] - 2026-05-30
+
+### Changed
+- **Dashboard item-list rows now use a stronger status-card language instead of the overly flat ticket treatment** (`StatusFramedRow`, `ExpenseRowView`) — item-list rows were rebuilt as rounded cards with a full-height tappable left status block, clearer paid/pending/empty iconography, and a calmer content hierarchy so the list feels more aligned with OMONI's current visual direction while staying simple to scan.
+- **Pending amount is now right-aligned under the main total, not under the concept text** (`ExpenseRowView`) — the secondary `unpaid` line now sits directly below the primary amount, preserving a cleaner accounting-style amount column and reducing visual imbalance in rows with pending items.
+- **Item rows inside list detail now share the same solid status-block row language as dashboard rows** (`ItemListDetailView`, `ItemListDetailComponents`, `StatusFramedRow`) — the detail screen now uses the same unified row pattern, with a full-height left state block and clearer pending/completed signals so moving from the dashboard into a list feels visually consistent.
+
+### Fixed
+- **Paid-status toggles in dashboard item-list rows now transition more consistently between complete and pending states** (`ExpenseRowView`, `DashboardViewModel`) — the secondary unpaid line now lives in a stable reserved slot instead of changing the row height, and the optimistic/dashboard total updates are animated as one coherent state change so neighboring rows no longer jump abruptly during complete-to-pending toggles.
+
+## [2.23.1] - 2026-05-30
+
+### Fixed
+- **New Entry mode selector now communicates the simple-entry option more clearly** (`AddItemListComponents`, `Resources/en.lproj/Localizable.strings`, `Resources/es.lproj/Localizable.strings`) — the former `Quick / Rápido` wording and neutral circle icon were replaced with `Simple` and a bolt symbol so the first option reads less ambiguously and better conveys an immediate one-concept, one-amount entry flow.
+
+## [2.23.0] - 2026-05-30
+
+### Changed
+- **Payment-method UI wording now uses `Origin / Origen` across the app while preserving the internal data model** (`Resources/en.lproj/Localizable.strings`, `Resources/es.lproj/Localizable.strings`) — visible labels, empty states, form titles, prompts, and release-note copy now describe the money source in simpler language that matches how users naturally think about accounts and origins of money.
+- **New groups now start with a broader, lower-friction default category set** (`DefaultGroupRepository`) — the seeded categories were refined to `Alimentación`, `Movilidad`, `Hogar`, `Salud`, `Ocio`, and `Ropa`, replacing the less clear previous default so first-time organization feels more intuitive without forcing users into an overcomplicated taxonomy.
+
+## [2.22.0] - 2026-05-29
+
+### Changed
+- **Entries now distinguish explicitly between quick single-entry records and real itemized lists** (`SDItemList`, `CreateItemListUseCase`, `UpdateItemListUseCase`, `DefaultItemListRepository`, `AppDIContainer`) — the data model now persists whether an `ItemList` represents a single quick entry or a multi-item list, instead of relying on implicit “one item with the same name” behavior. Creation and editing flows were moved into dedicated use cases so the `ItemList + Item` coordination happens at the correct layer rather than inside the screen view model.
+- **Dashboard navigation now respects the user-facing entry type** (`DashboardView`, `DashboardViewModel`, `ItemListDetailView`) — tapping a quick single-entry record from the dashboard now opens the direct entry editor with the money hero, while true lists still open the item-list detail screen. Legacy records without an explicit stored type are resolved conservatively using existing item data so older local data remains usable.
+- **New Entry now exposes a clearer mode selector for `Quick` vs `List`** (`AddItemListView`, `AddItemListComponents`, `String+Localization`, `Resources/en.lproj/Localizable.strings`, `Resources/es.lproj/Localizable.strings`) — the old internal mental model is no longer leaked to the user. The sheet now makes the intent explicit, shows the hero amount input when editing or creating a quick single entry, and keeps the list-style editing layout for itemized lists.
+- **Backup payloads now persist entry structure for future-proof imports and exports** (`OMOBackupModels`, `DefaultBackupRepository`) — backup schema version `2` adds the new `isList` field while still accepting schema version `1`, giving the app a first real compatibility path for structure-aware data evolution.
+
+### Fixed
+- **Converting a single-item list into `Quick` now exits the stale list detail screen automatically** (`ItemListDetailView`) — after saving a conversion from list mode to quick-entry mode, the app dismisses the invalid cached list-detail presentation immediately instead of leaving the user on a screen that no longer matches the underlying entry type until they back out manually.
+
 ## [2.21.0] - 2026-05-27
 
 ### Changed

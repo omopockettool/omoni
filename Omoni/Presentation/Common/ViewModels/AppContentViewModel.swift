@@ -7,6 +7,7 @@ final class AppContentViewModel {
     var isLoading = true
     var isSetupComplete = false
     var errorMessage: String?
+    var currentUser: SDUser?
 
     private let getCurrentUserUseCase: GetCurrentUserUseCase
     private let fetchGroupsForUserUseCase: FetchGroupsForUserUseCase
@@ -35,17 +36,20 @@ final class AppContentViewModel {
 
         do {
             guard let currentUser = try await getCurrentUserUseCase.execute() else {
+                self.currentUser = nil
                 isSetupComplete = false
                 isLoading = false
                 logger.debug("loadInitialData finished without current user")
                 return
             }
 
+            self.currentUser = currentUser
             let groups = try await fetchGroupsForUserUseCase.execute(userId: currentUser.id)
             isSetupComplete = !groups.isEmpty
             isLoading = false
             logger.debug("loadInitialData succeeded groupsCount=\(groups.count) setupComplete=\(self.isSetupComplete)")
         } catch {
+            currentUser = nil
             errorMessage = error.localizedDescription
             isSetupComplete = false
             isLoading = false
