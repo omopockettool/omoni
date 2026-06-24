@@ -2,6 +2,7 @@ import SwiftUI
 
 struct AddItemListView: View {
     let group: SDGroup
+    let excludedCategoryIds: [UUID]
     let showsCancelButton: Bool
     let onItemListCreated: (SDItemList) -> Void
     let onItemListUpdated: ((SDItemList) -> Void)?
@@ -25,6 +26,7 @@ struct AddItemListView: View {
         itemListToEdit: SDItemList? = nil,
         initialDate: Date? = nil,
         preferredCategoryId: UUID? = nil,
+        excludedCategoryIds: [UUID] = [],
         showsCancelButton: Bool = true,
         onItemListCreated: @escaping (SDItemList) -> Void,
         onItemListUpdated: ((SDItemList) -> Void)? = nil,
@@ -32,6 +34,7 @@ struct AddItemListView: View {
     ) {
         self.showsCancelButton = showsCancelButton
         self.group = group
+        self.excludedCategoryIds = excludedCategoryIds
         self.onItemListCreated = onItemListCreated
         self.onItemListUpdated = onItemListUpdated
         self.onCancel = onCancel
@@ -58,16 +61,21 @@ struct AddItemListView: View {
     private static let gridCategoryLimit = 3
     private static let gridPaymentMethodLimit = 3
 
+    private var availableCategories: [SDCategory] {
+        guard !excludedCategoryIds.isEmpty else { return viewModel.categories }
+        return viewModel.categories.filter { !excludedCategoryIds.contains($0.id) }
+    }
+
     private var gridCategories: [SDCategory] {
-        viewModel.categories.prefix(Self.gridCategoryLimit).map { $0 }
+        availableCategories.prefix(Self.gridCategoryLimit).map { $0 }
     }
 
     private var overflowCategories: [SDCategory] {
-        Array(viewModel.categories.dropFirst(Self.gridCategoryLimit))
+        Array(availableCategories.dropFirst(Self.gridCategoryLimit))
     }
 
     private var displayedCategories: [SDCategory] {
-        showCategoryOverflow ? viewModel.categories : gridCategories
+        showCategoryOverflow ? availableCategories : gridCategories
     }
 
     private var gridPaymentMethods: [SDPaymentMethod] {
@@ -132,7 +140,7 @@ struct AddItemListView: View {
                     .id("formTop")
                 topCard
                     .id("heroAnchor")
-                if !viewModel.categories.isEmpty {
+                if !availableCategories.isEmpty && !viewModel.hasPriorityCategory {
                     categoryGridSection
                 }
                 moreDetailsSection

@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.57.0] - 2026-06-24
+
+### Added
+- **Adding from the Dashboard now routes category selection responsibility more intentionally** (`DashboardView`, `AddItemListView`, `AddItemListViewModel`) — tapping "+" from a Dashboard category box pre-selects that category and hides the category grid entirely; tapping "+" from a generic context shows only the categories not yet represented by a Dashboard box, so the grid surfaces new or unused categories rather than duplicating what is already visible on the board.
+
 ## [2.56.11] - 2026-06-24
 
 ### Fixed

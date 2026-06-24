@@ -55,6 +55,7 @@ final class AddItemListViewModel {
     // MARK: - Computed
 
     var isEditMode: Bool { itemListToEdit != nil }
+    var hasPriorityCategory: Bool { preferredCategoryId != nil }
     var showsHeroAmountInput: Bool { entryStructure == .singleEntry }
     var usesExpandedDescriptionLayout: Bool { entryStructure == .itemizedList }
     var canConvertToSingleEntry: Bool {

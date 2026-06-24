@@ -225,6 +225,7 @@ struct DashboardView: View {
                             availableGroups: viewModel.availableGroups,
                             initialDate: trigger.initialDate,
                             preferredCategoryId: trigger.preferredCategoryId,
+                            excludedCategoryIds: viewModel.visibleCategoryBoxes.map(\.categoryId),
                             onItemListCreated: { createdItemList in
                                 addItemListTrigger = nil
                                 Task {
