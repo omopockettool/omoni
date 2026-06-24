@@ -12,6 +12,7 @@ struct ExpenseRowView: View {
     @State private var detailTitleColor: Color = Color.primary.opacity(0.92)
 
     let itemList: SDItemList
+    let categoryContext: String?
     let formattedAmount: String
     let formattedUnpaidAmount: String?
     let searchSummary: String?
@@ -105,11 +106,20 @@ struct ExpenseRowView: View {
             onToggle: onTogglePaid
         ) {
             HStack(alignment: .center, spacing: 12) {
-                Text(itemList.itemListDescription)
-                    .font(.system(size: isCompact ? 14 : 15, weight: .medium))
-                    .foregroundStyle(detailTitleColor)
-                    .lineLimit(1)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                VStack(alignment: .leading, spacing: categoryContext == nil ? 0 : 3) {
+                    Text(itemList.itemListDescription)
+                        .font(.system(size: isCompact ? 14 : 15, weight: .medium))
+                        .foregroundStyle(detailTitleColor)
+                        .lineLimit(1)
+
+                    if let categoryContext {
+                        Text(categoryContext)
+                            .font(.caption.weight(.medium))
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
 
                 trailingAmountColumn
             }
@@ -218,6 +228,7 @@ struct ExpenseRowView: View {
     VStack(spacing: 0) {
         ExpenseRowView(
             itemList: SDItemList.mock(itemListDescription: "Compras del supermercado"),
+            categoryContext: "Comida",
             formattedAmount: "12,89 €",
             formattedUnpaidAmount: nil,
             searchSummary: nil,
@@ -229,6 +240,7 @@ struct ExpenseRowView: View {
         )
         ExpenseRowView(
             itemList: SDItemList.mock(itemListDescription: "Cena en restaurante"),
+            categoryContext: "Ocio",
             formattedAmount: "8,00 €",
             formattedUnpaidAmount: "37,60 €",
             searchSummary: nil,
@@ -240,6 +252,7 @@ struct ExpenseRowView: View {
         )
         ExpenseRowView(
             itemList: SDItemList.mock(itemListDescription: "Farmacia"),
+            categoryContext: nil,
             formattedAmount: "22,00 €",
             formattedUnpaidAmount: nil,
             searchSummary: nil,

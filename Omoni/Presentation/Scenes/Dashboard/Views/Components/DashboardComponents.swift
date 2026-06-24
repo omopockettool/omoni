@@ -231,6 +231,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
     let onDateRowTap: (DashboardDayBoxData) -> Void
     // Expense list (deepest level: day → expense rows)
     let filteredItemLists: [SDItemList]
+    let getItemListCategoryContext: (SDItemList) -> String?
     let getItemListAmount: (SDItemList) -> String
     let getItemListUnpaidAmount: (SDItemList) -> String?
     let getDayTotal: (Date) -> String
@@ -294,6 +295,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
         getDateRowUnpaidAmount: @escaping (DashboardDayBoxData) -> String?,
         onDateRowTap: @escaping (DashboardDayBoxData) -> Void,
         filteredItemLists: [SDItemList],
+        getItemListCategoryContext: @escaping (SDItemList) -> String? = { _ in nil },
         getItemListAmount: @escaping (SDItemList) -> String,
         getItemListUnpaidAmount: @escaping (SDItemList) -> String?,
         getDayTotal: @escaping (Date) -> String,
@@ -331,6 +333,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
         self.getDateRowUnpaidAmount = getDateRowUnpaidAmount
         self.onDateRowTap = onDateRowTap
         self.filteredItemLists = filteredItemLists
+        self.getItemListCategoryContext = getItemListCategoryContext
         self.getItemListAmount = getItemListAmount
         self.getItemListUnpaidAmount = getItemListUnpaidAmount
         self.getDayTotal = getDayTotal
@@ -386,6 +389,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
                 } else if selectedFilterTitle != nil {
                     ExpenseListView(
                         itemLists: filteredItemLists,
+                        getCategoryContext: getItemListCategoryContext,
                         getFormattedAmount: getItemListAmount,
                         getFormattedUnpaidAmount: getItemListUnpaidAmount,
                         getSearchSummary: getSearchSummary,

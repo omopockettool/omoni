@@ -319,6 +319,10 @@ struct DashboardView: View {
                 }
             },
             filteredItemLists: activeFilteredItemLists,
+            getItemListCategoryContext: { itemList in
+                guard activeAllDayContext != nil else { return nil }
+                return itemList.category?.name
+            },
             getItemListAmount: { viewModel.formattedPaid(for: $0) },
             getItemListUnpaidAmount: { viewModel.formattedUnpaid(for: $0) },
             getDayTotal: { viewModel.formattedVisibleDayPaidTotal(for: $0, from: activeFilteredItemLists) },

@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.56.10] - 2026-06-24
+
+### Fixed
+- **Dashboard day entry rows now show subtle category context when browsing All categories for a specific date** (`DashboardView`, `DashboardComponents`, `ExpenseListView`, `ExpenseListComponents`, `ExpenseRowView`) — kept the direct `All -> day -> entries` flow, but added a quiet secondary category label only for that mixed-category day context so each row stays easier to parse without introducing extra navigation or noisy category colors.
+
 ## [2.56.9] - 2026-06-24
 
 ### Fixed

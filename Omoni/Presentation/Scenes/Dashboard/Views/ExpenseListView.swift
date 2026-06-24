@@ -9,6 +9,7 @@ struct ExpenseListView<EmptyState: View>: View {
     @Binding private var collapsedDays: Set<Date>
 
     let itemLists: [SDItemList]
+    let getCategoryContext: (SDItemList) -> String?
     let getFormattedAmount: (SDItemList) -> String
     let getFormattedUnpaidAmount: (SDItemList) -> String?
     let getSearchSummary: (SDItemList) -> String?
@@ -31,6 +32,7 @@ struct ExpenseListView<EmptyState: View>: View {
 
     init(
         itemLists: [SDItemList],
+        getCategoryContext: @escaping (SDItemList) -> String? = { _ in nil },
         getFormattedAmount: @escaping (SDItemList) -> String,
         getFormattedUnpaidAmount: @escaping (SDItemList) -> String?,
         getSearchSummary: @escaping (SDItemList) -> String? = { _ in nil },
@@ -53,6 +55,7 @@ struct ExpenseListView<EmptyState: View>: View {
         allowsDayCollapse: Bool = false
     ) {
         self.itemLists = itemLists
+        self.getCategoryContext = getCategoryContext
         self.getFormattedAmount = getFormattedAmount
         self.getFormattedUnpaidAmount = getFormattedUnpaidAmount
         self.getSearchSummary = getSearchSummary
@@ -163,6 +166,7 @@ struct ExpenseListView<EmptyState: View>: View {
     private func itemListRow(_ itemList: SDItemList, timelinePosition: TimelinePosition) -> some View {
         ExpenseListRowContainer(
             itemList: itemList,
+            categoryContext: getCategoryContext(itemList),
             formattedAmount: getFormattedAmount(itemList),
             formattedUnpaidAmount: getFormattedUnpaidAmount(itemList),
             searchSummary: getSearchSummary(itemList),
@@ -241,6 +245,7 @@ struct ExpenseListView<EmptyState: View>: View {
 extension ExpenseListView where EmptyState == EmptyView {
     init(
         itemLists: [SDItemList],
+        getCategoryContext: @escaping (SDItemList) -> String? = { _ in nil },
         getFormattedAmount: @escaping (SDItemList) -> String,
         getFormattedUnpaidAmount: @escaping (SDItemList) -> String?,
         getSearchSummary: @escaping (SDItemList) -> String? = { _ in nil },
@@ -262,6 +267,7 @@ extension ExpenseListView where EmptyState == EmptyView {
     ) {
         self.init(
             itemLists: itemLists,
+            getCategoryContext: getCategoryContext,
             getFormattedAmount: getFormattedAmount,
             getFormattedUnpaidAmount: getFormattedUnpaidAmount,
             getSearchSummary: getSearchSummary,
