@@ -172,6 +172,7 @@ struct CategoryFormView: View {
             }
             .padding(AppConstants.UserInterface.padding)
         }
+        .scrollDismissesKeyboard(.immediately)
         .background(Color(.systemGroupedBackground))
         .navigationTitle(isEditMode ? LocalizationKey.Category.edit.localized : LocalizationKey.Category.new.localized)
         .navigationBarTitleDisplayMode(.inline)

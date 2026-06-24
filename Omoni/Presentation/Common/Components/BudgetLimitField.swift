@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Reusable budget limit input field with section label, accent icon, clear button, and keyboard Done toolbar.
+/// Reusable budget limit input field with section label, accent icon, and clear button.
 struct BudgetLimitField: View {
     @Binding var text: String
     let accentColor: Color
@@ -25,15 +25,6 @@ struct BudgetLimitField: View {
                     .multilineTextAlignment(.trailing)
                     .keyboardType(.decimalPad)
                     .focused($isFocused)
-                    .toolbar {
-                        ToolbarItemGroup(placement: .keyboard) {
-                            Spacer()
-                            Button(LocalizationKey.General.done.localized) {
-                                isFocused = false
-                            }
-                            .fontWeight(.semibold)
-                        }
-                    }
 
                 if !text.isEmpty {
                     Button { text = "" } label: {

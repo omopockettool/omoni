@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.56.11] - 2026-06-24
+
+### Fixed
+- **Category and payment-method forms now dismiss the keyboard more naturally while keeping their inputs visually simple** (`BudgetLimitField`, `CategoryFormView`, `PaymentMethodFormView`) — removed the custom keyboard toolbar from the category budget field and aligned both forms to dismiss the keyboard through scroll interaction instead of extra inline or toolbar controls.
+
 ## [2.56.10] - 2026-06-24
 
 ### Fixed
