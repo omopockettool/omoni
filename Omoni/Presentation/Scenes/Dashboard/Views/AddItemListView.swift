@@ -3,7 +3,6 @@ import SwiftUI
 struct AddItemListView: View {
     let group: SDGroup
     let showsCancelButton: Bool
-    var onRequestExpandSheet: (() -> Void)? = nil
     let onItemListCreated: (SDItemList) -> Void
     let onItemListUpdated: ((SDItemList) -> Void)?
     let onCancel: () -> Void
@@ -27,13 +26,11 @@ struct AddItemListView: View {
         initialDate: Date? = nil,
         preferredCategoryId: UUID? = nil,
         showsCancelButton: Bool = true,
-        onRequestExpandSheet: (() -> Void)? = nil,
         onItemListCreated: @escaping (SDItemList) -> Void,
         onItemListUpdated: ((SDItemList) -> Void)? = nil,
         onCancel: @escaping () -> Void
     ) {
         self.showsCancelButton = showsCancelButton
-        self.onRequestExpandSheet = onRequestExpandSheet
         self.group = group
         self.onItemListCreated = onItemListCreated
         self.onItemListUpdated = onItemListUpdated
@@ -143,6 +140,13 @@ struct AddItemListView: View {
             .padding(AppConstants.UserInterface.padding)
             .padding(.bottom, 8)
         }
+        .scrollDismissesKeyboard(.immediately)
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 12)
+                .onChanged { _ in
+                    dismissKeyboardForScrollIfNeeded()
+                }
+        )
 
         .onChange(of: scrollToPaymentMethods) { _, fire in
             guard fire else { return }
@@ -210,14 +214,10 @@ struct AddItemListView: View {
             }
         }
         .onChange(of: focusedField) { _, newField in
-            if newField != nil { onRequestExpandSheet?() }
             if newField == .price { scrollToHero = true }
         }
         .onChange(of: viewModel.entryStructure) { _, structure in
             handleStructureChange(structure)
-        }
-        .onChange(of: showDetails) { _, isShowing in
-            if isShowing { onRequestExpandSheet?() }
         }
         .errorAlert(
             isPresented: $viewModel.showError,
@@ -451,6 +451,11 @@ struct AddItemListView: View {
         } else if focusedField == .price {
             focusedField = nil
         }
+    }
+
+    private func dismissKeyboardForScrollIfNeeded() {
+        guard focusedField != nil else { return }
+        focusedField = nil
     }
 
     private func saveItemList() async {

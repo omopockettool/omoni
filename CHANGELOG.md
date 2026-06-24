@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.56.9] - 2026-06-24
+
+### Fixed
+- **New Entry now opens as a full-height sheet to avoid unstable intermediate-detent behavior** (`DashboardView`, `AddItemListView`) — removed the half-open dashboard entry-sheet state and its expansion plumbing so the form always presents in `.large`, which simplifies the flow and avoids focus, keyboard-toolbar, and scroll-dismiss inconsistencies tied to the smaller detent.
+
 ## [2.56.8] - 2026-06-24
 
 ### Fixed
