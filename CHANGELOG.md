@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **GitHub CI documentation now matches the workflow that actually exists** (`.github/README.md`) — replaced the outdated CI/CD description with the current setup, including the pinned macOS/Xcode choices, dynamic iOS 26 simulator resolution, and the exact branch-protection configuration needed in GitHub.
 - **The app release version now aligns with this infrastructure release** (`Omoni.xcodeproj/project.pbxproj`) — updated `MARKETING_VERSION` to `2.58.0` and advanced `CURRENT_PROJECT_VERSION` to `44` so project metadata, future backups, and release bookkeeping stay in sync with the changelog.
 
+### Fixed
+- **CI builds can now access the tracked app Info plist instead of failing during `ProcessInfoPlistFile`** (`.gitignore`, `AppInfo.plist`) — the repository-wide `*.plist` ignore rule was unintentionally excluding `AppInfo.plist`, so GitHub Actions checkouts were missing the file required by the `Omoni` target even though local builds still saw it in the working tree.
+
 ## [2.57.4] - 2026-06-24
 
 ### Fixed
