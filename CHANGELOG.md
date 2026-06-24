@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.58.0] - 2026-06-24
+
+### Added
+- **GitHub Actions now provides a real base CI flow for OMONI on `develop` and `main`** (`.github/workflows/pr-checks.yml`) — pull requests, direct pushes to the integration and production branches, and manual runs now execute `SwiftLint`, an unsigned simulator build, and the shared `OmoniTests` suite so branch protection can rely on concrete status checks instead of placeholder jobs.
+- **The repository now includes a general entrypoint README** (`README.md`) — added a root-level overview of the app, repository structure, branch strategy, and CI behavior so the project is easier to understand from GitHub without jumping straight into internal docs.
+
+### Changed
+- **GitHub CI documentation now matches the workflow that actually exists** (`.github/README.md`) — replaced the outdated CI/CD description with the current setup, including the pinned macOS/Xcode choices, dynamic iOS 26 simulator resolution, and the exact branch-protection configuration needed in GitHub.
+- **The app release version now aligns with this infrastructure release** (`Omoni.xcodeproj/project.pbxproj`) — updated `MARKETING_VERSION` to `2.58.0` and advanced `CURRENT_PROJECT_VERSION` to `44` so project metadata, future backups, and release bookkeeping stay in sync with the changelog.
+
 ## [2.57.4] - 2026-06-24
 
 ### Fixed
