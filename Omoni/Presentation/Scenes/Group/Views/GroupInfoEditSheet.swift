@@ -27,48 +27,41 @@ struct GroupInfoEditSheet: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
                     LimitedTextField(
                         icon: "person.2.fill",
                         placeholder: LocalizationKey.Group.name.localized,
                         text: $name,
-                        maxLength: 30,
+                        maxLength: AppConstants.Validation.maxGroupNameLength,
                         focusedField: $nameFocused,
                         fieldValue: true
                     )
-                    .listRowBackground(Color.clear)
-                    .listRowInsets(EdgeInsets(
-                        top: 0,
-                        leading: 0,
-                        bottom: 0,
-                        trailing: 0
-                    ))
-                }
 
-                Section(LocalizationKey.Group.currency.localized) {
-                    ForEach(availableCurrencies, id: \.0) { code, label in
-                        Button {
-                            withAnimation(AnimationHelper.quickSpring) { selectedCurrency = code }
-                        } label: {
-                            HStack {
-                                Text(label)
-                                    .foregroundStyle(.primary)
-                                Spacer()
-                                if selectedCurrency == code {
-                                    Image(systemName: "checkmark")
-                                        .font(.body.weight(.semibold))
-                                        .foregroundStyle(Color.accentColor)
+                    VStack(alignment: .leading, spacing: 10) {
+                        sectionHeader(LocalizationKey.Group.currency.localized)
+
+                        NativeSettingsCard {
+                            ForEach(Array(availableCurrencies.enumerated()), id: \.element.0) { index, currency in
+                                Button {
+                                    withAnimation(AnimationHelper.quickSpring) { selectedCurrency = currency.0 }
+                                } label: {
+                                    currencyRow(code: currency.0, label: currency.1)
+                                        .padding(AppConstants.UserInterface.padding)
+                                }
+                                .buttonStyle(.plain)
+
+                                if index < availableCurrencies.count - 1 {
+                                    Divider()
+                                        .padding(.leading, AppConstants.UserInterface.padding)
                                 }
                             }
-                            .contentShape(Rectangle())
                         }
-                        .buttonStyle(.plain)
                     }
                 }
+                .padding(AppConstants.UserInterface.padding)
             }
-            .listStyle(.insetGrouped)
-            .listSectionSpacing(.compact)
+            .background(Color(.systemGroupedBackground))
             .navigationTitle(LocalizationKey.Group.info.localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -86,6 +79,27 @@ struct GroupInfoEditSheet: View {
             }
             .disabled(viewModel.isLoading)
         }
+    }
+
+    private func sectionHeader(_ title: String) -> some View {
+        Text(title)
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 4)
+    }
+
+    private func currencyRow(code: String, label: String) -> some View {
+        HStack {
+            Text(label)
+                .foregroundStyle(.primary)
+            Spacer()
+            if selectedCurrency == code {
+                Image(systemName: "checkmark")
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(Color.accentColor)
+            }
+        }
+        .contentShape(Rectangle())
     }
 
     private func save() async {

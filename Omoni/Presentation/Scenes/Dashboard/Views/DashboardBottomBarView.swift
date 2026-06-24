@@ -24,17 +24,15 @@ struct DashboardBottomBarView: View {
 
     var body: some View {
         ZStack(alignment: .trailing) {
-            inactiveContent
-                .opacity(isSearchActive ? 0 : 1)
-                .offset(y: isSearchActive ? 8 : 0)
-                .scaleEffect(isSearchActive ? 0.98 : 1, anchor: .trailing)
-                .allowsHitTesting(!isSearchActive)
+            if !isSearchActive {
+                inactiveContent
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
 
-            searchContent
-                .opacity(isSearchActive ? 1 : 0)
-                .offset(y: isSearchActive ? 0 : 8)
-                .scaleEffect(isSearchActive ? 1 : 0.98, anchor: .trailing)
-                .allowsHitTesting(isSearchActive)
+            if isSearchActive {
+                searchContent
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
         }
         .padding(.horizontal, AppConstants.UserInterface.padding)
         .padding(.top, AppConstants.UserInterface.smallPadding)
@@ -46,12 +44,11 @@ struct DashboardBottomBarView: View {
 
             if isActive {
                 searchFocusTask = Task { @MainActor in
-                    try? await Task.sleep(for: .milliseconds(180))
+                    // Wait for the 200ms quickEase animation to finish before focusing
+                    try? await Task.sleep(for: .milliseconds(250))
                     guard !Task.isCancelled, isSearchActive else { return }
                     isSearchFieldFocused = true
                 }
-            } else {
-                isSearchFieldFocused = false
             }
         }
         .onChange(of: dismissKeyboardToken) { _, _ in
@@ -68,7 +65,17 @@ struct DashboardBottomBarView: View {
     }
 
     private var searchContent: some View {
-        HStack(spacing: AppConstants.UserInterface.smallPadding) {
+        VStack(spacing: 6) {
+            if let selectedScopeTitle {
+                SearchScopeBreadcrumb(
+                    title: selectedScopeTitle,
+                    iconName: selectedScopeIcon,
+                    colorHex: selectedScopeColorHex,
+                    onTap: onSelectedScopeTap
+                )
+                .transition(.move(edge: .top).combined(with: .opacity))
+            }
+
             HStack(spacing: 10) {
                 Image(systemName: "magnifyingglass")
                     .font(.system(size: 15, weight: .regular))
@@ -90,9 +97,10 @@ struct DashboardBottomBarView: View {
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 10)
-            .background(Color(.systemGray5))
+            .background(Color(.secondarySystemBackground).opacity(0.9))
             .clipShape(Capsule())
         }
+        .animation(AnimationHelper.quickEase, value: selectedScopeTitle)
     }
 
     private var inactiveContent: some View {
@@ -128,7 +136,7 @@ struct DashboardBottomBarView: View {
                         .font(.system(size: 15, weight: .regular))
                         .foregroundColor(isFilterActive ? .accentColor : .primary)
                         .padding(.horizontal, 12)
-                        .padding(.vertical, 7)
+                        .padding(.vertical, 8)
                 }
                 .buttonStyle(PressHapticButtonStyle())
 
@@ -142,12 +150,16 @@ struct DashboardBottomBarView: View {
                         .font(.system(size: 15, weight: .regular))
                         .foregroundColor(.primary)
                         .padding(.horizontal, 12)
-                        .padding(.vertical, 7)
+                        .padding(.vertical, 8)
                 }
                 .buttonStyle(PressHapticButtonStyle())
             }
-            .background(Color(.systemGray5))
+            .background(Color(.secondarySystemBackground).opacity(0.9))
             .clipShape(Capsule())
+            .overlay(
+                Capsule()
+                    .stroke(Color(.systemGray4).opacity(0.5), lineWidth: 1)
+            )
         }
     }
 
@@ -155,11 +167,14 @@ struct DashboardBottomBarView: View {
         searchFocusTask?.cancel()
         isSearchFieldFocused = false
 
-        withAnimation(AnimationHelper.quickEase) {
-            isSearchActive = false
-        }
-
         Task { @MainActor in
+            // Wait for the keyboard to fully dismiss before closing the bar,
+            // so the hero section doesn't reappear while the keyboard is still visible.
+            try? await Task.sleep(for: .milliseconds(280))
+            guard !Task.isCancelled else { return }
+            withAnimation(AnimationHelper.quickEase) {
+                isSearchActive = false
+            }
             try? await Task.sleep(for: .milliseconds(140))
             guard !isSearchActive else { return }
             searchText = ""
@@ -167,20 +182,35 @@ struct DashboardBottomBarView: View {
     }
 }
 
-private struct DashboardSelectedScopeChip: View {
+private struct SearchScopeBreadcrumb: View {
     let title: String
     let iconName: String?
     let colorHex: String?
     let onTap: () -> Void
 
-    private var accentColor: Color {
-        guard let colorHex else { return .accentColor }
-        return Color(hex: colorHex) ?? .accentColor
+    private var hasCategoryTint: Bool {
+        colorHex != nil
+    }
+
+    private var contentColor: Color {
+        guard let colorHex else { return .primary }
+        return Color(hex: colorHex) ?? .primary
+    }
+
+    private var backgroundColor: Color {
+        hasCategoryTint ? contentColor.opacity(0.10) : Color(.secondarySystemBackground).opacity(0.9)
+    }
+
+    private var borderColor: Color {
+        hasCategoryTint ? contentColor.opacity(0.18) : Color(.systemGray4).opacity(0.5)
     }
 
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: 6) {
+            HStack(spacing: 5) {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 12, weight: .semibold))
+
                 if let iconName {
                     Image(systemName: iconName)
                         .font(.caption2)
@@ -192,19 +222,86 @@ private struct DashboardSelectedScopeChip: View {
                     .lineLimit(1)
                     .truncationMode(.tail)
 
+                Spacer(minLength: 0)
+            }
+            .foregroundStyle(contentColor)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(backgroundColor)
+            .clipShape(Capsule())
+            .overlay(
+                Capsule()
+                    .stroke(borderColor, lineWidth: 1)
+            )
+            .contentShape(Capsule())
+        }
+        .buttonStyle(PressHapticButtonStyle())
+    }
+}
+
+private struct DashboardSelectedScopeChip: View {
+    let title: String
+    let iconName: String?
+    let colorHex: String?
+    let onTap: () -> Void
+
+    @State private var hapticTrigger = false
+
+    private var hasCategoryTint: Bool {
+        colorHex != nil
+    }
+
+    private var contentColor: Color {
+        guard let colorHex else { return .primary }
+        return Color(hex: colorHex) ?? .primary
+    }
+
+    private var backgroundColor: Color {
+        hasCategoryTint ? contentColor.opacity(0.12) : Color(.secondarySystemBackground).opacity(0.9)
+    }
+
+    private var borderColor: Color {
+        hasCategoryTint ? contentColor.opacity(0.2) : Color(.systemGray4).opacity(0.5)
+    }
+
+    var body: some View {
+        Button {
+            hapticTrigger.toggle()
+            onTap()
+        } label: {
+            HStack(spacing: 6) {
+                if let iconName {
+                    Image(systemName: iconName)
+                        .font(.caption2)
+                        .foregroundStyle(contentColor)
+                }
+
+                Text(title)
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                    .foregroundStyle(contentColor)
+
                 Spacer(minLength: 4)
 
                 Image(systemName: "xmark")
                     .font(.caption2)
+                    .foregroundStyle(contentColor)
             }
-            .foregroundStyle(accentColor)
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(accentColor.opacity(0.12))
+            .background(backgroundColor)
             .clipShape(Capsule())
+            .overlay(
+                Capsule()
+                    .stroke(borderColor, lineWidth: 1)
+            )
             .contentShape(Capsule())
         }
         .buttonStyle(.plain)
+        .sensoryFeedback(.selection, trigger: hapticTrigger)
     }
 }

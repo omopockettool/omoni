@@ -17,6 +17,7 @@ final class DefaultGroupRepository: GroupRepository {
 
     func createGroup(name: String, currency: String) async throws -> SDGroup {
         let group = SDGroup(name: name, currency: currency)
+        group.setGroupKind(.expense)
         context.insert(group)
 
         let defaultPaymentMethods: [(String, String, String, String)] = [
@@ -62,7 +63,8 @@ final class DefaultGroupRepository: GroupRepository {
     }
 
     func updateGroup(_ group: SDGroup) async throws {
-        group.lastModifiedAt = Date()
+        guard context.hasChanges else { return }
+        group.touch()
         do {
             try context.save()
         } catch {

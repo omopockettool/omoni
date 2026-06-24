@@ -33,7 +33,8 @@ final class DefaultUserRepository: UserRepository {
     }
 
     func updateUser(_ user: SDUser) async throws {
-        user.lastModifiedAt = Date()
+        guard context.hasChanges else { return }
+        user.touch()
         do {
             try context.save()
         } catch {

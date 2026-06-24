@@ -4,9 +4,7 @@ struct DashboardCategoryBoardView<EmptyState: View>: View {
     let boxes: [DashboardCategoryBoxData]
     let hasVisibleItemLists: Bool
     let allFormattedAmount: String
-    let allFormattedUnpaidAmount: String?
     let getFormattedAmount: (DashboardCategoryBoxData) -> String
-    let getFormattedUnpaidAmount: (DashboardCategoryBoxData) -> String?
     let onRefresh: () async -> Void
     let customEmptyState: EmptyState
     let showCustomEmptyState: Bool
@@ -17,9 +15,7 @@ struct DashboardCategoryBoardView<EmptyState: View>: View {
         boxes: [DashboardCategoryBoxData],
         hasVisibleItemLists: Bool,
         allFormattedAmount: String,
-        allFormattedUnpaidAmount: String?,
         getFormattedAmount: @escaping (DashboardCategoryBoxData) -> String,
-        getFormattedUnpaidAmount: @escaping (DashboardCategoryBoxData) -> String?,
         onRefresh: @escaping () async -> Void,
         @ViewBuilder customEmptyState: () -> EmptyState,
         showCustomEmptyState: Bool = true,
@@ -29,9 +25,7 @@ struct DashboardCategoryBoardView<EmptyState: View>: View {
         self.boxes = boxes
         self.hasVisibleItemLists = hasVisibleItemLists
         self.allFormattedAmount = allFormattedAmount
-        self.allFormattedUnpaidAmount = allFormattedUnpaidAmount
         self.getFormattedAmount = getFormattedAmount
-        self.getFormattedUnpaidAmount = getFormattedUnpaidAmount
         self.onRefresh = onRefresh
         self.customEmptyState = customEmptyState()
         self.showCustomEmptyState = showCustomEmptyState
@@ -46,7 +40,7 @@ struct DashboardCategoryBoardView<EmptyState: View>: View {
         ScrollView {
             if hasVisibleItemLists && boxes.isEmpty {
                 VStack(spacing: rowSpacing) {
-                    DashboardAllCategoryBoxView(onTap: onSelectAll)
+                    DashboardAllCategoryBoxView(style: .fullWidth, onTap: onSelectAll)
                 }
                 .padding(.horizontal, AppConstants.UserInterface.padding)
                 .padding(.top, AppConstants.UserInterface.padding)
@@ -60,15 +54,18 @@ struct DashboardCategoryBoardView<EmptyState: View>: View {
                     .padding(.top, 72)
                     .padding(.horizontal, AppConstants.UserInterface.padding)
             } else {
-                VStack(spacing: rowSpacing) {
-                    ForEach(Array(rows.enumerated()), id: \.offset) { indexedRow in
-                        rowView(indexedRow.element)
-                    }
+                VStack(alignment: .leading, spacing: rowSpacing) {
+                    Text(LocalizationKey.Dashboard.expensesByCategory.localized)
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                        .textCase(.uppercase)
+                        .padding(.bottom, 2)
 
-                    if !boxes.isEmpty {
-                        DashboardAllCategoryBoxView(onTap: onSelectAll)
+                    ForEach(rows, id: \.id) { row in
+                        rowView(row)
                     }
                 }
+                .animation(AnimationHelper.smoothSpring, value: rows.map(\.id))
                 .padding(.horizontal, AppConstants.UserInterface.padding)
                 .padding(.top, AppConstants.UserInterface.padding)
                 .padding(.bottom, 32)
@@ -90,25 +87,42 @@ struct DashboardCategoryBoardView<EmptyState: View>: View {
             DashboardCategoryBoxView(
                 data: box,
                 formattedAmount: getFormattedAmount(box),
-                formattedUnpaidAmount: getFormattedUnpaidAmount(box),
+                displayStyle: .hero,
                 onTap: { onSelect(box) }
             )
+            .id(box.id)
         case .pair(let leading, let trailing):
             HStack(alignment: .top, spacing: columnSpacing) {
                 DashboardCategoryBoxView(
                     data: leading,
                     formattedAmount: getFormattedAmount(leading),
-                    formattedUnpaidAmount: getFormattedUnpaidAmount(leading),
+                    displayStyle: .standard,
                     onTap: { onSelect(leading) }
                 )
+                .id(leading.id)
 
                 DashboardCategoryBoxView(
                     data: trailing,
                     formattedAmount: getFormattedAmount(trailing),
-                    formattedUnpaidAmount: getFormattedUnpaidAmount(trailing),
+                    displayStyle: .standard,
                     onTap: { onSelect(trailing) }
                 )
+                .id(trailing.id)
             }
+        case .categoryWithAll(let box):
+            HStack(alignment: .top, spacing: columnSpacing) {
+                DashboardCategoryBoxView(
+                    data: box,
+                    formattedAmount: getFormattedAmount(box),
+                    displayStyle: .standard,
+                    onTap: { onSelect(box) }
+                )
+                .id(box.id)
+
+                DashboardAllCategoryBoxView(style: .inline, onTap: onSelectAll)
+            }
+        case .all:
+            DashboardAllCategoryBoxView(style: .fullWidth, onTap: onSelectAll)
         }
     }
 
@@ -123,9 +137,7 @@ extension DashboardCategoryBoardView where EmptyState == EmptyView {
         boxes: [DashboardCategoryBoxData],
         hasVisibleItemLists: Bool,
         allFormattedAmount: String,
-        allFormattedUnpaidAmount: String?,
         getFormattedAmount: @escaping (DashboardCategoryBoxData) -> String,
-        getFormattedUnpaidAmount: @escaping (DashboardCategoryBoxData) -> String?,
         onRefresh: @escaping () async -> Void,
         onSelectAll: @escaping () -> Void,
         onSelect: @escaping (DashboardCategoryBoxData) -> Void
@@ -134,9 +146,7 @@ extension DashboardCategoryBoardView where EmptyState == EmptyView {
             boxes: boxes,
             hasVisibleItemLists: hasVisibleItemLists,
             allFormattedAmount: allFormattedAmount,
-            allFormattedUnpaidAmount: allFormattedUnpaidAmount,
             getFormattedAmount: getFormattedAmount,
-            getFormattedUnpaidAmount: getFormattedUnpaidAmount,
             onRefresh: onRefresh,
             customEmptyState: { EmptyView() },
             showCustomEmptyState: false,
@@ -146,7 +156,13 @@ extension DashboardCategoryBoardView where EmptyState == EmptyView {
     }
 }
 
+private enum DashboardAllCategoryBoxStyle {
+    case fullWidth
+    case inline
+}
+
 private struct DashboardAllCategoryBoxView: View {
+    let style: DashboardAllCategoryBoxStyle
     let onTap: () -> Void
 
     var body: some View {
@@ -164,64 +180,129 @@ private struct DashboardAllCategoryBoxView: View {
                 Spacer(minLength: 0)
             }
             .foregroundStyle(Color.white.opacity(0.96))
-            .frame(maxWidth: .infinity, minHeight: 44)
-            .padding(.horizontal, 14)
-            .padding(.vertical, 4)
+            .frame(maxWidth: .infinity, minHeight: minHeight)
+            .padding(.horizontal, horizontalPadding)
+            .padding(.vertical, verticalPadding)
             .background {
                 RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius, style: .continuous)
-                    .fill(Color(.systemGray).opacity(0.9))
+                    .fill(backgroundColor)
             }
             .overlay {
                 RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius, style: .continuous)
-                    .stroke(Color.black.opacity(0.08), lineWidth: 1)
+                    .stroke(Color.black.opacity(0.18), lineWidth: DashboardCategoryBoxBorderMetrics.lineWidth)
             }
         }
         .buttonStyle(PressHapticButtonStyle())
+    }
+
+    private var minHeight: CGFloat {
+        switch style {
+        case .fullWidth:
+            44
+        case .inline:
+            88
+        }
+    }
+
+    private var horizontalPadding: CGFloat {
+        switch style {
+        case .fullWidth:
+            14
+        case .inline:
+            15
+        }
+    }
+
+    private var verticalPadding: CGFloat {
+        switch style {
+        case .fullWidth:
+            4
+        case .inline:
+            10
+        }
+    }
+
+    private var backgroundColor: Color {
+        Color(.systemGray).opacity(0.9)
     }
 }
 
 private enum DashboardCategoryBoardRow {
     case single(DashboardCategoryBoxData)
     case pair(DashboardCategoryBoxData, DashboardCategoryBoxData)
+    case categoryWithAll(DashboardCategoryBoxData)
+    case all
+
+    var id: String {
+        switch self {
+        case .single(let box):
+            return "single-\(box.id)"
+        case .pair(let leading, let trailing):
+            return "pair-\(leading.id)-\(trailing.id)"
+        case .categoryWithAll(let box):
+            return "category-all-\(box.id)"
+        case .all:
+            return "all"
+        }
+    }
 }
 
 private enum DashboardCategoryBoxGridLayout {
     static func makeRows(from boxes: [DashboardCategoryBoxData]) -> [DashboardCategoryBoardRow] {
-        var rows: [DashboardCategoryBoardRow] = []
+        guard let hero = boxes.first else { return [] }
+
+        var rows: [DashboardCategoryBoardRow] = [.single(hero)]
+        let remaining = Array(boxes.dropFirst())
         var index = 0
 
-        while index < boxes.count {
-            let current = boxes[index]
+        while index + 1 < remaining.count {
+            rows.append(.pair(remaining[index], remaining[index + 1]))
+            index += 2
+        }
 
-            if current.sizeTier == .large {
-                rows.append(.single(current))
-                index += 1
-                continue
-            }
-
-            let nextIndex = index + 1
-            if nextIndex < boxes.count, boxes[nextIndex].sizeTier != .large {
-                rows.append(.pair(current, boxes[nextIndex]))
-                index += 2
-            } else {
-                rows.append(.single(current))
-                index += 1
-            }
+        if index < remaining.count {
+            rows.append(.categoryWithAll(remaining[index]))
+        } else {
+            rows.append(.all)
         }
 
         return rows
     }
 }
 
-struct DashboardCategoryBoxView: View {
+private enum DashboardCategoryBoxDisplayStyle: Equatable {
+    case hero
+    case standard
+}
+
+private enum DashboardCategoryBoxBorderMetrics {
+    static let lineWidth: CGFloat = 1.35
+}
+
+private struct DashboardCategoryBoxView: View {
     @State private var displayedAmount = ""
     @State private var amountIsDecreasing = false
     @State private var flashColor: Color = .clear
+    @State private var displayedFillRatio: Double = 0
 
     let data: DashboardCategoryBoxData
     let formattedAmount: String
-    let formattedUnpaidAmount: String?
+    let displayStyle: DashboardCategoryBoxDisplayStyle
     let onTap: () -> Void
+
+    init(
+        data: DashboardCategoryBoxData,
+        formattedAmount: String,
+        displayStyle: DashboardCategoryBoxDisplayStyle,
+        onTap: @escaping () -> Void
+    ) {
+        self.data = data
+        self.formattedAmount = formattedAmount
+        self.displayStyle = displayStyle
+        self.onTap = onTap
+        _displayedAmount = State(initialValue: formattedAmount)
+        _displayedFillRatio = State(initialValue: DashboardCategoryBoxView.makeFillRatio(for: data))
+    }
 
     private var accentColor: Color {
         Color(hex: data.categoryColorHex) ?? .accentColor
@@ -238,51 +319,62 @@ struct DashboardCategoryBoxView: View {
     }
 
     private var fillRatio: Double {
-        guard let limit = data.categoryEffectiveLimit, limit > 0 else { return 1.0 }
-        return min(data.categoryBudgetProgressAmount / limit, 1.0)
+        Self.makeFillRatio(for: data)
     }
 
     private var minHeight: CGFloat {
-        switch data.sizeTier {
-        case .small:
-            72
-        case .medium:
+        switch displayStyle {
+        case .standard:
             88
-        case .large:
+        case .hero:
             98
         }
     }
 
     private var titleFont: Font {
-        switch data.sizeTier {
-        case .small:
-            .subheadline.weight(.semibold)
-        case .medium:
+        switch displayStyle {
+        case .standard:
             .headline.weight(.semibold)
-        case .large:
+        case .hero:
             .title3.weight(.bold)
         }
     }
 
     private var amountFont: Font {
-        switch data.sizeTier {
-        case .small:
-            .title3.weight(.bold)
-        case .medium:
+        switch displayStyle {
+        case .standard:
             .title2.weight(.bold)
-        case .large:
+        case .hero:
             .system(size: 28, weight: .bold, design: .rounded)
         }
     }
 
     private var horizontalPadding: CGFloat {
-        switch data.sizeTier {
-        case .small:
-            14
-        case .medium:
+        switch displayStyle {
+        case .standard:
             15
-        case .large:
+        case .hero:
             18
+        }
+    }
+
+    private var showsExpandedOverLimitBadge: Bool {
+        isOverLimit && displayStyle == .hero
+    }
+
+    private var showsCompactOverLimitIndicator: Bool {
+        isOverLimit && displayStyle == .standard
+    }
+
+    private var overLimitStrokeColor: Color {
+        .orange.opacity(displayStyle == .hero ? 0.82 : 0.76)
+    }
+
+    private var baseStrokeColor: Color {
+        if hasLimit {
+            return Color.black.opacity(displayStyle == .hero ? 0.24 : 0.2)
+        } else {
+            return Color.black.opacity(displayStyle == .hero ? 0.2 : 0.17)
         }
     }
 
@@ -296,19 +388,34 @@ struct DashboardCategoryBoxView: View {
 
                         Text(data.categoryName)
                             .font(titleFont)
-                            .lineLimit(data.sizeTier == .large ? 2 : 1)
+                            .lineLimit(displayStyle == .hero ? 2 : 1)
+                            .minimumScaleFactor(displayStyle == .hero ? 0.88 : 0.84)
+                            .allowsTightening(true)
                             .multilineTextAlignment(.leading)
-
-                        if isOverLimit {
-                            Image(systemName: "exclamationmark.triangle.fill")
-                                .font(.system(size: 11, weight: .bold))
-                                .foregroundStyle(.orange)
-                                .padding(.top, data.sizeTier == .large ? 3 : 2)
-                        }
                     }
                     .foregroundStyle(accentColor)
+                    .layoutPriority(1)
 
                     Spacer(minLength: 0)
+
+                    if showsExpandedOverLimitBadge {
+                        HStack(spacing: 4) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .font(.system(size: 10, weight: .bold))
+                            Text(LocalizationKey.Dashboard.overLimit.localized)
+                                .font(.caption.weight(.semibold))
+                                .lineLimit(1)
+                        }
+                        .foregroundStyle(.orange)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 5)
+                        .background(.orange.opacity(0.12), in: Capsule())
+                    } else if showsCompactOverLimitIndicator {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundStyle(.orange)
+                            .padding(.top, 2)
+                    }
                 }
 
                 VStack(alignment: .leading, spacing: 6) {
@@ -320,15 +427,6 @@ struct DashboardCategoryBoxView: View {
                         .minimumScaleFactor(0.7)
                         .contentTransition(.numericText(countsDown: amountIsDecreasing))
                         .animation(AnimationHelper.feedbackSpring, value: displayedAmount)
-
-                    if let formattedUnpaidAmount {
-                        Text(formattedUnpaidAmount)
-                            .font(.footnote.weight(.medium))
-                            .foregroundStyle(.orange)
-                            .monospacedDigit()
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.75)
-                    }
                 }
             }
             .frame(maxWidth: .infinity, minHeight: minHeight, alignment: .topLeading)
@@ -341,7 +439,7 @@ struct DashboardCategoryBoxView: View {
                             .fill(Color(.systemGray4))
                         Rectangle()
                             .fill(accentColor.opacity(0.18))
-                            .scaleEffect(x: 1, y: fillRatio, anchor: .bottom)
+                            .scaleEffect(x: 1, y: displayedFillRatio, anchor: .bottom)
                     }
                     .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius, style: .continuous))
                 } else {
@@ -350,15 +448,22 @@ struct DashboardCategoryBoxView: View {
                 }
             }
             .overlay {
-                RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius, style: .continuous)
-                    .fill(flashColor)
-                    .allowsHitTesting(false)
+                ZStack {
+                    RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius, style: .continuous)
+                        .fill(flashColor)
+
+                    RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius, style: .continuous)
+                        .stroke(baseStrokeColor, lineWidth: DashboardCategoryBoxBorderMetrics.lineWidth)
+
+                    if isOverLimit {
+                        RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius, style: .continuous)
+                            .stroke(overLimitStrokeColor, lineWidth: DashboardCategoryBoxBorderMetrics.lineWidth)
+                    }
+                }
+                .allowsHitTesting(false)
             }
         }
         .buttonStyle(PressHapticButtonStyle())
-        .onAppear {
-            displayedAmount = formattedAmount
-        }
         .onChange(of: formattedAmount) { oldValue, newValue in
             let oldDigits = extractDigits(from: oldValue)
             let newDigits = extractDigits(from: newValue)
@@ -372,10 +477,20 @@ struct DashboardCategoryBoxView: View {
             withAnimation(AnimationHelper.flashIn) { flashColor = targetColor }
             withAnimation(AnimationHelper.flashOut) { flashColor = .clear }
         }
+        .onChange(of: fillRatio) { _, newValue in
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.86)) {
+                displayedFillRatio = newValue
+            }
+        }
     }
 
     private func extractDigits(from string: String) -> Int {
         Int(string.filter(\.isNumber)) ?? 0
+    }
+
+    private static func makeFillRatio(for data: DashboardCategoryBoxData) -> Double {
+        guard let limit = data.categoryEffectiveLimit, limit > 0 else { return 1.0 }
+        return min(data.categoryBudgetProgressAmount / limit, 1.0)
     }
 }
 

@@ -39,9 +39,10 @@ struct DashboardDateRowsView: View {
 // MARK: - Single Date Row
 
 private enum DashboardDateRowLayoutMetrics {
-    static let cardCornerRadius: CGFloat = 18
+    static let cardCornerRadius: CGFloat = AppConstants.UserInterface.rowCornerRadius
     static let leadingColumnWidth: CGFloat = 66
     static let amountColumnHeight: CGFloat = 38
+    static let borderLineWidth: CGFloat = 4
 }
 
 private enum DashboardDateRowTone {
@@ -49,25 +50,36 @@ private enum DashboardDateRowTone {
     case pending
     case today
 
+    private var baseColor: Color {
+        switch self {
+        case .neutral:
+            return Color(.systemGray3)
+        case .pending:
+            return .orange
+        case .today:
+            return .accentColor
+        }
+    }
+
     var leadingFill: Color {
         switch self {
         case .neutral:
-            return Color(.systemGray5)
+            return baseColor.opacity(0.22)
         case .pending:
-            return .orange.opacity(0.18)
+            return baseColor.opacity(0.24)
         case .today:
-            return Color.accentColor.opacity(0.14)
+            return baseColor.opacity(0.22)
         }
     }
 
     var borderColor: Color {
         switch self {
         case .neutral:
-            return Color(.separator).opacity(0.72)
+            return baseColor
         case .pending:
-            return .orange.opacity(0.58)
+            return baseColor.opacity(0.82)
         case .today:
-            return Color.accentColor.opacity(0.32)
+            return baseColor.opacity(0.82)
         }
     }
 
@@ -76,7 +88,7 @@ private enum DashboardDateRowTone {
         case .neutral:
             return Color.primary.opacity(0.76)
         case .pending:
-            return .orange
+            return .primary
         case .today:
             return .accentColor
         }
@@ -149,7 +161,7 @@ struct DashboardDateRowView: View {
             .clipShape(cardShape)
             .overlay {
                 cardShape
-                    .stroke(rowTone.borderColor, lineWidth: 1)
+                    .stroke(rowTone.borderColor, lineWidth: DashboardDateRowLayoutMetrics.borderLineWidth)
             }
             .contentShape(cardShape)
         }
@@ -169,24 +181,33 @@ struct DashboardDateRowView: View {
     }
 
     private var leadingDateColumn: some View {
-        VStack(spacing: 0) {
+        ZStack {
+            Rectangle()
+                .fill(rowTone.leadingFill)
+
             Text(dayNumber)
                 .font(.system(size: 22, weight: .bold, design: .rounded))
                 .foregroundStyle(rowTone.titleColor)
                 .monospacedDigit()
+                .padding(.vertical, 14)
         }
         .frame(width: DashboardDateRowLayoutMetrics.leadingColumnWidth)
         .frame(maxHeight: .infinity)
-        .padding(.vertical, 14)
-        .background(rowTone.leadingFill)
     }
 
     private var contentColumn: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(titleLabel)
+            Text(primaryTitleLabel)
                 .font(.system(size: 15, weight: .medium))
                 .foregroundStyle(rowTone.titleColor)
                 .lineLimit(1)
+
+            if let secondaryTitleLabel {
+                Text(secondaryTitleLabel)
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(rowTone.secondaryColor)
+                    .lineLimit(1)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -239,13 +260,17 @@ struct DashboardDateRowView: View {
         RoundedRectangle(cornerRadius: DashboardDateRowLayoutMetrics.cardCornerRadius, style: .continuous)
     }
 
-    private var titleLabel: String {
-        weekday
+    private var primaryTitleLabel: String {
+        isToday ? LocalizationKey.Dashboard.today.localized : weekday
+    }
+
+    private var secondaryTitleLabel: String? {
+        isToday ? weekday : nil
     }
 
     private var weekday: String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "es_ES")
+        formatter.locale = .autoupdatingCurrent
         formatter.dateFormat = "EEEE"
         let value = formatter.string(from: data.date)
         return value.prefix(1).uppercased() + value.dropFirst()

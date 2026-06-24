@@ -1,5 +1,15 @@
 import Foundation
 
+struct ItemListComputedTotals {
+    let itemListId: UUID
+    let paidTotal: Double
+    let unpaidTotal: Double
+    let itemCount: Int
+    let paidStatus: ItemListPaidStatus
+    let rowStatus: ItemListRowStatus
+    let searchItems: [ItemListTotalsResult.SearchItemData]
+}
+
 struct ItemListTotalsResult {
     struct SearchItemData {
         let description: String
@@ -19,12 +29,14 @@ struct ItemListTotalsResult {
 @MainActor
 protocol CalculateItemListTotalsUseCase {
     func execute(itemLists: [SDItemList]) async -> ItemListTotalsResult
+    func execute(itemList: SDItemList) async -> ItemListComputedTotals
     func clearCache(for itemList: SDItemList)
 }
 
 @MainActor
 final class DefaultCalculateItemListTotalsUseCase: CalculateItemListTotalsUseCase {
     private struct CachedListData {
+        let versionToken: TimeInterval
         let paidTotal: Double
         let unpaidTotal: Double
         let count: Int
@@ -42,31 +54,21 @@ final class DefaultCalculateItemListTotalsUseCase: CalculateItemListTotalsUseCas
     }
 
     func execute(itemLists: [SDItemList]) async -> ItemListTotalsResult {
-        typealias PerList = (
-            id: UUID,
-            paidTotal: Double,
-            unpaidTotal: Double,
-            count: Int,
-            paidStatus: ItemListPaidStatus,
-            rowStatus: ItemListRowStatus,
-            searchItems: [ItemListTotalsResult.SearchItemData]
-        )
-
-        let results: [PerList] = await withTaskGroup(of: PerList.self) { group in
-            var items: [PerList] = []
+        let results: [ItemListComputedTotals] = await withTaskGroup(of: ItemListComputedTotals.self) { group in
+            var items: [ItemListComputedTotals] = []
             for itemList in itemLists {
-                group.addTask { await self.computeListData(itemList) }
+                group.addTask { await self.execute(itemList: itemList) }
             }
             for await result in group { items.append(result) }
             return items
         }
 
-        let totals = Dictionary(uniqueKeysWithValues: results.map { ($0.id, $0.paidTotal) })
-        let unpaidTotals = Dictionary(uniqueKeysWithValues: results.map { ($0.id, $0.unpaidTotal) })
-        let counts = Dictionary(uniqueKeysWithValues: results.map { ($0.id, $0.count) })
-        let paidStatuses = Dictionary(uniqueKeysWithValues: results.map { ($0.id, $0.paidStatus) })
-        let rowStatuses = Dictionary(uniqueKeysWithValues: results.map { ($0.id, $0.rowStatus) })
-        let searchItems = Dictionary(uniqueKeysWithValues: results.map { ($0.id, $0.searchItems) })
+        let totals = Dictionary(uniqueKeysWithValues: results.map { ($0.itemListId, $0.paidTotal) })
+        let unpaidTotals = Dictionary(uniqueKeysWithValues: results.map { ($0.itemListId, $0.unpaidTotal) })
+        let counts = Dictionary(uniqueKeysWithValues: results.map { ($0.itemListId, $0.itemCount) })
+        let paidStatuses = Dictionary(uniqueKeysWithValues: results.map { ($0.itemListId, $0.paidStatus) })
+        let rowStatuses = Dictionary(uniqueKeysWithValues: results.map { ($0.itemListId, $0.rowStatus) })
+        let searchItems = Dictionary(uniqueKeysWithValues: results.map { ($0.itemListId, $0.searchItems) })
 
         let rawTotal = totals.values.reduce(0.0) { acc, val in val.isFinite ? acc + val : acc }
         let totalSpent = rawTotal.isFinite ? max(0, rawTotal) : 0.0
@@ -79,6 +81,19 @@ final class DefaultCalculateItemListTotalsUseCase: CalculateItemListTotalsUseCas
             itemListRowStatus: rowStatuses,
             searchItems: searchItems,
             totalSpent: totalSpent
+        )
+    }
+
+    func execute(itemList: SDItemList) async -> ItemListComputedTotals {
+        let result = await computeListData(itemList)
+        return ItemListComputedTotals(
+            itemListId: result.id,
+            paidTotal: result.paidTotal,
+            unpaidTotal: result.unpaidTotal,
+            itemCount: result.count,
+            paidStatus: result.paidStatus,
+            rowStatus: result.rowStatus,
+            searchItems: result.searchItems
         )
     }
 
@@ -96,9 +111,14 @@ final class DefaultCalculateItemListTotalsUseCase: CalculateItemListTotalsUseCas
         searchItems: [ItemListTotalsResult.SearchItemData]
     ) {
         let key = cacheKey(for: itemList)
+        let versionToken = versionToken(for: itemList)
 
         if let cached: CachedListData = cacheManager.getCachedCalculation(for: key) {
-            return (itemList.id, cached.paidTotal, cached.unpaidTotal, cached.count, cached.paidStatus, cached.rowStatus, cached.searchItems)
+            if cached.versionToken == versionToken {
+                return (itemList.id, cached.paidTotal, cached.unpaidTotal, cached.count, cached.paidStatus, cached.rowStatus, cached.searchItems)
+            }
+
+            cacheManager.clearCalculationCache(for: key)
         }
 
         do {
@@ -133,6 +153,7 @@ final class DefaultCalculateItemListTotalsUseCase: CalculateItemListTotalsUseCas
             }
 
             let cached = CachedListData(
+                versionToken: versionToken,
                 paidTotal: max(0, paidTotal.isFinite ? paidTotal : 0.0),
                 unpaidTotal: max(0, unpaidTotal.isFinite ? unpaidTotal : 0.0),
                 count: Int(count),
@@ -157,7 +178,11 @@ final class DefaultCalculateItemListTotalsUseCase: CalculateItemListTotalsUseCas
     }
 
     private func cacheKey(for itemList: SDItemList) -> String {
+        "dashboard_item_list_data_\(itemList.id.uuidString)"
+    }
+
+    private func versionToken(for itemList: SDItemList) -> TimeInterval {
         let versionDate = itemList.lastModifiedAt ?? itemList.createdAt
-        return "dashboard_item_list_data_\(itemList.id.uuidString)_\(versionDate.timeIntervalSince1970)"
+        return versionDate.timeIntervalSince1970
     }
 }

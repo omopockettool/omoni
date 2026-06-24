@@ -10,13 +10,7 @@ final class SwiftDataTestContainer {
     let context: ModelContext
 
     init() throws {
-        let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        container = try ModelContainer(
-            for: SDUser.self, SDGroup.self, SDUserGroup.self,
-                SDCategory.self, SDPaymentMethod.self,
-                SDItemList.self, SDItem.self,
-            configurations: config
-        )
+        container = ModelContainer.test()
         context = container.mainContext
     }
 
@@ -30,6 +24,10 @@ final class SwiftDataTestContainer {
         DefaultCategoryRepository(context: context)
     }
 
+    func makePaymentMethodRepository() -> PaymentMethodRepository {
+        DefaultPaymentMethodRepository(context: context)
+    }
+
     func makeItemListRepository() -> ItemListRepository {
         DefaultItemListRepository(context: context)
     }
@@ -38,13 +36,46 @@ final class SwiftDataTestContainer {
         DefaultItemRepository(context: context)
     }
 
+    func makeUserGroupRepository() -> UserGroupRepository {
+        DefaultUserGroupRepository(context: context)
+    }
+
+    func makeBackupRepository() -> BackupRepository {
+        DefaultBackupRepository(context: context)
+    }
+
     // MARK: - Seed helpers
+
+    @discardableResult
+    func insertUser(
+        name: String = "Dennis",
+        email: String = "dennis@example.com"
+    ) throws -> SDUser {
+        let user = SDUser(name: name, email: email)
+        context.insert(user)
+        try context.save()
+        return user
+    }
 
     func insertGroup(name: String = "Test Group", currency: String = "EUR") throws -> SDGroup {
         let group = SDGroup(name: name, currency: currency)
         context.insert(group)
         try context.save()
         return group
+    }
+
+    @discardableResult
+    func insertUserGroup(
+        user: SDUser,
+        group: SDGroup,
+        role: String = "owner"
+    ) throws -> SDUserGroup {
+        let userGroup = SDUserGroup(role: role)
+        userGroup.user = user
+        userGroup.group = group
+        context.insert(userGroup)
+        try context.save()
+        return userGroup
     }
 
     func insertCategory(name: String, group: SDGroup) throws -> SDCategory {

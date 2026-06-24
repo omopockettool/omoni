@@ -93,7 +93,7 @@ struct PaymentMethodFormView: View {
                         }
                     }
                     .background(Color(.secondarySystemGroupedBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
+                    .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius))
                 }
 
                 VStack(alignment: .leading, spacing: 10) {
@@ -121,11 +121,12 @@ struct PaymentMethodFormView: View {
                     }
                     .padding(AppConstants.UserInterface.padding)
                     .background(Color(.secondarySystemGroupedBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
+                    .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius))
                 }
             }
             .padding(AppConstants.UserInterface.padding)
         }
+        .scrollDismissesKeyboard(.immediately)
         .background(Color(.systemGroupedBackground))
         .navigationTitle(isEditMode ? LocalizationKey.Payment.editMethod.localized : LocalizationKey.Payment.newMethod.localized)
         .navigationBarTitleDisplayMode(.inline)

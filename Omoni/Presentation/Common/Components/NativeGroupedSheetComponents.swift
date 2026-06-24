@@ -5,7 +5,7 @@ struct NativeSettingsRowIcon: View {
     let color: Color
 
     var body: some View {
-        RoundedRectangle(cornerRadius: 9, style: .continuous)
+        RoundedRectangle(cornerRadius: 10, style: .continuous)
             .fill(color.gradient)
             .frame(width: 30, height: 30)
             .overlay {
@@ -42,5 +42,17 @@ struct NativeSettingsRow<Accessory: View>: View {
             accessory
         }
         .contentShape(Rectangle())
+    }
+}
+
+struct NativeSettingsCard<Content: View>: View {
+    @ViewBuilder let content: () -> Content
+
+    var body: some View {
+        VStack(spacing: 0) {
+            content()
+        }
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius, style: .continuous))
     }
 }

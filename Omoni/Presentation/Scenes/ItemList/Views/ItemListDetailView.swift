@@ -7,27 +7,29 @@ struct ItemListDetailView: View {
     let highlightedSearchQuery: String?
     let showsPendingItemsOnly: Bool
     let onItemListUpdated: ((SDItemList) -> Void)?
+    let onItemListItemsChanged: ((SDItemList) -> Void)?
 
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: ItemListDetailViewModel
     @State private var sheetMode: ItemSheetMode?
     @State private var showMetaLabels: Bool = true
+    @State private var hasPendingParentTotalsRefresh = false
 
     enum ItemSheetMode: Identifiable {
         case create
         case edit(SDItem)
         case editRegistry
+        case quickAdd
 
         var id: String {
             switch self {
             case .create:       return "create"
             case .edit(let i):  return "edit-\(i.id)"
             case .editRegistry: return "editRegistry"
+            case .quickAdd:     return "quickAdd"
             }
         }
     }
-
-    let onPaidStatusChanged: (() -> Void)?
 
     init(
         itemList: SDItemList,
@@ -36,7 +38,7 @@ struct ItemListDetailView: View {
         highlightedSearchQuery: String? = nil,
         showsPendingItemsOnly: Bool = false,
         onItemListUpdated: ((SDItemList) -> Void)? = nil,
-        onPaidStatusChanged: (() -> Void)? = nil
+        onItemListItemsChanged: ((SDItemList) -> Void)? = nil
     ) {
         self.itemList = itemList
         self.currencyCode = currencyCode
@@ -44,7 +46,7 @@ struct ItemListDetailView: View {
         self.highlightedSearchQuery = highlightedSearchQuery
         self.showsPendingItemsOnly = showsPendingItemsOnly
         self.onItemListUpdated = onItemListUpdated
-        self.onPaidStatusChanged = onPaidStatusChanged
+        self.onItemListItemsChanged = onItemListItemsChanged
 
         let container = AppDIContainer.shared
         self._viewModel = State(wrappedValue: ItemListDetailViewModel(
@@ -70,14 +72,19 @@ struct ItemListDetailView: View {
                 mainContentView
             }
         }
-        .navigationTitle(itemList.itemListDescription)
-        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     sheetMode = .editRegistry
                 } label: {
                     Image(systemName: "square.and.pencil")
+                }
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    sheetMode = .quickAdd
+                } label: {
+                    Image(systemName: "clock.arrow.circlepath")
                 }
             }
         }
@@ -87,6 +94,15 @@ struct ItemListDetailView: View {
         .task {
             try? await Task.sleep(for: .seconds(3))
             withAnimation(.easeInOut(duration: 0.5)) { showMetaLabels = false }
+        }
+        .onDisappear {
+            guard hasPendingParentTotalsRefresh else { return }
+            hasPendingParentTotalsRefresh = false
+
+            Task {
+                await viewModel.waitForPendingMutations()
+                onItemListItemsChanged?(itemList)
+            }
         }
         .sheet(item: $sheetMode) { mode in
             let container = AppDIContainer.shared
@@ -98,7 +114,10 @@ struct ItemListDetailView: View {
                     itemListDescription: itemList.itemListDescription,
                     currencyCode: currencyCode,
                     onItemSaved: { item in
-                        Task { await viewModel.addItem(item) }
+                        Task {
+                            await viewModel.addItem(item)
+                            hasPendingParentTotalsRefresh = true
+                        }
                     },
                     createItemUseCase: container.makeCreateItemUseCase(),
                     updateItemUseCase: container.makeUpdateItemUseCase()
@@ -109,9 +128,30 @@ struct ItemListDetailView: View {
                     itemToEdit: item,
                     itemListDescription: itemList.itemListDescription,
                     currencyCode: currencyCode,
-                    onItemSaved: { item in Task { await viewModel.updateItem(item) } },
+                    onItemSaved: { item in
+                        Task {
+                            await viewModel.updateItem(item)
+                            hasPendingParentTotalsRefresh = true
+                        }
+                    },
                     createItemUseCase: container.makeCreateItemUseCase(),
                     updateItemUseCase: container.makeUpdateItemUseCase()
+                )
+            case .quickAdd:
+                let container = AppDIContainer.shared
+                QuickAddItemsView(
+                    itemListId: itemList.id,
+                    groupId: group.id,
+                    categoryId: itemList.category?.id,
+                    currencyCode: currencyCode,
+                    onItemAdded: { item in
+                        Task {
+                            await viewModel.addItem(item)
+                            hasPendingParentTotalsRefresh = true
+                        }
+                    },
+                    fetchFrequentItemsUseCase: container.makeFetchFrequentItemsUseCase(),
+                    createItemUseCase: container.makeCreateItemUseCase()
                 )
             case .editRegistry:
                 NavigationStack {
@@ -182,17 +222,20 @@ struct ItemListDetailView: View {
             items: viewModel.visibleItems,
             formattedAmount: viewModel.getFormattedAmount,
             quantityBreakdown: viewModel.getQuantityBreakdown,
-            isSearchMatch: { item in
-                viewModel.itemMatchesSearch(item, query: highlightedSearchQuery)
+            highlightedQuery: { item in
+                viewModel.itemMatchesSearch(item, query: highlightedSearchQuery) ? highlightedSearchQuery : nil
             },
             onItemTap: { sheetMode = .edit($0) },
             onTogglePaid: { item in
                 Task {
                     await viewModel.toggleItemPaid(item)
-                    onPaidStatusChanged?()
+                    hasPendingParentTotalsRefresh = true
                 }
             },
-            onDelete: { viewModel.deleteItem($0) },
+            onDelete: { item in
+                hasPendingParentTotalsRefresh = true
+                Task { await viewModel.deleteItem(item) }
+            },
             onRefresh: { await viewModel.loadItems() }
         )
     }
@@ -217,7 +260,7 @@ struct ItemRowView: View {
     let item: SDItem
     let formattedAmount: String
     let quantityBreakdown: String?
-    let isSearchMatch: Bool
+    let highlightedQuery: String?
     let onTap: () -> Void
     let onTogglePaid: () -> Void
 
@@ -233,6 +276,30 @@ struct ItemRowView: View {
         item.isPaid ? nil : Color(.systemGray2)
     }
 
+    private func buildHighlightedDescription() -> Text {
+        let description = item.itemDescription
+        guard let query = highlightedQuery,
+              !query.isEmpty,
+              let range = description.range(of: query, options: .caseInsensitive) else {
+            return Text(description)
+                .font(.system(size: 15, weight: .medium))
+                .foregroundColor(Color.primary.opacity(0.92))
+        }
+        let before = String(description[description.startIndex..<range.lowerBound])
+        let match  = String(description[range])
+        let after  = String(description[range.upperBound...])
+        let beforeText = Text(verbatim: before)
+            .font(.system(size: 15, weight: .medium))
+            .foregroundColor(Color.primary.opacity(0.92))
+        let matchText = Text(verbatim: match)
+            .font(.system(size: 15, weight: .semibold))
+            .foregroundColor(.accentColor)
+        let afterText = Text(verbatim: after)
+            .font(.system(size: 15, weight: .medium))
+            .foregroundColor(Color.primary.opacity(0.92))
+        return Text("\(beforeText)\(matchText)\(afterText)")
+    }
+
     var body: some View {
         StatusFramedRow(
             tone: rowTone,
@@ -241,11 +308,9 @@ struct ItemRowView: View {
             onTap: onTap,
             onToggle: onTogglePaid
         ) {
-            HStack(alignment: .top, spacing: 12) {
+            HStack(alignment: .center, spacing: 12) {
                 VStack(alignment: .leading, spacing: 1) {
-                    Text(item.itemDescription)
-                        .font(.system(size: 15, weight: isSearchMatch ? .semibold : .medium))
-                        .foregroundStyle(Color.primary.opacity(0.92))
+                    buildHighlightedDescription()
                         .lineLimit(2)
                         .truncationMode(.tail)
                         .fixedSize(horizontal: false, vertical: true)

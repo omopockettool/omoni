@@ -11,22 +11,31 @@ struct AddItemListStructureSection: View {
     let helperText: String?
     let onSelect: (ItemListStructure) -> Void
 
+    private var singleEntryEnabled: Bool {
+        canConvertToSingleEntry || selection == .singleEntry
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 10) {
-                structureChip(
+            HStack(spacing: 6) {
+                structureSegment(
                     title: LocalizationKey.Entry.singleEntry.localized,
                     systemImage: "bolt.fill",
                     structure: .singleEntry,
-                    isEnabled: canConvertToSingleEntry || selection == .singleEntry
+                    isEnabled: singleEntryEnabled
                 )
-                structureChip(
+
+                structureSegment(
                     title: LocalizationKey.Entry.itemizedList.localized,
                     systemImage: "list.bullet",
                     structure: .itemizedList,
                     isEnabled: true
                 )
             }
+            .padding(4)
+            .background(Color(.secondarySystemGroupedBackground))
+            .clipShape(Capsule())
+            .sensoryFeedback(.selection, trigger: selection)
 
             if let helperText {
                 Text(helperText)
@@ -37,44 +46,50 @@ struct AddItemListStructureSection: View {
         }
     }
 
-    private func structureChip(
+    private func structureSegment(
         title: String,
         systemImage: String,
         structure: ItemListStructure,
         isEnabled: Bool
     ) -> some View {
         let isSelected = selection == structure
+
         return Button {
             guard isEnabled else { return }
-            onSelect(structure)
+            withAnimation(AnimationHelper.quickSpring) {
+                onSelect(structure)
+            }
         } label: {
             HStack(spacing: 8) {
                 Image(systemName: systemImage)
                     .font(.subheadline.weight(.semibold))
+
                 Text(title)
                     .font(.subheadline.weight(.semibold))
+                    .lineLimit(1)
             }
             .frame(maxWidth: .infinity)
+            .padding(.horizontal, 14)
             .padding(.vertical, 12)
-            .foregroundStyle(isSelected ? .white : isEnabled ? .primary : .secondary)
+            .foregroundStyle(segmentForegroundColor(isSelected: isSelected, isEnabled: isEnabled))
             .background(
-                isSelected
-                    ? Color.accentColor
-                    : Color(.secondarySystemGroupedBackground)
-            )
-            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .stroke(
-                        isSelected
-                            ? Color.clear
-                            : Color(.separator).opacity(isEnabled ? 0.35 : 0.15),
-                        lineWidth: 1
-                    )
+                Capsule()
+                    .fill(isSelected ? Color(.tertiarySystemGroupedBackground) : Color.clear)
             )
             .opacity(isEnabled ? 1 : 0.5)
+            .contentShape(Capsule())
         }
         .buttonStyle(.plain)
+    }
+
+    private func segmentForegroundColor(isSelected: Bool, isEnabled: Bool) -> Color {
+        if isSelected {
+            return .primary
+        }
+        if isEnabled {
+            return Color.primary.opacity(0.92)
+        }
+        return .secondary
     }
 }
 
@@ -128,7 +143,7 @@ struct AddItemListTopCard: View {
             }
         }
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
+        .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius))
     }
 }
 
@@ -143,7 +158,7 @@ struct AddItemListDescriptionField: View {
             icon: "textformat",
             placeholder: placeholder,
             text: $description,
-            maxLength: 200,
+            maxLength: AppConstants.Validation.maxItemDescriptionLength,
             axis: .horizontal,
             style: .embedded,
             submitLabel: .done,
@@ -221,6 +236,7 @@ struct AddItemListCategorySection: View {
             }
         }
     }
+
 }
 
 private struct AddItemListCategoryChip: View {
@@ -596,9 +612,13 @@ struct AddItemListDateCard: View {
     let onToggleChanged: (Bool) -> Void
 
     private var dateLabel: String {
-        showDatePicker
-            ? formattedDate
-            : LocalizationKey.Dashboard.today.localized.capitalized
+        !showDatePicker && Calendar.current.isDateInToday(date)
+            ? LocalizationKey.Dashboard.today.localized.capitalized
+            : formattedDate
+    }
+
+    private var activeDateTint: Color {
+        Color(.systemGray)
     }
 
     var body: some View {
@@ -619,7 +639,7 @@ struct AddItemListDateCard: View {
                     HStack(spacing: 8) {
                         Image(systemName: "calendar")
                             .font(.system(size: 14))
-                            .foregroundStyle(showDatePicker ? Color.accentColor : Color.secondary)
+                            .foregroundStyle(showDatePicker ? activeDateTint : Color.secondary)
 
                         Text(dateLabel)
                             .font(.subheadline)
@@ -677,7 +697,7 @@ struct AddItemListDateCard: View {
             .opacity((showDatePicker && calendarExpanded) ? 1 : 0)
         }
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
+        .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius))
         .animation(.spring(response: 0.45, dampingFraction: 0.88), value: calendarExpanded)
         .animation(.spring(response: 0.45, dampingFraction: 0.88), value: showDatePicker)
     }
@@ -730,7 +750,7 @@ struct AddItemListGroupCard: View {
             }
             .padding(AppConstants.UserInterface.padding)
             .background(Color(.secondarySystemGroupedBackground))
-            .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
+            .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius))
             .buttonStyle(.plain)
         }
     }

@@ -148,6 +148,7 @@
 "dashboard.yesterday" = "Ayer";
 "dashboard.costThisMonth" = "Coste de este mes";
 "dashboard.costToday" = "Coste de hoy";
+"dashboard.costOnDay" = "Coste del %@";
 "dashboard.added" = "¡Listo!";
 "dashboard.filters" = "Filtros";
 "dashboard.itemStatus" = "Estado de artículos";
@@ -164,6 +165,8 @@
 "dashboard.changeUndone" = "Cambio deshecho";
 "dashboard.undo" = "Deshacer";
 "dashboard.limitShort" = "Límite";
+"dashboard.expensesByCategory" = "Coste por categoría";
+"dashboard.overLimit" = "Sobre límite";
 
 // MARK: - Entry (extended)
 "entry.newEntry" = "Nuevo Registro";
@@ -266,7 +269,7 @@
 "about.viewHistory" = "Ver historial";
 "about.title" = "OMONI";
 "about.descriptionLabel" = "Descripción";
-"about.tagline" = "Pocket tool. Consciencia financiera en tu bolsillo. Sin fricción.";
+"about.tagline" = "Pocket tool. Consciencia financiera en tu bolsillo.";
 "about.heroTagline" = "¿Cuánto te costó vivir hoy?";
 "about.officialWeb" = "Web oficial";
 "about.contact" = "Contacto";

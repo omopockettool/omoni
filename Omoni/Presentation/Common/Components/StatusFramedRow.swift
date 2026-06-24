@@ -1,5 +1,14 @@
 import SwiftUI
 
+private enum StatusFramedRowLayoutMetrics {
+    static let borderLineWidth: CGFloat = 4
+    static let statusColumnWidth: CGFloat = 58
+}
+
+private enum StatusFramedRowPalette {
+    static let neutral = Color(.systemGray3)
+}
+
 enum StatusFramedRowTone: Equatable {
     case neutral
     case pending
@@ -8,7 +17,7 @@ enum StatusFramedRowTone: Equatable {
     var accentColor: Color {
         switch self {
         case .neutral:
-            return Color(.systemGray3)
+            return StatusFramedRowPalette.neutral
         case .pending:
             return .orange
         case .completed:
@@ -19,11 +28,11 @@ enum StatusFramedRowTone: Equatable {
     var borderColor: Color {
         switch self {
         case .neutral:
-            return Color(.separator).opacity(0.72)
+            return StatusFramedRowPalette.neutral
         case .pending:
             return .orange.opacity(0.72)
         case .completed:
-            return Color.paidGreen.opacity(0.76)
+            return .paidGreen
         }
     }
 
@@ -77,7 +86,8 @@ struct StatusFramedRow<Content: View>: View {
         .clipShape(cardShape)
         .overlay {
             cardShape
-                .stroke(tone.borderColor, lineWidth: 1)
+                .stroke(tone.borderColor, lineWidth: StatusFramedRowLayoutMetrics.borderLineWidth)
+                .animation(AnimationHelper.quickSpring, value: tone)
         }
         .contentShape(cardShape)
         .onTapGesture(perform: onTap)
@@ -93,7 +103,7 @@ struct StatusFramedRow<Content: View>: View {
                     .font(.system(size: 18, weight: statusIconWeight))
                     .foregroundStyle(statusIconColor ?? Color.white.opacity(0.96))
             }
-            .frame(width: 52)
+            .frame(width: StatusFramedRowLayoutMetrics.statusColumnWidth)
             .frame(maxHeight: .infinity)
             .contentShape(Rectangle())
         }
@@ -103,11 +113,11 @@ struct StatusFramedRow<Content: View>: View {
     }
 
     private var cardBackground: some View {
-        RoundedRectangle(cornerRadius: 18, style: .continuous)
+        RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius, style: .continuous)
             .fill(Color(.secondarySystemGroupedBackground))
     }
 
     private var cardShape: RoundedRectangle {
-        RoundedRectangle(cornerRadius: 18, style: .continuous)
+        RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius, style: .continuous)
     }
 }

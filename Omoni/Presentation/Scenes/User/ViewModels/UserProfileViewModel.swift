@@ -38,8 +38,7 @@ final class UserProfileViewModel {
         showError = false
         defer { isLoading = false }
 
-        user.name = trimmedName
-        user.lastModifiedAt = Date()
+        user.applyEdits(name: trimmedName, email: user.email)
 
         do {
             try await updateUserUseCase.execute(user: user)

@@ -9,11 +9,13 @@ struct ExpenseListView<EmptyState: View>: View {
     @Binding private var collapsedDays: Set<Date>
 
     let itemLists: [SDItemList]
+    let getCategoryContext: (SDItemList) -> String?
     let getFormattedAmount: (SDItemList) -> String
     let getFormattedUnpaidAmount: (SDItemList) -> String?
     let getSearchSummary: (SDItemList) -> String?
     let getSearchMatchedSubtotal: (SDItemList) -> String?
     let getSearchMatchedUnpaid: (SDItemList) -> String?
+    let getSearchMatchedRowStatus: (SDItemList) -> ItemListRowStatus?
     let itemListRowStatus: [UUID: ItemListRowStatus]
     let onItemTap: (SDItemList) -> Void
     let onTogglePaid: (SDItemList) -> Void
@@ -30,11 +32,13 @@ struct ExpenseListView<EmptyState: View>: View {
 
     init(
         itemLists: [SDItemList],
+        getCategoryContext: @escaping (SDItemList) -> String? = { _ in nil },
         getFormattedAmount: @escaping (SDItemList) -> String,
         getFormattedUnpaidAmount: @escaping (SDItemList) -> String?,
         getSearchSummary: @escaping (SDItemList) -> String? = { _ in nil },
         getSearchMatchedSubtotal: @escaping (SDItemList) -> String? = { _ in nil },
         getSearchMatchedUnpaid: @escaping (SDItemList) -> String? = { _ in nil },
+        getSearchMatchedRowStatus: @escaping (SDItemList) -> ItemListRowStatus? = { _ in nil },
         itemListRowStatus: [UUID: ItemListRowStatus],
         onItemTap: @escaping (SDItemList) -> Void,
         onTogglePaid: @escaping (SDItemList) -> Void,
@@ -51,11 +55,13 @@ struct ExpenseListView<EmptyState: View>: View {
         allowsDayCollapse: Bool = false
     ) {
         self.itemLists = itemLists
+        self.getCategoryContext = getCategoryContext
         self.getFormattedAmount = getFormattedAmount
         self.getFormattedUnpaidAmount = getFormattedUnpaidAmount
         self.getSearchSummary = getSearchSummary
         self.getSearchMatchedSubtotal = getSearchMatchedSubtotal
         self.getSearchMatchedUnpaid = getSearchMatchedUnpaid
+        self.getSearchMatchedRowStatus = getSearchMatchedRowStatus
         self.itemListRowStatus = itemListRowStatus
         self.onItemTap = onItemTap
         self.onTogglePaid = onTogglePaid
@@ -160,12 +166,13 @@ struct ExpenseListView<EmptyState: View>: View {
     private func itemListRow(_ itemList: SDItemList, timelinePosition: TimelinePosition) -> some View {
         ExpenseListRowContainer(
             itemList: itemList,
+            categoryContext: getCategoryContext(itemList),
             formattedAmount: getFormattedAmount(itemList),
             formattedUnpaidAmount: getFormattedUnpaidAmount(itemList),
             searchSummary: getSearchSummary(itemList),
             searchMatchedSubtotal: getSearchMatchedSubtotal(itemList),
             searchMatchedUnpaid: getSearchMatchedUnpaid(itemList),
-            rowStatus: itemListRowStatus[itemList.id] ?? .neutral,
+            rowStatus: getSearchMatchedRowStatus(itemList) ?? itemListRowStatus[itemList.id] ?? .neutral,
             isCompact: isCompact,
             timelinePosition: timelinePosition,
             onTap: { onItemTap(itemList) },
@@ -238,11 +245,13 @@ struct ExpenseListView<EmptyState: View>: View {
 extension ExpenseListView where EmptyState == EmptyView {
     init(
         itemLists: [SDItemList],
+        getCategoryContext: @escaping (SDItemList) -> String? = { _ in nil },
         getFormattedAmount: @escaping (SDItemList) -> String,
         getFormattedUnpaidAmount: @escaping (SDItemList) -> String?,
         getSearchSummary: @escaping (SDItemList) -> String? = { _ in nil },
         getSearchMatchedSubtotal: @escaping (SDItemList) -> String? = { _ in nil },
         getSearchMatchedUnpaid: @escaping (SDItemList) -> String? = { _ in nil },
+        getSearchMatchedRowStatus: @escaping (SDItemList) -> ItemListRowStatus? = { _ in nil },
         itemListRowStatus: [UUID: ItemListRowStatus],
         onItemTap: @escaping (SDItemList) -> Void,
         onTogglePaid: @escaping (SDItemList) -> Void,
@@ -258,11 +267,13 @@ extension ExpenseListView where EmptyState == EmptyView {
     ) {
         self.init(
             itemLists: itemLists,
+            getCategoryContext: getCategoryContext,
             getFormattedAmount: getFormattedAmount,
             getFormattedUnpaidAmount: getFormattedUnpaidAmount,
             getSearchSummary: getSearchSummary,
             getSearchMatchedSubtotal: getSearchMatchedSubtotal,
             getSearchMatchedUnpaid: getSearchMatchedUnpaid,
+            getSearchMatchedRowStatus: getSearchMatchedRowStatus,
             itemListRowStatus: itemListRowStatus,
             onItemTap: onItemTap,
             onTogglePaid: onTogglePaid,

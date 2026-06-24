@@ -19,11 +19,18 @@ struct AppConstants {
         static let maxNameLength = 50
         static let minEmailLength = 5
         static let maxEmailLength = 100
+        static let minItemQuantity = 1
+        static let maxItemQuantity = 9_999_999_999
+        static let maxItemQuantityDigits = 10
+        static let maxItemDescriptionLength = 30
+        static let maxGroupNameLength = 30
+        static let maxUserNameLength = 40
     }
     
     // MARK: - UI Constants
     struct UserInterface {
         static let cornerRadius: CGFloat = 16
+        static let rowCornerRadius: CGFloat = 20
         static let padding: CGFloat = 16
         static let mediumPadding: CGFloat = 12
         static let smallPadding: CGFloat = 8

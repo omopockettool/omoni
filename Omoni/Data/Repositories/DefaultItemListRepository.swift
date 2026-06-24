@@ -35,17 +35,26 @@ final class DefaultItemListRepository: ItemListRepository {
         if let groupId {
             let targetId = groupId
             let descriptor = FetchDescriptor<SDGroup>(predicate: #Predicate { $0.id == targetId })
-            itemList.group = try context.fetch(descriptor).first
+            guard let group = try context.fetch(descriptor).first else {
+                throw RepositoryError.notFound
+            }
+            itemList.group = group
         }
         if let categoryId {
             let targetId = categoryId
             let descriptor = FetchDescriptor<SDCategory>(predicate: #Predicate { $0.id == targetId })
-            itemList.category = try context.fetch(descriptor).first
+            guard let category = try context.fetch(descriptor).first else {
+                throw RepositoryError.notFound
+            }
+            itemList.category = category
         }
         if let paymentMethodId {
             let targetId = paymentMethodId
             let descriptor = FetchDescriptor<SDPaymentMethod>(predicate: #Predicate { $0.id == targetId })
-            itemList.paymentMethod = try context.fetch(descriptor).first
+            guard let paymentMethod = try context.fetch(descriptor).first else {
+                throw RepositoryError.notFound
+            }
+            itemList.paymentMethod = paymentMethod
         }
 
         context.insert(itemList)
@@ -59,7 +68,8 @@ final class DefaultItemListRepository: ItemListRepository {
     }
 
     func updateItemList(_ itemList: SDItemList) async throws {
-        itemList.lastModifiedAt = Date()
+        guard context.hasChanges else { return }
+        itemList.touch()
         do {
             try context.save()
         } catch {

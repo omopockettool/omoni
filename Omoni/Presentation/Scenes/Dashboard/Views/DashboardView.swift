@@ -45,7 +45,7 @@ struct ItemListDetailNavigationWrapper: View {
     let highlightedSearchQuery: String?
     let showsPendingItemsOnly: Bool
     let onItemListUpdated: (SDItemList) -> Void
-    let onPaidStatusChanged: (() -> Void)?
+    let onItemListItemsChanged: (SDItemList) -> Void
 
     var body: some View {
         ItemListDetailView(
@@ -55,7 +55,7 @@ struct ItemListDetailNavigationWrapper: View {
             highlightedSearchQuery: highlightedSearchQuery,
             showsPendingItemsOnly: showsPendingItemsOnly,
             onItemListUpdated: onItemListUpdated,
-            onPaidStatusChanged: onPaidStatusChanged
+            onItemListItemsChanged: onItemListItemsChanged
         )
     }
 }
@@ -95,7 +95,6 @@ struct DashboardView: View {
     @State private var hasLoadedInitialData = false
     @State private var selectedCalendarDay: Date? = nil
     @State private var addItemListTrigger: AddItemListTrigger? = nil
-    @State private var addItemListDetent: PresentationDetent = .fraction(0.8)
 
     private struct AddItemListTrigger: Identifiable {
         let id = UUID()
@@ -110,6 +109,7 @@ struct DashboardView: View {
     @State private var isSearchActive = false
     @State private var dismissSearchKeyboardToken = 0
     @State private var activeFilter: DashboardActiveFilter? = nil
+    @State private var contentTransitionMode: DashboardContentTransitionMode = .drillForward
 
     init() {
         // ✅ Clean Architecture: Use DI Container for all dependencies
@@ -152,9 +152,7 @@ struct DashboardView: View {
             .background(Color(.systemBackground))
             .onChange(of: navigationPath) { _, path in
                 viewModel.toast = nil
-                if path.isEmpty {
-                    dismissSearchKeyboardToken += 1
-                }
+                dismissSearchKeyboardToken += 1
             }
             .onChange(of: viewModel.isChangingGroup) { _, changing in
                 if changing {
@@ -193,8 +191,8 @@ struct DashboardView: View {
                             onItemListUpdated: { updated in
                                 Task { await viewModel.updateItemList(updated) }
                             },
-                            onPaidStatusChanged: {
-                                Task { await viewModel.refreshTotals() }
+                            onItemListItemsChanged: { updatedItemList in
+                                Task { await viewModel.refreshTotals(for: updatedItemList) }
                             }
                         )
                     }
@@ -227,7 +225,7 @@ struct DashboardView: View {
                             availableGroups: viewModel.availableGroups,
                             initialDate: trigger.initialDate,
                             preferredCategoryId: trigger.preferredCategoryId,
-                            onRequestExpandSheet: { addItemListDetent = .large },
+                            excludedCategoryIds: viewModel.visibleCategoryBoxes.map(\.categoryId),
                             onItemListCreated: { createdItemList in
                                 addItemListTrigger = nil
                                 Task {
@@ -246,9 +244,8 @@ struct DashboardView: View {
                             }
                         )
                     }
-                    .presentationDetents([.fraction(0.8), .large], selection: $addItemListDetent)
+                    .presentationDetents([.large])
                     .presentationDragIndicator(.visible)
-                    .onDisappear { addItemListDetent = .fraction(0.8) }
                 }
             }
             .sheet(isPresented: $showingFiltersSheet) {
@@ -303,42 +300,43 @@ struct DashboardView: View {
     private var mainContentView: some View {
         DashboardMainContent(
             allFormattedAmount: viewModel.formattedVisibleRangePaidTotal(showingFullMonth: viewModel.showingFullMonth),
-            allFormattedUnpaidAmount: viewModel.formattedVisibleRangeUnpaidTotal(showingFullMonth: viewModel.showingFullMonth),
             categoryBoxes: viewModel.visibleCategoryBoxes,
             hasVisibleItemLists: hasVisibleItemListsInSelectedRange,
             getFormattedAmount: { viewModel.formattedAmount(for: $0) },
-            getFormattedUnpaidAmount: { viewModel.formattedUnpaidAmount(for: $0) },
             showsDateRows: showsDateRows,
             dateRows: activeDateRows,
             getDateRowAmount: { viewModel.formattedCurrency($0.paidAmount) },
             getDateRowUnpaidAmount: { $0.unpaidAmount > 0.000_001 ? viewModel.formattedCurrency($0.unpaidAmount) : nil },
             onDateRowTap: { box in
-                switch resolvedActiveFilter {
-                case .all(let range):
-                    withAnimation(AnimationHelper.smoothSpring) {
+                performDashboardTransition(.drillForward) {
+                    switch resolvedActiveFilter {
+                    case .all(let range):
                         activeFilter = .allDay(range: range, date: box.date)
-                    }
-                case .category(let categoryId, let range):
-                    withAnimation(AnimationHelper.smoothSpring) {
+                    case .category(let categoryId, let range):
                         activeFilter = .categoryDay(categoryId: categoryId, range: range, date: box.date)
+                    default:
+                        break
                     }
-                default:
-                    break
                 }
             },
             filteredItemLists: activeFilteredItemLists,
+            getItemListCategoryContext: { itemList in
+                guard activeAllDayContext != nil else { return nil }
+                return itemList.category?.name
+            },
             getItemListAmount: { viewModel.formattedPaid(for: $0) },
             getItemListUnpaidAmount: { viewModel.formattedUnpaid(for: $0) },
             getDayTotal: { viewModel.formattedVisibleDayPaidTotal(for: $0, from: activeFilteredItemLists) },
             getSearchSummary: { viewModel.formattedSearchSummary(for: $0) },
             getSearchMatchedSubtotal: { viewModel.formattedSearchMatchedSubtotal(for: $0) },
             getSearchMatchedUnpaid: { viewModel.formattedSearchMatchedUnpaid(for: $0) },
+            getSearchMatchedRowStatus: { viewModel.searchMatchedRowStatus(for: $0) },
             hideExpenseListSectionHeaders: true,
             customEmptyState: { DashboardNoResultsState() },
             showCustomEmptyState: viewModel.hasActiveSearch || viewModel.isCustomMonthFilterActive || viewModel.hasActivePendingFilter,
             onRefresh: { await viewModel.refreshData() },
             onAllTap: {
-                withAnimation(AnimationHelper.smoothSpring) {
+                performDashboardTransition(.drillForward) {
                     if viewModel.showingFullMonth {
                         activeFilter = .all(.month)
                     } else {
@@ -347,7 +345,7 @@ struct DashboardView: View {
                 }
             },
             onCategoryTap: { box in
-                withAnimation(AnimationHelper.smoothSpring) {
+                performDashboardTransition(.drillForward) {
                     if box.range == .today {
                         activeFilter = .categoryDay(categoryId: box.categoryId, range: .today, date: Date())
                     } else {
@@ -355,6 +353,7 @@ struct DashboardView: View {
                     }
                 }
             },
+            onBack: { navigateBack() },
             selectedFilterTitle: activeFilterTitle,
             collapsedDays: $collapsedMonthDays,
             itemListRowStatus: viewModel.itemListRowStatus,
@@ -363,7 +362,8 @@ struct DashboardView: View {
             },
             onTogglePaid: { viewModel.togglePaid(for: $0) },
             onDelete: { viewModel.deleteItemList($0) },
-            showingFullMonth: $viewModel.showingFullMonth,
+            showingFullMonth: showingFullMonthBinding,
+            transitionMode: contentTransitionMode,
             hasItemsOutsideToday: viewModel.hasItemsOutsideToday,
             onOpenSettings: { viewModel.openSettings() },
             toast: $viewModel.toast,
@@ -418,6 +418,41 @@ struct DashboardView: View {
             ? viewModel.filteredMonthItemLists
             : viewModel.filteredTodayItemLists
         return !visibleRangeItemLists.isEmpty
+    }
+
+    private var showingFullMonthBinding: Binding<Bool> {
+        Binding(
+            get: { viewModel.showingFullMonth },
+            set: { newValue in
+                let mode: DashboardContentTransitionMode = newValue ? .monthRange : .todayRange
+                performDashboardTransition(mode) {
+                    viewModel.showingFullMonth = newValue
+                }
+            }
+        )
+    }
+
+    private func performDashboardTransition(
+        _ mode: DashboardContentTransitionMode,
+        mutation: @escaping @MainActor () -> Void
+    ) {
+        let applyMutation = {
+            withAnimation(AnimationHelper.smoothSpring) {
+                mutation()
+            }
+        }
+
+        guard contentTransitionMode != mode else {
+            applyMutation()
+            return
+        }
+
+        contentTransitionMode = mode
+
+        Task { @MainActor in
+            await Task.yield()
+            applyMutation()
+        }
     }
 
     private func refreshActiveFilter() {
@@ -508,9 +543,6 @@ struct DashboardView: View {
         case .allDay(_, let date):
             return viewModel.dayFilterLabel(for: date)
         case .category(let categoryId, let range), .categoryDay(let categoryId, let range, _):
-            if case .categoryDay(_, let r, let date) = activeFilter, r == .month {
-                return viewModel.dayFilterLabel(for: date)
-            }
             return activeCategoryBox?.categoryName ?? viewModel.categoryDisplayName(forCategoryId: categoryId, in: range)
         }
     }
@@ -523,9 +555,6 @@ struct DashboardView: View {
         case .allDay:
             return "calendar"
         case .category(let categoryId, let range), .categoryDay(let categoryId, let range, _):
-            if case .categoryDay(_, let r, _) = activeFilter, r == .month {
-                return "calendar"
-            }
             return activeCategoryBox?.categoryIcon ?? viewModel.categoryDisplayIcon(forCategoryId: categoryId, in: range)
         }
     }
@@ -538,9 +567,6 @@ struct DashboardView: View {
         case .allDay:
             return nil
         case .category(let categoryId, let range), .categoryDay(let categoryId, let range, _):
-            if case .categoryDay(_, let r, _) = activeFilter, r == .month {
-                return nil
-            }
             return activeCategoryBox?.categoryColorHex ?? viewModel.categoryDisplayColorHex(forCategoryId: categoryId, in: range)
         }
     }
@@ -561,6 +587,18 @@ struct DashboardView: View {
         hasVisibleItemListsInSelectedRange && viewModel.visibleCategoryBoxes.isEmpty
     }
 
+    private func navigateBack() {
+        performDashboardTransition(.drillBackward) {
+            if case .allDay(let range, _) = activeFilter {
+                activeFilter = range == .today ? nil : .all(range)
+            } else if case .categoryDay(let categoryId, let range, _) = activeFilter {
+                activeFilter = range == .today ? nil : .category(categoryId: categoryId, range: range)
+            } else {
+                activeFilter = nil
+            }
+        }
+    }
+
     private var bottomInset: some View {
         DashboardBottomInset(
             heroSection: {
@@ -571,10 +609,9 @@ struct DashboardView: View {
                             monthLabel: viewModel.monthHeroLabel,
                             monthTotal: viewModel.formattedCachedMonthTotal(),
                             todayTotal: viewModel.formattedTodayTotal,
-                            overrideLabel: activeAllDayContext.map { viewModel.heroDayLabel(for: $0.date) }
-                                ?? activeCategoryDayContext.map { viewModel.heroDayLabel(for: $0.date) }
+                            overrideLabel: activeDayHeroLabel
                                 ?? activeCategoryBox?.categoryName,
-                            overrideLabelUsesCostOfPrefix: activeAllDayContext == nil && activeCategoryDayContext == nil,
+                            overrideLabelUsesCostOfPrefix: activeDayHeroLabel == nil,
                             overrideTotal: activeAllDayContext.map {
                                 viewModel.formattedTotal(in: $0.range, day: $0.date)
                             } ?? activeCategoryDayContext.map {
@@ -610,17 +647,7 @@ struct DashboardView: View {
                     onGroupChange: { newGroup in Task { await viewModel.changeGroup(to: newGroup) } },
                     onGroupCreated: { newGroup in viewModel.addGroup(newGroup) },
                     onDeleteGroup: { deletedGroup in try await viewModel.deleteGroup(deletedGroup) },
-                    onSelectedScopeTap: {
-                        withAnimation(AnimationHelper.smoothSpring) {
-                            if case .allDay(let range, _) = activeFilter {
-                                activeFilter = range == .today ? nil : .all(range)
-                            } else if case .categoryDay(let categoryId, let range, _) = activeFilter {
-                                activeFilter = range == .today ? nil : .category(categoryId: categoryId, range: range)
-                            } else {
-                                activeFilter = nil
-                            }
-                        }
-                    },
+                    onSelectedScopeTap: { navigateBack() },
                     onOpenFilters: { showingFiltersSheet = true }
                 )
             }
@@ -645,6 +672,13 @@ struct DashboardView: View {
     private var activeCategoryDayContext: (categoryId: UUID, range: DashboardCategoryRange, date: Date)? {
         guard case .categoryDay(let categoryId, let range, let date) = resolvedActiveFilter else { return nil }
         return (categoryId, range, date)
+    }
+
+    private var activeDayHeroLabel: String? {
+        activeAllDayContext.map { viewModel.heroCostLabel(for: $0.date) }
+            ?? activeCategoryDayContext.flatMap {
+                $0.range == .month ? viewModel.heroCostLabel(for: $0.date) : nil
+            }
     }
 
     private var resolvedInitialEntryDate: Date {
@@ -714,6 +748,7 @@ struct DashboardView: View {
             getSearchSummary: { viewModel.formattedSearchSummary(for: $0) },
             getSearchMatchedSubtotal: { viewModel.formattedSearchMatchedSubtotal(for: $0) },
             getSearchMatchedUnpaid: { viewModel.formattedSearchMatchedUnpaid(for: $0) },
+            getSearchMatchedRowStatus: { viewModel.searchMatchedRowStatus(for: $0) },
             itemListRowStatus: viewModel.itemListRowStatus,
             onItemTap: { item in
                 if let customTap = onItemTap {
