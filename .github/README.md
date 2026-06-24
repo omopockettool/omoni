@@ -25,6 +25,7 @@ This workflow is the base CI for the project.
 - Xcode is pinned to `26.3`.
 - `SwiftLint` currently runs only on changed Swift files so the base CI can enforce new code quality without being blocked by older repo-wide lint debt.
 - The workflow resolves an available iOS 26 simulator dynamically instead of hardcoding a device name.
+- `xcodebuild` stderr is redirected through `xcbeautify` with the terminal renderer so simulator/CoreData runtime noise does not surface as misleading GitHub error annotations.
 - Test artifacts are uploaded so failed CI runs are easier to inspect.
 
 ## GitHub Configuration Still Needed

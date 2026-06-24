@@ -140,7 +140,7 @@ jobs:
           set -euo pipefail
           mkdir -p Logs
 
-          xcodebuild clean build \
+          NSUnbufferedIO=YES xcodebuild clean build \
             -project "${PROJECT_PATH}" \
             -scheme "${SCHEME}" \
             -destination "${{ steps.simulator.outputs.destination }}" \
@@ -148,8 +148,9 @@ jobs:
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
+            2>&1 \
             | tee Logs/build.log \
-            | xcbeautify
+            | xcbeautify --renderer terminal
 
       - name: Upload build log
         if: always()
@@ -215,7 +216,7 @@ jobs:
           set -euo pipefail
           mkdir -p Logs "$(dirname "${TEST_RESULTS_PATH}")"
 
-          xcodebuild test \
+          NSUnbufferedIO=YES xcodebuild test \
             -project "${PROJECT_PATH}" \
             -scheme "${SCHEME}" \
             -destination "${{ steps.simulator.outputs.destination }}" \
@@ -228,8 +229,9 @@ jobs:
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
+            2>&1 \
             | tee Logs/unit-tests.log \
-            | xcbeautify
+            | xcbeautify --renderer terminal
 
       - name: Upload unit test artifacts
         if: always()

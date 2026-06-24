@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - **CI builds can now access the tracked app Info plist instead of failing during `ProcessInfoPlistFile`** (`.gitignore`, `AppInfo.plist`) — the repository-wide `*.plist` ignore rule was unintentionally excluding `AppInfo.plist`, so GitHub Actions checkouts were missing the file required by the `Omoni` target even though local builds still saw it in the working tree.
 - **The base CI lint step now checks only changed Swift files instead of the entire legacy codebase** (`.github/workflows/pr-checks.yml`, `.github/README.md`, `README.md`) — this keeps the new PR gate useful and reliable while the repo still contains older SwiftLint debt unrelated to the branch being reviewed.
+- **Build and test logs no longer leak raw simulator stderr into GitHub Actions annotations** (`.github/workflows/pr-checks.yml`, `.github/README.md`, `README.md`) — `xcodebuild` now runs with unbuffered I/O, redirects stderr through the formatter, and uses `xcbeautify --renderer terminal` so low-level CoreData/CoreSimulator noise is captured in logs without looking like real failed checks in the GitHub UI.
 
 ## [2.57.4] - 2026-06-24
 

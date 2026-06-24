@@ -24,6 +24,7 @@ The repository currently uses GitHub Actions for base CI:
 - `SwiftLint` on changed Swift files
 - unsigned simulator build validation
 - `OmoniTests` unit tests
+- `xcbeautify` terminal-formatted build/test logs to keep GitHub annotations readable
 
 See [`.github/README.md`](.github/README.md) for the exact workflow behavior and the GitHub branch-protection settings required to enforce it.
 
