@@ -109,6 +109,7 @@ struct DashboardView: View {
     @State private var isSearchActive = false
     @State private var dismissSearchKeyboardToken = 0
     @State private var activeFilter: DashboardActiveFilter? = nil
+    @State private var dateRowsRestorationByContext: [String: String] = [:]
     @State private var contentTransitionMode: DashboardContentTransitionMode = .drillForward
     @State private var pendingContentTransitionTask: Task<Void, Never>? = nil
 
@@ -161,6 +162,7 @@ struct DashboardView: View {
                 } else {
                     selectedCalendarDay = nil
                     activeFilter = nil
+                    dateRowsRestorationByContext.removeAll()
                     listDragOffset = 0
                     displayedCalendarMonth = Calendar.current.startOfMonth(for: Date())
                     viewMode = .list
@@ -308,7 +310,11 @@ struct DashboardView: View {
             dateRows: activeDateRows,
             getDateRowAmount: { viewModel.formattedCurrency($0.paidAmount) },
             getDateRowUnpaidAmount: { $0.unpaidAmount > 0.000_001 ? viewModel.formattedCurrency($0.unpaidAmount) : nil },
+            dateRowsRestorationRowID: activeDateRowsRestorationRowID,
             onDateRowTap: { box in
+                if let activeDateRowsContextID {
+                    dateRowsRestorationByContext[activeDateRowsContextID] = box.id
+                }
                 performDashboardTransition(.drillForward) {
                     switch resolvedActiveFilter {
                     case .all(let range):
@@ -375,6 +381,7 @@ struct DashboardView: View {
         .animation(AnimationHelper.quickEase, value: viewMode == .calendar)
         .onChange(of: viewModel.currentGroup?.id) { _, _ in
             collapsedMonthDays.removeAll()
+            dateRowsRestorationByContext.removeAll()
             withAnimation(AnimationHelper.quickEase) { activeFilter = nil }
         }
         .onChange(of: viewModel.showingFullMonth) { _, isShowingMonth in
@@ -736,6 +743,22 @@ struct DashboardView: View {
 
         let resolvedRange = range ?? (viewModel.showingFullMonth ? .month : .today)
         return resolvedRange == .month ? "month" : "today"
+    }
+
+    private var activeDateRowsContextID: String? {
+        switch resolvedActiveFilter {
+        case .all(let range):
+            return "all#\(range.rawValue)"
+        case .category(let categoryId, let range):
+            return "category#\(categoryId.uuidString)#\(range.rawValue)"
+        default:
+            return nil
+        }
+    }
+
+    private var activeDateRowsRestorationRowID: String? {
+        guard let activeDateRowsContextID else { return nil }
+        return dateRowsRestorationByContext[activeDateRowsContextID]
     }
 
     // View picker: filter pill on left, settings icon on right

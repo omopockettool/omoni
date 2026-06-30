@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.58.8] - 2026-07-01
+
+### Fixed
+- **Dashboard date drill-down now preserves your place in long day lists when you open a date and go back** (`DashboardView`, `DashboardComponents`, `DashboardDateRowsComponents`) — the intermediate date rows now remember the day you entered and restore the list near that same row on return, so reviewing many dates in `This Month` no longer throws you back to the top each time.
+
 ## [2.58.7] - 2026-07-01
 
 ### Fixed
