@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.58.5] - 2026-07-01
+
+### Fixed
+- **Dashboard now returns with the correct backward transition when deleting the last item list inside a category flow** (`DashboardView`) — if a delete leaves the current category or day context empty, the dashboard now resolves that invalid filter using the same back-navigation direction as a manual return instead of animating the fallback from the wrong side.
+
 ## [2.58.4] - 2026-07-01
 
 ### Fixed

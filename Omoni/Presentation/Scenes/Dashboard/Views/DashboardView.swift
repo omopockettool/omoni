@@ -466,17 +466,24 @@ struct DashboardView: View {
             break
         case .allDay(let range, let date):
             if viewModel.filteredItemLists(in: range, day: date).isEmpty {
-                withAnimation(AnimationHelper.smoothSpring) {
+                performDashboardTransition(.drillBackward) {
                     activeFilter = range == .today ? nil : .all(range)
                 }
             }
         case .category(let categoryId, let range):
             guard !viewModel.hasCategoryContext(forCategoryId: categoryId, in: range) else { return }
-            withAnimation(AnimationHelper.smoothSpring) { activeFilter = nil }
+            performDashboardTransition(.drillBackward) {
+                activeFilter = nil
+            }
         case .categoryDay(let categoryId, let range, let date):
             if viewModel.filteredItemLists(forCategoryId: categoryId, in: range, day: date).isEmpty {
-                withAnimation(AnimationHelper.smoothSpring) {
-                    activeFilter = range == .today ? nil : .category(categoryId: categoryId, range: range)
+                performDashboardTransition(.drillBackward) {
+                    if range != .today,
+                       viewModel.hasCategoryContext(forCategoryId: categoryId, in: range) {
+                        activeFilter = .category(categoryId: categoryId, range: range)
+                    } else {
+                        activeFilter = nil
+                    }
                 }
             }
         case nil:
