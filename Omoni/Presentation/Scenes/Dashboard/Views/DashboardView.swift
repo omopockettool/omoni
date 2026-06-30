@@ -110,6 +110,7 @@ struct DashboardView: View {
     @State private var dismissSearchKeyboardToken = 0
     @State private var activeFilter: DashboardActiveFilter? = nil
     @State private var contentTransitionMode: DashboardContentTransitionMode = .drillForward
+    @State private var pendingContentTransitionTask: Task<Void, Never>? = nil
 
     init() {
         // ✅ Clean Architecture: Use DI Container for all dependencies
@@ -364,6 +365,7 @@ struct DashboardView: View {
             onDelete: { viewModel.deleteItemList($0) },
             showingFullMonth: showingFullMonthBinding,
             transitionMode: contentTransitionMode,
+            contentRangeKey: activeContentRangeKey,
             hasItemsOutsideToday: viewModel.hasItemsOutsideToday,
             onOpenSettings: { viewModel.openSettings() },
             toast: $viewModel.toast,
@@ -436,6 +438,8 @@ struct DashboardView: View {
         _ mode: DashboardContentTransitionMode,
         mutation: @escaping @MainActor () -> Void
     ) {
+        pendingContentTransitionTask?.cancel()
+
         let applyMutation = {
             withAnimation(AnimationHelper.smoothSpring) {
                 mutation()
@@ -449,8 +453,9 @@ struct DashboardView: View {
 
         contentTransitionMode = mode
 
-        Task { @MainActor in
+        pendingContentTransitionTask = Task { @MainActor in
             await Task.yield()
+            guard !Task.isCancelled else { return }
             applyMutation()
         }
     }
@@ -500,10 +505,10 @@ struct DashboardView: View {
             return LocalizationKey.General.all.localized
         case .allDay:
             return LocalizationKey.General.all.localized
-        case .category(let categoryId, _):
-            return activeCategoryBox?.categoryName ?? viewModel.categoryDisplayName(forCategoryId: categoryId, in: viewModel.showingFullMonth ? .month : .today)
-        case .categoryDay(let categoryId, _, _):
-            return activeCategoryBox?.categoryName ?? viewModel.categoryDisplayName(forCategoryId: categoryId, in: viewModel.showingFullMonth ? .month : .today)
+        case .category(let categoryId, let range):
+            return activeCategoryBox?.categoryName ?? viewModel.categoryDisplayName(forCategoryId: categoryId, in: range)
+        case .categoryDay(let categoryId, let range, _):
+            return activeCategoryBox?.categoryName ?? viewModel.categoryDisplayName(forCategoryId: categoryId, in: range)
         case nil:
             return nil
         }
@@ -515,8 +520,8 @@ struct DashboardView: View {
             return "square.grid.2x2.fill"
         case .allDay:
             return "square.grid.2x2.fill"
-        case .category(let categoryId, _), .categoryDay(let categoryId, _, _):
-            return activeCategoryBox?.categoryIcon ?? viewModel.categoryDisplayIcon(forCategoryId: categoryId, in: viewModel.showingFullMonth ? .month : .today)
+        case .category(let categoryId, let range), .categoryDay(let categoryId, let range, _):
+            return activeCategoryBox?.categoryIcon ?? viewModel.categoryDisplayIcon(forCategoryId: categoryId, in: range)
         case nil:
             return nil
         }
@@ -528,8 +533,8 @@ struct DashboardView: View {
             return nil
         case .allDay:
             return nil
-        case .category(let categoryId, _), .categoryDay(let categoryId, _, _):
-            return activeCategoryBox?.categoryColorHex ?? viewModel.categoryDisplayColorHex(forCategoryId: categoryId, in: viewModel.showingFullMonth ? .month : .today)
+        case .category(let categoryId, let range), .categoryDay(let categoryId, let range, _):
+            return activeCategoryBox?.categoryColorHex ?? viewModel.categoryDisplayColorHex(forCategoryId: categoryId, in: range)
         case nil:
             return nil
         }
@@ -699,13 +704,31 @@ struct DashboardView: View {
 
     private var activeDateRows: [DashboardDayBoxData] {
         switch resolvedActiveFilter {
-        case .all:
-            return viewModel.visibleDayBoxes
+        case .all(let range):
+            return viewModel.dayBoxes(in: range)
         case .category(let categoryId, let range):
             return viewModel.dayBoxes(forCategoryId: categoryId, in: range)
         default:
             return []
         }
+    }
+
+    private var activeContentRangeKey: String {
+        let range: DashboardCategoryRange? = switch resolvedActiveFilter {
+        case .all(let range):
+            range
+        case .allDay(let range, _):
+            range
+        case .category(_, let range):
+            range
+        case .categoryDay(_, let range, _):
+            range
+        case nil:
+            nil
+        }
+
+        let resolvedRange = range ?? (viewModel.showingFullMonth ? .month : .today)
+        return resolvedRange == .month ? "month" : "today"
     }
 
     // View picker: filter pill on left, settings icon on right
