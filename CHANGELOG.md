@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.58.7] - 2026-07-01
+
+### Fixed
+- **The OMONI logo in the dashboard top-right corner now reads more clearly instead of looking overly faded** (`DashboardTopBarView`) — increased the icon opacity so the brand mark keeps its calm tone without disappearing too much against the top bar chrome.
+
 ## [2.58.6] - 2026-07-01
 
 ### Fixed
