@@ -10,17 +10,11 @@ private extension AnyTransition {
     }
 
     static var dashboardTodayRangeSwap: AnyTransition {
-        .asymmetric(
-            insertion: .move(edge: .leading).combined(with: .opacity),
-            removal: .move(edge: .leading).combined(with: .opacity)
-        )
+        .opacity
     }
 
     static var dashboardMonthRangeSwap: AnyTransition {
-        .asymmetric(
-            insertion: .move(edge: .trailing).combined(with: .opacity),
-            removal: .move(edge: .trailing).combined(with: .opacity)
-        )
+        .opacity
     }
 }
 
@@ -254,6 +248,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
     let onDelete: (SDItemList) -> Void
     @Binding var showingFullMonth: Bool
     let transitionMode: DashboardContentTransitionMode
+    let contentRangeKey: String
     let hasItemsOutsideToday: Bool
     let onOpenSettings: () -> Void
     let toast: Binding<ToastMessage?>
@@ -279,7 +274,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
     private var filteredListContextID: String {
         return [
             selectedFilterTitle ?? "none",
-            showingFullMonth ? "month" : "today",
+            contentRangeKey,
             showsDateRows ? "daterows" : "expenselist"
         ].joined(separator: "#")
     }
@@ -318,6 +313,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
         onDelete: @escaping (SDItemList) -> Void,
         showingFullMonth: Binding<Bool>,
         transitionMode: DashboardContentTransitionMode,
+        contentRangeKey: String,
         hasItemsOutsideToday: Bool,
         onOpenSettings: @escaping () -> Void,
         toast: Binding<ToastMessage?>,
@@ -356,6 +352,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
         self.onDelete = onDelete
         self._showingFullMonth = showingFullMonth
         self.transitionMode = transitionMode
+        self.contentRangeKey = contentRangeKey
         self.hasItemsOutsideToday = hasItemsOutsideToday
         self.onOpenSettings = onOpenSettings
         self.toast = toast

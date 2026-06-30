@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.58.1] - 2026-06-30
+
+### Fixed
+- **Dashboard range swaps now fade in place without the intermediate date-list drift seen when moving from `This month` back to `Today`** (`DashboardComponents`, `DashboardView`, `DashboardViewModel`) — replaced the horizontal range-swap motion with a calmer in-place opacity transition, cancelled stale deferred range transitions during rapid toggles, and stabilized the date-row context so the outgoing month list no longer rebinds to today data for a frame before disappearing.
+
 ## [2.58.0] - 2026-06-24
 
 ### Added

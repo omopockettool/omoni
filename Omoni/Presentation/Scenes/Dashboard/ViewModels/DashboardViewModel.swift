@@ -179,6 +179,17 @@ class DashboardViewModel {
         makeDayBoxes(from: showingFullMonth ? filteredMonthItemLists : filteredTodayItemLists)
     }
 
+    func dayBoxes(in range: DashboardCategoryRange) -> [DashboardDayBoxData] {
+        let source: [SDItemList] = switch range {
+        case .today:
+            filteredTodayItemLists
+        case .month:
+            filteredMonthItemLists
+        }
+
+        return makeDayBoxes(from: source)
+    }
+
     func filteredSearchResults(from source: [SDItemList]) -> [SDItemList] {
         filteredItemLists(from: source)
     }
