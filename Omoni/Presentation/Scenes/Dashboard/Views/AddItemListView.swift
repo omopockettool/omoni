@@ -423,14 +423,6 @@ struct AddItemListView: View {
                         calendarExpanded = true
                     }
                 }
-            } else {
-                withAnimation(.spring(response: 0.45, dampingFraction: 0.88)) {
-                    calendarExpanded = false
-                }
-                Task {
-                    try? await Task.sleep(for: .milliseconds(400))
-                    viewModel.date = Date()
-                }
             }
         }
     }
