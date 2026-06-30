@@ -621,62 +621,76 @@ struct AddItemListDateCard: View {
         Color(.systemGray)
     }
 
+    private func clearDateSelection() {
+        focusedField.wrappedValue = nil
+
+        let finishReset = {
+            date = Date()
+            showDatePicker = false
+            onToggleChanged(false)
+        }
+
+        if calendarExpanded {
+            withAnimation(.spring(response: 0.45, dampingFraction: 0.88)) {
+                calendarExpanded = false
+            }
+
+            Task {
+                try? await Task.sleep(for: .milliseconds(320))
+                finishReset()
+            }
+        } else {
+            finishReset()
+        }
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 12) {
-                // Tappable date area — full width minus reset button
-                Button {
-                    focusedField.wrappedValue = nil
-                    if !showDatePicker {
-                        showDatePicker = true
-                        onToggleChanged(true)
-                    } else {
-                        withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
-                            calendarExpanded.toggle()
-                        }
-                    }
-                } label: {
-                    HStack(spacing: 8) {
-                        Image(systemName: "calendar")
-                            .font(.system(size: 14))
-                            .foregroundStyle(showDatePicker ? activeDateTint : Color.secondary)
-
-                        Text(dateLabel)
-                            .font(.subheadline)
-                            .foregroundStyle(showDatePicker ? Color.primary : Color.secondary)
-                            .contentTransition(.interpolate)
-
-                        if showDatePicker {
-                            Image(systemName: calendarExpanded ? "chevron.up" : "chevron.down")
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(Color(.tertiaryLabel))
-                                .transition(.opacity)
-                        }
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-
-                // Reset to today
-                if showDatePicker {
+                ZStack(alignment: .trailing) {
+                    // Tappable date area — full width
                     Button {
                         focusedField.wrappedValue = nil
-                        withAnimation(.spring(response: 0.45, dampingFraction: 0.88)) {
-                            calendarExpanded = false
-                        }
-                        Task {
-                            try? await Task.sleep(for: .milliseconds(320))
-                            showDatePicker = false
-                            onToggleChanged(false)
+                        if !showDatePicker {
+                            showDatePicker = true
+                            onToggleChanged(true)
+                        } else {
+                            withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
+                                calendarExpanded.toggle()
+                            }
                         }
                     } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.system(size: 18))
-                            .foregroundStyle(Color(.tertiaryLabel))
+                        HStack(spacing: 8) {
+                            Image(systemName: "calendar")
+                                .font(.system(size: 14))
+                                .foregroundStyle(showDatePicker ? activeDateTint : Color.secondary)
+
+                            Text(dateLabel)
+                                .font(.subheadline)
+                                .foregroundStyle(showDatePicker ? Color.primary : Color.secondary)
+                                .contentTransition(.interpolate)
+
+                            Spacer(minLength: 6)
+
+                            Image(systemName: showDatePicker ? (calendarExpanded ? "chevron.up" : "chevron.down") : "chevron.right")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(Color(.tertiaryLabel))
+                                .padding(.trailing, showDatePicker ? 32 : 0)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
-                    .transition(.opacity.combined(with: .scale(scale: 0.75)))
+
+                    if showDatePicker {
+                        Button(action: clearDateSelection) {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.system(size: 18))
+                                .foregroundStyle(Color(.tertiaryLabel))
+                        }
+                        .buttonStyle(.plain)
+                        .transition(.opacity.combined(with: .scale(scale: 0.85)))
+                    }
                 }
             }
             .padding(AppConstants.UserInterface.padding)
