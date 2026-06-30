@@ -2,6 +2,7 @@ import SwiftUI
 import UIKit
 
 struct AboutOMOView: View {
+    @Environment(\.openURL) private var openURL
     private let appInfo = AppInfo.current
     private let donationsURL = URL(string: "https://buymeacoffee.com/omopockettool")!
     private let appStoreURL = URL(string: "https://omopockettool.com")!
@@ -151,6 +152,8 @@ struct AboutOMOView: View {
                         title: LocalizationKey.About.donate.localized,
                         value: "buymeacoffee.com/omopockettool"
                     )
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
                     .padding(AppConstants.UserInterface.padding)
                 }
                 .buttonStyle(.plain)
@@ -165,6 +168,8 @@ struct AboutOMOView: View {
                         title: LocalizationKey.About.shareApp.localized,
                         value: LocalizationKey.About.shareAppSubtitle.localized
                     )
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
                     .padding(AppConstants.UserInterface.padding)
                 }
                 .buttonStyle(.plain)
@@ -229,10 +234,12 @@ struct AboutOMOView: View {
         destination: URL
     ) -> some View {
         HStack(spacing: 12) {
-            Link(destination: destination) {
-                infoRow(icon: icon, color: color, title: title, value: value)
-            }
-            .buttonStyle(.plain)
+            infoRow(icon: icon, color: color, title: title, value: value)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    openURL(destination)
+                }
 
             Button {
                 UIPasteboard.general.string = value
@@ -256,6 +263,7 @@ struct AboutOMOView: View {
             .buttonStyle(.plain)
             .accessibilityLabel("\(LocalizationKey.General.copy.localized) \(title)")
         }
+        .contentShape(Rectangle())
     }
 }
 
