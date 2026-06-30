@@ -19,6 +19,7 @@ struct AddItemListView: View {
     @State private var scrollToPaymentMethods = false
     @State private var scrollToHero = false
     @State private var scrollToTop = false
+    @State private var hasAppliedInitialFocus = false
 
     init(
         group: SDGroup,
@@ -235,9 +236,7 @@ struct AddItemListView: View {
         )
         .task(id: activeGroup.id) {
             await viewModel.loadOptionsForSelectedGroup()
-            if viewModel.hasPriorityCategory {
-                focusedField = viewModel.showsHeroAmountInput ? .price : .description
-            }
+            applyInitialFocusIfNeeded()
         }
         .toast($viewModel.toast)
     }
@@ -276,6 +275,21 @@ struct AddItemListView: View {
             focusedField = .description
         default:
             break
+        }
+    }
+
+    private var initialAutofocusField: AddItemListField? {
+        guard !viewModel.isEditMode else { return nil }
+        return viewModel.showsHeroAmountInput ? .price : .description
+    }
+
+    private func applyInitialFocusIfNeeded() {
+        guard !hasAppliedInitialFocus, let field = initialAutofocusField else { return }
+        hasAppliedInitialFocus = true
+
+        Task { @MainActor in
+            await Task.yield()
+            focusedField = field
         }
     }
 
