@@ -472,6 +472,14 @@ struct AddItemListView: View {
     // MARK: - Actions
 
     private func handleStructureChange(_ structure: ItemListStructure) {
+        guard !viewModel.isEditMode else {
+            focusedField = nil
+            if structure == .singleEntry {
+                scrollToTop = true
+            }
+            return
+        }
+
         if structure == .singleEntry {
             if focusedField == .description {
                 focusedField = .price

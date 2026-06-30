@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.58.3] - 2026-07-01
+
+### Fixed
+- **Edit mode no longer auto-focuses fields when switching entry structure inside New Entry** (`AddItemListView`) — structure changes during editing now keep the keyboard calm and clear focus instead of jumping the cursor into a field that the user did not explicitly select, while create mode preserves the more helpful guided autofocus behavior.
+
 ## [2.58.2] - 2026-07-01
 
 ### Fixed
