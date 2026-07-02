@@ -286,9 +286,9 @@
 "about.shareApp" = "Share OMONI";
 "about.shareAppSubtitle" = "Recommend it to a friend";
 "about.releaseNotes.2_0_0.title" = "Your financial life, clear and organized";
-"about.releaseNotes.2_0_0.highlight1" = "Organize your spending by groups — for example Home, Work, or Trips — each with its own currency and color.";
-"about.releaseNotes.2_0_0.highlight2" = "Inside each group, create everyday entries: a purchase, a dinner, a bill. Assign each entry a category and an origin.";
-"about.releaseNotes.2_0_0.highlight3" = "Each entry can contain one or more items, each with its own price and quantity. OMONI calculates the total automatically.";
-"about.releaseNotes.2_0_0.highlight4" = "The main dashboard shows at a glance how much you've spent today, this week, or this month, filtered by category or payment status.";
+"about.releaseNotes.2_0_0.highlight1" = "You can organize your financial life your own way. A single group may be enough, and creating another one is only there for specific cases if it fits you better.";
+"about.releaseNotes.2_0_0.highlight2" = "Inside each group, create everyday entries and assign each one its category and spending source.";
+"about.releaseNotes.2_0_0.highlight3" = "Each entry can be simple for a one-off or recurring payment you do not want to break down, like internet, electricity, water, rent, or even a full purchase; or a list if you prefer to detail its items. OMONI calculates the total automatically.";
+"about.releaseNotes.2_0_0.highlight4" = "The dashboard shows at a glance how much you've spent today or this month, with category focus and drill-down by day.";
 "about.releaseNotes.2_0_0.highlight5" = "Mark entries as paid or pending with a single tap and always know what still needs to be settled.";
 "splash.tagline" = "your life. your way.";

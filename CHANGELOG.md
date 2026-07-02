@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.58.10] - 2026-07-02
+
+### Fixed
+- **About OMONI now presents a more accurate and production-ready "What's new" story** (`AboutOMOView`, `Localizable.strings`) — the release-notes copy no longer implies that multiple groups are the expected setup, now explains `simple` vs `list` entries in a way that matches real usage, keeps the dashboard description aligned with what the app actually shows today, and displays the live marketing version instead of an outdated hardcoded release number.
+
 ## [2.58.9] - 2026-07-02
 
 ### Fixed
