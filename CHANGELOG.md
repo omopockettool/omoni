@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.58.9] - 2026-07-02
+
+### Fixed
+- **The "What's new" row inside About OMONI is now tappable across the full gap between the label and chevron** (`AboutOMOView`) — the release-notes row now exposes the expected full-width touch target instead of leaving a dead strip in the middle of the row.
+
 ## [2.58.8] - 2026-07-01
 
 ### Fixed
