@@ -224,6 +224,8 @@ struct AboutOMOView: View {
                     .foregroundStyle(Color(.tertiaryLabel))
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(Rectangle())
     }
 
     private func copyableLinkRow(
