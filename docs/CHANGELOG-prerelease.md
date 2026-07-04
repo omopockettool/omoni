@@ -4,6 +4,11 @@ This file preserves OMONI's internal release history before the public changelog
 
 It is a snapshot of the internal release stream kept for project history and reference.
 
+## [2.59.3] - 2026-07-04
+
+### Fixed
+- **Editing a simple dashboard entry now opens with the same modal surface language as the rest of the app instead of pushing into a black-backed editor** (`DashboardView`) — single-entry records launched from the dashboard now present in a large sheet, aligning their presentation with other OMONI edit flows while itemized lists still navigate to their full detail screen.
+
 ## [2.59.2] - 2026-07-04
 
 ### Fixed
