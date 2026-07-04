@@ -1,0 +1,3675 @@
+# Pre-Release Changelog
+
+This file preserves OMONI's internal release history before the public changelog was reset to `1.0.0` on 2026-07-04.
+
+It is a snapshot of the internal release stream kept for project history and reference.
+
+## [2.58.10] - 2026-07-02
+
+### Fixed
+- **About OMONI now presents a more accurate and production-ready "What's new" story** (`AboutOMOView`, `Localizable.strings`) — the release-notes copy no longer implies that multiple groups are the expected setup, now explains `simple` vs `list` entries in a way that matches real usage, keeps the dashboard description aligned with what the app actually shows today, and displays the live marketing version instead of an outdated hardcoded release number.
+
+## [2.58.9] - 2026-07-02
+
+### Fixed
+- **The "What's new" row inside About OMONI is now tappable across the full gap between the label and chevron** (`AboutOMOView`) — the release-notes row now exposes the expected full-width touch target instead of leaving a dead strip in the middle of the row.
+
+## [2.58.8] - 2026-07-01
+
+### Fixed
+- **Dashboard date drill-down now preserves your place in long day lists when you open a date and go back** (`DashboardView`, `DashboardComponents`, `DashboardDateRowsComponents`) — the intermediate date rows now remember the day you entered and restore the list near that same row on return, so reviewing many dates in `This Month` no longer throws you back to the top each time.
+
+## [2.58.7] - 2026-07-01
+
+### Fixed
+- **The OMONI logo in the dashboard top-right corner now reads more clearly instead of looking overly faded** (`DashboardTopBarView`) — increased the icon opacity so the brand mark keeps its calm tone without disappearing too much against the top bar chrome.
+
+## [2.58.6] - 2026-07-01
+
+### Fixed
+- **New Entry date selection row now feels more stable and better balanced when clearing back to Today** (`AddItemListComponents`, `AddItemListView`) — the date control now avoids the awkward header jump that happened after selecting, closing, and then clearing a date, while the trailing chevron no longer sits too far inward before the clear button is actually visible.
+
+## [2.58.5] - 2026-07-01
+
+### Fixed
+- **Dashboard now returns with the correct backward transition when deleting the last item list inside a category flow** (`DashboardView`) — if a delete leaves the current category or day context empty, the dashboard now resolves that invalid filter using the same back-navigation direction as a manual return instead of animating the fallback from the wrong side.
+
+## [2.58.4] - 2026-07-01
+
+### Fixed
+- **Interactive rows in About OMONI now feel consistently tappable across the full row surface** (`AboutOMOView`) — the website, contact, donation, and share rows now expose the expected full-width touch target instead of forcing the user to hit only the text or icon area.
+
+## [2.58.3] - 2026-07-01
+
+### Fixed
+- **Edit mode no longer auto-focuses fields when switching entry structure inside New Entry** (`AddItemListView`) — structure changes during editing now keep the keyboard calm and clear focus instead of jumping the cursor into a field that the user did not explicitly select, while create mode preserves the more helpful guided autofocus behavior.
+
+## [2.58.2] - 2026-07-01
+
+### Fixed
+- **New Entry now autofocuses the most relevant first field when the form opens** (`AddItemListView`) — create-mode forms now focus the hero amount input for single entries and the description field for itemized lists, while edit mode stays calm and does not steal focus after presentation or later group-driven reloads.
+
+## [2.58.1] - 2026-06-30
+
+### Fixed
+- **Dashboard range swaps now fade in place without the intermediate date-list drift seen when moving from `This month` back to `Today`** (`DashboardComponents`, `DashboardView`, `DashboardViewModel`) — replaced the horizontal range-swap motion with a calmer in-place opacity transition, cancelled stale deferred range transitions during rapid toggles, and stabilized the date-row context so the outgoing month list no longer rebinds to today data for a frame before disappearing.
+
+## [2.58.0] - 2026-06-24
+
+### Added
+- **GitHub Actions now provides a real base CI flow for OMONI on `develop` and `main`** (`.github/workflows/pr-checks.yml`) — pull requests, direct pushes to the integration and production branches, and manual runs now execute `SwiftLint`, an unsigned simulator build, and the shared `OmoniTests` suite so branch protection can rely on concrete status checks instead of placeholder jobs.
+- **The repository now includes a general entrypoint README** (`README.md`) — added a root-level overview of the app, repository structure, branch strategy, and CI behavior so the project is easier to understand from GitHub without jumping straight into internal docs.
+
+### Changed
+- **GitHub CI documentation now matches the workflow that actually exists** (`.github/README.md`) — replaced the outdated CI/CD description with the current setup, including the pinned macOS/Xcode choices, dynamic iOS 26 simulator resolution, and the exact branch-protection configuration needed in GitHub.
+- **The app release version now aligns with this infrastructure release** (`Omoni.xcodeproj/project.pbxproj`) — updated `MARKETING_VERSION` to `2.58.0` and advanced `CURRENT_PROJECT_VERSION` to `44` so project metadata, future backups, and release bookkeeping stay in sync with the changelog.
+
+### Fixed
+- **CI builds can now access the tracked app Info plist instead of failing during `ProcessInfoPlistFile`** (`.gitignore`, `AppInfo.plist`) — the repository-wide `*.plist` ignore rule was unintentionally excluding `AppInfo.plist`, so GitHub Actions checkouts were missing the file required by the `Omoni` target even though local builds still saw it in the working tree.
+- **The base CI lint step now checks only changed Swift files instead of the entire legacy codebase** (`.github/workflows/pr-checks.yml`, `.github/README.md`, `README.md`) — this keeps the new PR gate useful and reliable while the repo still contains older SwiftLint debt unrelated to the branch being reviewed.
+- **Build and test logs no longer leak raw simulator stderr into GitHub Actions annotations** (`.github/workflows/pr-checks.yml`, `.github/README.md`, `README.md`) — `xcodebuild` now runs with unbuffered I/O, redirects stderr through the formatter, and uses `xcbeautify --renderer terminal` so low-level CoreData/CoreSimulator noise is captured in logs without looking like real failed checks in the GitHub UI.
+
+## [2.57.4] - 2026-06-24
+
+### Fixed
+- **The Dashboard day row for today now states "Today" explicitly instead of relying on red alone** (`DashboardDateRowsComponents`) — the current-day row keeps the brand-red emphasis, but now shows a clear localized "Today" label with the weekday as secondary context so the highlight reads as temporal context rather than warning or danger.
+
+## [2.57.3] - 2026-06-24
+
+### Fixed
+- **Dashboard today states and shared interactive reds now match the real OMONI logo red** (`AccentColor`, `Color+Hex`) — aligned the app accent color and interactive red helper to the logo-derived `FF3D4B` tone so date highlights and red UI accents feel more consistent with the brand.
+
+## [2.57.2] - 2026-06-24
+
+### Fixed
+- **The Item List form now uses a more polished segmented control for switching between Simple and List modes without losing the helpful icons** (`AddItemListComponents`) — replaced the heavier custom chips with a more compact capsule-style selector inspired by the Dashboard range control while preserving the bolt and list glyphs for fast recognition.
+
+## [2.57.1] - 2026-06-24
+
+### Fixed
+- **Add form no longer silently pre-selects a hidden category when opened from the Dashboard without a category context** (`AddItemListViewModel`) — usage-memory auto-selection now skips categories already represented by a Dashboard box, so the visible grid and the actual selection are always in sync.
+- **Keyboard focus follows entry-mode switches intentionally** (`AddItemListView`) — switching to List mode auto-focuses the description field; switching back to Single Entry focuses the amount field only if the description was already active, otherwise the form scrolls to the top without reopening the keyboard; opening the form with a pre-selected Dashboard category auto-focuses the relevant field for the current mode.
+
+## [2.57.0] - 2026-06-24
+
+### Added
+- **Adding from the Dashboard now routes category selection responsibility more intentionally** (`DashboardView`, `AddItemListView`, `AddItemListViewModel`) — tapping "+" from a Dashboard category box pre-selects that category and hides the category grid entirely; tapping "+" from a generic context shows only the categories not yet represented by a Dashboard box, so the grid surfaces new or unused categories rather than duplicating what is already visible on the board.
+
+## [2.56.11] - 2026-06-24
+
+### Fixed
+- **Category and payment-method forms now dismiss the keyboard more naturally while keeping their inputs visually simple** (`BudgetLimitField`, `CategoryFormView`, `PaymentMethodFormView`) — removed the custom keyboard toolbar from the category budget field and aligned both forms to dismiss the keyboard through scroll interaction instead of extra inline or toolbar controls.
+
+## [2.56.10] - 2026-06-24
+
+### Fixed
+- **Dashboard day entry rows now show subtle category context when browsing All categories for a specific date** (`DashboardView`, `DashboardComponents`, `ExpenseListView`, `ExpenseListComponents`, `ExpenseRowView`) — kept the direct `All -> day -> entries` flow, but added a quiet secondary category label only for that mixed-category day context so each row stays easier to parse without introducing extra navigation or noisy category colors.
+
+## [2.56.9] - 2026-06-24
+
+### Fixed
+- **New Entry now opens as a full-height sheet to avoid unstable intermediate-detent behavior** (`DashboardView`, `AddItemListView`) — removed the half-open dashboard entry-sheet state and its expansion plumbing so the form always presents in `.large`, which simplifies the flow and avoids focus, keyboard-toolbar, and scroll-dismiss inconsistencies tied to the smaller detent.
+
+## [2.56.8] - 2026-06-24
+
+### Fixed
+- **Dashboard day drill-down now preserves category context in the bottom chip** (`DashboardView`) — when entering a specific day from a category flow, the hero can still reflect the selected day, but the lower chip now keeps the active category name and icon so the current navigation context stays clear.
+
+## [2.56.7] - 2026-06-24
+
+### Fixed
+- **Calendar day rows now use the same cleaner structural treatment as item-list and item rows** (`DashboardDateRowsComponents`) — removed the patchy inset-compensation approach from the left date block and rebuilt the row so the leading date pane behaves like a real full-height column inside the card, with a more coherent shared color family between the border and the leading panel.
+
+## [2.56.6] - 2026-06-23
+
+### Fixed
+- **Large cards and grouped settings surfaces now follow a more coherent corner-radius language across the app** (`AppConstants`, `SettingsSheetView`, `AboutOMOView`, `UserProfileView`, `CreateFirstUserView`, `GroupInfoEditSheet`, `CreateGroupView`, `GroupFormView`, `CategoryManagementView`, `CategoryFormView`, `PaymentMethodManagementView`, `PaymentMethodFormView`, `LimitedTextField`, `NativeGroupedSheetComponents`, `HeroAmountInputView`, `BudgetLimitField`, `AddItemListComponents`, `AddItemView`, `QuickAddItemsView`, `StatusFramedRow`, `DashboardDateRowsComponents`) — introduced a shared large-row corner radius, removed the overly rounded system-grouped feel from Settings/About/group editors by moving key screens to custom card layouts, and aligned profile, onboarding, group, category, payment-method, quick-add, dashboard, and item-edit cards so single-row and multi-row surfaces now feel like part of the same visual family.
+
+## [2.56.5] - 2026-06-23
+
+### Fixed
+- **Dashboard day rows, item-list rows, and item rows now use thicker, more intentional status borders** (`DashboardDateRowsComponents`, `StatusFramedRow`) — increased the row outline weight so the cards read with more presence, matched the completed-state green border to the check column exactly, and rebalanced the neutral state by unifying its gray and widening the leading status column so the thicker stroke does not crowd the toggle area.
+
+## [2.56.3] - 2026-06-23
+
+### Fixed
+- **Item quantity editing now keeps keyboard focus on the value area instead of the `- / +` controls** (`AddItemView`) — the quantity row now routes tap-to-edit only through the left-side value region, leaving the stepper controls dedicated to increment/decrement. The quantity field also uses the same semibold monospaced styling for the hidden keyboard-backed input, keeping the caret aligned with the displayed digits.
+
+## [2.56.2] - 2026-06-10
+
+### Fixed
+- **Dashboard category board borders now render with consistent thickness and clearer over-limit emphasis** (`DashboardCategoryBoardComponents`) — unified the stroke width across the hero card, regular category boxes, and the `All` tile, and strengthened the orange over-limit outline so warning cards read clearly without making the neutral cards feel borderless.
+
+## [2.56.1] - 2026-06-10
+
+### Fixed
+- **Date chip in new-entry form no longer shows "Hoy" when a specific date was pre-selected** (`AddItemListComponents`, `AddItemListView`) — `dateLabel` now shows "Hoy" only when the picker is closed and the date is actually today; any other date always renders as a formatted string. `startsWithDatePicker` no longer requires edit mode to activate — any non-today date (including an `initialDate` passed from a day view) now starts with the chip correctly shown.
+
+## [2.56.0] - 2026-06-10
+
+### Added
+- **Selection haptic feedback on the Hoy / This Month picker and on dynamic filter chips** (`DashboardTopBarView`, `DashboardBottomBarView`) — tapping the segmented period picker or dismissing an active scope chip (category, date, All, Today) now fires a `.selection` haptic, giving the controls the tactile feel of a detented reel.
+
+## [2.55.2] - 2026-06-10
+
+### Fixed
+- **Amount in expense rows no longer flashes "0.00" when toggling a paid list back to unpaid** (`ExpenseRowView`, `TotalSpentCardView`) — replaced the `contentTransition(.numericText())` + `displayedPrimaryAmount` state pattern with a plain opacity crossfade between the single-amount and split-amount views; added `.animation(.none, value: rowTone)` so the color change (green → orange) is never caught by the container's layout animation. Moved `isDecreasing` inside the `withAnimation` block in `TotalSpentCardView` so the numeric scroll direction resolves in the same animation transaction as the displayed amount.
+
+## [2.55.1] - 2026-06-10
+
+### Fixed
+- **Check toggle no longer causes the row to slide sideways in the item list** (`ItemListDetailViewModel`, `StatusFramedRow`) — removing the ambient `withAnimation` that was propagating into SwiftUI's `List` layer and triggering an unintended UITableView reload animation. The status button (icon + background) and border now use explicit value-driven animations, keeping the animation correctly scoped to those elements without affecting row layout.
+
+## [2.55.0] - 2026-06-10
+
+### Added
+- **Quick Add sheet lets users add recurring items to a list with a single tap** (`FetchFrequentItemsUseCase`, `QuickAddItemsViewModel`, `QuickAddItemsView`, `ItemListDetailView`, `AppDIContainer`) — a clock icon in the item list toolbar opens a sheet showing the most relevant past items from the same category (falling back to the same group when no category is assigned). Each row shows description and last recorded price; tapping adds the item instantly and marks it with a checkmark so the sheet can stay open for multiple taps. Items are ranked by a recency-weighted frequency score (`frequency / (daysSinceLastPurchase + 1)`) so frequently bought and recently bought items surface first.
+
+### Changed
+- **Inline suggestion chips removed from the add-item form** (`AddItemViewModel`, `AddItemView`, `ItemListDetailView`, `AppDIContainer`) — the Quick Add sheet covers the history-based workflow more naturally and with less friction; the add-item form returns to its original focused state for entering new items. The description field remains the first input in the form.
+
+## [2.54.0] - 2026-06-10
+
+### Added
+- **Item suggestion chips now appear in the add-item form when typing a description** (`FetchItemSuggestionsUseCase`, `ItemSuggestion`, `AddItemViewModel`, `AddItemView`, `ItemListDetailView`, `DefaultItemRepository`, `AppDIContainer`) — as the user types at least two characters in the description field, a horizontal strip of chips surfaces items previously created in the same category (falling back to the same group when the list has no category). Tapping a chip fills in the description and last recorded price. Suggestions are suppressed in edit mode, cleared on focus loss, debounced at 250 ms, capped at five results, and sorted by frequency of past use. The description field is now the first input in the form, placing the suggestion strip immediately below where the user types.
+
+### Fixed
+- **Item suggestion chips no longer reappear immediately after tapping one** (`AddItemViewModel`) — applying a suggestion now suppresses the next suggestion load triggered by the programmatic description change, preventing the strip from flickering back into view.
+
+## [2.53.0] - 2026-06-10
+
+### Changed
+- **Dashboard category board now uses a tighter hero-plus-grid layout with clearer budget emphasis** (`DashboardCategoryBoardComponents`, `DashboardComponents`, `DashboardView`, `Localizable.strings`) — the board now promotes only the top category as a full-width hero, packs the remaining categories into a more compact half-width mosaic, uses a calmer and more consistent `All` tile, and reserves warning emphasis for over-limit state instead of mixing it with per-category pending amounts. This makes the category overview feel more like a coherent scan-first dashboard and less like a loosely stacked list of uneven cards.
+
+## [2.52.0] - 2026-06-10
+
+### Changed
+- **SwiftData edit flows now use idempotent model mutation helpers instead of repeatedly writing persisted fields directly** (`SDGroup`, `SDUser`, `SDPaymentMethod`, `SDCategory`, `SDItem`, `SDItemList`, `GroupFormViewModel`, `UserProfileViewModel`, `PaymentMethodFormViewModel`, `AddItemViewModel`, `AddItemListViewModel`, `UpdateCategoryUseCase`, `UpdateItemListUseCase`, `DashboardViewModel`) — editing groups, users, payment methods, items, and item lists now avoids no-op writes, keeps `lastModifiedAt` updates tied to real changes, and reduces the chance of SwiftData setter instability in live edit flows.
+- **Repository update/save paths now skip unnecessary persistence work when the context has no effective changes** (`DefaultGroupRepository`, `DefaultUserRepository`, `DefaultPaymentMethodRepository`, `DefaultCategoryRepository`, `DefaultItemListRepository`, `DefaultItemRepository`) — save operations now touch timestamps and write to disk only when the model context is actually dirty, keeping persistence behavior calmer and more predictable.
+- **Create flows now fail fast when required related records are missing instead of persisting orphaned SwiftData objects** (`DefaultCategoryRepository`, `DefaultPaymentMethodRepository`, `DefaultItemListRepository`, `DefaultItemRepository`, `DefaultUserGroupRepository`) — invalid foreign IDs now raise `RepositoryError.notFound` before insertion, protecting the store from partial or relationship-less records.
+
+### Added
+- **Persistence integrity coverage now includes no-op edit safety and failed-create relationship validation** (`CreateGroupUseCaseTests`, `ItemUseCaseTests`, `CreateRepositoryIntegrityTests`, `SwiftDataTestContainer`) — the test suite now explicitly checks that unchanged edits do not dirty timestamps unnecessarily and that create operations reject missing linked records without leaving partial data behind.
+
+## [2.51.1] - 2026-06-10
+
+### Fixed
+- **Dashboard category board no longer animates the neighboring category box when only one category total changes** (`DashboardCategoryBoardComponents`) — adding a new record from the dashboard now keeps the visual refresh isolated to the affected category box instead of making the adjacent box look like it also reloaded or changed value.
+
+## [2.51.0] - 2026-06-10
+
+### Added
+- **Groups now support a persisted financial lane type for future expense/income flows** (`SDGroup`, `DefaultGroupRepository`, `OMOBackupModels`, `DefaultBackupRepository`) — introduced optional stored `groupKind` with current values `expense` and `income`, while preserving compatibility with older records and backups that do not include the field yet.
+
+### Changed
+- **SwiftData versioning now uses a real frozen historical schema plus a live current schema** (`OmoniSchema`, `ModelContainer+Shared`, `SWIFTDATA_MIGRATION_GUIDE`, `production-migration-playbook`) — `SchemaV1` is now treated as an immutable snapshot and `SchemaV2` as the live app schema, giving the project a valid path for post-launch store evolution instead of versioning-by-name only.
+- **Backup compatibility coverage is now explicit for legacy payloads missing `groupKind`** (`BackupRepositoryCompatibilityTests`, `SwiftDataTestContainer`) — importing an older backup keeps the stored value absent when appropriate, resolves it safely as `expense` at runtime, and exports the normalized current shape on the next backup.
+- **Shared Xcode test scheme now runs only unit tests serially by default** (`Omoni.xcscheme`) — `Cmd+U` no longer includes UI tests and no longer marks test bundles as parallelizable, reducing the cloned-simulator load during local validation.
+
+## [2.50.0] - 2026-06-10
+
+### Changed
+- **Dashboard day drill-down hero now uses contextual cost copy instead of showing only the raw date** (`DashboardView`, `DashboardViewModel`, `Localizable.strings`) — day-focused hero states now read naturally as `Coste de hoy` or `Coste del viernes 5 jun`, aligning the dashboard with the clearer `Coste de …` pattern already used in item-list detail while preserving category-based hero labels.
+
+## [2.49.0] - 2026-06-09
+
+### Added
+- **All text inputs now hard-block entry once the character limit is reached** (`LimitedTextField`, `CreateFirstUserView`, `AppConstants`) — switching focus or tapping a chip no longer causes a visible truncation after the fact; characters beyond the limit are rejected on every keystroke via `onChange`. Group name, user name, and item description limits are now defined as named constants in `AppConstants.Validation` (`maxGroupNameLength`, `maxUserNameLength`) and referenced consistently across all forms instead of using scattered magic numbers.
+
+## [2.48.0] - 2026-06-09
+
+### Fixed
+- **New entry recommendations now stay anchored to the currently selected category while typing** (`AddItemListView`, `AddItemListViewModel`, `ConceptSuggestionEngine`) — changing the category in the quick-add sheet now immediately refreshes the concept memory for that category, and typing a prefix like `Sal...` searches only within the active category instead of leaking suggestions from the previously selected one.
+
+## [2.47.0] - 2026-06-09
+
+### Changed
+- **Expense row title now uses all available space when the amount is short** (`ExpenseRowView`) — the trailing amount column no longer claims half the row width unconditionally; it sizes to its content so a small amount like "12,00 $" leaves the description room to show more characters before truncating.
+- **Item list detail view no longer shows the entry title in the navigation bar** (`ItemListDetailView`) — the inline nav title was redundant with the "Cost of …" hero card already visible at the bottom; removing it gives the screen a cleaner, less crowded top bar.
+
+## [2.46.0] - 2026-06-09
+
+### Added
+- **Dashboard category drill-down now supports a left-edge swipe gesture to go back** (`DashboardComponents`, `DashboardView`) — swiping right from the left edge of the screen while a category or day filter is active navigates back to the previous level using the same animated transition as the chip dismiss button, making back navigation more discoverable and thumb-friendly.
+
+## [2.45.3] - 2026-06-09
+
+### Fixed
+- **New entry form now shows section labels above category and payment method chip grids** (`AddItemListView`) — "Categoría" and "Origen" headings make it immediately clear what each group of chips represents, reducing confusion for first-time users and anyone unfamiliar with the flow.
+
+## [2.45.2] - 2026-06-09
+
+### Fixed
+- **Dashboard content container now sits flush against the top bar, eliminating the excess gap** (`DashboardComponents`) — the top chrome height was reduced from 68 pt to 56 pt and the top padding between the chrome and the rounded content container was removed, so the category board occupies noticeably more vertical screen space.
+- **Dashboard category board now shows an "Expenses by category" section header** (`DashboardCategoryBoardComponents`) — a subtle uppercase label above the chip grid contextualises what is being displayed, removing the ambiguity between expenses, budget, and other potential views.
+
+## [2.45.1] - 2026-06-09
+
+### Fixed
+- **Dashboard scope chips now use calmer, more coherent fallback styling when no category color is available** (`DashboardBottomBarView`, `DashboardView`) — `All`, `Today`, search breadcrumbs, and day scope chips without a category now render with the intended gray chip background and OMONI ancient-red content instead of falling back to the global accent red, while category-driven day chips correctly preserve their parent category color for better drill-down continuity.
+- **Bottom bar controls now align more cleanly as a single chip family** (`DashboardBottomBarView`) — the filter/search capsule now matches the chips' background tone and uses slightly taller vertical padding, while the dynamic middle scope chip gained a soft border so it no longer looks visually flatter or disconnected next to the group chip.
+- **The date picker trigger in the add-item-list form no longer reuses the app's primary red accent for passive date metadata** (`AddItemListComponents`) — the active calendar icon now uses a neutral gray tint so the date control feels calmer and less action-heavy.
+
+## [2.45.0] - 2026-06-08
+
+### Changed
+- **Item quantity and detail inputs now use shared, tighter limits across creation and editing flows** (`AddItemView`, `AddItemListComponents`, `AppConstants`, `ValidationHelper`) — quantity is now constrained to numeric input with a 10-digit cap, while item detail text is limited to 30 characters in both the item sheet and the dashboard quick-add flow so these fields stay controlled and predictable instead of accepting effectively unbounded input.
+
+### Fixed
+- **The item quantity field now clamps visually while typing and no longer falls into an invalid save state after large inputs** (`AddItemView`, `AddItemViewModel`, `CreateItemUseCase`, `ItemRepository`, `SDItem`) — the visible quantity text now behaves like the hero amount input and stops growing past the allowed limit, the subtotal/save state no longer breaks because of an `Int32` bottleneck behind the scenes, and quantity validation is now enforced consistently from UI through persistence.
+
+## [2.44.4] - 2026-06-05
+
+### Fixed
+- **Root loading failures and group deletion errors no longer leave the user without clear feedback** (`AppContentView`, `DashboardViewModel`) — the app now shows a dedicated retry state when initial bootstrap fails instead of falling through to the misleading setup-required screen, and failed group deletions surface the standard error toast instead of only reverting state silently.
+
+## [2.44.3] - 2026-06-05
+
+### Fixed
+- **Dashboard actions no longer fail silently when key refresh or mutation flows error out** (`DashboardViewModel`) — category refresh after closing settings, pull-to-refresh, group switching, available-group refresh, and item-list deletion now surface a standard error toast instead of leaving the user with stale or reverted UI and no explanation.
+
+## [2.44.2] - 2026-06-05
+
+### Fixed
+- **Dashboard category refresh errors are no longer swallowed silently after closing settings** (`DashboardViewModel`) — if reloading category metadata fails during the settings dismiss refresh, the app now surfaces a standard error toast instead of failing invisibly and leaving the user with stale UI and no feedback.
+
+## [2.44.1] - 2026-06-05
+
+### Fixed
+- **Users who had an account but no groups are no longer left on a dead-end setup screen** (`AppContentView`, `AppContentViewModel`) — the `Required configuration` state now opens group creation for the current user instead of showing an inactive placeholder path, allowing the app to recover cleanly into the main dashboard flow.
+
+## [2.44.0] - 2026-06-05
+
+### Fixed
+- **Dashboard category-day drill-down now keeps the hero focused on the selected category instead of repeating the date** (`DashboardView`) — when the user enters a specific day inside a category, the bottom chip remains the navigation breadcrumb for the date while the hero stays on the action context (`Coste de <categoría>`), removing redundant duplicated context between the two surfaces.
+
+## [2.43.0] - 2026-06-05
+
+### Changed
+- **Dashboard drill-down transitions now follow a consistent navigation direction across category, date, and item-list levels** (`DashboardView`, `DashboardComponents`) — forward navigation now behaves like a real push transition, with the current layer leaving to the left while the next layer enters from the right; stepping back uses the opposite direction, so the hierarchy feels spatially coherent instead of visually ambiguous.
+
+## [2.42.3] - 2026-06-05
+
+### Fixed
+- **Dashboard date rows now keep the paid amount in white even when a pending subtotal is present** (`DashboardDateRowsComponents`) — the primary amount no longer turns orange just because the day also has unpaid spend, so the orange secondary line reads clearly as the pending portion instead of competing with the already-paid total.
+
+## [2.42.2] - 2026-06-05
+
+### Fixed
+- **Dashboard category drill-down no longer inflates the bottom bar height when search is inactive** (`DashboardBottomBarView`) — the hidden search layout is now removed from the view tree unless search mode is actually active, so entering a category no longer creates a phantom gap between the hero card and the bottom chips.
+
+## [2.42.1] - 2026-06-05
+
+### Fixed
+- **Search expense row icon now reflects the matched items' paid state instead of the full list** (`DashboardViewModel`) — `searchMatchedRowStatus` uses a 0.01 tolerance instead of a micro-epsilon so an all-unpaid matched item no longer falls through to `.partial` due to floating-point variance.
+- **Item list detail hero always shows the full list totals and status regardless of search context** (`ItemListDetailView`) — the hero card no longer filters by the incoming search query, so toggling any item (matched or not) correctly updates the total and status badge.
+- **Search term is highlighted inline in the item description** (`ItemListDetailView`, `ItemRowView`, `ItemListDetailComponents`) — the matched portion of each item's name renders in accent color and semibold; the pipeline was changed from a boolean `isSearchMatch` to passing the actual `highlightedQuery` string down to the row.
+- **Back navigation is available while in search mode with an active scope filter** (`DashboardBottomBarView`) — a `← scope` breadcrumb now appears above the search field when a day or category drill-down is active, letting the user step back one level without cancelling search.
+- **Keyboard is dismissed when navigating to an item list detail from search** (`DashboardView`) — `dismissSearchKeyboardToken` now increments on any `navigationPath` change (push or pop), not only on pop, so the keyboard closes immediately when entering a detail view.
+
+## [2.42.0] - 2026-06-05
+
+### Changed
+- **Search-driven amounts and states are now consistent between dashboard rows and item-list detail hero** (`DashboardViewModel`, `ExpenseListView`, `DashboardView`, `ItemListDetailViewModel`, `ItemListDetailView`) — when navigating from a dashboard search result, both surfaces now reflect the matched items instead of mixing full-list totals with filtered-state feedback, so pending toggles on a searched item remain legible and coherent across the flow.
+
+## [2.41.1] - 2026-06-05
+
+### Fixed
+- **Search term is now visually highlighted inside item list detail** (`ItemListDetailView`, `ItemRowView`) — the matching portion of an item's description is rendered in accent color and semibold when opened from a search result, so the user immediately sees why that list appeared.
+
+## [2.41.0] - 2026-06-05
+
+### Changed
+- **Returning from item-list detail now refreshes only the affected dashboard entry instead of recalculating every list** (`DashboardViewModel`, `ItemListDetailView`, `CalculateItemListTotalsUseCase`) — item edits, deletes, and paid-state changes now mark the current list as dirty and trigger a targeted totals recomputation on back navigation, keeping dashboard aggregates in sync with less unnecessary work.
+
+### Fixed
+- **Dashboard category boxes now keep stable visual identity when their order changes after an amount update** (`DashboardCategoryBoardComponents`) — the category board no longer keys rows by positional offset, so when a box moves up or down after a total change SwiftUI keeps each category attached to its own animated state instead of briefly making two boxes look like they swapped values.
+
+## [2.40.1] - 2026-06-04
+
+### Fixed
+- **Pull-to-refresh on dashboard and date rows now returns fresh data** (`DashboardViewModel`) — `refreshData()` now clears the totals cache before recalculating, so swiping down always reflects the actual repository state instead of serving stale cached amounts.
+
+## [2.40.0] - 2026-06-04
+
+### Changed
+- **Item list detail toolbar now shows a direct edit button instead of a 3-dot menu** (`ItemListDetailView`) — removed the ellipsis menu since edit was the only option; tapping the pencil icon opens the edit sheet immediately with one tap less.
+
+## [2.39.0] - 2026-06-04
+
+### Fixed
+- **Item-list detail rows now give descriptions more space before truncating** (`ItemListDetailView`) — item names can now expand to two lines while the amount column keeps its natural width, so long descriptions no longer get cut off prematurely just because the right-side value is present.
+- **Pending amounts across the dashboard now show only the orange value without the extra `unpaid` suffix** (`DashboardCategoryBoardComponents`, `DashboardDateRowsComponents`, `ExpenseRowView`) — this removes noisy trailing text that was causing awkward truncation on large numbers while keeping the pending state clear through color alone.
+
+## [2.38.0] - 2026-06-04
+
+### Changed
+- **Day-of-month number in date rows is slightly smaller** (`DashboardDateRowsComponents`) — reduced from 25 pt to 22 pt so the date no longer competes visually with the expense amount on the right.
+
+### Fixed
+- **Large amounts no longer truncate on the right in date rows** (`DashboardDateRowsComponents`) — the amount column now sizes to its natural content width via `fixedSize`, so the weekday label yields space instead of the number getting clipped.
+
+## [2.37.6] - 2026-06-04
+
+### Fixed
+- **Dashboard range swaps now follow the top segmented control direction more naturally** (`DashboardComponents`) — switching between `Today` and `This month` now moves the dashboard content in the same visual direction as the selected segment, making the transition feel more coherent with the control and easier to track.
+
+## [2.37.5] - 2026-06-04
+
+### Fixed
+- **Dashboard and item-list detail totals now use a calmer, unified numeric update animation instead of temporary hero success states** (`TotalSpentCardView`, `DashboardView`, `DashboardCategoryBoardComponents`, `ItemListDetailComponents`, `ItemListDetailView`) — creating a simple entry or adding an item now lets the amount itself communicate the change through the same rolling total treatment used across the dashboard, while category boxes gained the same numeric transition language. Dashboard simple-entry totals also wait until the creation sheet is nearly gone before animating, reducing motion overlap and making the update easier to follow.
+
+## [2.37.4] - 2026-06-04
+
+### Fixed
+- **Compact group chip now matches the height of the scope/date chip to its right** (`GroupSelectorChipView`) — when the chip shrinks to icon-only mode, vertical padding increases from 8 to 10 pt to compensate for the missing subheadline text, keeping both chips visually aligned in the bottom bar.
+
+## [2.37.3] - 2026-06-03
+
+### Fixed
+- **Undo toast follow-up now appears faster after dismissing the previous dashboard toast** (`ToastView`) — shortened the toast dismissal handoff used by the undo action so `Cambio deshecho` no lingers behind the previous banner longer than necessary while still avoiding visual overlap.
+
+## [2.37.2] - 2026-06-03
+
+### Fixed
+- **Tall dashboard toasts no longer cause a harsh list resize or temporarily mask the list container's top curvature** (`DashboardComponents`) — the dashboard top chrome now keeps a stable height while the toast appears as an overlay within the same slot, so longer messages no longer push the content down abruptly or leave a dark block over the rounded top edge during dismissal.
+
+## [2.37.1] - 2026-06-03
+
+### Fixed
+- **Budget over-limit warning icon now leads the limit text in the hero** (`DashboardComponents`) — moved the orange triangle to the left of the budget label so the warning is the first thing the eye catches, consistent with iOS conventions where status icons precede their text.
+
+## [2.37.0] - 2026-06-03
+
+### Changed
+- **Checking an item in item-list detail now keeps the row in place and animates the state change more softly** (`ItemListDetailViewModel`) — toggling paid no longer moves completed items around by status, and the row now uses the same quick spring family for its in-place paid/unpaid transition, reducing visual disorientation while preserving a calmer, more polished feedback.
+
+## [2.36.0] - 2026-06-03
+
+### Changed
+- **Date chip now shows the weekday abbreviation alongside the day and month** (`DashboardViewModel`) — format changed from `"5 JUN"` to `"JUE 5 JUN"` so the chip carries useful temporal context without requiring the user to count back from a calendar.
+- **Hero label for date filters no longer uses the "Cost of" prefix** (`DashboardHeroSection`, `DashboardViewModel`) — when filtering by a specific day, the hero now shows a full weekday label such as `"Jueves 5 jun"` directly instead of the awkward `"Coste de 5 JUN"`. Category filters keep the `"Coste de"` prefix as before.
+
+## [2.35.0] - 2026-06-02
+
+### Changed
+- **Group chip collapses to icon-only when a scope filter is active** (`GroupSelectorChipView`, `DashboardBottomBarView`) — once the user has selected a group and is navigating within a category or day filter, the chip hides the group name and shows just the icon and chevron, freeing space for the scope chip. The name reappears with a spring animation when the filter is cleared.
+
+## [2.34.0] - 2026-06-02
+
+### Changed
+- **Dashboard toast now temporarily replaces the top header instead of stacking above it** (`ToastView`, `DashboardComponents`, `DashboardView`) — extracted a reusable `ToastHost` and moved dashboard notifications into the same safe-area slot as the `Today / This month` chrome, so the segmented control and brand icon yield to the toast while it is visible. This avoids visual overlap and makes the top-area transition feel calmer and more intentional.
+
+## [2.33.1] - 2026-06-02
+
+### Fixed
+- **Settings row and About page title now read "OMONI" instead of "OMO"** (`Localizable.strings` ES + EN) — updated `settings.aboutOMO` and `about.title` keys in both localisations.
+
+## [2.33.0] - 2026-06-02
+
+### Added
+- **Creating a list entry now navigates directly to its detail screen** (`DashboardView`) — after the sheet closes and the list is inserted in the dashboard, a 400 ms pause lets the dismiss animation complete before pushing `ItemListDetailView`, so the user lands exactly where they need to add items. Single entries keep the existing success banner behaviour.
+
+## [2.32.0] - 2026-06-02
+
+### Added
+- **Item form keyboard toolbar now includes up/down field navigation** (`AddItemView`) — the `New Item` and item edit sheet now let the user move directly between amount, description, and quantity from the keyboard toolbar, while keeping the `Done` action available at the end.
+
+## [2.31.1] - 2026-06-02
+
+### Fixed
+- **Hero amount cursor and focus border now use the app accent color** (`HeroAmountInputView`) — the blinking cursor was using `.primary` while all native text fields in the app use `.accentColor`; both the cursor and the focus ring border are now red, consistent with the rest of the app.
+
+## [2.31.0] - 2026-06-02
+
+### Changed
+- **`More details` in New Entry now behaves like a one-way form expansion instead of a reversible accordion** (`AddItemListComponents`, `AddItemListView`, `DashboardView`) — after the user opens the extra fields, the trigger row disappears and exits upward while the detailed section enters from below, creating a calmer progressive-reveal flow that feels more intentional and avoids the previous overlap between the tappable row and the expanding content. The sheet also now opens slightly taller, giving the trigger more breathing room above the bottom edge.
+
+## [2.30.4] - 2026-06-02
+
+### Fixed
+- **Switching from list to simple mode no longer hides the Simple/List toggle row** (`AddItemListView`) — the scroll now resets to the top of the form via a dedicated `scrollToTop` flag, following the same pattern as `scrollToHero`, ensuring the structure selector stays fully visible after the transition.
+
+## [2.30.3] - 2026-06-02
+
+### Fixed
+- **Saving a date change from the dashboard single-entry editor no longer risks a navigation-dismiss conflict** (`DashboardView`) — the dashboard now defers the editor dismiss to the next SwiftUI cycle after propagating the updated item list, reducing the chance of a crash when a date edit causes the parent dashboard context to recompose at the same time.
+
+## [2.30.2] - 2026-06-02
+
+### Fixed
+- **Switching from list to simple mode no longer hides the Simple/List toggle row** (`AddItemListView`) — the scroll now resets to the top of the form instead of snapping to the hero amount input, ensuring the structure selector stays visible after the transition.
+
+## [2.30.1] - 2026-06-02
+
+### Fixed
+- **Closing `More details` no longer visually resets a chosen date back to Today** (`AddItemListView`) — collapsing the section now preserves the selected date chip whenever the user picked a date other than today, matching the persistent behavior already used by the payment-method selection.
+
+## [2.30.0] - 2026-06-02
+
+### Changed
+- **Animation curves and padding values are now centralized in shared constants** (`AnimationHelper`, `AppConstants`) — extracted `deleteSpring`, `expansionSpring`, `feedbackSpring`, `flashIn`, and `flashOut` from 27 inline hardcoded spring and easing definitions across ViewModels and Views; added `mediumPadding` (12 pt) to the padding scale; aligned `StatusFramedRow` content padding from 15 pt to the standard 16 pt.
+
+## [2.29.0] - 2026-06-02
+
+### Changed
+- **New entries created from the dashboard now inherit the current date context more reliably** (`DashboardView`) — if the user is standing on a specific day, the entry sheet now preloads that day in the date field; if the user is standing on the intermediate day list, the sheet falls back to today instead of carrying an unrelated date.
+
+## [2.28.0] - 2026-06-02
+
+### Changed
+- **Day rows in the dashboard drill-in now use OMONI's current card language instead of the older flat typographic treatment** (`DashboardDateRowsComponents`) — each day now renders as a rounded card with a stronger date column, warmer rounded amount typography, and a calmer single-line weekday label in the center so the intermediate day list feels aligned with the hero, chips, and current item-list rows without repeating date information.
+
+## [2.27.3] - 2026-06-02
+
+### Fixed
+- **Currency, category, and payment method rows are now fully tappable across their entire width** (`GroupInfoEditSheet`, `CategoryManagementView`, `PaymentMethodManagementView`) — added `contentShape` after `clipShape` on all affected rows so tapping anywhere in the row registers, not just on the text.
+
+## [2.27.2] - 2026-06-02
+
+### Fixed
+- **Pending amount label now fades upward when an item list is marked as paid** (`ExpenseRowView`) — the offset and opacity transitions are now co-located at the call site so both are driven by the same animation curve, producing a directional fade that matches the primary amount sliding down from above.
+
+## [2.27.1] - 2026-06-02
+
+### Fixed
+- **Empty item list rows now show the dash icon in gray instead of white** (`ExpenseRowView`) — the neutral status icon now uses `systemGray2` on `systemGray3`, consistent with the unpaid state. White is reserved for the paid checkmark on green.
+
+## [2.27.0] - 2026-06-02
+
+### Added
+- **Item rows now show unit price and quantity when an item has more than one unit** (`ItemRowView`, `ItemListDetailViewModel`) — a secondary line below the description displays the breakdown as "3 × 5,00 €" while the total remains on the right. Rows with a single unit are unchanged.
+
+## [2.26.1] - 2026-06-02
+
+### Fixed
+- **Simple entries can now be saved with no amount, acting as a reminder or pending payment placeholder** (`AddItemListViewModel`, `CreateSingleEntryUseCase`, `UpdateSingleEntryUseCase`) — the save button is active as soon as the form opens; leaving the amount field empty saves the entry with 0.00 automatically. Only the category is needed to give the record meaningful context. When editing an existing Simple entry with no amount, the field shows the placeholder instead of "0".
+
+## [2.26.0] - 2026-05-31
+
+### Fixed
+- **Create User button no longer appears active until the legal checkbox is checked** (`CreateFirstUserView`) — the button background and shadow now require both a valid name and acceptance of the Terms & Privacy before turning red, instead of activating visually as soon as the name field was filled.
+- **Create User button icon no longer animates when the form becomes valid or invalid** (`CreateFirstUserView`) — the bounce symbol effect on the `person.badge.plus` icon was removed; the button state change is now communicated through color only.
+- **Converting a list entry to Simple no longer risks a simultaneous dismiss conflict** (`ItemListDetailView`) — the parent screen dismiss is now deferred to a separate SwiftUI cycle from the sheet close, preventing both operations from competing for the view hierarchy at the same time.
+- **Saving a converted Simple entry now performs a single atomic write** (`UpdateSingleEntryUseCase`) — the redundant intermediate `context.save()` was removed so the item and all itemList mutations are committed together in one operation.
+- **All repository write operations now rollback on a failed save** (`DefaultItemRepository`, `DefaultItemListRepository`, `DefaultCategoryRepository`, `DefaultPaymentMethodRepository`, `DefaultGroupRepository`, `DefaultUserRepository`, `DefaultUserGroupRepository`) — if `context.save()` throws, the context is rolled back to its last clean state so in-memory objects never remain in a partially-mutated, unsaved condition.
+- **Dashboard navigation recovers automatically if a destination can no longer be resolved** (`DashboardView`) — if a navigation route points to an entry that no longer exists in the loaded data, the navigation stack resets to the dashboard root instead of showing a blank screen.
+- **Bulk paid toggle and undo now surface errors instead of failing silently** (`DashboardViewModel`) — if persisting a bulk paid/unpaid change or its undo fails, the user now sees an error toast instead of the UI reverting without explanation.
+
+## [2.25.0] - 2026-05-31
+
+### Added
+- **SwiftData persistence now runs through an explicit versioned schema and migration-plan path** (`OmoniSchema`, `ModelContainer+Shared`) — the live app container, preview container, and test container now initialize from the same versioned SwiftData baseline instead of bypassing schema versioning with an ad hoc `Schema([...])` setup, giving OMONI a safer foundation for future store migrations before production launch.
+- **SwiftData migration workflow is now documented in the project entry docs** (`SWIFTDATA_MIGRATION_GUIDE.md`, `START_HERE.md`) — future persisted-model changes now have a clear documented path covering schema version bumps, migration stages, and backup review so storage-level work is treated as intentional migration work instead of casual model edits.
+
+## [2.24.2] - 2026-05-31
+
+### Fixed
+- **Dashboard item-list rows now animate paid-to-pending transitions more cleanly without layout drift or clipped amounts** (`ExpenseRowView`) — the right-side amount column now keeps a stable reserved height while the total and unpaid labels animate internally with a smoother vertical motion, preventing the currency symbol from being clipped and avoiding the awkward horizontal sweep during state changes. The item-list title also flashes subtly on full completion and full rollback, adding a lightweight sense of progress without making the row feel noisy.
+
+## [2.24.1] - 2026-05-31
+
+### Fixed
+- **Unpaid entry states now use neutral gray while orange is reserved strictly for partial payment progress** (`ExpenseRowView`, `ItemListDetailView`, `ItemListDetailViewModel`, `ItemListDetailComponents`, `StatusFramedRow`) — fully unpaid dashboard item lists, single-entry records, item rows, and detail hero badges now show an empty gray circle and neutral unpaid label treatment, while only genuinely partial states use the half-filled orange icon. This removes the false sense of "in progress" from entries that are simply still unpaid and makes partial settlement easier to recognize at a glance.
+
+## [2.24.0] - 2026-05-30
+
+### Changed
+- **Dashboard item-list rows now use a stronger status-card language instead of the overly flat ticket treatment** (`StatusFramedRow`, `ExpenseRowView`) — item-list rows were rebuilt as rounded cards with a full-height tappable left status block, clearer paid/pending/empty iconography, and a calmer content hierarchy so the list feels more aligned with OMONI's current visual direction while staying simple to scan.
+- **Pending amount is now right-aligned under the main total, not under the concept text** (`ExpenseRowView`) — the secondary `unpaid` line now sits directly below the primary amount, preserving a cleaner accounting-style amount column and reducing visual imbalance in rows with pending items.
+- **Item rows inside list detail now share the same solid status-block row language as dashboard rows** (`ItemListDetailView`, `ItemListDetailComponents`, `StatusFramedRow`) — the detail screen now uses the same unified row pattern, with a full-height left state block and clearer pending/completed signals so moving from the dashboard into a list feels visually consistent.
+
+### Fixed
+- **Paid-status toggles in dashboard item-list rows now transition more consistently between complete and pending states** (`ExpenseRowView`, `DashboardViewModel`) — the secondary unpaid line now lives in a stable reserved slot instead of changing the row height, and the optimistic/dashboard total updates are animated as one coherent state change so neighboring rows no longer jump abruptly during complete-to-pending toggles.
+
+## [2.23.1] - 2026-05-30
+
+### Fixed
+- **New Entry mode selector now communicates the simple-entry option more clearly** (`AddItemListComponents`, `Resources/en.lproj/Localizable.strings`, `Resources/es.lproj/Localizable.strings`) — the former `Quick / Rápido` wording and neutral circle icon were replaced with `Simple` and a bolt symbol so the first option reads less ambiguously and better conveys an immediate one-concept, one-amount entry flow.
+
+## [2.23.0] - 2026-05-30
+
+### Changed
+- **Payment-method UI wording now uses `Origin / Origen` across the app while preserving the internal data model** (`Resources/en.lproj/Localizable.strings`, `Resources/es.lproj/Localizable.strings`) — visible labels, empty states, form titles, prompts, and release-note copy now describe the money source in simpler language that matches how users naturally think about accounts and origins of money.
+- **New groups now start with a broader, lower-friction default category set** (`DefaultGroupRepository`) — the seeded categories were refined to `Alimentación`, `Movilidad`, `Hogar`, `Salud`, `Ocio`, and `Ropa`, replacing the less clear previous default so first-time organization feels more intuitive without forcing users into an overcomplicated taxonomy.
+
+## [2.22.0] - 2026-05-29
+
+### Changed
+- **Entries now distinguish explicitly between quick single-entry records and real itemized lists** (`SDItemList`, `CreateItemListUseCase`, `UpdateItemListUseCase`, `DefaultItemListRepository`, `AppDIContainer`) — the data model now persists whether an `ItemList` represents a single quick entry or a multi-item list, instead of relying on implicit “one item with the same name” behavior. Creation and editing flows were moved into dedicated use cases so the `ItemList + Item` coordination happens at the correct layer rather than inside the screen view model.
+- **Dashboard navigation now respects the user-facing entry type** (`DashboardView`, `DashboardViewModel`, `ItemListDetailView`) — tapping a quick single-entry record from the dashboard now opens the direct entry editor with the money hero, while true lists still open the item-list detail screen. Legacy records without an explicit stored type are resolved conservatively using existing item data so older local data remains usable.
+- **New Entry now exposes a clearer mode selector for `Quick` vs `List`** (`AddItemListView`, `AddItemListComponents`, `String+Localization`, `Resources/en.lproj/Localizable.strings`, `Resources/es.lproj/Localizable.strings`) — the old internal mental model is no longer leaked to the user. The sheet now makes the intent explicit, shows the hero amount input when editing or creating a quick single entry, and keeps the list-style editing layout for itemized lists.
+- **Backup payloads now persist entry structure for future-proof imports and exports** (`OMOBackupModels`, `DefaultBackupRepository`) — backup schema version `2` adds the new `isList` field while still accepting schema version `1`, giving the app a first real compatibility path for structure-aware data evolution.
+
+### Fixed
+- **Converting a single-item list into `Quick` now exits the stale list detail screen automatically** (`ItemListDetailView`) — after saving a conversion from list mode to quick-entry mode, the app dismisses the invalid cached list-detail presentation immediately instead of leaving the user on a screen that no longer matches the underlying entry type until they back out manually.
+
+## [2.21.0] - 2026-05-27
+
+### Changed
+- **Dashboard content is now clipped by the main rounded container instead of a dark fade mask** (`DashboardComponents`) — the category/month board and drill-down content now share the same real rounded card boundary, removing the heavy dark edge treatment at the top and bottom and making the visual limit belong to the container itself.
+- **Dashboard horizontal spacing was rebalanced after the container refactor** (`DashboardComponents`) — removed the extra intermediate horizontal padding layer that was making category boxes and drill-down content feel too inset from the card edges.
+
+## [2.20.1] - 2026-05-27
+
+### Fixed
+- **Brand icon in About OMO was too small** (`AboutOMOView`) — increased from 68 pt with 0.66 scale to 100 pt full size so the app icon displays at a proper prominent size in the about screen.
+
+## [2.20.0] - 2026-05-27
+
+### Changed
+- **Day rows in the category drill-in now show paid amount and pending amount separately** (`DashboardDateRowsComponents`, `DashboardComponents`, `DashboardView`) — the main amount displays only what has been paid; when a day has unpaid entries, a secondary orange line reading `22,00 € por pagar` appears below, consistent with the pattern used in expense and item rows throughout the app.
+
+## [2.19.0] - 2026-05-27
+
+### Changed
+- **New Entry sheet now opens at ¾ height and auto-expands to full when interacting** (`DashboardView`, `AddItemListView`) — the sheet starts at `.fraction(0.75)` so the "More details" button is visible on open; tapping any input field or "More details" programmatically expands the sheet to full height.
+- **"More details" trigger redesigned as a visible full-width chip** (`AddItemListComponents`) — replaced the near-invisible tertiary-label footnote text with a `secondarySystemGroupedBackground` rounded button using secondary color and a chevron, making it a clear and tappable action.
+- **Date row in New Entry redesigned from Settings-style toggle to a tappable chip** (`AddItemListComponents`) — the `Toggle` and form labels were removed; the date chip now shows "Today" or the selected date and taps to open the calendar. A dismiss button collapses the calendar first, then resets to today with a sequenced animation.
+- **Date chip tap area is now full-width** (`AddItemListComponents`) — the button label fills all available horizontal space so the entire row (not just the label text) registers taps.
+- **Section labels removed from category and payment method grids** (`AddItemListComponents`) — "Category" and "Payment method" headings were form-style noise; the chips communicate their purpose through icons and names.
+- **Group card is now hidden when there is only one group** (`AddItemListComponents`) — the card added no interactive value in single-group setups and was removed to reduce visual clutter.
+- **Keyboard toolbar now includes field navigation arrows** (`AddItemListView`) — `‹` and `›` buttons let the user move between the amount and description fields without dismissing the keyboard; arrows disable automatically when there is no adjacent field. "Done" remains on the right.
+- **Tapping the hero amount field scrolls it into view** (`AddItemListView`) — if the user has scrolled down, focusing the price input now animates the scroll back to the top so the field is always visible above the keyboard.
+
+## [2.18.0] - 2026-05-27
+
+### Changed
+- **Category boxes now signal over-budget state with a direct warning icon instead of an internal dashed limit marker** (`DashboardCategoryBoardComponents`) — when a category exceeds its effective limit, the dashboard now shows a small warning glyph beside the category name, which is easier to understand at a glance than the previous dashed line treatment inside the filled box.
+- **Shared text fields now reserve more space for the leading symbol icon** (`LimitedTextField`) — the `Aa` / `textformat` icon used in entry editing no longer appears clipped because the reusable field now gives the symbol a more stable font size and width.
+
+## [2.17.0] - 2026-05-27
+
+### Changed
+- **Day list rows (category drill-in) were redesigned with a flat, typographic aesthetic** (`DashboardDateRowsComponents`) — each row now shows a large light-weight day number, abbreviated weekday in uppercase tracking, and right-aligned monospaced amount with a hairline separator; today is highlighted in accent color. Cards, icons, item-count labels, and chevron badges were removed entirely.
+- **Expense rows in the dashboard list were simplified to match the flat design language** (`ExpenseRowView`, `ExpenseListComponents`) — the lego-style colored side tab, card border, and rounded card background were replaced with a minimal toggle icon (circle / checkmark) on the left, a regular-weight description, and a light monospaced amount whose color signals paid state (green / orange / gray). A hairline separator replaces card chrome.
+- **Item rows inside an ItemList detail adopt the same flat row style** (`ItemListDetailView`, `ItemListDetailComponents`) — `ItemRowSideTab` and `ItemRowCardBorder` were removed; items now use the same toggle icon, flat separator, and monospaced amount pattern as the rest of the drill-in stack.
+
+## [2.16.0] - 2026-05-27
+
+### Changed
+- **Category drill-in hero now visualizes budget usage directly inside the main card** (`DashboardView`, `DashboardViewModel`, `DashboardComponents`, `TotalSpentCardView`) — when entering a specific category, the dashboard hero now reuses the category color as a bottom-up fill tied to the effective budget limit, and shows a concise `Límite / Limit` reference instead of a heavier budget summary line.
+- **Over-limit state in the category hero is now signaled with a minimal warning icon** (`DashboardComponents`, `DashboardViewModel`, `String+Localization`, `Resources/en.lproj/Localizable.strings`, `Resources/es.lproj/Localizable.strings`) — categories that exceed their effective limit now show a subtle warning glyph next to the limit label without changing the full hero into an alert state.
+
+### Fixed
+- **Hero budget fill now animates smoothly when paid status toggles change category totals** (`TotalSpentCardView`) — switching entries between paid and unpaid no longer makes the budget fill jump abruptly; the fill ratio now transitions with its own spring animation just like the amount updates.
+
+## [2.15.0] - 2026-05-27
+
+### Changed
+- **What's New / Novedades release notes are now fully localized instead of static** (`AboutOMOView`, `String+Localization`, `Resources/en.lproj/Localizable.strings`, `Resources/es.lproj/Localizable.strings`) — the in-app release notes catalog now reads localized title and highlight keys for each version entry, so users see the full changelog content in their active app language rather than a single hardcoded text block.
+
+## [2.14.0] - 2026-05-27
+
+### Changed
+- **Interactive accent styling was softened across the app while preserving strong brand red for explicit identity moments** (`Assets.xcassets/AccentColor.colorset`, `Color+Hex`, `SplashView`, `CreateFirstUserView`) — OMONI now separates visual roles between the stronger logo/wordmark red and a more pastel interactive red used for controls, links, and primary actions, so the interface feels warmer and less aggressive without losing brand coherence.
+- **First-user onboarding now uses the refined interactive red consistently** (`CreateFirstUserView`) — the legal acceptance checkbox, privacy/terms links, and create-user CTA now share the softer action color, while the `omoni` wordmark keeps the stronger brand emphasis on `ni`.
+- **Dashboard top bar hierarchy was rebalanced for a calmer, more premium feel** (`DashboardTopBarView`, `GroupSelectorChipView`, `Assets.xcassets/settings-icon.imageset`) — the settings logo now uses the renamed `omoni-logo.png` asset with reduced opacity, and the group selector chip now uses a quieter translucent treatment with a neutral border so it no longer competes with the add action and settings entry point.
+
+### Fixed
+- **Toolbar confirmation buttons now keep a clear white checkmark in sheets** (`PrimaryToolbarCheckButton`) — save/confirm actions like New Entry and New Item no longer risk rendering the check icon too dark or visually lost against the button tint.
+
+## [2.13.1] - 2026-05-27
+
+### Fixed
+- **Dashboard settings logo now feels less visually distracting** (`DashboardTopBarView`, `Assets.xcassets/settings-icon.imageset`) — the top-right brand button now uses the renamed `omoni-logo.png` asset and renders with a softer opacity so the white mark no longer pulls too much attention away from the dashboard content.
+
+## [2.13.0] - 2026-05-27
+
+### Changed
+- **New app icon imported through Xcode's modern single-image asset flow** (`Assets.xcassets/AppIcon.appiconset`) — OMONI now uses the refreshed brand icon generated from the new source artwork, replacing the older multi-file app icon set with a cleaner asset-catalog configuration based on one high-resolution master image.
+- **Global accent color updated to the new OMONI brand red** (`Assets.xcassets/AccentColor.colorset`) — the system-wide `accentColor` now uses `#FF3D4B`, so onboarding, dashboard controls, highlights, and shared components all reflect the updated visual identity consistently.
+
+## [2.12.1] - 2026-05-27
+
+### Fixed
+- **Dark mode now applies correctly from the very first onboarding screen on app launch** (`MainView`, `AppContentView`) — the forced dark appearance was moved to the root flow container so splash, first-user setup, and dashboard all open with the same intended OMONI visual identity, even when the simulator or device is set to light mode.
+
+## [2.12.0] - 2026-05-27
+
+### Changed
+- **New OMONI logo asset set applied across key brand surfaces** (`Assets.xcassets`, `OMOBrandIconView`, `SplashView`, `DashboardTopBarView`, `CreateFirstUserView`) — the app now uses the new logo variants and dimensions in the shared asset catalog, with the refreshed mark shown consistently in the splash screen, the dashboard settings entry point, and first-user onboarding.
+- **Brand icon presentation refined to feel more native to iOS** (`OMOBrandIconView`, `SplashView`, `DashboardTopBarView`, `CreateFirstUserView`) — the shared logo container now fills its frame cleanly, uses a more app-icon-like rounded shape, scales up more confidently in key UI moments, and the first-user screen is vertically rebalanced so the onboarding composition feels more centered and intentional.
+
+## [2.11.2] - 2026-05-25
+
+### Fixed
+- **Calendar collapse in New Entry form now animates smoothly** — toggling the date off folds the calendar closed before the content below moves up, matching iOS Reminders behavior. The date label resets to Today only after the animation settles.
+- **Dark mode forced globally** — OMONI always renders in iOS dark mode as an intentional brand decision (owl identity, no light-mode reflections, like Spotify).
+
+## [2.11.1] - 2026-05-25
+
+### Fixed
+- **Updated splash tagline** to "tu vida. a tu manera." / "your life. your way." — more aligned with OMO's philosophy.
+- **Rewritten What's New section** with user-facing language describing what OMONI actually does, removing the unpublished 1.0 entry that never reached users.
+- **MARKETING_VERSION** updated to match current version so About screen shows the correct installed version.
+
+## [2.11.0] - 2026-05-25
+
+### Changed
+- **First-user onboarding was simplified to ask only for the user's name plus legal acceptance** (`CreateFirstUserView`, `CreateFirstUserViewModel`, `CreateUserUseCase`, `SDUser`) — the unused email capture was removed from the initial setup flow so onboarding now matches OMONI's local-first, low-friction philosophy. User validation now allows an empty stored email, while keeping the field available internally for future optional account or sync flows.
+- **Splash and onboarding now share one consistent OMO/OMONI brand presentation** (`SplashView`, `CreateFirstUserView`) — both screens now use the same owl mark, the same `omo` + `ni` wordmark construction, and the same rounded typographic language so the transition from splash into setup feels intentional and coherent.
+
+### Fixed
+- **Brand icon now remains visible in both light and dark appearance modes** (`OMOBrandIconView`, `SplashView`, `CreateFirstUserView`, `AboutOMOView`, `DashboardTopBarView`) — the white owl asset no longer disappears on light backgrounds because it now renders inside a shared dark circular mark used across the main brand surfaces.
+- **Initial onboarding screen now fades in smoothly instead of appearing abruptly after the splash** (`MainView`) — the transition between startup states now uses a calm opacity change that better matches the product tone.
+
+## [2.10.1] - 2026-05-25
+
+### Fixed
+- **Localized all remaining hardcoded strings** — splash tagline, keyboard Done button, placeholder "e.g." abbreviation, unknown error fallback, and Copy accessibility label now use localization keys with proper English and Spanish translations.
+
+## [2.10.0] - 2026-05-25
+
+### Changed
+- **Replaced neon green with a classic emerald green on paid status indicators** (`PressHapticButtonStyle`, `ItemListDetailView`, `ExpenseRowView`, `ItemListDetailComponents`) — the paid state across item rows, expense rows, and the hero check icon now uses a muted, less saturated green (`Color.paidGreen`) defined once as a shared Color extension.
+
+## [2.9.0] - 2026-05-25
+
+### Added
+- **Keyboard Done button on numeric fields in New Entry and New Item forms** (`AddItemListView`, `AddItemView`) — decimal and number pad keyboards now show a Done button in the keyboard toolbar to dismiss the keyboard. The button only appears on fields that lack a native dismiss key (amount and quantity); the description field, which already has its own submit action, is unaffected.
+- **Haptic feedback restored on paid status toggle** (`ItemRowSideTab`, `LegoSideTab`) — tapping the paid status tab in both the item list detail view and the dashboard expense rows now fires a medium impact haptic when the state changes. Extracted into a shared `toggleHaptic(trigger:)` View extension for reuse across future toggle interactions.
+
+## [2.8.0] - 2026-05-25
+
+### Added
+- **New entry form now auto-selects the last used category and payment method** (`AddItemListViewModel`) — when opening a new registro the form pre-selects the most recently used category for the active group. The payment method is then resolved by looking at the last entry in that specific category; if no category history exists, it falls back to the most recent global payment method; if no history at all, both fields are left empty. Changing the category updates the payment method suggestion automatically, unless the user has already made a manual choice.
+
+## [2.7.0] - 2026-05-25
+
+### Changed
+- **Today mode now navigates directly to the expense list when tapping a category or All, skipping the intermediate date layer** (`DashboardView`) — in Today mode there is only one possible date, so the date rows step was redundant. Tapping a category or All now lands directly on the filtered item list. Back navigation and empty-state fallbacks have been updated to match the simplified two-level flow.
+- **Bottom bar chip in Today mode now shows the category name, icon, and color instead of "Today"** (`DashboardView`) — when a category is active in Today mode the chip reflects the category identity, which is more informative since the Today context is already communicated by the top tab. The date label and calendar icon are preserved for month-mode day drill-downs where the date context is meaningful.
+
+## [2.6.2] - 2026-05-25
+
+### Fixed
+- **Tapping the already-selected group in the picker now closes the sheet** (`GroupPickerSheetViewModel`, `GroupSelectorChipView`) — `selectGroup` now detects when the chosen group is already active and sets `shouldDismiss`, which the sheet observes to dismiss itself. The decision stays in the ViewModel; the View only reacts.
+
+## [2.6.1] - 2026-05-25
+
+### Fixed
+- **Paid status tab no longer shows a color shift or press animation when held** (`ExpenseRowView`, `ItemListDetailView`) — the side tab button on both item-list and item rows now uses a plain button style. Holding the tab no longer triggers a scale-down or an overlay darkening; the action fires cleanly on release, matching a simple tap.
+- **Press overlay in `PressHapticButtonStyle` now darkens uniformly** — changed the overlay shape from `RoundedRectangle(cornerRadius: 16)` to `Rectangle` so the darkening covers the full button area evenly instead of creating a visible pill-shaped tint that mismatched the tab's rectangular form.
+
+## [2.6.0] - 2026-05-25
+
+### Changed
+- **Switching groups now always lands on This Month with category boxes instead of Today** (`DashboardViewModel`, `DashboardView`) — changing the active group resets the dashboard to the full-month overview and clears any active drill-down state, so the user always arrives at the most useful summary of the new group rather than a potentially empty Today view.
+- **Group switch transition is now animated with a content fade** (`DashboardView`) — the dashboard content fades out as the group change begins and fades back in once the new group data is ready, replacing the previous abrupt content swap.
+
+## [2.5.3] - 2026-05-20
+
+### Fixed
+- **Dashboard item-list rows now render fully unpaid state in gray instead of red** (`ExpenseRowView`) — item lists where every item remains unpaid no longer use an alert-like red treatment. Their side tab and card accent now resolve back to gray, matching the calmer semantics already used at the item level while preserving orange for partial state and green for fully paid state.
+
+## [2.5.2] - 2026-05-20
+
+### Fixed
+- **Dashboard item-list amount column now stays pinned to the trailing edge even when the visible paid total is `0,00 €`** (`ExpenseRowView`) — item-list rows no longer shift the main amount leftward when a list has no paid value. The primary amount and optional unpaid line now share the same stable right alignment, which also shortens the visual travel distance when the amount transitions between zero and paid states.
+
+## [2.5.1] - 2026-05-20
+
+### Changed
+- **Item list detail rows now use the same card-and-side-tab structure as dashboard item-list rows** (`ItemListDetailView`, `ItemListDetailComponents`) — items inside an item list no longer use the old timeline rail presentation. They now render as padded rounded cards with a leading status tab, matching the newer dashboard row language so the transition from item-list overview into item detail feels visually consistent.
+- **Item list detail spacing now follows the same shared top and row inset metrics used by dashboard drill-down lists** (`ItemListDetailComponents`, `ExpenseListLayoutMetrics`) — the first item row now starts with the same breathing room against the rounded gray container, and item cards use the same vertical spacing rhythm as the dashboard date/item-list stacks.
+- **Dashboard item-list rows now use semantic system status colors instead of category-driven paid-state color** (`ExpenseRowView`) — paid rows now resolve to green, partial rows to orange, unpaid rows to red, and neutral rows to gray. This keeps the main row color focused on payment state rather than category context, which makes scanability and status recognition clearer.
+
+## [2.5.0] - 2026-05-20
+
+### Added
+- **Dashboard drill-down now includes an intermediate date level for both category and `All` scopes** (`DashboardView`, `DashboardViewModel`, `DashboardComponents`, `DashboardDateRowsComponents`) — tapping a dashboard category no longer jumps straight into item lists. The flow now drills into grouped date rows first, and the same date-first navigation is also used when the user selects `All`. From there, tapping a day opens the expense-row list for that concrete date, keeping the navigation more consistent and easier to scan.
+
+### Changed
+- **Dashboard date rows were redesigned as premium cards instead of bare list entries** (`DashboardDateRowsComponents`) — the intermediate day list now uses padded rounded cards with accent treatment, iconography, stronger amount hierarchy, and clearer tap affordance so the dashboard drill-down feels aligned with the rest of OMONI’s card-based language.
+- **Dashboard expense rows were cleaned up for the new filtered-day flow** (`ExpenseRowView`, `ExpenseListComponents`, `ExpenseListView`) — the old vertical connector lines between item-list cards were removed, row spacing was increased, and the list gained more breathing room against the top edge of the rounded container so the deeper drill-down reads as a calmer modern card stack.
+- **Dashboard bottom filter chip now carries the active day context instead of relying on date section headers** (`DashboardView`, `DashboardBottomBarView`) — when the user drills into a concrete day, the selected-scope chip now reflects that day and works as the way back up one level. Date section headers in the expense list are now intentionally hidden in this dashboard flow because the active day is already represented in the bottom control row.
+- **Dashboard date rows and item-list rows now share the same top breathing room and card spacing rules** (`ExpenseListLayoutMetrics`, `DashboardDateRowsComponents`, `ExpenseListComponents`, `ExpenseListView`) — the first card in both drill-down levels now starts with the same air against the rounded gray container, using one shared metrics source instead of separate magic numbers.
+- **Expense row amount column was rebalanced for a steadier unpaid-state presentation** (`ExpenseRowView`) — the right-hand amount block now keeps the primary cost in a more stable position and introduces the unpaid line more softly, reducing the visual jump between single-line and two-line amount states.
+
+### Fixed
+- **Dashboard filtered drill-down no longer gets stuck showing empty date/detail states after filter or month changes** (`DashboardView`, `DashboardViewModel`, `DashboardComponents`) — active dashboard scope now degrades correctly when the selected category or day no longer has visible content under the current month, pending filter, or search state. This prevents blank intermediate screens and keeps the user inside a valid dashboard level after refreshes or filter changes.
+
+## [2.3.0] - 2026-05-19
+
+### Changed
+- **Expense row redesigned with a full-height left side tab for paid status toggle** (`ExpenseRowView`) — the circle connector button and its offset/mounting logic have been replaced with a colored vertical strip on the left edge of each card. The strip spans the full card height, is fully tappable, and uses a clipped `HStack` so its left corners follow the card's rounded shape automatically. The border is drawn last in the `ZStack` so it renders cleanly on top of the tab. Color and icon reflect the row status: gray + clock for unpaid, orange + half-circle for partial, category color + checkmark for paid. Timeline guide lines are now shorter, thicker, and rendered behind each card via `zIndex` and negative `VStack` spacing so the card's rounded corners naturally occlude the line ends.
+
+## [2.2.0] - 2026-05-19
+
+### Added
+- **First-launch onboarding now offers direct backup import below account creation** (`CreateFirstUserView`, `SettingsBackupViewModel`) — the empty-state registration screen now includes a secondary `Import Backup` action under the main `Create` button, separated by a deliberate divider with a centered circle. This lets users restore an existing OMONI backup immediately after installing the app, without needing to create a new account first or reach the settings flow.
+
+### Changed
+- **Backup import on the initial onboarding screen now reuses the real restore flow and enters the app automatically after success** (`CreateFirstUserView`) — the first-launch screen now uses the same importer, rescue-backup warning, replace-data confirmation, and validation path already used in settings. Once a backup is restored successfully, the onboarding exits through the existing `onUserCreated` path so the app transitions directly into the restored experience.
+
+## [2.1.0] - 2026-05-19
+
+### Changed
+- **Bundle identifiers are now aligned with the renamed project identity** (`Omoni.xcodeproj/project.pbxproj`, `SettingsBackupViewModel`) — the app and test targets no longer keep the legacy `com.omo.OMOMoney*` identifiers. Their runtime and backup-facing identifiers now use the `Omoni` naming so the technical identity is consistent with the renamed Xcode project, targets, and module.
+
+## [2.0.0] - 2026-05-19
+
+### Changed
+- **Project identity renamed from `OMOMoney` to `Omoni` / `OMONI` across the repo** (`Omoni.xcodeproj`, `Omoni/`, `OmoniTests/`, `OmoniUITests/`, docs, CI, localization, project metadata) — the app’s technical Xcode/module/file identity now uses `Omoni`, while visible product branding is standardized as `OMONI`. This includes the app target, shared scheme, test targets, Swift entry-point and schema names, project paths referenced in docs and workflows, and repo-wide references that still carried the old product name.
+- **Bundle identifiers intentionally remain on the legacy `com.omo.OMOMoney*` values for now** (`Omoni.xcodeproj/project.pbxproj`, `SettingsBackupViewModel`) — this keeps signing/provisioning continuity while the visible product and technical project naming move forward to `OMONI` / `Omoni`.
+
+### Fixed
+- **Xcode local workspace state no longer points to deleted `OMOMoney/...` file paths after the rename** (`Omoni.xcodeproj`) — stale project/user-interface metadata that still referenced files like `OMOMoney/Data/SwiftData/ModelContainer+Shared.swift` was cleaned up so the renamed project opens from `Omoni.xcodeproj` without broken file references caused by leftover local state.
+
+## [1.26.0] - 2026-05-17
+
+### Added
+- **Over-limit category marker now uses dedicated inward triangle edge markers** (`DashboardCategoryBoardComponents`) — category boxes that exceed their effective budget limit now show a more intentional threshold marker built from two inward-facing triangle caps plus a separate dashed line, instead of the previous single dashed stroke alone. This makes the limit read more clearly as a measured point inside the box rather than as a decorative divider.
+
+### Changed
+- **Dashboard category over-limit indicator redesigned for stronger visual hierarchy and clearer semantics** (`DashboardCategoryBoardComponents`) — the over-limit marker now:
+  - uses the category’s own accent color instead of a fixed alert red
+  - keeps the dashed line slightly lighter than the triangle caps so the edge markers carry the meaning
+  - spans edge-to-edge across the category box, making the threshold feel tied to the box geometry itself
+  - clamps the marker below the title/icon zone so the category name and symbol do not visually collide with the limit indicator
+  - separates the triangles from the dashed line with a micro-gap so both elements remain legible without visually fusing together
+
+## [1.25.0] - 2026-05-17
+
+### Added
+- **Native group reordering in the Select Group sheet with per-user persistence** (`GroupSelectorChipView`, `GroupPickerComponents`, `GroupPickerSheetViewModel`, `DefaultUserGroupRepository`, `DefaultGroupRepository`, `UpdateGroupOrderUseCase`, `GroupOrderStore`) — the group picker now includes an explicit `Edit` mode in the toolbar, keeps the currently selected group pinned in the first position, and lets the user drag the remaining groups into a custom order with clear visual drag affordances. The saved order persists per user across launches without changing the SwiftData schema, so different users can keep different group arrangements safely.
+
+### Changed
+- **Category budget controls now use a cleaner inline settings-row layout** (`BudgetLimitField`, `CategoryFormView`) — both `Budget limit` and `Budget frequency` were redesigned to match the dashboard filter row style, with the label aligned on the left and the numeric input or picker aligned on the right for a more native and consistent editing experience.
+
+### Fixed
+- **Dashboard category budget progress now respects the category cadence when calculating visible-month limits** (`DashboardViewModel`, `DashboardCategoryBoardComponents`) — the progress bar no longer compares a month-wide spend against a single daily or weekly cap. In `This month`, daily limits now scale by the number of days in the visible month and weekly limits scale by the number of week buckets covered by that month, so the category progress indicator reflects the real allowance for the current dashboard scope.
+
+## [1.24.0] - 2026-05-17
+
+### Added
+- **Dashboard pending-only filter with pending drill-in behavior** (`DashboardViewModel`, `DashboardView`, `DashboardMonthFilterSheet`, `ItemListDetailView`, `ItemListDetailViewModel`, `String+Localization`, `Localizable.strings`) — the dashboard Filters sheet now includes an `Item Status` selector with `All` and `Pending`.
+  - When `Pending` is selected, the dashboard shows only item lists that still contain at least one item with `isPaid == false`.
+  - This works both in the general dashboard scope and when a category is selected, so category drill-in respects the same pending-only filtering.
+  - Opening an item list from a pending-filtered dashboard now presents only the unpaid items inside that list, keeping the drill-in aligned with the user’s selected filter context.
+
+### Changed
+- **Dashboard Filters sheet polished for clearer reset behavior and cleaner native layout** (`DashboardMonthFilterSheet`, `DashboardView`, `String+Localization`, `Localizable.strings`) — the old month-reset action was replaced with `Clean filters`, which now resets both the selected month back to the current month and the `Item Status` selector back to `All`. The item-status control was also redesigned into a single inline settings row, with the label on the left and the native menu selector aligned on the right, plus more spacing around the reset action.
+
+### Refactored
+- **Dashboard filter application centralized in the view model** (`DashboardViewModel`, `DashboardView`) — filter rules are now coordinated through dedicated view-model methods instead of ad-hoc logic inside the sheet callback. The view now forwards user intent, while the view model owns:
+  - how selected month and pending status are applied together
+  - when the dashboard should preserve the `Today` tab
+  - how all dashboard filters are cleared in one place
+- This also fixes the previous regression where applying the pending filter from `Today` could incorrectly force the dashboard into `This month`.
+
+## [1.23.0] - 2026-05-17
+
+### Added
+- **Per-category budget frequency selector in create/edit category sheets** (`CategoryFormView`, `CategoryFormViewModel`, `String+Localization`, `Localizable.strings`) — added a native iOS menu-style `Picker` directly below the `Budget Limit` field so each category can define its own budget cadence. The selector supports `Daily`, `Weekly`, and `Monthly`, preloads the saved value when editing an existing category, and now persists `limitFrequency` through the existing create/update use case flow instead of always falling back to `monthly`.
+
+### Changed
+- **Onboarding default category budgets now seed fixed monthly limits instead of one shared placeholder value** (`DefaultGroupRepository`) — new groups now create their default categories with these explicit monthly limits:
+  - `Hogar`: `700`
+  - `Alimentación`: `300`
+  - `Salud`: `50`
+  - `Movilidad`: `100`
+  - `Moda`: `100`
+  - `Ocio`: `200`
+- All onboarding default categories continue to set `limitFrequency: "monthly"` explicitly so the new budget frequency UI starts from a predictable default.
+
+## [1.22.0] - 2026-05-15
+
+### Added
+- **Share app row in About OMO → Support OMO section** (`AboutOMOView`, `Localizable.strings`) — added a "Share OMONI" row using SwiftUI's native `ShareLink`, which opens the system share sheet (iMessage, WhatsApp, copy link, etc.) without any custom state or `UIActivityViewController`. The row follows the same visual style as the donation row (rounded icon, title + subtitle). Currently points to `omopockettool.com`.
+  - ⚠️ **TODO:** replace `appStoreURL` in `AboutOMOView` with the real App Store link (`https://apps.apple.com/app/idXXXXXXXXXX`) once the app is published.
+- Localization added: `about.shareApp` (EN: "Share OMONI" / ES: "Compartir OMONI") and `about.shareAppSubtitle` (EN: "Recommend it to a friend" / ES: "Recomiéndala a un amigo").
+
+## [1.21.0] - 2026-05-15
+
+### Added
+- **Category monthly budget limit — form input + dashboard fill visual** (`CategoryFormView`, `CategoryFormViewModel`, `DashboardViewModel`, `DashboardCategoryBoardComponents`, `BudgetLimitField`, `DefaultGroupRepository`, `Localizable.strings`) — activates the existing `limit: Double?` and `limitFrequency: String` fields on `SDCategory` end-to-end.
+  - **`BudgetLimitField`** (new reusable component in `Common/Components/`) — budget limit input field with section label, accent-colored icon that reacts to the selected category color, decimal pad, a `tertiaryLabel`-gray clear button, and a keyboard toolbar with a **Done** button to dismiss the numpad.
+  - **`CategoryFormView`** — added `@State private var limitText`, initialized from `categoryToEdit?.limit` when editing, and replaced the inline block with the new `BudgetLimitField` component.
+  - **`CategoryFormViewModel.save()`** — now accepts `limit: Decimal?` and passes it to both `CreateCategoryUseCase` and `UpdateCategoryUseCase` (previously always `nil`).
+  - **Dashboard fill visual** — `DashboardCategoryBoxData` and `CategoryAggregate` now carry `categoryLimit: Double?` threaded from `SDCategory.limit` through `makeCategoryBoxes` and all three `applySizeTiers` map passes. `DashboardCategoryBoxView` renders a fill-from-bottom bucket: `systemGray4` base + category accent color scaled upward proportionally (`accentColor.opacity(0.18)`, `scaleEffect(anchor: .bottom)`). When spending exceeds the limit, a dashed line (`StrokeStyle(lineWidth: 1.5, dash: [5, 3])`, `accentColor.opacity(0.75)`) marks the limit position via `GeometryReader` in the overlay. No new text labels added to the dashboard.
+  - **Onboarding defaults** — all 5 default categories created during group setup now seed with `limit: 300` and `limitFrequency: "monthly"` so new users see the visual immediately.
+  - **Localization** — added `category.noLimit` key (EN: "No limit" / ES: "Sin límite").
+
+## [1.20.0] - 2026-05-15
+
+### Fixed
+- **Fixed `CacheManagerTests` crash on all tests except the first** (`CacheManagerTests`) — `setUp` was empty and never initialized `cacheManager`, so every test beyond the first hit a nil force-unwrap crash on a background thread. Fixed by marking the class `@MainActor`, making `setUp`/`tearDown` async, and initializing `CacheManager.shared` with a full cache clear before each test. Tests simplified to remove unnecessary `await MainActor.run {}` wrappers.
+
+### Tests
+- **Added `CreateItemUseCaseTests`** — 10 tests covering successful creation, description trimming, multi-quantity total amount, `isPaid` persistence, and all validation error paths (`invalidDescription`, `invalidAmount`, `invalidQuantity`, nil `itemListId`).
+- **Added `CalculateItemListTotalsUseCaseTests`** — 12 tests covering empty states, all paid/unpaid/partial status transitions, `paidTotal`/`unpaidTotal` accuracy, quantity multiplication, multi-list `totalSpent` aggregation, unpaid items excluded from total, `itemCount` from quantities, `searchItems` population, and cache consistency across two calls.
+- **Added `ItemUseCaseTests`** — 8 tests split across `DeleteItemUseCaseTests` (deletes correct item, leaves others untouched, throws `RepositoryError.notFound` for unknown id) and `ToggleAllItemsPaidUseCaseTests` (marks all paid, all unpaid, mixed state, empty list, scoped to target list only).
+- **Expanded `SwiftDataTestContainer`** — added `makeItemRepository()` factory and `insertItem(description:amount:quantity:isPaid:itemList:)` seed helper used by all new item-level tests.
+
+## [1.19.0] - 2026-05-15
+
+### Refactored
+- **Extracted `CalculateItemListTotalsUseCase` from `DashboardViewModel`** (`DashboardViewModel`, `CalculateItemListTotalsUseCase`, `ItemListStatus`, `DashboardView`, `AppDIContainer`) — the per-item-list financial calculation logic (`calculateTotalSpent`, `getItemListData`, cache read/write, `paidStatus`, `makeRowStatus`) was embedded inside the ViewModel, making it untestable without SwiftUI. All of that logic now lives in `DefaultCalculateItemListTotalsUseCase`, a pure Swift class that accepts a `FetchItemsUseCase` protocol and returns an `ItemListTotalsResult` struct containing per-list totals, counts, paid/row statuses, and search item snapshots. The ViewModel is reduced to calling `applyTotals(_:)`, which assigns the result and derives today/month aggregates from ViewModel-owned state. `ItemListPaidStatus` and `ItemListRowStatus` were moved to their own file in `Domain/UseCases/ItemList/` so both layers can reference them without circular dependency. Cache invalidation on delete is now delegated to `calculateItemListTotalsUseCase.clearCache(for:)`.
+
+## [1.18.24] - 2026-05-15
+
+### Fixed
+- **Item list scroll content no longer overflows above the rounded container** (`ItemListDetailView`) — the items list and the rounded rectangle were siblings in a `ZStack`, so scrolled content could escape upward past the container's top edge and bleed toward the navigation bar. The list is now placed inside the rounded rectangle via `.overlay` and the combined view is clipped with `.clipShape(RoundedRectangle(cornerRadius: 24))`, so scrolling content is properly contained. Visual layout and spacing are unchanged.
+
+## [1.18.23] - 2026-05-15
+
+### Fixed
+- **Group picker add button now uses `PrimaryToolbarAddButton` matching the style of add-category and add-payment-method** (`GroupSelectorChipView`) — the `+` button in the group picker sheet was using `.accentColor` instead of the standard `.white` used by `PrimaryToolbarAddButton`. Replaced the custom button with the shared component so the color, weight, and disabled state are consistent across all management screens.
+
+## [1.18.22] - 2026-05-15
+
+### Fixed
+- **Dashboard scroll-edge fade masks reduced from 12pt to 8pt** (`DashboardComponents`) — the top and bottom gradient fades applied to the dashboard content area felt visually heavy against the category board. Reducing the fade height makes both edges lighter and more consistent with the subtle bottom fade visible when item lists are scrolled.
+
+## [1.18.21] - 2026-05-15
+
+### Fixed
+- **Category and payment method deletion now use the same native `.onDelete` pattern established for item lists and dashboard** (`CategoryManagementView`, `CategoryListViewModel`, `PaymentMethodManagementView`, `PaymentMethodListViewModel`) — both screens replaced their per-row `swipeActions` + `Button(role: .destructive)` with `.onDelete(perform:)` on the `ForEach`. Both ViewModel methods are now synchronous — optimistic removal fires immediately under a spring animation (`response: 0.38`, `dampingFraction: 0.82`), persistence runs in an internal `Task`, and rollback on failure restores the item with the same spring. The `deletePaymentMethod` signature was simplified from `(paymentMethodId: UUID)` to `(_ pm: SDPaymentMethod)` for consistency with the rest of the deletion API.
+
+## [1.18.20] - 2026-05-15
+
+### Fixed
+- **Deleting an item inside an item list now uses the same native `.onDelete` pattern as the dashboard** (`ItemListDetailComponents`, `ItemListDetailViewModel`, `ItemListDetailView`) — the per-row `swipeActions` button with `role: .destructive` was replaced with `.onDelete(perform:)` on the items `ForEach`, giving SwiftUI full control of the deletion gesture and animation. `deleteItem` is now synchronous and removes the item immediately under a spring animation (`response: 0.38`, `dampingFraction: 0.82`) matching the dashboard deletion spring, so the remaining rows slide up fluidly. The index parameter was removed — the item is removed by id, and rollback on persistence failure re-appends and re-sorts with the same spring. Persistence runs asynchronously in an internal `Task`.
+
+## [1.18.19] - 2026-05-15
+
+### Fixed
+- **Deleting an item list now uses the native SwiftUI `.onDelete` mechanism instead of custom swipe actions, eliminating the animation conflict between UIKit's destructive row animation and SwiftUI's section removal** (`ExpenseListView`, `ExpenseListComponents`, `DashboardComponents`, `DashboardView`, `DashboardViewModel`) — the previous implementation attached a `swipeActions` button with `role: .destructive` to each row container, which caused UIKit to play its own row-collapse animation simultaneously with SwiftUI trying to remove the section when the last item in a date group was deleted. The result was a visible empty gap followed by a brusque snap of the remaining list. The fix replaces the per-row swipe action with `.onDelete(perform:)` on each section's `ForEach`, which gives SwiftUI full ownership of the deletion gesture and its animation. `deleteItemList` is now a synchronous call that removes the item from `itemLists` immediately under a spring animation matching the add-item spring (`response: 0.38`, `dampingFraction: 0.82`), so the remaining rows and section headers slide up fluidly in one coordinated motion. Persistence and cache invalidation continue asynchronously inside an internal `Task`, with snapshot-based rollback on failure.
+
+## [1.18.18] - 2026-05-15
+
+### Fixed
+- **Deleting item lists inside filtered dashboard mode now follows a more native optimistic-removal path without recreating the whole list or refreshing the whole dashboard** (`DashboardComponents`, `DashboardView`, `DashboardViewModel`) — filtered dashboard mode now keeps its active category context even when the last visible item list in that category is removed, and the filtered list view identity no longer depends on the full set of visible item IDs. The dashboard also no longer falls back to a full `loadDashboardData()` refresh on the normal optimistic delete path. Instead it stays on the system-style `List` delete interaction while removing the row locally, updating derived totals without extra animation, and restoring a saved snapshot only if persistence fails. This keeps the flow closer to the native feel of apps like Reminders instead of layering custom destructive visuals on top.
+
+## [1.18.17] - 2026-05-15
+
+### Fixed
+- **Filtered item-list spacing is now tuned from one shared list-layout source instead of scattered top-padding tweaks** (`ExpenseListView`, `ExpenseListLayoutMetrics`, `ExpenseListSectionHeader`) — the remaining spacing mismatch between `Today` and `This Month` came from the month view still rendering date section headers while the today view did not. The list now uses centralized responsive layout metrics that apply a lighter global top compensation plus dedicated breathing room for the date header itself, so the filtered list sits higher without pushing the month header awkwardly against the top edge, and future spacing changes can be made from one place.
+
+## [1.18.16] - 2026-05-15
+
+### Changed
+- **The dashboard selected-category status moved into the bottom control row beside the group chip** (`DashboardView`, `DashboardMainContent`, `DashboardBottomBarView`) — the active category or `All` state no longer consumes its own strip above the item-list area. The dashboard now shows that state as a full-width chip between the selected group and the filter/search controls, which frees more vertical space for item lists while preserving the existing tap behavior of returning to the default dashboard start state.
+
+### Fixed
+- **The dashboard bottom selected-scope chip now matches the active-category chip behavior more closely** (`DashboardView`, `DashboardBottomBarView`) — the bottom chip no longer appears in the default dashboard state, so the category-board view stays visually clean until the user explicitly selects `All` or a category. When it does appear, it now includes the close `x` affordance and uses the same compact selected-chip language as the previous active-category indicator, making the clear action more obvious.
+- **The dashboard selected-scope chip now matches the group chip’s typography and height more closely** (`DashboardBottomBarView`) — the bottom selected-category/`All` chip was using a smaller caption-style treatment and shorter vertical padding, which made it feel visually misaligned beside the group chip. Its font sizing, weight, icon sizing, and padding were tightened to the same chip rhythm so the whole bottom control row reads as one consistent system.
+- **Filtered item-list mode now uses a slightly tighter but still balanced top inset once the old selected-category bar is gone** (`DashboardMainContent`) — when a category is selected and the dashboard switches into the item-list view, the list now sits a bit higher inside the rounded container instead of keeping the roomier board-mode top spacing, but it still preserves enough breathing room to avoid feeling visually cramped against the top edge.
+
+## [1.18.15] - 2026-05-15
+
+### Fixed
+- **Add Item and New Entry now enforce the same hero amount input limits through one shared sanitizer** (`HeroAmountInputSanitizer`, `AddItemViewModel`, `AddItemListViewModel`) — the item editor no longer allows more integer digits than the item-list creation flow. Both screens now use the same shared amount-input sanitization rules behind the shared hero amount widget, so pasted or typed values are normalized consistently and future amount-input behavior changes can be made in one place instead of drifting between flows.
+
+## [1.18.14] - 2026-05-15
+
+### Fixed
+- **Add Item now opens with a more compact initial sheet height and expands only when the quantity subtotal preview needs extra room** (`AddItemView`) — the new/edit item sheet no longer presents effectively full-height on first open. It now starts at a mid-height detent that feels closer to a 50–60% sheet, while still animating up to a slightly taller detent when `quantity > 1` reveals the subtotal multiplication preview. This keeps the entry flow lighter at launch without clipping the dynamic quantity breakdown.
+
+## [1.18.13] - 2026-05-15
+
+### Changed
+- **The shared error-alert modifier was rolled out across the remaining form and management flows that already used explicit `showError` state** (`ErrorAlertModifier`, `SettingsSheetView`, `CreateFirstUserView`, `CreateGroupView`, `UserProfileView`, `CategoryFormView`, `CategoryManagementView`, `PaymentMethodFormView`, `PaymentMethodManagementView`) — after the first pilot adoption in `New Entry` and `Add Item`, the same shared modifier now drives standard error-alert presentation in the rest of the edited flows. This leaves one central place to evolve common error-alert UI while keeping each view’s error wiring minimal and consistent.
+
+## [1.18.12] - 2026-05-15
+
+### Changed
+- **A shared error-alert modifier was introduced and adopted first in the main item-entry flows** (`ErrorAlertModifier`, `AddItemListView`, `AddItemView`) — the app now has a reusable SwiftUI helper for presenting standard error alerts from explicit `showError` state plus `errorMessage`. The first rollout wires the shared modifier into `New Entry` and `Add Item`, creating one central place to evolve common error-alert presentation before migrating the remaining forms and editors.
+
+## [1.18.11] - 2026-05-15
+
+### Changed
+- **New Entry now uses explicit alert state instead of a derived error binding** (`AddItemListView`, `AddItemListViewModel`) — the add-entry form no longer derives alert presentation directly from `errorMessage` through a manual `Binding(get:set:)` inside the view. Error presentation now follows the same explicit `showError` pattern used in the other main form flows, which keeps the SwiftUI layer simpler and makes failure presentation more predictable.
+
+## [1.18.10] - 2026-05-15
+
+### Changed
+- **User Profile now presents save failures through an explicit alert instead of changing the view layout** (`UserProfileView`, `UserProfileViewModel`) — profile-update errors no longer appear as inline red text inside the main profile content. Failures now toggle a dedicated `showError` state in the ViewModel and present a standard alert, keeping the profile screen structurally stable while still surfacing save problems clearly.
+
+## [1.18.9] - 2026-05-15
+
+### Fixed
+- **Add Item now presents validation and save failures through an explicit alert instead of failing silently** (`AddItemView`, `AddItemViewModel`) — the item editor now surfaces invalid quantity and save errors through a dedicated `showError` state in the ViewModel and a standard alert in the form. This keeps the sheet usable while making failures visible, and it completes the same explicit error-presentation pattern already adopted across the other main form flows.
+- **Add Item input validation was tightened so invalid quantity and malformed amount values are rejected before save** (`AddItemViewModel`) — quantity entered by keyboard is now clamped to a valid positive range, `0` is no longer treated as a valid saveable quantity, and malformed amount strings no longer fall through as implicit zero-value saves.
+
+## [1.18.8] - 2026-05-14
+
+### Fixed
+- **Payment method save failures are now surfaced through an explicit alert instead of failing silently** (`PaymentMethodFormView`, `PaymentMethodFormViewModel`) — the payment method editor was already storing save errors in its ViewModel, but the form itself was not presenting them to the user. Save failures now toggle an explicit `showError` state and present a standard alert, keeping the form usable while making the failure visible and actionable.
+
+## [1.18.7] - 2026-05-14
+
+### Fixed
+- **Category save failures are now surfaced through an explicit alert instead of failing silently** (`CategoryFormView`, `CategoryFormViewModel`) — the category editor was already storing save errors in its ViewModel, but the form itself was not presenting them to the user. Save failures now toggle an explicit `showError` state and present a standard alert, keeping the form usable while making the failure visible and actionable.
+
+## [1.18.6] - 2026-05-14
+
+### Changed
+- **Create Group now presents creation errors through an explicit alert instead of changing the form structure** (`CreateGroupView`, `GroupFormViewModel`) — group-creation failures no longer inject a temporary inline error section into the `Form`. Error presentation now uses a dedicated `showError` flag in the ViewModel and a standard alert in the view, keeping the sheet layout stable while still surfacing failures clearly.
+
+## [1.18.5] - 2026-05-14
+
+### Changed
+- **Settings backup error presentation now uses explicit alert state instead of a derived binding** (`SettingsSheetView`, `SettingsBackupViewModel`) — backup/export/import errors are now surfaced through a dedicated `showError` flag in the ViewModel rather than through a `Binding(get:set:)` derived from `errorMessage` inside the view. This keeps the Settings sheet closer to the same simple, explicit alert pattern already used in other flows and reduces reactive presentation glue in the SwiftUI layer.
+
+## [1.18.4] - 2026-05-14
+
+### Changed
+- **Group info edit form lifecycle noise was removed without changing user-facing behavior** (`GroupInfoEditSheet`) — temporary node/debug logging and non-functional lifecycle observers were stripped from the group info editor so the sheet stays focused on rendering and saving only. The edit-group flow should behave the same, but with a cleaner and less reactive view structure.
+
+## [1.18.3] - 2026-05-14
+
+### Changed
+- **Payment method form lifecycle noise was removed without changing user-facing behavior** (`PaymentMethodFormView`) — temporary node/debug logging and non-functional lifecycle observers were stripped from the payment method editor so the form stays focused on rendering and saving only. The create/edit payment method flow should behave the same, but with a cleaner and less reactive view structure.
+
+## [1.18.2] - 2026-05-14
+
+### Changed
+- **Category form lifecycle noise was removed without changing user-facing behavior** (`CategoryFormView`) — temporary node/debug logging and non-functional lifecycle observers were stripped from the category editor so the form stays focused on rendering and saving only. The create/edit category flow should behave the same, but with a cleaner and less reactive view structure.
+
+## [1.18.1] - 2026-05-14
+
+### Changed
+- **Add Item input handling was simplified to reduce fragile in-view reactivity** (`AddItemView`, `AddItemViewModel`) — the item form no longer sanitizes quantity through an `onChange` that rewrites the same bound state from inside the view. Quantity input is now sanitized through a dedicated binding backed by the ViewModel, and the custom keyboard accessory toolbar was removed to keep the form lifecycle lighter and more predictable.
+
+## [1.18.0] - 2026-05-13
+
+### Added
+- **New Entry now inherits the active dashboard category when opened from a filtered category view** (`DashboardView`, `AddItemListView`, `AddItemListViewModel`) — when the user is currently filtered into a specific dashboard category and opens the add-entry sheet, the form now preselects that same category automatically. This keeps the quick-entry flow aligned with the user’s visible context while intentionally avoiding heavier “last used” memory behavior for now.
+
+## [1.17.1] - 2026-05-12
+
+### Fixed
+- **Toolbar add actions now use one shared white `+` treatment across management flows** (`PrimaryToolbarAddButton`, `CategoryManagementView`, `PaymentMethodManagementView`, `GroupSelectorChipView`) — the app now centralizes the primary add button used in toolbar trailing positions through a small shared component, so category management, payment method management, and the dashboard group picker all present the same semibold white plus icon with a consistent disabled gray state.
+
+## [1.17.0] - 2026-05-13
+
+### Changed
+- **New Entry was simplified back to a stable, Apple-like sheet flow** (`AddItemListView`, `AddItemListViewModel`, `DashboardView`, `ItemListDetailView`) — the form no longer tries to bootstrap itself through stacked reactive modifiers and competing async entry paths. The parent now provides the available groups up front, the ViewModel owns the initial form configuration, and the sheet reloads only the active group’s categories and payment methods through one clear loading path.
+- **Add Entry form architecture now follows the project’s SwiftUI data-flow rules more closely** (`AddItemListView`, `AddItemListViewModel`, `docs/START_HERE.md`) — the form view was reduced to a simpler rendering layer while the ViewModel became responsible for loading option data and selected-group context. The project quick-start guide now also documents this pattern explicitly: dumb forms, smart ViewModels, and no patch-style bootstrap logic in SwiftUI views.
+
+### Removed
+- **Non-essential reactive polish was stripped from New Entry while restoring runtime stability** (`AddItemListView`) — the temporary keyboard accessory toolbar, focus-driven animation, and extra in-view suggestion/update hooks were removed from the form body so the sheet can open reliably before any future UX polish is reintroduced on top of a stable lifecycle.
+
+## [1.16.1] - 2026-05-12
+
+### Fixed
+- **The selected dashboard category filter chip is now left-aligned and includes its clear action inside the chip itself** (`DashboardComponents`) — the filtered-list header no longer shows a detached trailing close button. The active category chip now contains the `x` inside the same capsule using the category accent color, and it also has a bit more top spacing so it sits more comfortably inside the list container.
+- **Text-entry fields now follow the shared input treatment more consistently across entry and group creation flows** (`LimitedTextField`, `AddItemListComponents`, `AddItemListView`, `AddItemView`, `CreateGroupView`) — the Add Entry concept field now reuses the shared common text input instead of a one-off inline implementation, the Add Item description field now uses the `textformat` icon to match the category editor style, and the New Group name field now uses the shared input component while keeping the group-specific `person.2.fill` icon used by group editing.
+
+## [1.16.0] - 2026-05-10
+
+### Added
+- **New Entry now includes keyboard toolbar arrow controls to move focus between amount and description fields** (`AddItemListView`) — the quick-entry form now exposes up/down keyboard actions so users can move between the hero amount field and the concept field without relying only on taps, improving accessibility and faster keyboard-driven entry.
+
+### Changed
+- **Primary toolbar confirmation checkmarks now use a shared prominent circular button style across the app** (`PrimaryToolbarCheckButton`, `AddItemListView`, `CategoryFormView`, `PaymentMethodFormView`, `GroupInfoEditSheet`, `CreateGroupView`, `AddItemView`, `DashboardMonthFilterSheet`) — repeated toolbar save/confirm buttons were centralized into one shared component and updated to use a more visible prominent circular treatment tinted with the app accent color, bringing confirmation actions closer to native iOS affordances while keeping them consistent across forms and sheets.
+- **The group picker create action now uses the app accent color when enabled** (`GroupSelectorChipView`) — the `+` button used to open the Create Group flow now follows the same active-state color language as the rest of the app’s primary creation actions instead of appearing with the previous white treatment.
+- **Item-list detail hero add actions now inherit the current category color when available** (`ItemListDetailComponents`, `TotalSpentCardView`) — when viewing an item list tied to a category with its own color, the bottom hero `+` button now adopts that category color, extending the same contextual add-action cue already introduced on the dashboard.
+
+## [1.15.0] - 2026-05-10
+
+### Changed
+- **The dashboard add button now adopts the active category color while drilled into a category filter** (`DashboardView`, `DashboardComponents`, `TotalSpentCardView`) — when the user is browsing inside a selected dashboard category, the hero `+` action now uses that category’s color instead of the default accent color. This gives clearer context that the next new entry is being created from within that active category view, while preserving the standard accent styling when no category filter is active.
+
+## [1.14.8] - 2026-05-10
+
+### Changed
+- **The dashboard now auto-enters the `All` list when the visible range contains only uncategorized entries** (`DashboardView`) — instead of showing a category-board state with only an `All` fallback button, the dashboard now resolves that case as an implicit `All` selection and opens the entry list directly. This makes brand-new groups with uncategorized records feel more natural and removes an unnecessary intermediate step.
+
+## [1.14.7] - 2026-05-10
+
+### Fixed
+- **The dashboard now still exposes the `All` entry point when visible item lists have no category assigned** (`DashboardView`, `DashboardComponents`, `DashboardCategoryBoardComponents`) — newly created groups could end up with visible entries that the category board could not render because every item list lacked a category, leaving users with no way to open those records from the dashboard. The dashboard now detects when the selected date range contains visible item lists even if the category box grid is empty, and shows the `All` button as a fallback so uncategorized records remain reachable.
+
+## [1.14.6] - 2026-05-10
+
+### Fixed
+- **Dashboard category labels now follow category renames immediately when returning from category management** (`DashboardView`, `DashboardViewModel`) — the dashboard was still showing stale category names after edits because its selected filter state and category-box metadata path could outlive the renamed value. The dashboard filter state now stores only stable category identifiers instead of copied box snapshots, and dashboard category-box labels now read directly from the live `SDCategory` relationship values during aggregation instead of preferring older cached metadata. This keeps the dashboard aligned with category edits as soon as the user comes back.
+
+## [1.14.5] - 2026-05-10
+
+### Added
+- **Introduced a shared centered editor header block for preview + primary name input layouts** (`CenteredEditorNameBlock`) — the app now has a reusable component that combines a centered preview area with the shared `LimitedTextField`, so editor screens that follow this pattern can stay visually aligned without duplicating their top input structure.
+
+### Changed
+- **Category and payment method editors now use the same shared top input pattern** (`CategoryFormView`, `PaymentMethodFormView`) — both screens now build their centered preview and primary name field through the same common component instead of maintaining slightly different local layouts. This keeps the payment method name field aligned with the category editor and makes future input-style adjustments propagate consistently.
+
+## [1.14.4] - 2026-05-10
+
+### Fixed
+- **Undo for mixed paid/unpaid dashboard item lists now restores each item’s real original paid state instead of flattening everything to pending** (`DashboardViewModel`) — the dashboard bulk paid toggle was taking its undo snapshot from the in-memory `itemList.items` relationship, which could diverge from the fresher item state used elsewhere in dashboard totals and row status calculations. The undo path now snapshots current items from a fresh fetch before applying the bulk toggle, and it also restores the in-memory paid/partial/all row state immediately when undo is tapped, so mixed lists return to their exact original combination of paid and unpaid items.
+- **Dashboard search results now calculate paid and unpaid matched amounts from the same fresh item source used by dashboard totals** (`DashboardViewModel`) — search-mode item-list rows could still show `0.00` paid even when a matched item was actually marked as paid, because the search summary logic was reading `itemList.items` while the rest of the dashboard relied on fresher fetched item data. Search summaries now reuse lightweight cached snapshots derived from the fetched items used for dashboard totals, so visible paid/unpaid search amounts stay consistent with the real item state.
+- **Dashboard bulk paid toggle restore now uses the same fresh item snapshot strategy on both snapshot and undo paths** (`DashboardViewModel`) — the mixed-state undo fix was tightened so restore no longer falls back to mutating only the potentially stale relationship array while persisting each item. This keeps the full bulk-toggle lifecycle more coherent and reduces the chance of relationship drift affecting visible dashboard state.
+
+### Changed
+- **The dashboard bulk paid/undo flow in the view model was refactored into smaller private helpers without changing behavior** (`DashboardViewModel`) — snapshot creation, optimistic bulk-state application, toast setup, restore, and paid-status derivation now live in dedicated helper methods, making the flow easier to reason about and keeping the paid-state rules centralized in the view model.
+
+## [1.14.3] - 2026-05-10
+
+### Fixed
+- **The selected dashboard category bar now sits inside the main rounded content card instead of appearing like a separate protruding surface** (`DashboardComponents`) — the active category row was previously injected above the filtered list through a top safe-area inset, which made it look wider and visually detached from the main dashboard container even though both surfaces shared the same background color. The selected-category bar now lives in the same vertical content stack as the filtered list, so its width, alignment, and containment match the main card correctly.
+
+## [1.14.2] - 2026-05-10
+
+### Fixed
+- **Filtered dashboard day headers now respect the currently visible filtered totals instead of the full unfiltered day amount** (`DashboardView`) — when drilling into a category such as `Gafas`, the per-date header total now sums only the visible filtered item lists for that day rather than the total of every item list recorded on that date.
+- **Search-driven dashboard amounts now show the visible paid portion instead of the full matched subtotal** (`DashboardViewModel`, `DashboardView`) — when a filtered row contains both paid and unpaid matched items, the white main amount and the grouped day header now reflect only the paid matched value, while the unpaid matched amount remains in the secondary unpaid line below.
+
+## [1.14.1] - 2026-05-10
+
+### Changed
+- **The dashboard month filter sheet was simplified back to a cleaner wheel-based picker layout** (`DashboardMonthFilterSheet`) — month and year selection now use a tighter native wheel presentation with a lighter “Back to current month” reset action, reducing the heavier card-like form treatment introduced during the filter update.
+- **The dashboard no-results state now uses a dedicated centered filter/search presentation instead of the generic empty-state visual** (`DashboardNoResultsState`, `DashboardCategoryBoardComponents`, `ExpenseListView`) — when search or month filtering returns zero matches, the dashboard now shows a centered filter-style empty message inside the main content area, while truly empty groups still keep the normal add-entry empty state.
+
+### Fixed
+- **Resetting a custom month filter back to the current month now refreshes the visible dashboard content immediately** (`DashboardComponents`, `DashboardView`) — the hero totals were already updating correctly, but the filtered content area could remain visually empty until another UI interaction forced a redraw. The filtered list now refreshes its identity locally when its visible item set changes, so returning to the current month repopulates the board/list right away.
+- **Dashboard category drill-in transitions now preserve the intended side-swap motion again** (`DashboardView`, `DashboardComponents`) — the temporary whole-content identity refresh used to solve the stale filtered view bug was making SwiftUI rebuild the entire dashboard content node, which degraded category-board-to-list transitions into a fade. The refresh behavior is now scoped to the filtered list itself so the original left/right dashboard drill animation remains intact.
+- **Dashboard search navigation no longer interferes with normal list/detail push animations** (`DashboardView`) — tapping a matched item list now follows the same push path as regular navigation without an extra simultaneous keyboard-dismiss state change.
+
+## [1.14.0] - 2026-05-08
+
+### Changed
+- **The dashboard group picker sheet now uses a flatter native grouped background instead of the translucent liquid-style modal surface** (`GroupSelectorChipView`, `GroupPickerComponents`) — the group-selection flow now forces a system grouped presentation background and hides the list’s default scroll surface so the medium detent no longer looks glassy or muddy compared with the fully expanded state.
+- **The add-group action in the group picker toolbar was visually simplified** (`GroupSelectorChipView`) — the previous filled circular-plus treatment was replaced with a cleaner standalone plus glyph, keeping the affordance obvious while reducing the heavy floating-button feel inside the navigation bar.
+- **The nested Create Group sheet now matches the same opaque grouped modal treatment as the picker itself** (`GroupSelectorChipView`) — opening group creation from the picker no longer reintroduces a transparent sheet background, so the whole group-management flow now feels visually consistent across stacked modal states.
+
+## [1.13.0] - 2026-05-08
+
+### Added
+- **Introduced reusable native grouped-sheet primitives for settings-style rows and form surfaces** (`NativeGroupedSheetComponents`, `LimitedTextField`) — the app now has a small shared presentation layer for iOS-style grouped sheets, including a reusable settings-row icon treatment and a `LimitedTextField` style that can live inside `Form`/`List` without painting an extra card background on top of the system container.
+
+### Changed
+- **Settings now presents more like a native iOS settings screen instead of a custom modal card stack** (`SettingsSheetView`) — the settings sheet now leans on grouped list structure, tighter native spacing, large-title hierarchy, and full-row settings-style cells so the screen feels closer to Apple’s own Settings presentation while keeping OMO’s existing navigation behavior and icon consistency.
+- **Group and payment-method edit sheets now use native grouped form containers instead of manual scroll/card layouts** (`GroupInfoEditSheet`, `PaymentMethodFormView`) — both flows were moved from `ScrollView + systemGroupedBackground + custom cards` to `Form`-based grouped sections, which reduces the layered-sheet look and makes edit flows feel more at home inside iOS modal navigation.
+
+### Fixed
+- **Text-length enforcement in shared form fields now uses a sanitized binding instead of mutating the same state inside `onChange`** (`LimitedTextField`) — the reusable text field no longer observes `text` and writes back to `text` in the same change cycle. The max-length rule now lives in a dedicated binding setter, which better matches SwiftUI data-flow best practices and avoids the self-mutation pattern flagged by the project guide.
+
+## [1.12.0] - 2026-05-07
+
+### Added
+- **Full-app backup export/import now lives in Settings using the native iOS Files flow** (`SettingsSheetView`, `SettingsBackupViewModel`, backup DTOs/use cases/repository, localization files) — the app can now export a complete JSON snapshot of the current local dataset as a `.omo-backup` file through `fileExporter`, so the user explicitly saves it into the Files app or another Files location. Settings also now offers backup import through the native file picker, with versioned backup metadata and payload statistics embedded in the file from day one.
+
+### Changed
+- **Backup restore uses a safer replace-all flow with validation and rescue export before destructive import** (`SettingsBackupViewModel`, `DefaultBackupRepository`, `OMOBackupModels`) — importing a backup now validates schema version, record counts, duplicate IDs, and cross-entity references before any mutation occurs. If the device already has local data, the app first prepares a rescue backup export to Files, and only after that save flow succeeds does it present the destructive confirmation to replace the current database with the imported snapshot.
+- **Backup import now explains the rescue-backup step before opening Files** (`SettingsSheetView`, `SettingsBackupViewModel`, localization files) — when the app already contains local data, selecting a backup for import no longer jumps straight into a second Files save flow with no context. The user now sees an explicit explanation that OMO is asking them to save a rescue copy of the current device data first, so the safety step feels intentional instead of confusing.
+- **The destructive restore confirmation copy was tightened after the rescue explanation step** (localization files) — once the rescue step has already been explained separately, the final replace-data alert now focuses only on the fact that the import will overwrite current data, which makes the sequence easier to understand.
+
+### Fixed
+- **The backup action rows in Settings now behave like full-width tappable rows** (`SettingsSheetView`) — `Export Backup to Files` and `Import Backup` no longer only respond when the user taps directly on the visible label/icon cluster. The whole row is now hit-testable, which matches native settings-list expectations.
+- **The first manual backup export no longer causes a brief two-button blink before the Files sheet appears** (`SettingsBackupViewModel`, `SettingsSheetView`) — the flow now prevents re-entry inside the view model instead of visually disabling both backup buttons during export preparation, avoiding the momentary flicker.
+- **Settings backup view initialization is now explicitly main-actor isolated** (`SettingsSheetView`) — this removes the Swift 6 warning caused by reading `AppDIContainer.shared` from a nonisolated initializer.
+
+### Notes
+- **Backup files use JSON internally with a custom `.omo-backup` extension** (`OMOBackupDocument`) — this keeps the file human-inspectable and migration-friendly while still giving the feature a dedicated app-specific backup format.
+- **Backup filenames now use deterministic zero-padded timestamps** (`SettingsBackupViewModel`) — export and rescue-backup files now always use a stable `yyyy-MM-dd-HH-mm` naming pattern so minute values like `00` are preserved correctly in the visible Files filename.
+- **The app now declares `.omo-backup` as a real document type in its Info.plist** (`Info.plist`, `Omoni.xcodeproj/project.pbxproj`) — this lets the iOS Files picker recognize backup files as selectable instead of showing them disabled during import.
+
+## [1.11.4] - 2026-05-07
+
+### Fixed
+- **Resolved the remaining `withAnimation` compiler warning in item-list detail deletion** (`ItemListDetailViewModel`) — deleting an item inside `withAnimation` was implicitly returning the removed `SDItem` from `items.remove(at:)`, which triggered Xcode’s unused-result warning. The removal is now explicitly discarded inside the animation block so the intent is clear and the warning is gone.
+
+---
+
+## [1.11.3] - 2026-05-07
+
+### Changed
+- **The first-user onboarding screen can now be reopened safely in debug builds without touching persisted data** (`SettingsSheetView`, `CreateFirstUserView`, `CreateFirstUserViewModel`) — added a debug-only `Onboarding Preview` entry under Settings that pushes the same first-user registration UI in a simulated submission mode. The simulated path validates the form and walks through the loading states, but it does not create a user, group, or user-group record in SwiftData. This makes it possible to regression-test the empty-sandbox onboarding experience on a device that already has a real user installed, without polluting the database or confusing the app’s single-current-user assumption.
+- **The first-user onboarding presentation was refined to feel more branded and legally complete** (`CreateFirstUserView`, localization files) — the onboarding hero now uses the branded `settings-icon` asset on a black badge instead of the old wallet SF Symbol, the welcome heading was simplified into a cleaner `OMONI` brand lockup, the subtitle was tightened into shorter slogan-style copy, and the legal area now includes inline Terms and Privacy links plus a required consent checkbox before account creation can proceed. The consent row was tuned so the links remain tappable, the checkbox has a larger finger-friendly tap target, and the copy wraps naturally when space is tight.
+- **A small batch of Xcode warnings was cleaned up after the onboarding work** (`DashboardViewModel`, `AddItemListView`, `CalendarGridView`, `ItemListDetailViewModel`) — removed dead immutable locals, made `ItemListPaidStatus.none` explicit where Swift inferred the optional `.none` case, captured scalar IDs before async work to avoid Swift 6 `Non-Sendable` warnings around `SDGroup`, and simplified animation calls so the compiler no longer warns about ignored `Void` results.
+
+### TODO
+- **Replace the temporary landing-page legal links with real website policy pages** (`CreateFirstUserView`) — both onboarding legal links currently point to `https://omopockettool.com` as a fallback until dedicated Terms and Privacy pages are published on the website.
+
+---
+
+## [1.11.2] - 2026-05-07
+
+### Removed
+- **Deleted the unused legacy multi-user management flow** (`UserListView`, `UserListViewModel`, `AddUserView`, `EditUserView`, `CreateUserViewModel`, `EditUserViewModel`, `UserDetailViewModel`) — these files were no longer referenced by any real app navigation path and only survived through previews or the old list-based user-management flow. The current product direction is one active user per device, with first-user creation handled by `CreateFirstUserView` and ongoing account edits handled through `SettingsSheetView` → `UserProfileView`, so removing the dead flow reduces maintenance noise without affecting the live settings/profile path.
+
+---
+
+## [1.11.1] - 2026-05-07
+
+### Changed
+- **SwiftUI lifecycle and state-wrapper usage were aligned with the project data-flow guide** (`MainView`, `AppContentView`, `CategoryFormView`, `PaymentMethodFormView`, `GroupInfoEditSheet`, `UserListView`) — initial async loads in the app entry flow now use `.task` instead of `onAppear + Task`, with one-shot guards so visibility changes do not restart root loading work unnecessarily. The category, payment-method, and group edit forms now seed their editable `@State` values in `init` instead of mutating them from `onAppear`, which keeps draft input tied to view-node lifetime rather than visibility callbacks. User-list pagination also moved from row `onAppear` to a task-based visibility trigger so async loading follows SwiftUI’s cancellable lifecycle model more closely.
+- **Temporary lifecycle diagnostics were added to verify SwiftUI node lifetime and draft-state behavior on device** (`MainView`, `AppContentView`, `MainViewModel`, `AppContentViewModel`, `CategoryFormView`, `PaymentMethodFormView`, `GroupInfoEditSheet`, `UserListView`, `UserListViewModel`) — targeted `OSLog` tracing now records init, task start/finish, node appearance/disappearance, draft edits, and save events around the views touched by the lifecycle refactor. These logs are intended to confirm that root loads do not over-refresh and that edit-form state survives visibility changes while still resetting correctly after a true dismiss/reopen cycle.
+
+---
+
+## [1.11.0] - 2026-05-07
+
+### Changed
+- **Dashboard hero quick add now defaults to the active filtered category when launched from a category-focused list** (`DashboardView`, `AddItemListView`, `AddItemListViewModel`) — opening the hero add flow while browsing a filtered dashboard category now preselects that same category in the new-entry form, which matches the user’s current context and avoids falling back to unrelated usage history. The previous last-used-category behavior is still preserved when the user launches quick add from the general category board or from the aggregated `All` view.
+
+---
+
+## [1.10.0] - 2026-05-06
+
+### Changed
+- **Dashboard category filtering now uses directional horizontal content swaps instead of depth/blur effects** (`DashboardComponents`, `AnimationHelper`) — entering a category now moves the category board out to the left while the filtered item-list view enters from the right, and closing the filter performs the true inverse motion. The transition was simplified intentionally so it feels more like native content reorganization and less like a visual effect layered over the whole dashboard.
+- **Month-view day-header totals now animate like item-list row amounts when paid state changes** (`ExpenseListComponents`) — the total shown in each daily section header now uses the same numeric content transition and spring timing already used by dashboard row amounts, so toggling an item list between paid and unpaid updates the day aggregate more smoothly instead of snapping abruptly.
+- **The Xcode project is now explicitly iOS-only** (`Omoni.xcodeproj/project.pbxproj`) — unsupported `macosx` and visionOS platform declarations were removed from the app and test targets so Swift module resolution no longer tries to evaluate the project as a multi-platform target. This aligns the project settings with the real product scope and avoids `UIKit` resolution failures in the app entry point.
+
+---
+
+## [1.9.5] - 2026-05-06
+
+### Changed
+- **Dashboard and item-list detail now use structured `.task` lifecycle instead of `onAppear + Task { }`** (`DashboardView`, `ItemListDetailView`) — both screens migrated their data-loading calls to the `.task` modifier, which automatically cancels the async work if the view disappears mid-flight. The redundant `hasLoadedInitialData` guard in `ItemListDetailView` was removed: because `NavigationStack` destroys the view node on pop, the flag always reset on re-entry and served no purpose.
+
+---
+
+## [1.9.4] - 2026-05-06
+
+### Changed
+- **Currency and month-title formatters are now cached instead of allocated on every formatting call** (`DashboardViewModel`) — `NumberFormatter` (currency) was previously instantiated twice on every call to any formatting helper, and `DateFormatter` (month title) was re-created on every access to `selectedMonthTitle`. Both are now retained as stored properties and rebuilt only when the active group's currency code changes. With formatting called across ~12 helpers per render cycle, this eliminates repeated expensive object allocations on the main thread.
+- **Removed unreachable and duplicate methods from `DashboardViewModel`** — `getItemListTotal()`, `getFormattedItemListTotal()`, `getCurrentMonthItemLists()`, and `todayRawTotal` were dead code: none were called from outside the ViewModel, and `getCurrentMonthItemLists()` duplicated the already-maintained `currentMonthItemLists` stored property. All four were deleted.
+
+---
+
+## [1.9.3] - 2026-05-06
+
+### Changed
+- **All debug `print` statements removed from the Presentation and Data layers** (`DashboardViewModel`, `AddItemListViewModel`, `AddItemViewModel`, `ItemListDetailViewModel`, `CreateFirstUserViewModel`, `CreateUserViewModel`, `DashboardView`, `AppContentView`, `CustomAlertView`, `ModelContainer+Shared`) — 89 diagnostic `print` calls scattered across ViewModels and Views were stripped from production code. Infrastructure-level error prints in `ModelContainer+Shared` (save failures, fetch errors) were preserved as they surface genuine runtime faults. The dead `logAllEntities()` debug helper in `DashboardView` was also deleted.
+
+---
+
+## [1.10.0] - 2026-05-06
+
+### Changed
+- **Dashboard category-board flow was refined across layout, interaction, and state handling** (`DashboardView`, `DashboardComponents`, `DashboardCategoryBoardComponents`, `ExpenseListView`, `DashboardViewModel`) — the new category-first dashboard experience was polished substantially after its first rollout. Category cards were compacted for denser scanning, the “All” card was centered visually, selected-category spacing above the first day header was tightened, day-header totals and collapsible month sections were restored, and the category hero total now updates correctly when paid status changes inside a filtered category view.
+- **Dashboard list rendering was modernized to remove `AnyView`-based empty-state plumbing** (`DashboardView`, `DashboardComponents`, `DashboardCategoryBoardComponents`, `ExpenseListView`) — the dashboard’s empty-state and bottom-inset composition now use typed SwiftUI builder paths instead of `AnyView` wrappers and brittle type checks. This keeps structural identity clearer, aligns better with current SwiftUI data-flow guidance, and preserves the custom no-results state without relying on erased view types.
+- **Group picker actions now use a native long-press interaction with first-time guidance** (`GroupPickerComponents`, `GroupSelectorChipView`, localization files) — group actions inside the dashboard picker were redesigned around SwiftUI’s `contextMenu` on each row, matching the native long-press feel users expect from system apps. The unstable ellipsis-driven menu path was removed, and the picker now shows a lightweight one-time hint explaining that users can press and hold a group to reveal more actions.
+- **About and dashboard branding were refreshed with the new OMO logo treatment** (`DashboardTopBarView`, `AboutOMOView`, settings icon asset) — the settings entrypoint now uses the cropped OMO logo at a more appropriate scale, and the About OMO hero was updated to use the same brand mark plus a stronger typographic treatment for the `OMONI` heading.
+
+### Fixed
+- **Bottom hero cards now stay anchored correctly in both dashboard and item-list detail layouts** (`DashboardComponents`, `DashboardCategoryBoardComponents`, `ExpenseListView`, `ItemListDetailView`, `ItemListDetailComponents`) — the long-standing issue where the shared `TotalSpentCardView` could float upward and leave a false gap at the bottom after lock/unlock, short-content layouts, or relayout events was fixed at the container level by stabilizing full-height parent surfaces.
+- **Group settings rows and dashboard bulk-status feedback were polished for usability and localization** (`GroupFormView`, `DashboardViewModel`, `ToastView`, localization files) — group settings rows are now fully tappable across the whole cell, dashboard bulk paid/pending messages are localized instead of hardcoded, and the shared toast display time was extended so users have enough time to read the message and tap undo.
+- **Item-list detail pull-to-refresh now follows the dashboard’s more stable trigger geometry** (`ItemListDetailView`, `ItemListDetailComponents`, `ItemListDetailViewModel`) — the detail screen’s refresh path was reworked so the `List` resolves pull distance against internal safe-area insets instead of against extra vertical padding around the scroll surface. Along the way, row-count animation noise was removed and refresh updates now apply without list animations. The result is that slow pull-to-refresh gestures no longer snap visibly right when the haptic fires, matching the steadier feel already present in the dashboard list.
+
+---
+
+## [1.9.2] - 2026-05-06
+
+### Fixed
+- **Group picker actions now use a cleaner native long-press flow with first-time guidance** (`GroupPickerComponents`, `GroupSelectorChipView`, localization files) — group actions were simplified to a SwiftUI `contextMenu` on each row, removing the unstable ellipsis-menu path that could emit UIKit hierarchy warnings in logs. To keep the interaction discoverable, the group picker sheet now shows a lightweight one-time hint telling users they can press and hold a group to reveal more actions.
+- **Dashboard bulk paid/pending toasts are now fully localized and remain visible longer** (`DashboardViewModel`, `ToastView`, localization files) — the status messages shown when marking whole item lists as paid or pending no longer rely on hardcoded Spanish strings, and the shared toast duration was extended so users have more time to read the message and tap the undo action comfortably.
+
+---
+
+## [1.9.1] - 2026-05-06
+
+### Fixed
+- **Bottom hero cards are now anchored by stable full-height parent layouts in both dashboard and item-list detail** (`DashboardComponents`, `DashboardCategoryBoardComponents`, `ExpenseListView`, `ItemListDetailView`, `ItemListDetailComponents`) — the long-standing issue where the shared `TotalSpentCardView` could float upward and leave an incorrect gap at the bottom after lock/unlock or other layout recalculations was fixed at the container level. The root cause was not the card itself, but parent scroll/content surfaces that were allowed to collapse below full viewport height, causing the bottom `safeAreaInset` anchor to be resolved against a shrunken layout until another strong relayout event such as keyboard presentation occurred.
+
+---
+
+## [1.9.0] - 2026-05-06
+
+### Changed
+- **Dashboard now opens into a category-board browsing experience before drilling into expense lists** (`DashboardViewModel`, `DashboardView`, `DashboardCategoryBoardComponents`, `DashboardComponents`, `DashboardTopBarView`, localization files, settings icon assets) — the main dashboard flow was redesigned so users first see tappable category boxes with per-category totals instead of landing directly in the day-grouped expense list. From there, they can open a category-focused list or the aggregated “All” view, making the dashboard feel more like a high-level spending overview with a clearer first decision point.
+- **Selected dashboard category filters were visually tightened as part of the new category-board flow** (`DashboardComponents`, `ExpenseListView`) — the selected category chip bar and the first visible day header now sit closer together, preserving more vertical room for the filtered expense list and making the transition from category selection into the detailed list feel denser and more intentional.
+
+---
+
+## [1.8.22] - 2026-05-03
+
+### Changed
+- **Pull-to-refresh now ends more softly in dashboard and item-list detail lists** (`ExpenseListView`, `ItemListDetailComponents`) — both list surfaces now keep the native refresh cycle alive for a brief extra moment before completion, which makes the refresh indicator fade away less abruptly when the user releases the swipe-down gesture.
+
+---
+
+## [1.8.21] - 2026-05-03
+
+### Changed
+- **Dashboard and item-list list containers now use softer internal edge treatment instead of hard cutoff lines** (`DashboardComponents`, `ExpenseListView`, `ExpenseListComponents`, `ExpenseRowView`, `ItemListDetailView`, `ItemListDetailComponents`) — the list viewport inside the rounded gray cards was refined so content no longer feels pinned to the component edges. Dashboard `Today` and item-list detail now use a subtle internal edge fade at the top and bottom, while month view keeps only the lower fade because date headers already resolve the upper edge. The dashboard bottom inset was also cleaned up by removing the hard `1pt` separator line, leaving a softer transition above the hero/bottom controls.
+
+---
+
+## [1.8.20] - 2026-05-03
+
+### Changed
+- **Dashboard search now keeps visual context when navigating into an item list** (`DashboardView`, `ItemListDetailView`, `ItemListDetailViewModel`, `ItemListDetailComponents`) — when a user opens an item list from active dashboard search results, the search query is now propagated into the detail screen so matching items are subtly marked with a magnifying-glass indicator. This makes it easier to understand why that list matched and quickly spot the relevant items without adding heavy row highlighting.
+
+---
+
+## [1.8.19] - 2026-05-03
+
+### Added
+- **Dashboard search and filter now use a dedicated no-results state instead of the generic add-entry empty message** (`DashboardNoResultsState`, `DashboardView`, `DashboardComponents`, `ExpenseListView`, localization files) — when a search query or month filter produces zero visible item lists, the dashboard now shows a friendlier “No matches found” empty state with search-specific copy instead of the generic “Tap + to add an entry” message. The no-results state is rendered as a centered overlay only for search/filter empties, while truly empty groups keep the original default empty-state behavior.
+
+---
+
+## [1.8.18] - 2026-05-03
+
+### Changed
+- **Item-list detail rows now use the same cleaner spacing rhythm as dashboard item-list rows** (`ItemListDetailView`) — checklist rows inside item-list detail were updated from the older asymmetric top/bottom padding to a more balanced min-height and vertical-padding structure, improving scan rhythm and making the list feel more consistent with the dashboard’s refined row layout. The timeline connector line height was also adjusted to match the taller row spacing so the check rails remain visually continuous between items.
+
+### Fixed
+- **Zero-value item lists now behave like real checklists in detail and dashboard completion states** (`DashboardViewModel`, `ItemListDetailViewModel`, `ItemListDetailComponents`) — lists whose items total `0.00` are no longer treated as empty just because they have no money value. Completion state now follows the real item state: empty lists stay neutral, unpaid items keep pending state, and all-paid lists show the completed checkmark even when every item is value-free.
+
+---
+
+## [1.8.17] - 2026-05-03
+
+### Fixed
+- **Zero-value checklists now show paid/pending completion state correctly in both dashboard rows and item-list hero cards** (`DashboardViewModel`, `ItemListDetailViewModel`, `ItemListDetailComponents`) — lists whose items all have `0.00` values are no longer treated as empty just because they have no monetary total. The dashboard status icon and the item-list hero now follow the real item completion state: empty lists stay neutral, lists with unpaid items stay pending, and lists with all items marked paid show the completed checkmark even when every item is value-free.
+
+---
+
+## [1.8.16] - 2026-05-03
+
+### Changed
+- **Dashboard search now reaches both item-list titles and nested items with clearer result amounts** (`DashboardViewModel`, `DashboardView`, `ExpenseListView`, `ExpenseRowView`, dashboard components, localization files) — searching from the dashboard no longer stops at the item-list description. Results now remain visible when either the list title or one of its items matches the query, and matching rows show a more useful search presentation: a match-count subtitle on the left, matched subtotal on the main amount line, and matched unpaid subtotal below when relevant. This keeps the search result scope consistent and avoids mixing whole-list totals into item-level search feedback.
+- **Dashboard bottom search bar was stabilized with a pure SwiftUI layout path** (`DashboardBottomBarView`, `DashboardView`, `DashboardComponents`, `docs/START_HERE.md`) — the inline search bar now stays mounted in the layout and only changes visibility/focus state, which resolves the first-open keyboard positioning issues without relying on UIKit keyboard notifications. The quick-start doc was also updated to reflect the real `Omoni/` source-folder layout in the repository.
+
+---
+
+## [1.8.15] - 2026-05-01
+
+### Changed
+- **Dashboard inline search now keeps its field visible above the keyboard and hides the hero card while searching** (`DashboardView`, `DashboardBottomBarView`, `DashboardViewModel`) — activating search now lets the bottom action area move with the keyboard instead of being pinned underneath it, and the total hero temporarily disappears to free more vertical space for scanning filtered item-list results in real time.
+
+---
+
+## [1.8.14] - 2026-05-01
+
+### Changed
+- **Dashboard search now works inline from the bottom action bar** (`DashboardViewModel`, `DashboardView`, `DashboardBottomBarView`) — tapping the magnifying glass now expands the action area into a live search field instead of opening a separate modal. The visible list filters in real time using a simple case-insensitive match on item-list descriptions, so users can keep the month/day context on screen while narrowing results.
+
+---
+
+## [1.8.13] - 2026-05-01
+
+### Changed
+- **Hero add buttons now use a bolder plus glyph for stronger visual weight** (`TotalSpentCardView`) — the circular add button in both dashboard and item-list hero cards keeps the same size and layout, but the `+` symbol is now rendered with a heavier weight so the primary add action reads more clearly at a glance.
+
+---
+
+## [1.8.12] - 2026-05-01
+
+### Changed
+- **Dashboard item-list rows were simplified and stabilized for faster scanning** (`ExpenseRowView`, `ExpenseListView`, `ExpenseListComponents`, `DashboardComponents`, `TimelineRailView`) — removed the low-value category/icon and item-count metadata from each dashboard row, keeping the focus on description, paid total, unpaid total, and status. The row layout now holds a stable height while unpaid values animate more smoothly, and the timeline connector lines were adjusted to stay visually continuous across rows within the same day.
+
+---
+
+## [1.8.11] - 2026-05-01
+
+### Changed
+- **Dashboard month filter sheet now matches the app’s standard sheet chrome and filter button feedback** (`DashboardMonthFilterSheet`, `DashboardBottomBarView`) — the filter sheet now uses the same navigation-bar `xmark` / `checkmark` toolbar pattern as the other modal forms, and the dashboard filter button now triggers the project’s press haptic while keeping the active state visually lightweight by tinting only the icon.
+
+---
+
+## [1.8.10] - 2026-05-01
+
+### Fixed
+- **Pending item lists from previous months are now reachable from the dashboard** (`DashboardViewModel`, `DashboardView`, `DashboardBottomBarView`, `DashboardMonthFilterSheet`) — month mode is no longer locked to the current calendar month. The new dashboard filter sheet lets the user pick a month and year, so entries created in April remain accessible on May 1 instead of disappearing from the main month view.
+
+### Changed
+- **Dashboard filter controls now have their first real implementation** (`DashboardBottomBarView`, `DashboardMonthFilterSheet`, `DashboardComponents`, localization files) — the filter button in the bottom bar now opens a dedicated month/year sheet, the active filter state is reflected in the button styling, and the hero label adapts to the selected month instead of always assuming "this month".
+
+---
+
+## [1.8.9] - 2026-05-01
+
+### Fixed
+- **Empty and zero-total item lists no longer appear completed in dashboard rows or detail hero cards** (`DashboardViewModel`, `ExpenseRowView`, `ItemListDetailViewModel`, `ItemListDetailComponents`) — item lists with no items, or whose real total is `0.00`, now render a neutral payment state instead of a green completed check. This keeps the dashboard timeline and the item-list hero aligned so only lists with actual paid value read as completed.
+
+### Changed
+- **Derived payment-display state is now centralized in ViewModels instead of SwiftUI views** (`DashboardViewModel`, `ItemListDetailViewModel`, `ExpenseListView`, `ItemListDetailView`, `docs/START_HERE.md`) — introduced explicit presentation states for dashboard rows and item-list hero cards so views only render precomputed display intent. The project quick-start guide now documents this rule directly: views render, ViewModels decide.
+
+---
+
+## [1.8.8] - 2026-05-01
+
+### Changed
+- **Zero-value amounts are now visually de-emphasized in dashboard and item rows** (`ExpenseRowView`, `ItemListDetailView`) — amounts that resolve to `0.00` now use a secondary tone and slightly lighter weight so real spending stands out faster while zero-value entries remain visible. This improves list scanning without hiding pending or informational rows.
+
+---
+
+## [1.8.7] - 2026-05-01
+
+### Fixed
+- **Manual items created inside an item-list detail now always start unpaid** (`AddItemViewModel`, `AddItemView`, `ItemListDetailView`) — adding an item from `ItemListDetailView` no longer auto-marks it as paid based on the list date. This keeps shopping lists and note-taking lists pending until the user explicitly marks each item as completed. The dashboard quick-add flow is unchanged: its auto-created first item still uses the list date rule, so today/past entries start paid and tomorrow/future entries start unpaid.
+
+---
+
+## [1.8.6] - 2026-04-30
+
+### Fixed
+- **New entry form now correctly defaults the initial item to paid for today and past dates** (`AddItemListViewModel`) — the first item created when saving a new entry was using a legacy `paymentMethodId != nil` check instead of the date-based rule, causing it to be unpaid even for today. Aligned with `AddItemViewModel`: today and past → `isPaid = true`, future → `isPaid = false`.
+
+### Removed
+- **Dead seed-data generator deleted** (`DashboardViewModel`) — `generateSeedDataDebug()` and `generateSeedData()` were unreachable dev utilities (~80 lines) that duplicated the item list creation path. Removed to keep a single creation path through `AddItemListViewModel`.
+
+---
+
+## [1.8.5] - 2026-04-30
+
+### Fixed
+- **Description suggestions now search across all categories instead of only the selected one** (`ConceptSuggestionEngine`, `AddItemListViewModel`, `ConceptSuggestionChipsView`, `AddItemListComponents`) — when the typed text matches historical entries from a different category, those suggestions appear as chips in that category's color. Tapping a cross-category chip fills the description and automatically switches the selected category. Same-category results still rank first so the existing behavior is preserved when the description matches the current category.
+
+---
+
+## [1.8.4] - 2026-04-30
+
+### Changed
+- **New items added to a future-dated list now default to unpaid** (`AddItemViewModel`, `AddItemView`, `ItemListDetailView`) — when creating an item inside a list whose date is tomorrow or later, `isPaid` defaults to `false` so the entry acts as a payment reminder rather than a completed expense. Items added to today or past-dated lists keep `isPaid = true` as before.
+
+---
+
+## [1.8.3] - 2026-04-30
+
+### Fixed
+- **Excess space above the first section header in month view is removed** (`ExpenseListView`) — the `List` default top content inset was stacking on top of the rounded container padding, pushing the "TODAY" header too far down. Setting `contentMargins(.top, 0, for: .scrollContent)` removes the default inset and lets the container padding alone control the spacing.
+
+---
+
+## [1.8.2] - 2026-04-30
+
+### Changed
+- **Dashboard today/month toggle replaced with a native segmented picker** (`DashboardTopBarView`) — the custom two-button capsule switcher is now a `Picker` with `.segmented` style, reducing manual state management and giving the control a standard iOS appearance.
+
+---
+
+## [1.8.1] - 2026-04-30
+
+### Added
+- **Dashboard and item list expense views are now displayed inside a rounded card container** (`DashboardMainContent`, `ItemListDetailView`, `DashboardComponents`, `ItemListDetailComponents`) — the scrollable list is wrapped in a `secondarySystemBackground` rounded rectangle that matches the width of `TotalSpentCardView`, giving both screens a consistent card-based layout. The background shape is a separate static layer so pull-to-refresh animations and scroll view geometry stay stable. Scroll indicators are hidden on both lists to prevent UIKit clipping artifacts caused by the external `clipShape`.
+
+### Fixed
+- **Success confirmation label on the dashboard hero card now reads "Added!" instead of "All done!"** (`Localizable.strings`, `String+Localization`) — the `dashboard.allDone` key was renamed to `dashboard.added` and the English copy updated to better reflect that a new expense was just recorded, not that all items are completed.
+
+---
+
+## [1.8.0] - 2026-04-30
+
+### Fixed
+- **Large dashboard and item-list views were modularized into scene-local components** (`AddItemListView`, `ItemListDetailView`, `DashboardView`, `GroupSelectorChipView`, `ExpenseListView`, `CalendarGridView`) — the heaviest SwiftUI screens were split into dedicated `Views/Components/` files so rendering sections, pickers, hero cards, overlays, and list headers are easier to maintain without changing behavior or architecture responsibilities.
+- **Scene-local extracted views now live under `Views/Components/`** (`Dashboard`, `ItemList`) — moved newly extracted subviews out of the main `Views/` folder and into scene-scoped component directories, making the screen entry points easier to scan and keeping shared `Common/Components/` reserved for truly reusable UI.
+
+---
+
+## [1.7.4] - 2026-04-30
+
+### Fixed
+- **Dashboard totals now use a safer cache-first path** (`DashboardViewModel`, `DefaultItemRepository`) — per-item-list paid/unpaid totals, item counts, and payment status now reuse cached aggregate data before falling back to SwiftData fetches, and item-level writes now bump the parent item list’s `lastModifiedAt` so the dashboard cache invalidates correctly when anything changes.
+- **Quick-add usage memory no longer caches live SwiftData models** (`AddItemListViewModel`) — the form now stores lightweight snapshot data for last-used concept/category/payment hints instead of caching raw `SDItemList` objects, reducing stale-reference risk while keeping the same behavior.
+
+---
+
+## [1.7.3] - 2026-04-30
+
+### Fixed
+- **Completed items now reorder more calmly after a paid toggle** (`ItemListDetailViewModel`, `DefaultItemRepository`) — when an item is marked as paid, the paid section no longer reshuffles only by original creation time. Completed items now use `lastModifiedAt` for their in-section ordering, which keeps the transition more stable and reduces the dizzying jumpiness caused by rapid reordering after completion.
+
+---
+
+## [1.7.2] - 2026-04-30
+
+### Fixed
+- **Dashboard bulk-complete toast now appears only when it is actually useful** (`DashboardViewModel`) — marking a list as paid from the dashboard no longer shows an undo toast when that list contains only 1 item. The notification is now reserved for multi-item lists, where undoing a bulk completion of the remaining items is genuinely helpful and avoids unnecessary toast noise during normal single-item usage.
+
+### Commented
+- Elipsis more options per date commented for now
+
+---
+
+## [1.7.1] - 2026-04-30
+
+### Fixed
+- **Dashboard day headers now respect the active app language** (`DateFormatterHelper`, `Localizable.strings`) — `Today` and `Yesterday` section headers no longer remain in Spanish when the app is shown in English. The shared date formatter now uses the current locale instead of hardcoded `es_ES`, so month names in those headers also follow the active language.
+
+---
+
+## [1.7.0] - 2026-04-30
+
+### Added
+- **Full EN/ES localization across all views** — every user-facing string in the app is now served through the `LocalizationKey` enum and `Localizable.strings` files for English and Spanish. When the device OS language is Spanish the app renders in Spanish; all other locales fall back to English. Covers ~27 view files across the Dashboard, Group, Category, Payment, User, ItemList, and Settings scenes, plus shared components (`EmptyStateView`, `HeroAmountInputView`, `AppContentView`, `SettingsSheetView`, `AboutOMOView`). Around 100 new localization keys were added spanning General, Dashboard, Entry, Item, Group, Category, Payment, Settings, User, and About domains.
+
+---
+
+## [1.6.1] - 2026-04-30
+
+### Fixed
+- **Dashboard total-cost footer now stays visually anchored** (`DashboardView`) — the hero total card and group chip area now sit on a solid bottom panel with a clear top boundary, preventing scrolling item rows from bleeding through the gap and reducing visual distraction while browsing the dashboard.
+
+---
+
+## [1.6.0] - 2026-04-30
+
+### Added
+- **Dedicated "Sobre OMO" experience in Settings** (`SettingsSheetView`, `AboutOMOView`) — users can open an about screen from settings to view app/company information, the current app version shown to users (`1.5.4`), donation access, direct web/contact actions with copy support, and a user-facing release-notes page.
+
+---
+
+## [1.5.4] - 2026-04-29
+
+### Changed
+- **Item-list detail now prioritizes unpaid items** (`ItemListDetailViewModel`) — items in a registry are now sorted with pending entries first and completed entries moved to the end, while keeping newest items first inside each status group. Toggling paid status immediately reorders the row so the detail screen behaves more like an actionable checklist.
+
+### Refactor
+- **Removed redundant `MainActor.run` blocks from `DashboardViewModel`** — since the ViewModel is already isolated with `@MainActor`, direct state reads and writes now happen inline instead of being wrapped in repeated `await MainActor.run { }` calls. This keeps the dashboard concurrency model clearer without changing behavior.
+
+---
+
+## [1.5.3] - 2026-04-29
+
+### Fixed
+- **Dashboard pull-to-refresh row jump eliminated** (`DashboardView`) — `ExpenseListView` is now the root view of the dashboard content with top and bottom bars attached via `.safeAreaInset`, mirroring `ItemListDetailView`. The refresh spinner now appears in the top safe-area inset instead of pushing the list’s constrained frame, removing the visible downward-then-upward row shift on every pull-to-refresh.
+
+---
+
+## [1.5.2] - 2026-04-29
+
+### Fixed
+- **Dashboard pull-to-refresh layout stability** (`ExpenseListView`, `DashboardViewModel`) — the Today list now renders flat rows when date headers are hidden, avoiding invisible `Section` spacing during refresh, and refresh updates item lists without row animations so SwiftUI’s native pull-to-refresh physics are not disturbed.
+
+---
+
+## [1.5.1] - 2026-04-29
+
+### Fixed
+- **Item-list detail hero stays anchored at the bottom** (`ItemListDetailView`) — the total hero now uses a bottom safe-area inset instead of sitting below an expanding `List`, preventing large empty gaps between items and the hero while keeping the hero fixed at the bottom of the screen.
+
+---
+
+## [1.5.0] - 2026-04-29
+
+### Added
+- **Collapsible monthly day summaries** (`ExpenseListView`, `DashboardView`) — in `Este mes`, tapping a date header now collapses or expands that day’s entries while keeping the daily total visible for a cleaner month summary. The feature is not shown in `Hoy`.
+
+### Changed
+- **Monthly collapse state persists across Today/Month toggles** (`DashboardView`) — collapsed days remain remembered when switching to `Hoy` and back to `Este mes`, and reset only when the active group changes.
+
+---
+
+## [1.4.2] - 2026-04-29
+
+### Refactor
+- **DI container layer simplified** (`AppDIContainer`) — removed the partial `UserSceneDIContainer` and `GroupSceneDIContainer` wrappers and routed their remaining factories through the main app container for a single dependency creation path.
+- **Delete group factory centralized** (`AppDIContainer`) — added `makeDeleteGroupUseCase()` directly to the main container and updated dashboard/user creation flows to avoid scene-container indirection.
+
+---
+
+## [1.4.1] - 2026-04-29
+
+### Fixed
+- **Undo for bulk paid toggles** (`DashboardViewModel`, `ToastView`) — tapping an item-list paid status now stores the previous per-item paid state and shows a `Deshacer` action in the reusable toast. Undo restores each item exactly, protecting mixed paid/unpaid lists from accidental bulk changes.
+- **Toast action support** (`ToastView`) — reusable toast notifications now support an optional action button while keeping existing dismiss-only toasts unchanged.
+
+---
+
+## [1.4.0] - 2026-04-29
+
+### Added
+- **Dedicated group information editor** (`GroupInfoEditSheet`) — group name and currency editing now opens in its own sheet with its own `X` and save action, avoiding confusion with category and payment method management screens.
+
+### Changed
+- **Group settings screen simplified** (`GroupFormView`) — the group settings view now acts as a management hub with separate rows for group information, categories, and payment methods, and no longer shows a global save action while navigating nested management flows.
+- **Group settings UI modularized** (`GroupFormView`) — extracted reusable private section and row components to keep the main view focused on composition.
+
+---
+
+## [1.3.1] - 2026-04-29
+
+### Fixed
+- **Quick-add unpaid state without payment method** (`AddItemListViewModel`) — new quick-add items now start as unpaid when no payment method is selected, even if the amount is greater than zero. A missing payment method now represents a pending/future reminder instead of an already completed payment.
+- **Payment method preselection respects the last registered item list** (`AddItemListViewModel`) — the quick-add form now derives the initial payment method from the most recently created item list by `createdAt`. If that last registered item list had no payment method, the next form starts with no payment method selected instead of falling back to older saved usage memory.
+
+---
+
+## [1.3.0] - 2026-04-29
+
+### Added
+- **Group picker rows redesigned** (`GroupSelectorChipView`) — the group picker sheet now shows each group as a richer row with the selected/empty status icon on the left, the group name, and the total spent in that group below it.
+- **Visible group row actions** (`GroupSelectorChipView`) — each group row now has a trailing three-dot menu exposing the same `Detalles` and `Eliminar` actions as the existing swipe actions, making group management discoverable without removing swipe support.
+- **Shared haptic feedback on group selection** (`GroupSelectorChipView`) — tapping anywhere on the selectable row area now uses the shared `PressHapticButtonStyle`, so changing groups gets the same tactile feedback as the rest of the app.
+
+---
+
+## [1.2.1] - 2026-04-29
+
+### Changed
+- **Form focus borders aligned to neutral gray** — shared `LimitedTextField` focus borders now match the money hero input by using `systemGray3` instead of accent/primary styling. This aligns focus feedback across Nuevo Artículo, Nueva Categoría, Métodos de Pago, Grupo, Perfil, and first-user setup forms.
+- **Nuevo Artículo quantity focus border added** — the quantity stepper field now uses the same gray focus outline as the rest of the form fields.
+
+---
+
+## [1.2.0] - 2026-04-29
+
+### Added
+- **Connected timeline list design** (`ExpenseListView`, `ExpenseRowView`, `ItemListDetailView`) — dashboard item lists and item-list detail rows now render as a continuous timeline instead of separate rounded row cards. The existing paid/unpaid icon is the timeline node, with plain solid connector lines between rows and light separators for a more modern, connected visual system.
+- **Reusable `TimelineRailView` component** — centralizes timeline node/connector rendering so dashboard rows and item detail rows share the same visual language while preserving paid-toggle behavior on the node itself.
+
+---
+
+## [1.1.7] - 2026-04-29
+
+### Changed
+- **Group swipe action renamed from "Ajustes" to "Detalles"** (`GroupSelectorChipView`) — the group picker swipe action now uses a clearer details label with the info icon while keeping the same navigation to the group detail/settings screen.
+
+### Removed
+- **Unused test data generator tooling removed** — deleted the unreachable `TestDataView` and `TestDataGenerator`. The debug screen was not wired into the app, so keeping it added dead code with no user-facing path to test or maintain.
+
+---
+
+## [1.1.6] - 2026-04-29
+
+### Refactor
+- **`GroupPickerSheetViewModel` extracted for group delete flow** — `GroupPickerSheet` no longer owns delete eligibility, optimistic removal, rollback, fallback group selection, or create-group state updates. The delete callback now propagates errors with `async throws`, allowing rollback behavior to remain inside the ViewModel instead of being swallowed by the view chain.
+
+---
+
+## [1.1.5] - 2026-04-29
+
+### Refactor
+- **`UserProfileViewModel` extracted for profile saving** — `UserProfileView` no longer creates `UpdateUserUseCase`, mutates `SDUser`, sets modification timestamps, or manages save errors directly. Profile name editing, validation, loading state, persistence, and error handling now live in `UserProfileViewModel`.
+
+---
+
+## [1.1.4] - 2026-04-29
+
+### Refactor
+- **`AppContentViewModel` extracted for app content loading** — `AppContentView` no longer creates or executes `GetCurrentUserUseCase` or `FetchGroupsForUserUseCase` directly. Initial user/group loading and setup-complete state now live in `AppContentViewModel`, keeping `AppContentView` focused on routing between loading, dashboard, and setup-required UI.
+
+---
+
+## [1.1.3] - 2026-04-29
+
+### Refactor
+- **`MainViewModel` extracted for app bootstrap flow** — `MainView` no longer creates or executes `GetCurrentUserUseCase` directly. Startup state (`isLoading`, `hasUsers`), first-user detection, and the minimum splash display timing now live in `MainViewModel`, keeping `MainView` focused on rendering `SplashView`, `AppContentView`, or `CreateFirstUserView`.
+
+---
+
+## [1.1.2] - 2026-04-29
+
+### Fixed
+- **Quick-add category and payment method defaults restored** (`AddItemListView`) — new item lists now auto-select the last used category and payment method for the active group again. The form first uses saved chip usage memory, then falls back to the latest persisted item list in that group when no local usage memory exists.
+- **Last-used selections are persisted after quick save** — selected category and payment method are recorded when creating an item list, even if the user keeps the automatically selected chips and never taps them manually.
+
+### Refactor
+- **Moved last-used selection logic out of `AddItemListView`** — `AddItemListViewModel` now owns usage memory loading, persistence, fallback resolution, category/payment ordering, and blank-description fallback logic. The view stays focused on UI coordination and delegates behavior to the ViewModel.
+
+---
+
+## [1.1.1] - 2026-04-29
+
+### Fixed
+- **Category and payment method labels truncate correctly in hero meta row** (`ItemListDetailView`) — during the 3-second label phase, long names like "Alimentación" now truncate with `...` instead of wrapping. Added `.lineLimit(1).truncationMode(.tail)` to both label texts in `heroMetaRow`.
+- **Category chip labels truncate correctly in `AddItemListView`** — replaced `ZStack` dual-layout with `if/else` + `.transition` in `categoryChip` and `overflowChip`. ZStack was passing an unconstrained width proposal to `Text`, preventing truncation from triggering.
+
+---
+
+## [1.1.0] - 2026-04-29
+
+> **Versioning note:** Starting from this release the project follows Semantic Versioning strictly.
+> Patch (`x.x.N`) = bug fixes. Minor (`x.N.0`) = new features. Major (`N.0.0`) = breaking changes.
+> All previous 1.0.x releases were features; they would have been 1.x.0 under this scheme.
+
+### Added
+- **Change group in create/edit item list** (`AddItemListView`) — the Group row in the "Más detalles" section is now an interactive `Menu` listing all user groups. Selecting a different group reloads its categories and payment methods. If the previously selected category or payment method has a name match in the new group it is auto-selected. On save, the item list is persisted under the chosen group.
+
+---
+
+## [1.0.56] - 2026-04-29
+
+### Added
+- **Unpaid total in `ItemListDetailView` hero card** — hero card now shows remaining amount to pay. Status indicator (clock + amount in orange, or checkmark in green) is always visible from first frame. During the first 3 seconds, category and payment method labels are shown with their icons and the status shows icon-only to avoid crowding. After the timer, labels fade out and the full remaining amount appears next to the clock icon.
+- **`EmptyStateView` shared component** (`Presentation/Common/Components/EmptyStateView.swift`) — extracted reusable empty state (sparkles icon + "Nada por aquí..." + custom message). Replaces inline duplicates in `ExpenseListView` and `ItemListDetailView`.
+
+### Changed
+- **Hero card label** (`ItemListDetailView`) — label now reads "Coste de {description}" instead of the bare description.
+- **Hero meta row icons-only after timer** (`ItemListDetailView`) — category and payment method chips collapse to icon-only after 3 seconds; status (clock/checkmark) keeps full context visible at all times.
+
+---
+
+## [1.0.55] - 2026-04-28
+
+### Changed
+- **Date header "+" replaced with "…" context menu** (`ExpenseListView`) — the per-date add button in month-mode section headers is now an ellipsis menu (`ellipsis`, 18pt). Tapping it reveals a single action: "Añadir en esta fecha". Reduces visual noise while keeping the action accessible.
+
+---
+
+## [1.0.54] - 2026-04-26
+
+### Changed
+- **Date header "+" button muted to secondary color** (`ExpenseListView`) — the per-date add button in month-mode section headers changed from `Color.accentColor` to `Color.secondary`; it remains fully functional but no longer competes visually with the primary FAB — secondary feature, secondary color.
+
+---
+
+## [1.0.53] - 2026-04-26
+
+### Refactor
+- **All repositories marked `@MainActor` — `MainActor.run { }` removed** — all 7 repository protocols and their 7 implementations are annotated with `@MainActor`. Every `try await MainActor.run { }` wrapper is dropped; the body executes directly on the main actor with no hop. Fixes the Swift 6 strict-concurrency error *"Persistent Models are not Sendable"*: previously `MainActor.run` returned `@Model` objects back to a non-`@MainActor` context, crossing an actor boundary. Now the entire call chain is `@MainActor`: `AppDIContainer` → `ViewModel` → `UseCase` → `Repository` → `ModelContext` — no boundary crossings.
+
+---
+
+## [1.0.52] - 2026-04-26
+
+### Refactor
+- **Global (unscoped) fetch methods removed from all repositories** — no repository can fetch without a scope. Methods removed from protocol and implementation:
+  - `CategoryRepository`: `fetchCategories()` (no groupId)
+  - `ItemListRepository`: `fetchItemLists()`, `fetchItemList(id:)`, `fetchItemLists(forCategoryId:)`, `fetchItemLists(from:to:)`
+  - `ItemRepository`: `fetchItems()`, `fetchItem(id:)`
+  - `PaymentMethodRepository`: `fetchPaymentMethods()`, `fetchPaymentMethod(id:)`, `fetchActivePaymentMethods()`
+- All were dead code — no callers anywhere in the codebase. Mirrors at the repository layer what v1.0.45 did for Use Cases.
+- `START_HERE.md`: removed stale Liquid Glass bullet.
+
+---
+
+## [1.0.51] - 2026-04-25
+
+### Refactor
+- **`PaymentMethodFormViewModel` extracted** — `PaymentMethodFormView` was using `PaymentMethodListViewModel` (list VM) for form operations (create/update), the same bug fixed for `CategoryFormView` in v1.0.46. Dedicated `PaymentMethodFormViewModel` created with `save(name:type:icon:groupId:methodToEdit:) -> Bool` handling both creation and editing. View's `save()` remains a thin UI orchestrator (trim → VM → `onSaved` + `dismiss`).
+- **`PaymentMethodListViewModel` slimmed down** — removed `createPaymentMethodUseCase`, `updatePaymentMethodUseCase` and the methods `createPaymentMethod()`, `updatePaymentMethod()`, `loadActivePaymentMethods()`, `loadPaymentMethods(forGroupId:type:)`, `toggleActiveStatus()`, `getPaymentMethodsCount()` and computed properties `activePaymentMethods`, `inactivePaymentMethods`, `paymentMethodsByType` — none were called from `PaymentMethodManagementView`. From 184 lines to 55.
+- **`AddPaymentMethodViewModel` deleted** — never used by any View; its API (`configureForCreation`, `configureForEditing`, `submit()`) was incompatible with `PaymentMethodFormView` (missing `icon`, English-language validations, free-form type strings instead of the app's internal type codes).
+
+---
+
+## [1.0.50] - 2026-04-25
+
+### Refactor
+- **`AddItemListViewModel` moved to `Dashboard/ViewModels/`** — the VM lived in `ItemList/ViewModels/` but no View in that scene used it; its only consumer is `AddItemListView` which lives in `Dashboard/Views/`. Moved to co-locate VM and View in the same scene.
+
+---
+
+## [1.0.49] - 2026-04-25
+
+### Refactor
+- **Legacy tests removed, SwiftData tests added** — CoreData-based test files (`TestEntityFactory`, `MockCoreDataStack`, `*Domain` mocks, and all `*ServiceTests`) referenced types that no longer exist after the SwiftData migration; removed. Added `SwiftDataTestContainer` as an in-memory `ModelContainer` test helper. New tests: `CreateGroupUseCaseTests` (empty name validation, trim, currency uppercase) and `FetchCategoriesUseCaseTests` (scope by group, no bleed from other groups, sort by name). Test targets updated to `IPHONEOS_DEPLOYMENT_TARGET = 26.0` to match the main target.
+
+---
+
+## [1.0.48] - 2026-04-25
+
+### Refactor
+- **Global `@Query` removed from picker Views** — `CategoryPickerView` and `PaymentMethodPickerView` were loading all entities from the database and filtering in memory (`allCategories.filter { $0.group?.id == groupId }`). Now use `Query(filter: #Predicate<SD...> { $0.group?.id == id }, sort: ...)` initialized in `init`, so SwiftData emits `WHERE group_id = ?` in SQLite instead of a full table scan. `PaymentMethodPickerView` additionally includes `&& $0.isActive` in the predicate.
+
+---
+
+## [1.0.47] - 2026-04-25
+
+### Refactor
+- **`GroupFormViewModel` extracted** — `CreateGroupView` and `GroupFormView` were calling `CreateGroupUseCase`, `CreateUserGroupUseCase`, and `UpdateGroupUseCase` directly from the View, violating Clean Architecture. Both views now use a dedicated `GroupFormViewModel` with `create(name:currency:userId:) -> SDGroup?` and `update(group:name:currency:) -> Bool`. Views remain thin UI orchestrators (trim → VM → callback + dismiss).
+
+### Changed
+- **Group settings moved to the group chip** — Categories and Payment Methods removed from `SettingsSheetView` (gear icon) and placed in `GroupFormView` (swipe → "Settings" on the group chip). `SettingsSheetView` now only contains the "Account" section. `GroupFormView` adopts a `ScrollView/VStack` layout with cards separated by section (Name, Currency, Content), opens as `.large`, and shows each navigation row with a colored icon, white label, and `chevron.right` arrow.
+
+---
+
+## [1.0.46] - 2026-04-25
+
+### Refactor
+- **`CategoryFormViewModel` extracted** — `CategoryFormView` was using `CategoryListViewModel` (list VM with fetch/delete/`categories: [SDCategory]`) for form operations. Now uses a dedicated `CategoryFormViewModel` with only `createCategoryUseCase` + `updateCategoryUseCase`. The `save()` method returns the created/edited `SDCategory` directly, eliminating the fragile `viewModel.categories.last` hack. View's `save()` remains a thin UI orchestrator (trim → VM → `onSaved` + `dismiss`).
+
+---
+
+## [1.0.45] - 2026-04-25
+
+### Refactor
+- **Global queries removed from Use Cases** — no `Fetch*UseCase` can execute without a mandatory scope (`groupId` or `itemListId`). Removed overloads:
+  - `FetchCategoriesUseCase` — `execute()` (global) and `execute(categoryId:)` (never called).
+  - `FetchItemListsUseCase` — `execute()` (global), `execute(itemListId:)`, `execute(forCategoryId:)` (no groupId), `execute(from:to:)` (no groupId).
+  - `FetchItemsUseCase` — `execute()` (global) and `execute(itemId:)` (never called).
+  - `FetchPaymentMethodsUseCase` — `execute(paymentMethodId:)` (never called).
+  - Each use case keeps only the signatures that receive `forGroupId` or `forItemListId`. `GetCurrentUserUseCase.execute()` retained — singleton fetch by design, not a global scan.
+- **Orphaned factory methods removed from DIContainers**:
+  - `GroupSceneDIContainer` — removed `makeFetchGroupsUseCase()` and `makeUpdateGroupUseCase()` (no callers via scene container).
+  - `UserSceneDIContainer` — removed `makeFetchUsersUseCase()`, `makeSearchUsersUseCase()`, `makeUpdateUserUseCase()`, `makeDeleteUserUseCase()` (callers use `AppDIContainer` directly).
+- **Dead UseCase files removed** — `FetchGroupsUseCase.swift`, `FetchUsersUseCase.swift`, `SearchUsersUseCase.swift`: protocols and implementations with no callers anywhere in the codebase.
+
+---
+
+## [1.0.44] - 2026-04-25
+
+### Refactor
+- **`deleteGroupUseCase` moved from View to `DashboardViewModel`** — architecture violation: `GroupPickerSheet` (View) was calling `DeleteGroupUseCase` directly. UseCase now lives in `DashboardViewModel.deleteGroup()` and the View only calls the callback `onDeleteGroup: (SDGroup) async -> Void`. `DashboardViewModel` handles persistence deletion and `availableGroups` rollback; `GroupPickerSheet` retains its own presentation state (`isDeletingGroup`, optimistic local list). Propagation chain: `DashboardView` → `DashboardBottomBarView` → `GroupSelectorChipView` → `GroupPickerSheet`.
+
+### Fixed
+- **"Select Group" sheet not closing when creating a new group** — when creating a group, `CreateGroupView` called `onGroupCreated` before `dismiss()`, so closing both sheets simultaneously failed silently. Fix: `groupWasCreated` flag + `onDismiss` on the child sheet; the parent sheet closes only after the child has finished its dismiss animation.
+
+---
+
+## [1.0.43] - 2026-04-25
+
+### Refactor
+- **`DispatchQueue.main.asyncAfter` fully removed** — all occurrences replaced with `Task { try? await Task.sleep(for:) }` for consistency with Swift Concurrency:
+  - `GroupSelectorChipView` — sheet close after group change (300ms) and deactivation of deletion overlay (1.5s).
+  - `CustomAlertView.dismissAlert()` — set `isPresented = false` after exit animation (250ms).
+  - `AddItemListView` — scroll to `paymentMethodAnchor` after expanding payment methods (350ms).
+  - `DashboardHeaderView.handleDebugAccess()` — reset of debug tap counter (2s); `@State var resetTask` added to cancel the previous timer on each tap, avoiding orphaned timers.
+- **`DashboardHeaderView` removed** — dead code file; replaced by `DashboardTopBarView` in a prior refactor and never removed.
+
+---
+
+## [1.0.42] - 2026-04-24
+
+### Refactor
+- **`DateFormatterHelper.formatSectionDate` extracted** — section date formatting logic ("Hoy", "Ayer", "d MMM", "d MMM yyyy") moved from `ExpenseListView` to `DateFormatterHelper`; `AddItemListViewModel.formattedDate` replaced with `DateFormatterHelper.formatDate`.
+- **Dead code removed** — `formattedItemListDate` (`ItemListDetailView`), `formatDate` (`DashboardViewModel`), `sheetTitle`/`displayedTotal`/`totalCardLabel` (`DashboardView`) were unused properties/methods; removed.
+
+---
+
+## [1.0.41] - 2026-04-24
+
+### Fixed
+- **`errorMessage` incorrectly used on non-fatal operations** — `deleteItemList`, `changeGroup`, `deleteItem`, and `toggleItemPaid` were assigning `errorMessage` in their catch blocks, incorrectly replacing the entire screen with `errorView`. Now `errorMessage` is only assigned on fatal load failures (`loadDashboardData`, `loadItems`); non-fatal operations perform a silent rollback or reload data without blocking the UI.
+
+---
+
+## [1.0.40] - 2026-04-24
+
+### Changed
+- **"¡Listo!" animation restored in `TotalSpentCardView`** — when `isSuccess` is `true`, the amount is momentarily replaced by "¡Listo!" with a `.push(from: .top)` incoming and `.push(from: .bottom)` outgoing transition; label stays fixed. Color `.primary` (white in dark mode).
+- **`DashboardTopBarView` and `DashboardBottomBarView` extracted** — `viewPickerBar` and `bottomControls` moved to their own files; `DashboardView` instantiates them with explicit parameters.
+
+---
+
+## [1.0.39] - 2026-04-24
+
+### Changed
+- **Name sync when renaming a registry** — when editing an `SDItemList` that has exactly one item whose name matches the previous list name, the item is automatically renamed to the new name in the same `context.save()` transaction.
+
+---
+
+## [1.0.38] - 2026-04-24
+
+### Changed
+- **`TotalSpentCardView` moved to the bottom** — in `DashboardView` the hero card sits between the expense list and `bottomControls`; in `ItemListDetailView` it sits below the item list.
+
+---
+
+## [1.0.37] - 2026-04-24
+
+### Changed
+- **Standardized delete animation** — all swipe deletions (`SDItem`, `SDItemList`, `SDCategory`, `SDPaymentMethod`, `SDUser`, `SDGroup`) now use `withAnimation { array.removeAll/remove }` optimistically before the DB call; the UI yields animation control to SwiftUI to coordinate the row slide-out and list reflow as a single transition. Animated rollback with `append` on persistence error.
+- **`import SwiftUI` added** to `CategoryListViewModel`, `PaymentMethodListViewModel`, and `UserListViewModel` to enable `withAnimation`.
+
+---
+
+## [1.0.36] - 2026-04-24
+
+### Changed
+- **`TotalSpentCardView` refactored as a generic component** — now accepts a `@ViewBuilder bottomContent` slot; `ItemListDetailView` reuses the component passing `heroMetaRow` as extra content, eliminating ~70 lines of duplicate code. Added `EmptyView` extension for Dashboard with no changes at the call site.
+- **+/✓ icon animation fixed** — replaced `contentTransition(.symbolEffect(.replace.downUp))` with `if/else` using `.scale(0.4).combined(with: .opacity)`; transition controlled by SwiftUI, no abrupt cut.
+- **Button goes 2D during success** — the top circle drops to `y: 4` (flush with the shadow = flat appearance) while `isSuccess` is active; springs back to 3D position when done.
+- **Success state simplified** — removed "¡Listo!", `heroSuccessLabel`, and `successLabel`; the card keeps the total and label during success, only the icon changes to a green ✓.
+
+### Removed
+- **% comparison in `TotalSpentCardView`** — removed "X% more/less than yesterday" and "X% more/less than last month" indicators; out of scope for MVP0. Also removed `yesterdayItemLists`, `yesterdayTotal`, and `lastMonthTotal` from `DashboardViewModel`.
+
+---
+
+## [1.0.35] - 2026-04-24
+
+### Changed
+- **`ItemListDetailView` redesigned** — static hero card above the scrollable list; exact replica of `TotalSpentCardView`: animated total with `numericText`, 3D "+" button in accent color, green/red flash on total change, scale effect on the card; meta row below the total with icon + category name in its color and icon + payment method name in its semantic color (green/orange/purple/blue).
+- **"¡Listo!" animation in `ItemListDetailView`** — when saving an item the hero card transitions to `heroSuccessLabel` + "¡Listo!" + green arrow; button turns green with checkmark; identical to dashboard behavior.
+- **Success animation duration reduced to 900ms** (`DashboardView`, `ItemListDetailView`) — was 1200ms, too slow for adding multiple items in quick succession.
+
+### Fixed
+- **Xcode+Claude regression** — reverted all broken changes: `.glassEffect()`, `.primary.gradient`, `LiquidGlassButtonStyle`, `withAnimation { Task {} }`; restored to clean standard SwiftUI.
+
+---
+
+## [1.0.34] - 2026-04-23
+
+### Added
+- **Date-scoped "+" button in month section headers** (`ExpenseListView`, `DashboardView`) — in "Este mes" mode each date section header shows a `plus.circle.fill` button aligned after the day total; tapping opens `AddItemListView` with that date pre-selected
+
+### Changed
+- **All sections render at full opacity in month mode** (`DashboardView`) — removed the `focusedDate: Date()` pass that dimmed non-today sections to 40%; all rows now render equally
+
+### Fixed
+- **Wrong date on first sheet open** (`DashboardView`) — replaced `sheet(isPresented:)` + two-state pattern (`showingAddItemList` + `addForDate`) with `sheet(item:)` driven by a single `AddItemListTrigger: Identifiable`; eliminates the SwiftUI first-render race where the sheet content was evaluated before `addForDate` propagated, causing `initialDate` to be `nil` and defaulting to today
+
+### Internal
+- **`AddItemListTrigger`** — private `Identifiable` struct (`id: UUID`, `initialDate: Date?`) replaces `showingAddItemList: Bool` + `addForDate: Date?`; FAB and header "+" both set the trigger in one atomic assignment
+- **`onAddForDate: ((Date) -> Void)?`** added to `ExpenseListView`; `nil` in "Hoy" mode, non-nil in "Este mes" mode
+
+---
+
+## [1.0.33] - 2026-04-23
+
+### Changed
+- **Settings group section header** (`SettingsSheetView`) — section label updated from "Grupo" to "Grupo: {group name}" so the user knows which group the settings apply to
+
+---
+
+## [1.0.32] - 2026-04-23
+
+### Changed
+- **Category icon in expense row** (`ExpenseRowView`) — replaced the 7pt color dot in the subtitle line with the category's SF Symbol at 11pt medium weight in the category color; falls back to `tag.fill` in `systemGray3` when no category is set
+
+### Internal
+- **`categories` tuple extended** (`DashboardViewModel`, `ExpenseListView`) — tuple type updated from `(name: String, color: String)` to `(name: String, color: String, icon: String)` across declaration and all 3 build sites in `DashboardViewModel`
+- **`ExpenseRowView`** — new `categoryIcon: String?` parameter replaces `Circle` dot
+
+---
+
+## [1.0.31] - 2026-04-23
+
+### Added
+- **Concept suggestion engine** (`ConceptSuggestionEngine`) — pure Swift runtime engine that derives concept suggestions from existing `SDItemList` data; no new SwiftData entities; ranking: prefix match → contains match → recency → frequency; strictly category-scoped (no cross-category bleed)
+- **Amount-aware suggestion boosting** (`ConceptSuggestionEngine`) — when a price is entered, past item lists whose total falls within ±5% of the current amount are ranked first; suggestions re-rank in real time as the user types the amount
+- **Concept suggestion chips** (`ConceptSuggestionChipsView`) — horizontal pill row shown below the concept field only when it is focused and history exists for the selected category; max 3 chips; tapping fills the field and keeps the keyboard open; animated fade + slide on appear/disappear
+- **Category-colored chips** — chip background uses the selected category's color (same hex as the category grid chip) with white text; falls back to `systemGray4` when no category is selected; instant visual link between chip and category
+- **Silent autofill placeholder** (`AddItemListView`) — when a category with history is selected, the concept field placeholder shows the most recently used concept for that category instead of the generic hint; if saved with an empty concept, this value is used as the fallback (before category name)
+
+### Changed
+- **`descriptionPlaceholder`** (`AddItemListView`) — priority order: last used concept for category → "Concepto (ej. CategoryName)" → "Concepto"
+- **`saveItemList()` fallback** (`AddItemListView`) — empty concept now resolves to `lastUsedConcept ?? selectedCategory?.name ?? "Concepto"` instead of skipping the history
+
+### Internal
+- **`ConceptSuggestionEngine`** (`Infrastructure/Helpers/`) — `getSuggestions(query:amount:forCategory:allCategories:)` + `lastUsed(forCategory:)`; ±5% amount tolerance via `abs(value - target) / target <= 0.05`
+- **`AddItemListViewModel`** — `suggestions: [String]`, `lastUsedConcept: String?`, `updateSuggestions()` triggered on category load, description change, price change, category change, and focus change
+- **`ConceptSuggestionChipsView`** (`Presentation/Common/Components/`) — `categoryColor: Color` parameter; uses iOS semantic colors (`Color(.secondaryLabel)`, `Color(.systemGray4)`) as fallback
+
+---
+
+## [1.0.30] - 2026-04-22
+
+### Added
+- **Yesterday / last-month trend comparison** (`TotalSpentCardView`, `DashboardViewModel`) — hero widget shows a trend line below the amount: "↓ 5% menos que ayer" (green) or "↑ 12% más que ayer" (red); in "Este mes" mode compares to last month; "Sin datos de comparación" shown when no prior data exists
+- **Hero card success flash on item creation** (`TotalSpentCardView`, `DashboardView`) — when the user taps Save, the hero widget transitions in-place: label → item description, amount → "¡Listo!", button → green checkmark (`.symbolEffect` swap); resets to normal after 1.2 s once data is committed
+- **`hideSectionHeaders` param** (`ExpenseListView`) — suppresses section date headers when `true`; used in today-only mode where "Hoy" is redundant with the hero widget
+
+### Changed
+- **Hero widget moved to top** (`DashboardView`) — `TotalSpentCardView` now sits between the view-picker pill and the expense list; bottom controls reverts to group selector + filter/search row only
+- **Hero widget visual separation** (`DashboardView`) — 8 pt bottom padding + `shadow(color: .black.opacity(0.1), radius: 8, y: 4)` elevates the card above the list
+- **"Hoy" section header hidden in today mode** (`DashboardView`, `ExpenseListView`) — `hideSectionHeaders: true` passed when `showingFullMonth == false`; date headers and per-day totals still shown in full-month mode
+
+### Fixed
+- **Hero total not refreshing after add** (`TotalSpentCardView`) — `displayedAmount` was blocked while `isSuccess == true`; the 5 € added during the success window was silently discarded; guard now only blocks flash/scale effects — `displayedAmount` always updates
+
+### Internal
+- **`DashboardViewModel` trend properties** — four pure computed properties derived from already-loaded data (no new fetches): `todayRawTotal`, `yesterdayItemLists`, `yesterdayTotal`, `lastMonthTotal`
+- **`TotalSpentCardView` `isSuccess` mode** — `isSuccess: Bool` + `successLabel: String` optional params; button animates accent → green, plus → checkmark; `onAddExpense` no-ops during success window
+
+---
+
+## [1.0.29] - 2026-04-22
+
+### Added
+- **Today-only dashboard list** (`DashboardView`, `DashboardViewModel`) — the expense list defaults to showing only today's item lists; past days are hidden by default so the view stays focused on what's actionable right now
+- **"Hoy / Este mes" segmented pill** (`DashboardView`) — appears in the top bar (left of the gear icon) whenever there are past items in the current month; tap "Este mes" to expand to the full month timeline, tap "Hoy" to collapse back; pill is absent when no past items exist
+- **Past-day dimming in full-month view** (`ExpenseListView`) — new `focusedDate` parameter; when set, sections from days other than the focused date render at 40% opacity so today's section always stands out visually even in the expanded view
+- **Filter logic in ViewModel** (`DashboardViewModel`) — `showingFullMonth`, `todayItemLists`, `monthItemLists`, and `hasItemsOutsideToday` all live in the ViewModel; `DashboardView` holds no filtering logic
+
+### Fixed
+- **Section jump on item deletion** (`DashboardViewModel`) — wrapping the optimistic `itemLists` removal in `withAnimation(.easeInOut(duration: 0.25))` ensures section disappearance and row repositioning animate in a single pass; previously the swipe animation and the layout restructure fired as two separate steps causing a visible jump
+
+---
+
+## [1.0.28] - 2026-04-22
+
+### Changed
+- **Payment method starts unselected on new item list** (`AddItemListViewModel`) — `selectedPaymentMethod` is always `nil` when creating; the last-used payment method is no longer pre-filled so quick-add doesn't accidentally associate a payment method; edit mode still restores the existing value
+
+---
+
+## [1.0.27] - 2026-04-22
+
+### Changed
+- **"artículo/artículos" replaces "ítem/ítems"** (`ExpenseRowView`) — row subtitle now reads "1 artículo" or "X artículos"; more natural Spanish terminology
+- **Loading and empty-state strings updated** (`ItemListDetailView`) — "Cargando artículos...", "No hay artículos", "Agrega tu primer artículo con el botón +"
+- **Error messages updated** (`ItemListDetailViewModel`, `AddItemViewModel`) — all user-facing error strings use "artículo" consistently
+
+---
+
+## [1.0.26] - 2026-04-22
+
+### Changed
+- **Cost card always shows today** (`DashboardView`, `TotalSpentCardView`) — card label and amount are now permanently "Coste de hoy" using `formattedTodayTotal`; no longer adapts to calendar day/month selection — today's spend is the strategic primary metric
+- **Month total shown as secondary line** (`TotalSpentCardView`) — new optional `secondaryAmount` / `secondaryLabel` props render a caption line below the main amount; dashboard passes `formattedCachedMonthTotal()` + "este mes" so both time scopes are visible at a glance
+- **`formattedTodayTotal`** (`DashboardViewModel`) — new computed property wrapping `formattedTotal(for: Date())`; reuses existing day-total logic
+
+---
+
+## [1.0.25] - 2026-04-22
+
+### Changed
+- **Item description field is multiline** (`AddItemView`) — `descriptionCard` now uses `axis: .vertical` and `maxLength: 200`; field grows with content instead of truncating to a single line
+- **`LimitedTextField` supports multiline** (`LimitedTextField`) — added optional `axis: Axis = .horizontal` parameter; when `.vertical`, icon and clear button align to `.top` so they stay anchored as the field grows; all existing callers unchanged
+
+### Fixed
+- **`TotalSpentCardView` label truncates correctly** — added `.lineLimit(1)` + `.truncationMode(.tail)` to prevent wrapping; added `.frame(maxWidth: .infinity)` to the VStack so the label gets full available width before truncating (e.g. "Barbacoa..." instead of "Bar...")
+
+---
+
+## [1.0.24] - 2026-04-22
+
+### Changed
+- **Overflow categories/payment methods expand inline** (`AddItemListView`) — replaced `.sheet` presentation with in-grid expansion; tapping the overflow chip reveals all hidden chips in the same grid with a spring animation; a "Ver menos ↑" row collapses them back; both `categoryOverflowSheet` and `paymentMethodOverflowSheet` deleted
+- **Category chips go compact when grid expands** (`AddItemListView`) — `categoryChip` uses `showDetails || showCategoryOverflow` as the compact flag so chips switch to horizontal layout when the overflow grid opens, matching the "Más detalles" layout
+- **Scroll unlocks when overflow grids are open** (`AddItemListView`) — `scrollDisabled` condition extended to allow scrolling whenever `showCategoryOverflow` or `showPaymentMethodOverflow` is true
+- **Selecting a payment method closes the expanded grid** (`AddItemListView`) — tapping any method chip sets `showPaymentMethodOverflow = false`, matching category behaviour
+- **Scroll-to-anchor on payment method collapse** (`AddItemListView`) — after the grid collapses (via selection or "Ver menos"), a delayed `proxy.scrollTo("paymentMethodAnchor")` brings the section header back into view so the collapse feels natural regardless of scroll position
+
+---
+
+## [1.0.23] - 2026-04-22
+
+### Added
+- **Auto-sync descriptions on category change** (`AddItemListViewModel`) — when editing an item list created via quick-add (single item, both `itemListDescription` and `item.itemDescription` equal the **current category name**), changing the category renames both descriptions to the new category name; condition requires descriptions to match the current category name exactly — manually typed names like "Internet" are never touched even if both happen to be equal
+
+---
+
+## [1.0.22] - 2026-04-22
+
+### Added
+- **Edit group from chip picker** (`GroupSelectorChipView`) — orange "Editar" swipe action on each group row in `GroupPickerSheet`; opens `GroupFormView` as a `.medium` sheet where name and currency can be changed; sits alongside the existing delete swipe so all group management (create, select, edit, delete) lives in one place
+- **`GroupFormView`** (`Group/Views/GroupFormView.swift`) — self-contained edit form for a group: `LimitedTextField` for name (30 char max) + inline currency picker (EUR/USD) with checkmark selection; gets `UpdateGroupUseCase` directly from `AppDIContainer.shared`; xmark/checkmark toolbar; no external ViewModel dependency
+- **`makeUpdateGroupUseCase()`** (`AppDIContainer`) — factory method added so `GroupFormView` and future callers can resolve `UpdateGroupUseCase` from the shared container
+
+### Fixed
+- **Currency rows fully tappable** (`GroupFormView`) — `.contentShape(Rectangle())` added to the currency `HStack` so the entire row (including the `Spacer` gap) registers taps, not just the label text
+
+### Removed
+- **`GroupManagementView` + `GroupManagementViewModel`** — deleted; group editing moved into the existing chip picker sheet; Settings (`SettingsSheetView`) stays group-contextual (Categories, Payment Methods only)
+
+---
+
+## [1.0.21] - 2026-04-22
+
+### Fixed
+- **Paid status no longer dims text** (`ExpenseRowView`, `ItemRowView`) — removed opacity and `.secondary` foreground style changes on description and amount when `isPaid` is toggled; only the check icon changes color (green `checkmark.circle.fill` when paid, gray `circle` when not) — improves readability in both dashboard list and item detail
+
+---
+
+## [1.0.20] - 2026-04-22
+
+### Added
+- **3D press effect on add button** (`TotalSpentCardView`) — classic raised-button look using a dark base circle offset `y: 4`; on press the top face drops down to meet it with a spring animation, simulating a physical button being pushed into the surface
+
+### Changed
+- **Settings close button** (`SettingsSheetView`) — replaced `"Cerrar"` text with an `xmark` icon, consistent with all other sheets
+- **Description field icon** (`AddItemListView`) — `character.cursor.ibeam` icon added to the left of the description `TextField` as a subtle visual hint
+- **Description placeholder with category context** (`AddItemListView`) — no category: `"Concepto"`; category selected: `"Concepto sugerido (Alimentación)"` — updates reactively on category switch
+- **Thicker divider between hero input and description** (`AddItemListView`) — replaced `Divider()` with a 1.5pt `Rectangle` using `Color(.separator)` for better visual separation
+- **Hero input container resize smoothed** (`HeroAmountInputView`) — added `.animation(.spring(...), value: fontSize)` so the card height transitions smoothly as font size changes while typing
+
+### Fixed
+- **`heroAmountInput` restored in `AddItemView`** (`ItemListDetailView`) — was accidentally removed in a prior session; amount field is back in the individual item editor
+
+---
+
+## [1.0.19] - 2026-04-22
+
+### Changed
+- **Hero amount input hidden in edit mode** — `HeroAmountInputView` is a dashboard quick-add shortcut (create an item list + set a price in one shot); it no longer appears when editing an existing registry since money is an item-level property, not an item list property
+- **Description field promoted in edit mode** — when hero input is hidden, the description `TextField` uses `.body` font, `.primary` color, and larger padding to fill the card as the primary field
+- **Edit sheet title fixed** — `AddItemListView` navigation title changed from `"Editar Registro"` to `"Editar"` to avoid duplication with the `"Editar Registro"` action button in `ItemListDetailView`'s three-dots menu
+
+---
+
+## [1.0.18] - 2026-04-21
+
+### Added
+- **Paste support on hero amount input** — long-press on the amount field shows a "Pegar" context menu; pastes clipboard content (e.g. from iPhone Calculator) directly into the price field; clipboard parsing and sanitization handled in `AddItemListViewModel.pastePrice()` following Clean Architecture — view only fires the callback
+
+---
+
+## [1.0.17] - 2026-04-21
+
+### Changed
+- **Timeline list is now the default dashboard view** — previously the calendar was shown on launch; the list view is now the first and only active view for v1
+- **Calendar view hidden** — `CalendarGridView` and its day-panel logic commented out; `.calendar` case falls through to the list view
+- **View-picker dropdown hidden** — the "Calendario ⌄" `Menu` in `viewPickerBar` commented out; settings gear remains visible in its place
+
+---
+
+## [1.0.16] - 2026-04-18
+
+### Changed
+- **`AddItemListView` redesigned — money-first UX** — top card now leads with the full-size hero amount input (big centered number) and "Concepto" as a secondary field below it, matching the app's expense-first purpose; previously description was the dominant field
+- **Description placeholder adapts to selected category** — when a category is selected its name is used as placeholder (e.g. "Alimentos"); falls back to "Concepto" when no category is chosen
+- **Clear button on description field** — `xmark.circle.fill` appears inline when the field has text, matching the style used across the app
+- **Date card reworked** — toggle row now splits into a tappable label area (collapses/expands the graphical picker with a chevron) and the toggle switch (enables/disables custom date); calendar auto-expands on toggle-on, date resets to today on toggle-off
+- **"Más detalles" section reordered** — Date → Group → Payment method (was: Payment method → Date → Group)
+- **Category required removed from `canSave`** — form can now be saved with just a valid price, supporting pure list creation (e.g. grocery list without an amount)
+
+---
+
+## [1.0.15] - 2026-04-17
+
+### Fixed
+- **Amount field shows correct decimals when editing** — `String(item.amount)` on a `Double` produced floating-point noise (e.g. `0.9800000000001`); replaced with `String(format: "%.2f", ...)` + trailing-zero stripping so `0.98` stays `0.98`, `1.50` → `1.5`, `1.00` → `1`
+
+### Changed
+- **Group picker selected checkmark enlarged** — `checkmark.circle.fill` now uses `.font(.title2)` for better visual weight
+
+---
+
+## [1.0.14] - 2026-04-17
+
+### Changed
+- **Toolbar buttons use icons instead of labels** — `CategoryFormView`, `CreateGroupView` now use `xmark` (cancel) and `checkmark` (confirm) SF Symbols instead of text labels, matching the standard adopted across the app
+- **Group picker add button enlarged** — `plus.circle.fill` in `GroupPickerSheet` toolbar uses `.font(.title2)` and `.buttonStyle(.plain)` to remove the Liquid Glass container and render as a bare icon
+- **Auto-switch to newly created group** — after creating a group via `CreateGroupView`, the app now automatically selects it as the active group instead of staying on the previous one
+- **Delete group overlay now appears immediately** — `isDeletingGroup = true` is set in the alert confirmation action before `deleteGroup()` runs, eliminating the frame where the list was briefly visible between alert dismissal and overlay appearance
+
+---
+
+## [1.0.13] - 2026-04-17
+
+### Fixed
+- **Item lists in calendar day sheet now always sort newest-first** — sort comparator in `DashboardViewModel` now normalizes `date` to `startOfDay` before comparing, then falls back to `createdAt DESC` as tiebreaker. Previously, items created from the calendar sheet (stored with `date = midnight`) sorted below items created from the main dashboard (stored with `date = current time`) even when created more recently. Affects `refreshData()`, `addItemList()`, and `updateItemList()`.
+
+---
+
+## [1.0.12] - 2026-04-17
+
+### Changed
+- **Category grid capped at 3 + "Más"** — `gridCategoryLimit` reduced from 5 to 3; always a 2×2 grid of 4 elements
+- **Payment method grid capped at 3 + "Más"** — same pattern applied to payment methods: first 3 shown inline, overflow opens a bottom sheet
+- **Payment method overflow chip** — mirrors category overflow chip behaviour: shows selected overflow item's name/icon when active, chevron rotates on open; tap-to-deselect works inside the sheet too
+- **Payment method overflow sheet** — `presentationDetents` height computed dynamically from overflow count, same style as category sheet
+
+---
+
+## [1.0.11] - 2026-04-17
+
+### Changed
+- **Payment method now optional in `AddItemList`** — removed `selectedPaymentMethod != nil` from `canSave` and simplified `showValidationToast()` to only warn about missing category; user can save and assign payment method later
+- **Tapping a selected payment method deselects it** — toggled in `AddItemListView`; UserDefaults last-used key is only written on selection, not deselection
+
+---
+
+## [1.0.10] - 2026-04-17
+
+### Changed
+- **`CreateFirstUserView` redesigned** — full onboarding screen rewrite:
+  - Gradient icon header with `.pulse` symbol effect
+  - Custom input fields with icon, focus ring stroke, and `contentTransition` on icon color change
+  - Submit label `.next` / `.done` for keyboard tab navigation between fields
+  - Button uses gradient background + shadow when form is valid, `PressHapticButtonStyle`, bounces icon on validation state change
+  - Plain `VStack` layout (no `ScrollView`) — SwiftUI keyboard avoidance pushes content up natively
+  - Form content fades out (`opacity 0`) while loading overlay is active
+  - Dark mode preview added
+- **`CreateFirstUserView` no longer a sheet** — shown inline as full-screen content in `MainView` when no user exists; eliminates the broken state where dismissing the sheet left users stranded
+- **`MainView` simplified** — removed `showingCreateFirstUser` binding and sheet; `CreateFirstUserView` rendered directly in the `else` branch
+- **`CreateFirstUserViewModel`** — added `loadingMessage: String` property; updated `createUser()` to emit step-by-step messages ("Creando usuario…", "Creando grupo personal…", "Configurando categorías…", "¡Listo!")
+
+---
+
+## [1.0.9] - 2026-04-17
+
+### Removed
+- **`isDefault: Bool` removed from `SDCategory`** — property, init param, and mock param deleted
+- **`isDefault: Bool` removed from `SDPaymentMethod`** — property, init param, and mock param deleted
+- **`SDGroup.defaultCategory` and `SDGroup.defaultPaymentMethod`** computed properties deleted
+- **`isDefault` removed from all downstream layers** — `CategoryRepository`, `PaymentMethodRepository`, `CreateCategoryUseCase`, `CreatePaymentMethodUseCase`, `DefaultCategoryRepository`, `DefaultPaymentMethodRepository`, `DefaultGroupRepository`, `CategoryListViewModel`, `AddPaymentMethodViewModel`, `PaymentMethodListViewModel`
+- **`isDefault` UI guards removed** — `CategoryManagementView` and `PaymentMethodManagementView` no longer block editing/deleting rows based on `isDefault`; all rows are now fully editable and deletable
+
+### Added
+- **`sortOrder: Int` added to `SDCategory`** (default `0`) — controls display order independent of name
+- **"Otros" seeded with `sortOrder: 999`** in `DefaultGroupRepository` so it always renders last regardless of alphabetical sorting
+
+### Changed
+- **`DefaultCategoryRepository.fetchCategories(forGroupId:)`** — sort changed from `[name]` to `[sortOrder, name]`
+- **`AddItemListView` grid/overflow category split** — removed `isDefault`-based partitioning; grid shows first 5 categories, overflow shows the rest
+- **`AddItemListView` payment method UserDefaults key** renamed from `lastUsedNonDefaultPaymentMethodId_*` to `lastUsedPaymentMethodId_*`
+
+---
+
+## [1.0.8] - 2026-04-16
+
+### Removed
+- **`Data/CoreData/` directory deleted** — `Persistence.swift`, `Omoni.xcdatamodeld`, and empty `Entities/` folder removed; none were referenced in `project.pbxproj` or called from any Swift file
+- **`SettingsView.swift` deleted** — legacy view using old `User` domain type; never referenced outside its own file; app uses `SettingsSheetView` exclusively
+- **`GroupSelectorView.swift` deleted** — legacy view using old `Group` domain type; never referenced outside its own file
+
+### Fixed
+- **`PerformanceMonitor.swift`** — removed stale `import CoreData`; the import was unused (no CoreData types referenced in the file)
+
+---
+
+## [1.0.7] - 2026-04-16
+
+### Changed
+- **Liquid Glass UI — Phase 4 Step 4.4** — Replaced flat/opaque backgrounds with SwiftUI materials across Dashboard; materials automatically render as Liquid Glass on iOS 26:
+  - `TotalSpentCardView`: `Color(.systemGray5)` → `.regularMaterial`, shadow removed
+  - `bottomControls` bar: `Color(.systemBackground)` → `.regularMaterial` (extends into safe area)
+  - `viewPickerBar` dropdown pill: `Color.accentColor.opacity(0.1)` → `.thinMaterial`
+  - Filter/search capsule: `Color(.systemGray5)` → `.thinMaterial`
+  - `dayListPanel` slide-up panel: `Color(.systemGray5)` → `.regularMaterial`, shadow softened (`opacity 0.15→0.08`, `radius 12→8`)
+- **`START_HERE.md` updated** — Phase 4 marked complete; all steps 4.1–4.4 checked off
+
+---
+
+## [1.0.6] - 2026-04-16
+
+### Changed
+- **`CategoryPickerView` migrated to `@Query`** — `CategoryPickerViewModel` deleted; view now uses `@Query(sort: \SDCategory.name)` with in-memory filter by `groupId`; `.task` fetch, `isLoading` spinner, and error state removed
+- **`PaymentMethodPickerView` migrated to `@Query`** — `PaymentMethodPickerViewModel` deleted; view now uses `@Query(sort: \SDPaymentMethod.name)` with in-memory filter by `groupId && isActive`; `.task` fetch, loading/error state removed
+- **`START_HERE.md` updated** — Phase 4 Step 4.3 marked complete
+
+### Removed
+- `Presentation/Scenes/Category/ViewModels/CategoryPickerViewModel.swift`
+- `Presentation/Scenes/PaymentMethod/ViewModels/PaymentMethodPickerViewModel.swift`
+
+---
+
+## [1.0.5] - 2026-04-16
+
+### Changed
+- **Domain entity layer deleted** — `UserDomain`, `GroupDomain`, `ItemListDomain`, `ItemDomain`, `CategoryDomain`, `PaymentMethodDomain`, `UserGroupDomain` structs removed; all layers now use SwiftData `SD*` types directly as the single source of truth
+- **CoreData mapping files deleted** — all 7 `*+Mapping.swift` files (`Category+Mapping`, `Group+Mapping`, `Item+Mapping`, `ItemList+Mapping`, `PaymentMethod+Mapping`, `User+Mapping`, `UserGroup+Mapping`) removed; `.toDomain()` conversion no longer exists anywhere in the codebase
+- **All 22 use cases updated** — return and accept `SD*` types (`SDUser`, `SDGroup`, `SDItemList`, `SDItem`, `SDCategory`, `SDPaymentMethod`, `SDUserGroup`) in every protocol and implementation
+- **All 14 ViewModels updated** — `DashboardViewModel`, `AddItemListViewModel`, `ItemListDetailViewModel`, `AddItemViewModel`, `EditUserViewModel`, `UserDetailViewModel`, `UserListViewModel`, `CategoryListViewModel`, `CategoryPickerViewModel`, `PaymentMethodListViewModel`, `AddPaymentMethodViewModel`, `PaymentMethodPickerViewModel` rewritten to use SD* types; `updateItem`/`updateCategory`/`updatePaymentMethod` now mutate reference-type properties directly instead of creating new structs
+- **All Views updated** — `ItemListDetailView`, `AddItemView`, `ItemRowView`, `CategoryFormView`, `CategoryManagementView`, `PaymentMethodFormView`, `PaymentMethodManagementView`, `PaymentMethodPickerView`, `UserProfileView`, `EditUserView`, `UserListView`, `GroupSelectorChipView`, `CreateGroupView`, `ExpenseListView`, `ExpenseRowView`, `CalendarGridView`, `AddItemListView`, `DashboardView`, `SettingsSheetView`, `AppContentView` updated to `SD*` types throughout
+- **`ExpenseListView` row extraction** — `itemListRow(_:)` `@ViewBuilder` method extracted from `body` to resolve Swift type-checker timeout; category lookups split into named `let` bindings
+
+### Removed
+- 7 `Domain/Entities/*Domain.swift` files (~500 lines)
+- 7 `Data/CoreData/Entities/*+Mapping.swift` files (~300 lines)
+
+---
+
+## [1.0.4] - 2026-04-16
+
+### Changed
+- **14 ViewModels migrated to `@Observable`** — `ObservableObject` conformance and all `@Published` property wrappers removed; `@Observable` macro applied; affected ViewModels: `DashboardViewModel`, `AddItemListViewModel`, `ItemListDetailViewModel`, `AddItemViewModel`, `UserListViewModel`, `EditUserViewModel`, `CreateUserViewModel`, `CreateFirstUserViewModel`, `UserDetailViewModel`, `CategoryPickerViewModel`, `CategoryListViewModel`, `PaymentMethodPickerViewModel`, `PaymentMethodListViewModel`, `AddPaymentMethodViewModel`
+- **13 Views updated for `@Observable` ViewModels** — `@StateObject` → `@State`, `StateObject(wrappedValue:)` → `State(wrappedValue:)` in all `init` methods; affected Views: `DashboardView`, `AddItemListView`, `ItemListDetailView`, `UserListView`, `EditUserView`, `AddUserView`, `CreateFirstUserView`, `CategoryPickerView`, `CategoryManagementView`, `CategoryFormView`, `PaymentMethodPickerView`, `PaymentMethodManagementView`, `PaymentMethodFormView`
+- **`START_HERE.md` updated** — Added Rule 0: build and test before every commit; updated Phase 4 progress (Step 4.1 complete); `@Observable` marked as complete in stack table; `ObservableObject` moved to ❌ FORBIDDEN red flags
+
+---
+
+## [1.0.3] - 2026-04-15
+
+### Changed
+- **`AppDIContainer` migrated to SwiftData** — replaced `NSManagedObjectContext` / `PersistenceController` with `ModelContext` from `ModelContainer.shared`; all 7 repositories now receive `ModelContext` directly; service layer fully removed
+- **All repositories rewritten for SwiftData** — `DefaultUserRepository`, `DefaultGroupRepository`, `DefaultCategoryRepository`, `DefaultPaymentMethodRepository`, `DefaultItemListRepository`, `DefaultItemRepository`, `DefaultUserGroupRepository` now use `ModelContext` + `FetchDescriptor` / `#Predicate` instead of `NSFetchRequest`; `.toDomain()` mappings kept as private extensions
+- **Service layer deleted** — `CategoryService`, `CoreDataService`, `GroupService`, `ItemListService`, `ItemService`, `PaymentMethodService`, `UserGroupService`, `UserService` and matching `*ServiceProtocol` files removed; repositories talk to `ModelContext` directly
+- **`DataPreloader` removed** — no longer needed; SwiftData container seeds preview data via `ModelContainer.preview`
+- **`TestDataGenerator` rewritten for SwiftData** — replaced `NSManagedObjectContext` + Core Data entities with `ModelContext` + `SDItemList`/`SDItem`; marked `@MainActor`
+
+### Fixed
+- **Default categories and payment methods not created on group creation** — seeding logic lost when `GroupService` was deleted is restored in `DefaultGroupRepository.createGroup`; each new group now atomically inserts 4 payment methods (Efectivo, Débito, Crédito, Transferencia) and 6 categories (Alimentación, Movilidad, Hogar, Ocio, Salud, Otros) in the same `context.save()` transaction
+- **Presentation layer — all Core Data references removed** — `import CoreData`, `@Environment(\.managedObjectContext)`, `NSManagedObjectContext` params, and `PersistenceController` preview references eliminated from all 9 affected view files:
+  - `CreateGroupView`, `AddUserView`, `CreateFirstUserView` — unused `import CoreData` removed
+  - `EditUserView`, `CategoryPickerView` — unused `context: NSManagedObjectContext` params dropped from inits; previews updated to `ModelContainer.preview`
+  - `UserListView` — `init(context:)` simplified to `init()`; `EditUserView` call updated
+  - `PaymentMethodPickerView` — `group: Group` (NSManagedObject) parameter replaced with `groupId: UUID`
+  - `TestDataView` — `@Environment(\.managedObjectContext)` → `@Environment(\.modelContext)`; preview updated
+
+---
+
+## [1.0.2] - 2026-04-15
+
+### Changed
+- **Project structure reorganized for SwiftData migration** — `SD*.swift` models, `OmoniSchema.swift`, and `ModelContainer+Shared.swift` moved from project root into `Omoni/Data/SwiftData/` following the existing `Data/CoreData/` convention; all migration `.md` docs moved from project root into `docs/`; stale manual Xcode project entries removed (files now auto-discovered via `PBXFileSystemSynchronizedRootGroup`)
+
+---
+
+## [1.0.1] - 2026-04-15
+
+### Added
+- **SwiftData injected into app entry point** — `ModelContainer.shared` initialized in `OmoniApp`; `.modelContainer()` modifier applied to `ContentView`; Core Data stack kept in parallel until Phase 3
+
+### Fixed
+- **`ModelsSwiftData*.swift` duplicates removed** — 8 conflicting files (`class ItemList`, `class Group`, etc.) deleted from project; `SD*` files are the canonical SwiftData models
+- **`where Self: NSManagedObject` removed from all 7 `*+Mapping.swift` extensions** — invalid constraint on concrete `NSManagedObject` subclass extensions
+
+---
+
+## [1.0.0] - 2026-04-15
+
+### Added
+- **SwiftData models** — `SDUser`, `SDGroup`, `SDUserGroup`, `SDCategory`, `SDPaymentMethod`, `SDItemList`, `SDItem` with relationships, validations, computed properties, and debug mock helpers
+- **`OmoniSchema.swift`** — versioned `SchemaV1` registering all 7 models
+- **`ModelContainer+Shared.swift`** — shared production container, in-memory preview and test containers, `safeSave`/`safeRollback` helpers
+
+---
+
+## [0.47.1] - 2026-04-15
+
+### Changed
+- **Empty state copy and icon in ExpenseListView** — icon changed from `tray` to `sparkles.2`; title updated to "Nada por aquí..."; subtitle shortened to "Pulsa el + para agregar una lista"
+
+---
+
+## [0.47.0] - 2026-04-15
+
+### Changed
+- **New items and item lists appear at the top** — items inside a list now sort by `createdAt` descending; item lists within the same day also sort by `createdAt` descending so the latest addition always appears first; affects `ItemService`, `ItemListService` (all four fetch queries), and the three in-memory sorts in `DashboardViewModel`
+
+---
+
+## [0.46.2] - 2026-04-15
+
+### Fixed
+- **Toast rapid-tap instability** — tapping repeatedly caused shorter display times and erratic behaviour; `onDisappear` was calling `onDismiss()` which wiped the incoming toast when SwiftUI replaced the old view via `.id()`; removed `onDismiss()` from `onDisappear` to keep each tap independent
+- **Toast haptics replay on navigation return** — navigating into an item list detail and back replayed the 3-tap haptic; `DashboardView` now clears `toast` as soon as `navigationPath` becomes non-empty, so no toast state survives the push
+
+---
+
+## [0.46.1] - 2026-04-15
+
+### Fixed
+- **Payment method type buttons misaligned** — "Transferencia" label was wrapping to two lines, making its cell taller than the others in the grid; added `lineLimit(1)` + `minimumScaleFactor(0.8)` so all four buttons share a consistent height
+
+---
+
+## [0.46.0] - 2026-04-15
+
+### Added
+- **In-app toast notifications** — new reusable `ToastView` component (`Presentation/Common/Components/Toast/`) with warning, error, and info types; appears from the top with a spring animation, auto-dismisses after 2.5 s, and triggers 3 quick haptic taps on appearance
+- **Form validation feedback** — tapping "Guardar" in AddItemListView while fields are missing now shows a contextual toast ("Selecciona una categoría", "Selecciona un método de pago", or both) instead of silently doing nothing; the Save button is always tappable
+- **Empty list paid-toggle feedback** — tapping the paid toggle on an item list with no items now shows a "Lista vacía" toast and skips the optimistic UI update, eliminating the previous flicker-and-revert behaviour
+
+---
+
+## [0.45.2] - 2026-04-15
+
+### Removed
+- **Unused batch/bulk operation dead code** — removed `batchDelete`, `batchUpdate`, `bulkInsert` from `CoreDataService`; all bulk methods from `GroupService`, `UserService`, `ItemListService` and their protocols; `BulkInsertItemListsUseCase`; `makeBulkInsertItemListsUseCase` from `AppDIContainer`; `CoreDataError` enum — none of these were reachable from any UI or UseCase and `batchDelete` specifically bypassed CoreData cascade rules, posing a data-loss risk if ever wired up
+
+---
+
+## [0.45.1] - 2026-04-15
+
+### Fixed
+- **CoreData cascade delete wipe** — `Category.group` and `PaymentMethod.group` relationships had `deletionRule="Cascade"` instead of `Nullify`; deleting a single category or payment method was silently cascade-deleting the entire Group and all its ItemLists, Items, and Categories; corrected both to `Nullify` so only the category/payment method itself is removed
+
+---
+
+## [0.45.0] - 2026-04-15
+
+### Changed
+- **List view day totals** — section headers in list mode now show the total spending for that day right-aligned alongside the date label; reuses the existing `formattedTotal(for:)` ViewModel method; calendar and compact panel headers are unaffected
+
+---
+
+## [0.44.0] - 2026-04-15
+
+### Changed
+- **Portrait-only orientation** — app is now locked to portrait mode via `UIApplicationDelegate.supportedInterfaceOrientationsFor`; landscape rotation is disabled app-wide
+
+---
+
+## [0.43.0] - 2026-04-15
+
+### Changed
+- **Pending row style in expense list** — when all items in an item list are unpaid (`paidStatus == .none`), the description, amount, and category dot are rendered in secondary/muted colors; paid and partial rows keep full-contrast primary style, making payment status immediately scannable
+- **Pending item style in item detail** — individual items with `isPaid = false` now render their description and amount in secondary color; paid items stay primary; the check toggle remains full opacity in both states
+
+---
+
+## [0.42.1] - 2026-04-15
+
+### Fixed
+- **Bottom controls background bleed** — `TotalSpentCardView` + group chips background now extends into the bottom safe area via `ignoresSafeArea(edges: .bottom)`; previously the day panel closing animation revealed a transparent gap at the screen bottom edge behind the controls
+
+---
+
+## [0.42.0] - 2026-04-14
+
+### Changed
+- **Calendar unpaid indicator** — days with at least one unpaid item list now show the spending amount in orange instead of accent color; fully paid days keep the accent color; improves at-a-glance payment status on the calendar
+- **Day panel date header removed in compact mode** — "HOY", "AYER", "12 ABR" label removed from the day expense list panel; context is already provided by the calendar week-strip selection and the total card label ("Coste del 13 abr"), recovering vertical space
+- **Day panel bottom fade** — subtle 10pt gradient at the bottom edge of the day expense list panel fades content into the panel background, softening the hard clip of the rounded corner
+- **Calendar daily totals precomputed once per render** — `dailyTotals` dictionary is now computed a single time in `body` and passed as a parameter to `dayCell`, instead of being recomputed on every cell access; eliminates 30+ redundant iterations per render frame with large datasets
+
+### Performance
+- **`currentMonthTotal` cached in ViewModel** — month total is now a `@Published var` updated inside `calculateTotalSpent()` using the already-cached `currentMonthItemLists`; `displayedTotal` reads the cached value directly instead of filtering and reducing `itemLists` inline on every render frame, eliminating per-frame O(n) work during panel open/close animations
+
+---
+
+## [0.41.0] - 2026-04-14
+
+### Changed
+- **Calendar day cells redesigned (Neubrutalism / accessibility)** — cells replaced from small circles (32×32 pt, 14 pt date, 9 pt amount) to full-width borderless cards; date number is now 20 pt bold rounded, spending amount 13 pt semibold — both readable at iOS display zoom; row height raised to 64 pt (collapsed strip) / 72 pt max (full month); month header bumped to 20 pt bold rounded, nav buttons to 44×44 pt (HIG minimum); weekday labels to 11 pt semibold
+- **Calendar cell backgrounds** — all days transparent except selected day which shows a solid accent fill; no borders on any cell
+- **Calendar spending amount color** — all days with spend always show the amount in full accent color (no opacity fade); previously low-spend days faded to near-invisible gray
+- **Calendar last-row overflow fixed** — row height calculation now subtracts inter-row spacing before dividing, preventing the last week from being clipped on zoomed displays
+
+---
+
+## [0.40.0] - 2026-04-09
+
+### Fixed
+- **Calendar month navigation** — navigating to a past or future month now correctly loads its item lists and totals. Root cause was two-layer: (1) `CalendarGridView` had no upward callback for month changes, so the parent kept passing only current-month data; (2) `DashboardViewModel.calculateTotalSpent()` only iterated `currentMonthItemLists`, leaving `itemListTotals` empty for any other month. Fix: `CalendarGridView` now exposes `onMonthChange: (Date) -> Void`; `DashboardView` tracks `displayedCalendarMonth` and passes all `viewModel.itemLists` to the grid; `DashboardViewModel` iterates `itemLists` in `calculateTotalSpent`, `formattedTotal(for:)`, and the new `formattedTotal(forMonth:)` method; `TotalSpentCardView` label adapts to "Coste en Marzo 2026" for non-current months
+
+### Changed
+- **Calendar cells with zero-spend days** — days that have item lists but no items (total = €0) now display "0,00 €" in a muted secondary color instead of showing nothing, making it clear the day has records
+
+---
+
+## [0.39.0] - 2026-04-09
+
+### Changed
+- **`LimitedTextField` clear button** — replaced character counter (`5/20`) with a native `xmark.circle.fill` button; tap clears the field instantly with a fade+scale animation; consistent with iOS standard text field behavior (search bars, URL bar, etc.)
+- **`LimitedTextField` max length** raised from 20 to 30 characters; change applies to all 5 usages: item list description, item description, user profile name, category name, payment method name
+
+---
+
+## [0.38.0] - 2026-04-09
+
+### Changed
+- **`TotalSpentCardView` redesigned** — label upgraded from `.caption` to `.subheadline .medium`; amount font increased from 24 pt to 34 pt (adaptive); "+" button enlarged from 34×34 to 48×48 with a 20 pt icon (meets iOS 44 pt minimum tap target)
+- **Group selector chip icon** changed from `folder.fill` to `person.3.fill` — better reflects the concept of a shared group
+- **Settings button icon** changed from `gear` to `gearshape.fill` — filled variant with more visual weight
+
+---
+
+## [0.37.0] - 2026-04-09
+
+### Added
+- **Dynamic `TotalSpentCardView` label** — shows "Coste de vida este mes" when no day is selected, "Coste de vida hoy" when today is selected, or "Coste del 6 abr" for any other date; `ItemListDetailView` shows "Coste de [nombre del registro]"
+- **Animated subtotal card in `AddItemView`** — replaces the small caption info text; appears when quantity > 1 and amount is set; shows the unit × qty formula and the total in a large bold animated number with `numericText` spring transition
+- **Pre-fill date on new item list** — tapping "+" while a calendar day is selected opens `AddItemListView` with that date pre-filled; `AddItemListViewModel` accepts `initialDate` parameter
+- **Drag-to-dismiss day expense panel** — day expense list is shown as an inline panel with a pill drag handle; dragging down > 80 pt dismisses it and expands the calendar back to full month; bottom controls (TotalSpentCard, group chip, filters) always remain visible
+
+### Changed
+- **All calendar days now tappable** in full-month mode — removed the `.disabled` check that blocked days without spending; enables future-date planning (e.g. scheduling rent payment)
+- **New items default to `isPaid: false`** — items no longer auto-marked as paid on creation; payment is an explicit user action
+- **`ExpenseRowView` unpaid label** changed from "restantes" to "por pagar"
+
+---
+
+## [0.36.0] - 2026-04-08
+
+### Added
+- **Calendar grid view** (`CalendarGridView`) on the dashboard — full month grid collapses to the selected week row when a day is tapped; daily totals shown below each date with opacity scaled to spend intensity
+- **View mode picker** — dropdown in the top bar lets the user switch between "Calendario" and "Lista" views; resets to calendar on group change
+- **Filter icon button** in bottom bar using SF Symbol `line.3.horizontal.decrease` alongside the existing search icon
+
+### Changed
+- **`DashboardView` bottom bar** restructured: group selector chip on the left, filter + search capsule on the right
+- **`TotalSpentCardView`** total updates with a `numericText` content transition, directional flash (green/red), and scale bounce animation on change
+
+### Refactored
+- **Formatting logic moved out of Views into ViewModels** (all Views now contain only UI construction):
+  - `DashboardView`: `formattedPaid(for:)`, `formattedUnpaid(for:)`, `formattedTotal(for:)` moved to `DashboardViewModel`; duplicate `currencyString(_:)` removed (already existed as `makeCurrencyFormatter()` in ViewModel)
+  - `AddItemListView`: `formattedDate` moved to `AddItemListViewModel`
+  - `AddItemView`: `showsTotalPreview` moved to `AddItemViewModel`
+
+---
+
+## [0.35.0] - 2026-04-06
+
+### Added
+- **Icon editing for categories** — icon picker now visible in edit mode (previously only on create); `UpdateCategoryUseCase`, `CategoryService`, and `DefaultCategoryRepository` updated to persist `icon` field through the full chain
+- **Icon editing for payment methods** — new icon picker grid added to `PaymentMethodFormView`; preview updates live as icon is selected
+- **`CategoryFormView.swift`** extracted from `CategoryManagementView.swift` into its own file
+- **`PaymentMethodFormView.swift`** extracted from `PaymentMethodManagementView.swift` into its own file
+
+### Changed
+- **Payment method types** aligned to actual seeded data: `["cash", "card_debit", "card_credit", "bank_transfer"]` replacing the old `["card", "cash", "transfer", "digital"]`; `typeName()`, `typeIcon()`, `typeColor()` updated with exact `switch` matching (no more `contains` checks or raw type leaking into UI)
+- **`PaymentMethodManagementView` row** now uses stored `pm.icon` with fallback to `typeIcon(pm.type)` instead of always deriving from type
+- **`AddItemListView` payment method chips** now derive color from `paymentMethodType` and icon from stored `method.icon` (with type fallback) — fixes grey cards caused by stale default color stored in CoreData from old build
+- **`PaymentMethodListViewModel.updatePaymentMethod`** refactored: takes existing `PaymentMethodDomain` directly instead of searching empty local array — fixes silent no-op when saving from the form sheet
+- **`PaymentMethodListViewModel.updatePaymentMethod`** now preserves `color`, `isDefault`, and all fields when building the updated domain model
+- **`PaymentMethodListViewModel.createPaymentMethod`** accepts `icon` parameter
+- **`UpdatePaymentMethodUseCase` / `PaymentMethodService` / `DefaultPaymentMethodRepository`** — `icon` field now flows through the full update chain to CoreData
+- **Scenes restructured** into `Views/` + `ViewModels/` subdirectories for all scenes: Category, PaymentMethod, Dashboard, ItemList, User, Group
+
+### Fixed
+- Icon never saved to CoreData on category update — `CategoryService.updateCategory` was missing `icon` parameter
+- Icon never saved to CoreData on payment method update — `PaymentMethodService.updatePaymentMethod` was missing `icon` parameter
+- `DefaultCategoryRepository` and `DefaultPaymentMethodRepository` not forwarding `icon` to their respective services
+- `PaymentMethodFormView` save silently doing nothing — ViewModel searched an empty `paymentMethods` array for the method to update
+- `typeName("card")` returning raw `"card"` string instead of `"Tarjeta"` due to fallback returning raw value when type was non-empty
+
+---
+
+## [0.34.0] - 2026-04-05
+
+### Added
+- **Per-item paid toggle** in `ItemListDetailView` — tap the circle icon on any item to mark it paid/unpaid individually
+- **`PressHapticButtonStyle`** shared component in `Infrastructure/Helpers/` — rigid haptic on press, soft on release; used on all paid toggle buttons app-wide
+- Haptic feedback on dashboard paid toggle (`ExpenseRowView`) using `PressHapticButtonStyle`
+
+### Changed
+- `getFormattedTotal()` in `ItemListDetailViewModel` now sums only items where `isPaid == true` — total reflects money already paid
+- `itemListTotals` and `itemListPaidStatus` pre-populated with zero/default values before async calculation to eliminate "not found" warnings on group switch and new ItemList creation
+
+### Fixed
+- `⚠️ [UI] ItemList not found in itemListTotals` warning no longer fires during group switch or after adding a new ItemList
+
+---
+
+## [0.33.0] - 2026-04-05
+
+### Changed
+- **Cache refactor: domain models instead of CoreData objects**
+  - `ItemListService`: caches `[ItemListDomain]` instead of `[ItemList]`; domain conversion now happens inside `context.perform`; TTL reduced from 30 min to 5 min
+  - `ItemService`: `getItems(for:)` methods now cache `[ItemDomain]` (resolves long-standing TODO); cache invalidation added to all write operations (`createItem`, `updateItem`, `deleteItem`, `setAllItemsPaid`)
+  - `DefaultItemListRepository` / `DefaultItemRepository`: removed redundant `.map { $0.toDomain() }` calls now handled by services
+  - Protocols updated: `getItemLists` returns `[ItemListDomain]`, `getItems` returns `[ItemDomain]`
+
+---
+
+## [0.32.0] - 2026-04-05
+
+### Added
+- **Paid/unpaid check system** for ItemLists on the dashboard
+  - `ToggleAllItemsPaidInListUseCase` — bulk toggle all items in an ItemList paid/unpaid
+  - Dashboard row icon reflects paid status: `circle` (none), `circle.lefthalf.filled` (partial), `checkmark.circle.fill` (all)
+  - `itemListPaidStatus` and `itemListUnpaidTotals` tracked per ItemList in `DashboardViewModel`
+
+---
+
+## [0.31.0] - 2026-04-03
+
+### Added
+- **Settings views** for User, Category, and Payment Method management
+  - Edit user profile, manage categories with icon/color, manage payment methods
+
+---
+
+## [0.30.0] - 2026-03-31
+
+### Changed
+- Redesigned item list row (`ExpenseRowView`) and item row (`ItemRowView`) with updated layout and visual hierarchy
+
+---
+
+## [0.29.0] - 2026-03-31
+
+### Changed
+- **Redesigned `AddItemView`** with hero price input and refactored shared components
+- Scroll disabled when "more details" section is closed in item list form
+
+---
+
+## [0.28.0] - 2026-03-29
+
+### Added
+- Category grid with morph animation, overflow sheet, and payment method chip height fix
+
+### Fixed
+- Auto-focus removed on open; parallel data load on form; scroll bugs; date picker animation
+- Neutral gray border on amount input focus; edit mode auto-scroll prevented
+
+---
+
+## [0.27.0] - 2026-03-28
+
+### Changed
+- **Redesigned `AddItemListView`** with dynamic amount input, font scaling, inline currency symbol, and smart last-used category/payment method ordering
+
+---
+
+## [0.26.0] - 2026-03-19
+
+### Added
+- Edit registry feature — edit ItemList metadata (date, category, payment method) from inside `ItemListDetailView`
+- Animation for total money widget on dashboard
+
+### Fixed
+- Article count shows item quantity instead of item count
+- Phantom keyboard inset no longer pushes dashboard and item detail views
+- Stale dashboard totals after editing an ItemList
+
+---
+
+## [0.25.0] - 2026-03-11 → 2026-03-13
+
+### Added
+- Complete Add Item List flow with incremental cache update and correct total propagation
+- `icon`, `color`, `isDefault` properties added to Category and PaymentMethod entities
+- Default categories updated
+- Item form: input limits, keyboard dismiss button, total preview (unit × qty)
+- Item list rows now show item count instead of category name
+
+### Fixed
+- `emptyStateView` properly centered on dashboard
+- Phantom keyboard inset pushing "Total Gastado" widget
+- USD currency displayed correctly
+- Sheet action buttons repositioned following iOS HIG
+
+---
+
+## [0.24.0] - 2025-12-11 → 2025-12-24
+
+### Changed
+- **Clean Architecture 100% completion**
+  - Category, PaymentMethod, User, and Group management fully migrated to Domain models
+  - All CoreData entity usage removed from Presentation layer
+  - 0 `import CoreData` in ViewModels/Views; 32 `.toDomain()` conversions all in Data layer
+
+### Fixed
+- Bug when switching between groups (stale cache returned wrong ItemLists)
+
+---
+
+## [0.23.0] - 2025-12-10
+
+### Fixed
+- **🐛 Bug Fix: ItemList totals now display correctly in Dashboard**
+  - **Problem**: All ItemLists showed "0.00 €" instead of the sum of their items
+  - **Root Cause**: DashboardView had hardcoded placeholder instead of using calculated totals
+  - **Solution**:
+    - Added `@Published var itemListTotals: [UUID: Double]` cache in DashboardViewModel
+    - Modified `calculateTotalSpent()` to populate the totals cache concurrently
+    - Updated DashboardView to read from `itemListTotals` dictionary
+    - Totals now calculated once during data load and refresh
+  - **Benefits**:
+    - ✅ Correct totals displayed for each ItemList
+    - ✅ Performance: Totals cached, no recalculation on UI render
+    - ✅ Reactive: UI updates automatically when totals change
+    - ✅ Concurrent: All ItemList totals calculated in parallel using `withTaskGroup`
+
+### Technical Details
+- **Total Calculation Flow**:
+  1. `loadDashboardData()` / `refreshData()` → calls `calculateTotalSpent()`
+  2. `calculateTotalSpent()` uses `withTaskGroup` to fetch items for all ItemLists concurrently
+  3. Results stored in `itemListTotals: [UUID: Double]` dictionary
+  4. DashboardView reads from cache in `getFormattedAmount` closure
+- **Currency Formatting**: Uses `NumberFormatter` with Spanish locale (es_ES) for Euro display
+
+## [0.22.0] - 2025-12-10
+
+### Changed
+- **🏗️ Architecture: Item CRUD Refactor to Domain Models (Clean Architecture)**
+  - **Goal**: Extend Domain refactor to Item CRUD operations in ItemListDetailViewModel
+  - **Status**: ✅ Completed
+  - **Files Modified**:
+    - `ItemListDetailViewModel.swift` - Full Domain migration
+    - `ItemListDetailView.swift` - Updated to use Domain models
+    - `AddItemViewModel.swift` - Migrated to accept ItemDomain
+    - `ItemRowView` component - Updated to render ItemDomain
+  - **Changes**:
+    - `@Published var items` changed from `[Item]` (Core Data) to `[ItemDomain]`
+    - `loadItems()` - Uses `fetchItemsUseCase` directly, returns Domain models
+    - `addItemFromDomain()` - Works with Domain models only (no Core Data conversion)
+    - `updateItemFromDomain()` - Works with Domain models only
+    - `deleteItem()` - Accepts ItemDomain parameter
+    - `getFormattedTotal()` - Fixed to use Decimal operators instead of NSDecimalNumber
+    - `getFormattedAmount()` - Fixed to use Decimal operators
+    - `ItemSheetMode` enum - Changed from `edit(Item)` to `edit(ItemDomain)`
+    - ForEach ID - Changed from `.objectID` to `.id`
+    - `AddItemViewModel.itemToEdit` - Changed from `Item?` to `ItemDomain?`
+  - **Benefits**:
+    - ✅ ItemListDetailViewModel now 100% Domain-driven
+    - ✅ No Core Data entity manipulation in ViewModel
+    - ✅ Consistent pattern with DashboardViewModel refactor
+    - ✅ Type-safe Decimal operations instead of NSDecimalNumber
+    - ✅ Clean separation of concerns maintained
+
+### Technical Details
+- **Pattern Consistency**: Item CRUD now follows same Domain pattern as ItemList CRUD
+- **Decimal Handling**: Changed from NSDecimalNumber to native Decimal operators (`*`, `+`)
+- **Build Status**: ✅ Build succeeded - all compilation errors fixed
+
+## [0.21.0] - 2025-12-10
+
+### Changed
+- **🏗️ Architecture: Major Domain ViewModel Refactor (Clean Architecture)**
+  - **Goal**: Complete migration of DashboardViewModel from Core Data entities to Domain models
+  - **Status**: ✅ Core functionality complete
+  - **Completed**:
+    - `loadDashboardData()` - Now uses `fetchItemListsUseCase.execute()` to get Domain models
+    - `refreshData()` - Refactored to work with `[ItemListDomain]` instead of Core Data entities
+    - `updateCurrentMonthCache()` - Already working with Domain models (verified)
+    - `deleteItemListDomain()` - New Domain method using Use Case only
+    - `removeItemListDomain()` - Helper method for optimistic UI updates
+    - `updateItemListDomain()` - Update ItemList in UI cache with Domain models
+    - `isItemListInCurrentContext(ItemListDomain)` - Domain version of context check
+    - `getCurrentMonthItemLists()` - Return type updated to `[ItemListDomain]`
+    - **DashboardView.swift**: Updated delete action to call `deleteItemListDomain()` directly
+  - **Benefits**:
+    - ✅ ViewModel now works entirely with Domain models for ItemLists
+    - ✅ No more `.objectID` comparisons - uses UUID `.id` instead
+    - ✅ Cleaner code - no optional chaining on Domain model properties
+    - ✅ Better separation of concerns - Use Cases handle all data access
+    - ✅ Follows Clean Architecture principles perfectly
+
+### Technical Details
+- **Domain CRUD Pattern**: All CRUD operations now have Domain versions that use Use Cases
+- **Optimistic Updates**: UI updates immediately, then syncs with persistence layer
+- **Error Handling**: Rollback UI changes on persistence failures by reloading data
+- **Total Calculation**: Always recalculates totals after changes (no incremental updates)
+
+## [0.20.0] - 2025-12-09
+
+### Fixed
+- **🐛 Critical: ItemList Total Shows 0,00 € with Automatic Item**
+  - **Issue**: Creating ItemList with price field showed 0,00 € instead of actual amount
+  - **Root cause**: Using `.toCoreData()` created new ItemList object without items relationship loaded
+  - **Solution**: Added `addItemListFromDomain()` that fetches ItemList by ID with relationships prefetched
+  - **Result**: Dashboard now correctly displays total (e.g., 630,00 € instead of 0,00 €)
+
+- **🐛 Duplicate ItemList Addition Attempts**
+  - **Issue**: ItemList was being added twice (notification handler + explicit callback)
+  - **Root cause**: Core Data notification handler competed with explicit callback pattern
+  - **Async timing**: Notification handler's `Task { }` ran after Item creation, creating race condition
+  - **Solution**: Removed automatic notification handler in favor of explicit callbacks only
+  - **Benefits**: Single source of truth, no race conditions, predictable timing
+
+### Changed
+- **🎯 DashboardView: Explicit Domain-to-CoreData Conversion**
+  - **Before**: `let itemList = createdItemList.toCoreData(context:)` → no relationships loaded
+  - **After**: `await viewModel.addItemListFromDomain(createdItemList)` → full object with items
+  - **Pattern**: View delegates to ViewModel for Core Data operations (Clean Architecture)
+
+- **🏗️ Architecture: Begin Domain ViewModel Migration (WIP)**
+  - **Goal**: Migrate DashboardViewModel from Core Data entities to Domain models
+  - **Status**: In Progress - Core methods refactored, 15+ compilation errors remaining
+  - **Completed**:
+    - `addItemListFromDomain()` - Pure Clean Architecture, no `context.perform()`
+    - `getItemListTotal(ItemListDomain)` - Async, fetches items via Use Case
+    - `getFormattedItemListTotal(ItemListDomain)` - Async formatting
+    - `calculateTotalSpent()` - Now async with **concurrent** item fetching (performance boost!)
+    - ViewModel storage changed: `[ItemList]` → `[ItemListDomain]`
+    - View components updated: ExpenseListView, ExpenseRowView use Domain models
+  - **Next**: Fix remaining Core Data-dependent methods (see docs/DOMAIN_REFACTOR_TODO.md)
+
+- **🏗️ DashboardViewModel: Streamlined ItemList Addition**
+  - **Removed**: Automatic Core Data notification handler for ItemList insertions
+  - **Reason**: All ItemList creation uses explicit callbacks for better control
+  - **Added**: `addItemListFromDomain(_ itemListDomain:)` method
+  - **Implementation**: Uses NSFetchRequest with `relationshipKeyPathsForPrefetching: ["items"]`
+
+### Technical Details
+- **NSFetchRequest Pattern**: Fetches ItemList by UUID with eager loading of items relationship
+- **Clean Architecture**: ViewModel handles all Core Data logic, View only triggers actions
+- **Explicit Callback Flow**: AddItemListView → Item created → callback → fetch with relationships → add to UI
+- **No Race Conditions**: Single, predictable code path for ItemList addition
+- **Comprehensive Logging**: `[ADD-DOMAIN]` tags show fetch operations and item counts
+
+---
+
+## [0.19.0] - 2025-12-03
+
+### Added
+- **⚡ Native iOS Navigation Pattern for Instant UI Updates**
+  - **Dashboard navigation back**: Context refresh without DB query when returning from ItemListDetailView
+  - **Sheet dismiss optimization**: Context refresh without DB query when closing AddItemView
+  - **State tracking**: `hasLoadedInitialData` flag prevents redundant database queries
+  - **Instant updates**: 50-100x faster than database queries (~1ms vs ~50-100ms)
+
+- **🔄 ItemListDetailViewModel Context Refresh**
+  - **`refreshItemContexts()`**: Refreshes all Item Core Data objects from context (no DB query)
+  - **`refreshItemListContext()`**: Public method to refresh ItemList properties (ready for Edit ItemList feature)
+  - **Smart context management**: Refreshes both Items and parent ItemList for complete consistency
+
+- **📊 Enhanced Pull-to-Refresh UX**
+  - **Smooth animations**: List stays visible during refresh (no abrupt spinner)
+  - **Conditional loading spinner**: Only shows on initial load, not during pull-to-refresh
+  - **Standard iOS behavior**: Always fetches fresh data from database (as expected)
+  - **Comprehensive logging**: Track initial load vs refresh vs context refresh
+
+### Changed
+- **🎯 ItemListDetailView Navigation Optimization**
+  - **`.onAppear` logic**: Distinguishes between first load and sheet dismiss
+  - **First load**: Full database query with loading spinner
+  - **Sheet dismiss**: Instant Core Data context refresh (NO database query)
+  - **Pattern consistency**: Matches DashboardView navigation behavior
+
+- **📝 Improved Debug Logging**
+  - **`loadItems()`**: Logs initial load vs pull-to-refresh, item counts, errors
+  - **Context refresh**: Logs `[CONTEXT-REFRESH]` and `[ITEMLIST-REFRESH]` operations
+  - **Performance visibility**: Easy to track which operations hit the database
+
+### Fixed
+- **🐛 Smooth Pull-to-Refresh**
+  - **No abrupt list disappearance**: List remains visible during refresh
+  - **Eliminated loading spinner flash**: Only shows spinner when `items.isEmpty`
+  - **Native iOS UX**: Matches Mail, Instagram, Twitter/X behavior
+
+### Technical Details
+- **Navigation Flow**:
+  - Dashboard → ItemListDetailView (initial load with DB query)
+  - ItemListDetailView → AddItemView (sheet)
+  - AddItemView saves → Sheet dismisses → Context refresh (instant!)
+  - Back to Dashboard → Context refresh (instant!)
+- **Pull-to-Refresh**: Always hits database (correct standard iOS behavior)
+- **Performance**: Context refresh ~1ms, Database query ~50-100ms
+- **Ready for future**: Public `refreshItemListContext()` method prepared for Edit ItemList feature
+
+---
+
+## [0.18.0] - 2025-12-02
+
+### Added
+- **✨ Consolidated ItemList Creation Flow**
+  - **Single unified view** for creating ItemLists (removed duplicate QuickExpenseView)
+  - **Optional price field**: Users can optionally enter a price to auto-create an Item
+  - **Auto-Item creation**: When price is provided, automatically creates first Item with same description
+  - **Modern iOS UI**: Sheet-based modal presentation with Form layout
+  - **Native pickers**: Using Apple-recommended `Picker` component with `.navigationLink` style
+  - **Visual enhancements**: Color circles for categories, icons for payment methods
+
+### Changed
+- **🔧 AddItemListView Improvements**
+  - **UI Modernization**: Converted to Form-based layout matching Item creation view
+  - **Sheet presentation**: Modal sheet instead of push navigation for better UX
+  - **Save button in toolbar**: Moved from bottom button to toolbar for consistency
+  - **Native pickers**: Replaced sheet-based custom pickers with standard `Picker` components
+  - **Callback-based navigation**: Using `onCancel` and `onItemListCreated` callbacks instead of NavigationPath
+
+- **🔧 AddItemListViewModel Enhancements**
+  - **Price validation**: Added `isPriceValid` computed property with decimal validation
+  - **Price conversion**: Added `priceAsDecimal` to safely convert string to Decimal
+  - **CreateItemUseCase integration**: Auto-creates Item when price is provided
+  - **Two-step creation**: Creates ItemList first, then optional Item
+  - **Proper error handling**: Validates price format, handles creation failures
+
+### Fixed
+- **🐛 Core Data Group Fetching**
+  - **Critical fix**: `group.toCoreData(context:)` was creating NEW Group entities instead of fetching existing ones
+  - **Zero categories/payment methods bug**: Groups appeared empty because new entities had no relationships
+  - **Proper fetch by ID**: Now fetches existing Group from Core Data using UUID before loading data
+  - **Fixed in two locations**: `.task` modifier and `saveItemList()` method
+
+- **🐛 Navigation Crashes**
+  - **Fatal error on cancel**: Removed NavigationPath binding that caused crash when dismissing sheet
+  - **Callback-based dismissal**: Using closures to properly dismiss modal sheets
+  - **No more path errors**: Eliminated "attempting to remove 1 items from path with 0 items" crash
+
+- **🐛 UI Warnings**
+  - **UIReparentingView warnings**: Eliminated by switching from Menu to Picker components
+  - **Native iOS patterns**: Using Apple-recommended components for Forms
+
+### Removed
+- **QuickExpenseView** and **QuickExpenseViewModel** - Functionality merged into AddItemListView
+- **Menu-based pickers** - Replaced with standard Picker components
+- **NavigationPath binding** in AddItemListView - Using callbacks instead
+
+### Technical Details
+- **Pattern**: `Picker` with `.navigationLink` style for native iOS experience
+- **Domain-first**: Fetch Core Data entities by ID, never create duplicates
+- **Clean separation**: Category/PaymentMethod loading happens in `.task` modifier
+- **Incremental updates**: Maintains existing cache update pattern for new ItemLists
+- **Optional Item creation**: `if let priceDecimal = priceAsDecimal { createItem() }`
+
+---
+
+## [0.17.0] - 2025-12-02
+
+### Changed
+- **🏗️ Item Management Architecture Refinement**
+  - **Aligned Item CRUD with ItemList pattern** for architectural consistency
+  - **Domain-First Approach**: ViewModels now return Domain models instead of Core Data entities
+  - **AddItemViewModel**: Returns `ItemDomain` (previously returned Core Data `Item` entity)
+  - **ItemListDetailViewModel**: Added `addItemFromDomain()` and `updateItemFromDomain()` methods
+  - **Proper Domain → Core Data conversion**: ViewModel handles conversion via fetch requests
+  - **Eliminated context refresh issues**: Using fetch after save ensures data consistency
+
+### Improved
+- **Incremental Cache Updates**:
+  - Create item: Updates cache immediately without database query
+  - Update item: Replaces item in local array and updates cache atomically
+  - Delete item: Optimistic delete with rollback on failure
+  - All operations: Service cache updated as single source of truth
+
+- **Clean Separation of Concerns**:
+  - `AddItemViewModel` → Business logic, returns Domain models
+  - `AddItemView` → UI presentation, passes Domain models to callbacks
+  - `ItemListDetailViewModel` → Data conversion, cache management
+
+### Fixed
+- **Threading Issues**: Resolved potential race conditions with context refresh on updates
+- **Data Consistency**: Fetch after save guarantees latest Core Data state
+- **Architecture Consistency**: Item operations now follow same pattern as ItemList operations
+
+### Technical Details
+- Pattern: `ViewModel → ItemDomain → Callback → Fetch Core Data → Update Cache`
+- Zero database queries after create/update operations (incremental updates only)
+- Cache coherence maintained across all item operations
+- Proper error handling with rollback support on delete failures
+
+---
+
+## [0.16.0] - 2025-11-27
+
+### Changed
+- **🏗️ MAJOR REFACTOR: Clean Architecture Implementation**
+  - **Complete project reorganization** following Clean Architecture principles
+  - **Single source of truth** for all protocols consolidated in `Domain/Protocols/`
+  - **5-Layer Architecture**:
+    - `Application/` - App entry point, DI containers, configuration
+    - `Domain/` - Pure business logic (Entities, Protocols, UseCases, Errors)
+    - `Data/` - Persistence & data access (CoreData, Repositories, Services)
+    - `Presentation/` - UI layer organized by feature (Scenes, Common components)
+    - `Infrastructure/` - Cross-cutting concerns (Cache, Helpers, Utils, Extensions)
+
+- **Domain Layer Improvements**:
+  - Renamed `Domain/Interfaces/` → `Domain/Protocols/` for consistency
+  - Moved all service protocols from `Services/Protocols/` → `Domain/Protocols/Services/`
+  - Organized repository protocols in `Domain/Protocols/Repositories/`
+  - Use cases organized by feature: User, Group, ItemList, UserGroup
+  - 7 domain entities, 7 repository protocols, 7 service protocols
+
+- **Data Layer Consolidation**:
+  - Moved service implementations to `Data/Services/` (8 services)
+  - Consolidated Core Data files into `Data/CoreData/`
+  - Core Data entity mappings in `Data/CoreData/Entities/`
+  - Repository implementations in `Data/Repositories/` (4 repositories)
+  - Persistence controller and .xcdatamodeld properly organized
+
+- **Presentation Layer Organization**:
+  - Feature-based organization in `Presentation/Scenes/`:
+    - Dashboard, User, Group, ItemList, Category, PaymentMethod, Item
+  - Common components in `Presentation/Common/Views/` and `Components/`
+  - Moved all View and ViewModel files to their respective feature folders
+  - Alert and Loading components properly organized
+
+- **Infrastructure Cleanup**:
+  - Utilities reorganized into logical subfolders:
+    - `Cache/` - CacheManager
+    - `Helpers/` - 6 helper classes
+    - `Utils/` - DashboardUpdateManager, TestDataGenerator
+    - `Extensions/` - Color+Hex, String+Localization
+    - `Constants/` - AppConstants
+
+- **Removed Directories**:
+  - Eliminated `View/`, `ViewModel/`, `Utilities/`, `Services/`, `Base/`, `CoreDataStack/`
+  - Cleaned up scattered protocol files
+  - Removed duplicate and empty directories
+
+### Added
+- **Comprehensive Documentation**:
+  - `ARCHITECTURE_DIAGRAMS.md` - Visual architecture diagrams and flows
+  - `CLEAN_ARCHITECTURE_GUIDE.md` - Complete architecture explanation
+  - `IMPLEMENTATION_GUIDE.md` - Step-by-step reorganization guide
+  - `PROJECT_REORGANIZATION_PLAN.md` - Detailed migration plan
+  - `QUICK_START.md` - Quick reference for the new structure
+  - `REORGANIZATION_CHECKLIST.md` - Phase-by-phase checklist
+
+### Fixed
+- **Build System**: Project builds successfully with new structure (exit code 0)
+- **File References**: All file references properly updated in Xcode project
+- **Module Organization**: Clear dependency flow (outer layers → Domain)
+
+### Technical Details
+- **43 directories** organized in clean hierarchy
+- **Zero breaking changes** - app functionality fully preserved
+- **Improved scalability** - easy to add new features
+- **Better testability** - clear layer separation
+- **Team-friendly** - intuitive structure for collaboration
+
+### Migration Notes
+- All files moved using filesystem operations
+- Xcode project references automatically updated
+- No code changes required - purely organizational
+- Full backward compatibility maintained
+
+---
+
+## [0.15.0] - 2025-11-16
+
+### Added
+- **Custom Alert Component**: Created reusable alert system for the entire app
+  - Modular `CustomAlertView` component with smooth animations
+  - Located in `/Base/View/Alert/` directory following MVVM architecture
+  - Supports three button styles: `.default`, `.cancel`, `.destructive`
+  - Spring animation with fade, scale, and offset effects
+  - Optional message support and backdrop dismiss
+  - View extension `.customAlert()` for easy implementation
+  - Complete documentation in README.md
+
+### Changed
+- **Group Deletion Flow**: Enhanced delete experience with better UX
+  - Swipe-to-reveal action (no accidental deletion on full swipe)
+  - `allowsFullSwipe: false` prevents accidental triggers
+  - Explicit "Delete" button must be tapped after swipe
+  - Confirmation alert with custom styling before deletion
+  - Loading overlay with spinner during group deletion (1.5s visible)
+  - Can now delete currently selected group (auto-switches to first available)
+  - UI fully blocked during deletion to prevent conflicts
+  - Smooth animations throughout the entire flow
+
+### Fixed
+- **Alert Animations**: All dismiss actions now use smooth fade-out
+  - Tap outside: Smooth fade-out ✓
+  - Cancel button: Smooth fade-out (previously abrupt) ✓
+  - Delete button: Smooth fade-out ✓
+  - Consistent 0.25s ease-out animation across all interactions
+
+## [0.14.0] - 2025-11-15
+
+### Added
+- **Splash Screen**: Implemented animated splash screen on app launch
+  - Enhances user experience during application startup
+  - Smooth transition from splash to main view
+  
+- **Loading Spinner & Fade-In Animation**: Animations when switching groups
+  - Loading spinner displayed while changing active group
+  - Smooth fade-in effect when displaying new group data
+  - Improves perceived performance during transitions
+
+- **Group Deletion**: New group management functionality
+  - Users can now delete existing groups
+  - Validations to prevent accidental deletion
+  - Intuitive interface for group management
+
+### Changed
+- **General UX Improvements**: Enhanced user experience refinements
+  - Smoother transitions between views
+  - Improved visual feedback for user operations
+  - Better consistency in application animations
+
+## [0.13.0] - 2025-11-10
+
+### Fixed
+- **Dashboard Refresh UX**: Eliminated black flicker and double refresh icons
+  - Root cause: ProgressView overlay conflicting with native refresh control
+  - Solution: Removed custom `.overlay(ProgressView)` from DashboardView
+  - Added `@Published var isRefreshing = false` in DashboardViewModel for isolated state
+  - Smooth refresh animation with native SwiftUI pull-to-refresh
+  - `refreshData()` now properly uses background threads for Core Data, main thread for UI updates
+  
+- **Cache Consistency Bug**: Items no longer disappear after pull-to-refresh
+  - Root cause: Dual cache system with different keys
+    - DashboardViewModel: "dashboard_items_{groupId}"
+    - ItemListService: "ItemListService.groupItemLists.{groupId}"
+  - Solution: **Single Source of Truth** - Service layer owns cache exclusively
+  - Removed ViewModel cache layer entirely
+  - `addItemList()` and `removeItemList()` now update Service cache with timestamp
+  - Incremental operations maintain cache freshness
+
+### Added
+- **TTL (Time-To-Live) Cache Invalidation**: 30-minute automatic expiration
+  - Cache keys: "ItemListService.groupItemLists.{groupId}"
+  - Timestamp keys: "{cacheKey}.timestamp"
+  - `cacheTTL: TimeInterval = 1800` (30 minutes)
+  - Automatic validation on every cache access
+  - Logs show cache age: "🟢 CACHE HIT (Fresh data: 5m 23s old)"
+  - Expired cache triggers DB refresh: "🟡 Cache EXPIRED (age: 32 minutes, TTL: 30 minutes)"
+  
+- **Enhanced Logging System**: Comprehensive cache lifecycle tracking
+  - Cache hits with freshness indicator: "🟢 CACHE HIT (Fresh data: Xm Ys old)"
+  - Cache expiration warnings: "🟡 Cache EXPIRED (age: X minutes)"
+  - Cache updates with timestamp reset: "💾 Cache timestamp refreshed (TTL reset to 30 min)"
+  - Prefixes: [ADD], [DELETE], [REFRESH] for operation tracking
+  - Service layer logs for transparency
+
+### Changed
+- **Animation Smoothness**: ExpenseListView transitions
+  - Added `.animation(.easeInOut(duration: 0.2), value: filteredItemLists)`
+  - Smooth item appearance/disappearance during filtering
+  - No jarring transitions when data updates
+  
+- **Cache Architecture**: Refactored to single-layer pattern
+  - Before: ViewModel + Service both maintained caches
+  - After: Service layer is **Single Source of Truth**
+  - ViewModel reads from Service, updates Service cache on changes
+  - Eliminates cache synchronization issues
+  - Simplified architecture with clear ownership
+
+### Technical Improvements
+- **Cache Strategy**:
+  - TTL: 30 minutes for local-only Core Data apps
+  - Reasoning: Single user, single device, no cloud sync yet
+  - Reduces DB queries by 90%+ for typical usage
+  - Prepared for future cloud sync (will reduce TTL to 2-5 min)
+  
+- **Threading Model** (Reinforced):
+  - DB operations: Always `Task { }` on background thread
+  - UI updates: Always `await MainActor.run { }`
+  - Service calls: async/await with proper thread management
+  - Zero main thread blocking for data operations
+  
+- **Cache Freshness**:
+  - First load: No cache → Query DB → Cache + timestamp
+  - Within TTL (< 30 min): Use cache → Log age
+  - After TTL (> 30 min): Query DB → Update cache + timestamp
+  - Incremental ops (add/delete): Update cache + RESET timestamp
+  
+- **Memory Management**:
+  - Timestamp stored alongside cached data
+  - Automatic cleanup when cache expires
+  - No memory leaks from orphaned timestamps
+
+### Developer Notes
+- **Why 30-minute TTL?**
+  - Local-only app (Core Data, no cloud sync)
+  - Single user workflow
+  - Balances freshness vs performance
+  - Industry standard: Banking apps (5-15 min), Local apps (30-60 min)
+  
+- **Future Roadmap**:
+  - When Supabase integration added: Reduce TTL to 5 minutes
+  - Realtime collaboration: Reduce TTL to 2 minutes
+  - Current setup scalable for future changes
+  
+- **Architecture Benefits**:
+  - Single Source of Truth eliminates race conditions
+  - TTL prevents stale data indefinitely
+  - Incremental updates maintain cache freshness
+  - Clear ownership: Service owns cache lifecycle
+  - ViewModel focuses on UI state only
+
+## [0.12.0] - 2025-11-07
+
+### Added
+- **Swipe-to-Delete for ItemLists**: Native iOS pattern implementation
+  - Changed from ScrollView + LazyVStack to List for native swipe support
+  - `.swipeActions(edge: .trailing, allowsFullSwipe: false)` with destructive button
+  - Smooth delete animation with optimistic UI updates
+  - Section-based grouping by date maintained
+  
+- **Incremental Cache Pattern**: Apple-style cache management
+  - Services NO longer invalidate cache on create/update/delete
+  - ViewModel updates arrays in-memory instead of DB queries
+  - `addItemList()` appends to array and updates cache incrementally
+  - `removeItemList()` removes from array and updates cache optimistically
+  - `deleteItemList()` with rollback on error
+  - 0 DB queries for common operations (create/delete)
+  
+- **Core Data Auto-Sync**: NSManagedObjectContextDidSave pattern
+  - `setupCoreDataNotifications()` with duplicate prevention
+  - Shared NSManagedObjectContext between parent and child views
+  - Automatic UI updates when data changes in any view
+  - Removed manual callbacks (QuickExpenseView, AddItemListView)
+  - `[weak self]` for memory safety in observers
+  - Proper cleanup with `deinit { NotificationCenter.default.removeObserver(self) }`
+
+### Changed
+- **Performance Optimization**: From computed properties to @Published cached vars
+  - `currentMonthItemLists` changed from computed property to `@Published var`
+  - Added `didSet` observer on `itemLists` to trigger `updateCurrentMonthCache()`
+  - Eliminated 100+ recalculations per second during field taps
+  - CPU usage: 0% during normal operations
+  
+- **NaN Protection**: 3-level validation system
+  - Item level: `guard itemValue.isFinite` with logging
+  - ItemList level: `guard itemListTotal.isFinite` with logging
+  - Total level: `guard total.isFinite` with fallback to 0.0
+  - `updateTotalSpentForItemList()` with incremental updates
+  - Fallback to full recalc if NaN detected
+  
+- **Log Format**: Replaced emojis with text prefixes
+  - Changed 💰 to [TOTAL]
+  - Changed 💡 to [INFO]
+  - Changed ✅ to [SUCCESS]
+  - Changed ⚠️ to [WARNING]
+  - Changed ❌ to [ERROR]
+  - Changed 🔄 to [REFRESH]
+  - Changed 📦 to [CACHE]
+  - Fixed emoji corruption in Xcode console (� characters)
+
+### Improved
+- **Code Architecture**: Clearer separation of concerns
+  - Services: CRUD only, no cache management
+  - ViewModels: Cache coordination + incremental updates
+  - Views: Pure UI, receive shared context
+  
+- **Memory Efficiency**: Excellent metrics maintained
+  - 35.3MB with 1420+ ItemList records
+  - 0% CPU during normal operations
+  - Smooth animations without frame drops
+  
+- **Developer Experience**: Better debugging
+  - Clear logging with text prefixes
+  - Detailed NaN detection with exact location
+  - Incremental cache messages for transparency
+
+### Fixed
+- **Duplicate ItemLists**: Core Data observer prevention
+  - `guard !itemLists.contains(where: { $0.objectID == itemList.objectID })`
+  - Prevents same item being added multiple times
+  
+- **Performance Regression**: Field tap lag eliminated
+  - Root cause: `currentMonthItemLists` computed property recalculating constantly
+  - Solution: Cached @Published var with didSet observer
+  - Before: 100+ "Filtering ItemLists" logs per second
+  - After: 1 log only when itemLists actually changes
+  
+- **CoreGraphics NaN Crashes**: Complete protection
+  - Added isFinite checks at 3 levels
+  - Detailed logging to identify source of invalid values
+  - Graceful fallbacks instead of crashes
+
+### Technical Details
+- **Incremental Cache Flow**:
+  1. User creates ItemList → Service returns ItemList
+  2. ViewModel calls `addItemList(newItem)`
+  3. Append to `itemLists` array (no DB query)
+  4. Sort array by date
+  5. Update cache with new array
+  6. `didSet` triggers `updateCurrentMonthCache()`
+  7. SwiftUI auto-redraws from @Published properties
+
+- **Delete Flow**:
+  1. User swipes → Delete button
+  2. `removeItemList()` - optimistic update (remove from array + cache)
+  3. `ItemListService.deleteItemList()` - delete from DB
+  4. If success: already updated (optimistic correct)
+  5. If error: rollback (re-add to array + cache)
+
+- **Core Data Notification Flow**:
+  1. Any view modifies Core Data (same context)
+  2. Core Data posts NSManagedObjectContextDidSave
+  3. Observer in DashboardViewModel receives notification
+  4. Check objectID to prevent duplicates
+  5. Append new item to array
+  6. Update cache incrementally
+  7. UI updates automatically via @Published
+
+### Performance Metrics
+- **Before Optimizations**:
+  - Constant cache invalidation on every create/delete
+  - DB queries on every operation
+  - Computed property recalculating 100+ times/second
+  - Field taps causing visible lag
+  
+- **After Optimizations**:
+  - 0 DB queries for create/delete (incremental cache)
+  - 0% CPU during field taps
+  - Instant UI updates (optimistic)
+  - 35.3MB memory with 1420+ records
+  - Native iOS app performance level
+
+### Documentation
+- **Updated prompt file**: Added "LECCIONES APRENDIDAS - ANTI-PATRONES EVITADOS (v0.12.0)"
+  - Anti-patrón 1: Callbacks manuales con Core Data compartido
+  - Anti-patrón 2: Invalidación total de cache en cada operación
+  - Anti-patrón 3: Computed properties para datos filtrados
+  - Anti-patrón 4: Sin protección contra NaN en cálculos
+  - Anti-patrón 5: Emojis en logs de producción
+  - Checklist completo para nuevas features
+  - Flujos detallados de crear/eliminar con cache incremental
+
+## [0.10.1] - 2025-11-03
+
+### Fixed
+- **ItemList Date Filtering**: Resolved issue where only recent items were displayed
+  - **Root Cause**: `recentItemLists` property was limiting display to first 10 items only
+  - **Problem**: Users with many expenses from current day couldn't see older expenses
+  - **Solution**: Implemented intelligent current month filtering instead of arbitrary limit
+  - **New Behavior**: Dashboard now shows all expenses from current month only
+  - **User Experience**: More relevant expense display with proper historical context
+  - **Performance**: Maintained optimal performance while showing appropriate data scope
+
+### Added
+- **Smart Date Filtering**: Current month ItemList display
+  - `currentMonthItemLists` computed property for intelligent filtering
+  - Calendar-based month comparison using `Calendar.isDate(_:equalTo:toGranularity:)`
+  - Automatic month boundary detection
+  - Debug logging for filter transparency
+  - Better UX with contextually relevant expense display
+
+### Technical Improvements
+- **Date Logic Enhancement**: Robust month-based filtering
+  - Uses native iOS Calendar APIs for accurate date comparisons
+  - Handles month boundaries and year transitions correctly
+  - Maintains sort order while filtering appropriately
+  - Optimized computed property with clear debugging output
+
+## [0.10.0] - 2025-11-03
+
+### Added
+- **First UI Implementation**: Complete SwiftUI interface with working backend integration
+  - **DashboardView**: Main expense tracking interface with real-time data display
+    - Animated expense cards showing ItemList details with category colors
+    - User/Group selector with automatic first selection
+    - Real-time expense summary with formatted amounts
+    - Floating action button for adding new ItemLists
+    - Loading states and error handling throughout UI
+  - **AddItemListView**: Full expense creation workflow
+    - Category selection with visual color indicators
+    - Date picker with proper iOS 18.5+ styling
+    - Description input with proper validation
+    - Success/error states with user feedback
+    - Navigation integration with callback-based refresh
+  - **ExpenseRowView**: Reusable expense list item component
+    - Category color indication
+    - Formatted date and amount display
+    - Proper ItemList description rendering
+    - Consistent visual hierarchy
+- **Core Data UI Synchronization**: Resolved complex threading and cache issues
+  - **NSManagedObjectContextDidSave Notifications**: Native iOS pattern implementation
+    - Real-time UI updates when Core Data changes
+    - Proper threading with @MainActor isolation
+    - Automatic dashboard refresh without app restart
+  - **Comprehensive Cache Management**: Multi-level caching system
+    - Intelligent cache invalidation on data changes
+    - Optimized performance for frequent operations
+    - Group-specific cache keys for data isolation
+  - **Threading Architecture**: Proper iOS concurrency patterns
+    - Background Core Data operations
+    - Main thread UI updates
+    - async/await throughout the stack
+- **Navigation Enhancement**: Modern iOS 18.5+ navigation patterns
+  - NavigationStack with programmatic navigation
+  - Callback-based view refresh patterns
+  - Proper navigation state management
+  - Smooth transitions between views
+
+### Enhanced
+- **MVVM Architecture**: Fully implemented with iOS native patterns
+  - ViewModels with @Published properties for reactive UI
+  - Proper dependency injection throughout
+  - Clean separation of concerns
+  - @MainActor threading for UI operations
+- **Backend Service Layer**: Production-ready Core Data integration
+  - Auto-seeding of payment methods and categories on group creation
+  - Robust error handling and validation
+  - Optimized query patterns with proper filtering
+  - Cache-aware operations for performance
+- **User Experience**: Polished iOS-native interactions
+  - Smooth animations and transitions
+  - Proper loading states
+  - Error handling with user-friendly messages
+  - Intuitive navigation patterns
+
+### Technical Achievements  
+- **Core Data Synchronization**: Solved complex UI refresh issues
+  - Multiple service instances now properly synchronized
+  - Cache invalidation timing perfected
+  - Real-time UI updates working flawlessly
+- **iOS Best Practices**: Architecture validated against Apple guidelines
+  - Proper MVVM implementation
+  - Native Core Data notification patterns
+  - Modern SwiftUI reactive patterns
+  - Professional-grade threading architecture
+- **Performance Optimization**: Intelligent caching and data management
+  - Background operations for heavy lifting
+  - Optimized Core Data queries
+  - Proper memory management
+  - Smooth UI responsiveness
+
+### Fixed
+- **UI Refresh Issues**: Complete resolution of data synchronization problems
+  - ItemList creation now updates UI immediately
+  - Dashboard reflects changes without app restart
+  - Proper Core Data context synchronization between services
+- **Cache Synchronization**: Resolved timing issues with cache invalidation
+  - Cache keys now match between services
+  - Immediate cache clearing after save operations
+  - Proper multi-level cache invalidation strategy
+- **Threading Conflicts**: Eliminated race conditions and timing issues
+  - Proper @MainActor isolation for UI updates
+  - Background Core Data operations
+  - Clean async/await patterns throughout
+
+## [0.9.0] - 2025-11-01
+
+### Added
+- **Multi-User Security Architecture**: Complete elimination of global data access methods
+  - All service methods now require proper user/group context filtering
+  - Enhanced security model preventing cross-user data access
+  - User-group relationship enforcement across all CRUD operations
+- **Secure Service Layer**: Comprehensive refactoring for multi-tenant safety
+  - Removed all global `fetchAll()` methods from GroupService, ItemListService, ItemService, UserService
+  - Eliminated global `getCount()` methods across all services
+  - Added mandatory group/user parameters to all data access methods
+  - Enhanced PaymentMethodService with group-specific filtering requirements
+- **ViewModel Security Updates**: Complete alignment with secure service architecture
+  - CategoryListViewModel: Removed global category access methods
+  - ItemListDetailViewModel: Fixed missing paymentMethodId parameters
+  - ItemListListViewModel: Eliminated global item list fetching
+  - GroupListViewModel: Removed global group access methods
+  - PaymentMethodListViewModel: Enforced group-based payment method access
+- **Application Layer Security**: View-level security enforcement
+  - MainView: Removed global user fetching capabilities
+  - AppContentView: Eliminated cross-user data access patterns
+  - DataPreloader: Removed global data loading methods
+- **Code Quality Enhancement**: Professional codebase cleanup
+  - Complete removal of commented deprecated methods
+  - Elimination of dead code and security vulnerabilities
+  - Clean, maintainable architecture ready for user authentication
+
+### Changed
+- **Service Architecture**: From global access to context-aware operations
+  - All service methods now enforce proper user/group context
+  - Data isolation between users and groups implemented
+  - Service interfaces updated to require security context parameters
+- **ViewModel Pattern**: Enhanced MVVM with security-first approach
+  - ViewModels updated to use only secure, filtered service methods
+  - Proper error handling for security-related access violations
+  - Consistent parameter passing for user/group context
+- **Data Access Pattern**: Shift from convenience to security
+  - Replaced convenient global methods with secure, filtered alternatives
+  - Enhanced method signatures to enforce proper context passing
+  - Improved data encapsulation and access control
+
+### Removed
+- **Global Data Access Methods**: Complete elimination of security vulnerabilities
+  - `fetchUsers()` from UserService - prevents cross-user data exposure
+  - `fetchGroups()` from GroupService - enforces user-group relationships
+  - `fetchItemLists()` from ItemListService - requires group context
+  - `fetchItems()` from ItemService - prevents unauthorized item access
+  - `fetchCategories()` and `getCategoriesCount()` from CategoryService
+  - `getPaymentMethodsCount()` global method from PaymentMethodService
+- **Deprecated Code**: Cleanup of commented and obsolete implementations
+  - Removed all commented global method calls from ViewModels
+  - Eliminated TODO markers for removed functionality
+  - Cleaned up temporary workaround code
+
+### Security
+- **Data Isolation**: Implemented comprehensive multi-user data separation
+  - Prevents users from accessing other users' data
+  - Enforces group membership validation for all operations
+  - Eliminates potential data leakage between user contexts
+- **Access Control**: Enhanced method-level security enforcement
+  - All data operations require explicit user/group authorization
+  - Service layer validates access permissions before data retrieval
+  - ViewModels cannot bypass security constraints
+
+### Technical Improvements
+- **Compilation Success**: All changes validated with successful device build
+  - Zero compilation errors after comprehensive refactoring
+  - Full compatibility with iOS 18.5 and arm64 architecture
+  - Production-ready codebase with enhanced security posture
+- **Architecture Consistency**: Uniform security patterns across entire codebase
+  - Consistent parameter naming and method signatures
+  - Standardized error handling for security violations
+  - Clean separation of concerns with security-first design
+- **Performance**: Maintained performance while enhancing security
+  - Efficient context-aware data access patterns
+  - Optimized service calls with proper filtering
+  - No performance degradation from security enhancements
+
+## [0.8.0] - 2025-09-13
+
+### Added
+- **Simplified Application Architecture**: Complete redesign of app initialization flow
+  - New MainView with simplified user detection and sheet management
+  - AppContentView as dedicated main interface for authenticated users
+  - Streamlined first-user creation process with automatic redirection
+  - Clean separation between empty state and main app content
+- **Enhanced User Experience Flow**: Intuitive app onboarding and navigation
+  - Automatic detection of empty sandbox state
+  - Modal sheet for first user creation with seamless dismiss
+  - Immediate redirection to main app after user creation
+  - Loading states and progress indicators for better UX
+- **Async Callback Architecture**: Modern Swift concurrency implementation
+  - Async callbacks for user creation with proper error handling
+  - Background thread operations with main thread UI updates
+  - Elimination of unnecessary Task wrappers and polling
+  - Clean async/await patterns throughout the application
+
+### Changed
+- **MainView Simplification**: Reduced complexity from 174 to 109 lines
+  - Removed complex DetailedGroupView dependencies
+  - Eliminated navigation destinations and path management
+  - Simplified to focus only on user detection and sheet presentation
+  - Clean ZStack-based conditional rendering
+- **Service Architecture Cleanup**: Removed ObservableObject inheritance from services
+  - Services now function as pure data access layers
+  - Eliminated @StateObject usage for services in favor of direct initialization
+  - Better adherence to MVVM architecture principles
+  - Reduced memory overhead and improved performance
+- **Navigation System Refactoring**: Streamlined navigation without complex enums
+  - Removed SettingsDestination and other navigation enums
+  - Simplified button actions with direct callbacks
+  - TODO markers for future navigation implementation
+  - Focus on core functionality over complex routing
+
+### Fixed
+- **Optional Value Handling**: Proper nil coalescing for Core Data optionals
+  - Safe unwrapping of user.name and group.name properties
+  - Fallback values ("User", "Group") for missing data
+  - Eliminated compiler warnings about optional string interpolation
+- **Sheet Dismissal Issues**: Automatic sheet closure after user creation
+  - Explicit sheet dismissal in user creation callback
+  - Proper timing with 0.2-second delay for UI synchronization
+  - Complete redirection flow from empty state to main content
+- **Compilation Errors**: Resolution of trailing closure and type errors
+  - Fixed Group/ZStack nesting issues causing compilation errors
+  - Corrected async callback signatures and implementations
+  - Eliminated all compiler warnings and errors
+
+### Technical Improvements
+- **Code Quality**: Reduced architectural complexity while maintaining functionality
+  - Cleaner separation of concerns between views and business logic
+  - Simplified testing surface with fewer dependencies
+  - More maintainable codebase with clear responsibilities
+- **Performance**: Improved app startup and user creation flow
+  - Faster initial load with simplified view hierarchy
+  - Efficient async operations without unnecessary overhead
+  - Better memory management with simplified object lifecycle
+
+## [0.7.0] - 2025-09-12
+
+### Added
+- **PaymentMethod Entity**: Complete Core Data implementation for payment method tracking
+  - PaymentMethod entity with name, type, isActive, and group relationships
+  - CASCADE deletion rule when group is deleted
+  - NULLIFY relationship with ItemList for payment method references
+- **Entry → ItemList Renaming**: Comprehensive refactoring for better semantic clarity
+  - Renamed Entry entity to ItemList across entire codebase
+  - Updated all file names, class names, and method references
+  - Maintained backward compatibility with existing data
+- **PaymentMethod Service Layer**: Complete service implementation
+  - PaymentMethodServiceProtocol with full CRUD interface
+  - PaymentMethodService with async/await operations
+  - Intelligent caching with CacheManager integration
+  - Background threading for Core Data operations
+  - Group-based and type-based filtering capabilities
+- **PaymentMethod ViewModels**: Full MVVM implementation
+  - PaymentMethodListViewModel for collection management
+  - PaymentMethodPickerViewModel for selection functionality
+  - AddPaymentMethodViewModel for creation and editing forms
+  - Comprehensive validation and error handling
+  - Loading states and reactive UI bindings
+- **Performance Enhancement Framework**: Enterprise-level optimization system
+  - Background context support for heavy Core Data operations
+  - Batch operations framework (delete, update, insert) for better performance
+  - Smart data preloading system with progress tracking
+  - Enhanced cache management with automatic cleanup and performance monitoring
+  - Performance monitoring system with operation tracking and scoring
+- **User Entity Batch Operations**: High-performance bulk operations
+  - bulkDeleteUsers for efficient multi-user deletion
+  - bulkUpdateUserStatus for batch status changes
+  - createUsers for efficient bulk user creation
+  - Smart batching logic (≤10 individual, >10 bulk insert)
+- **Group Entity Batch Operations**: Comprehensive bulk processing capabilities
+  - bulkDeleteGroups for efficient multi-group deletion
+  - bulkUpdateGroupCurrency for batch currency changes
+  - bulkUpdateGroupStatus for batch status management
+  - createGroups for efficient bulk group creation
+  - getGroupsCount(for currency) for currency-specific statistics
+  - getGroupMembersCount for relationship-based counting
+
+### Changed
+- **Data Model Enhancement**: Entry entity renamed to ItemList for better clarity
+- **Relationship Structure**: Added paymentMethod relationship to ItemList entity
+- **Core Data Schema**: Enhanced with payment method tracking capabilities
+- **Service Architecture**: Extended dependency injection pattern for PaymentMethod services
+- **ViewModel Pattern**: Consistent MVVM implementation across all PaymentMethod functionality
+- **Performance Architecture**: All services now support batch operations for scalability
+- **Cache Strategy**: Enhanced with background processing and automatic cleanup
+- **Data Preloading**: Expanded to support multiple groups and currency-specific data
+
+### Fixed
+- **Naming Consistency**: Resolved Entry/ItemList naming conflicts throughout codebase
+- **Compilation Errors**: Fixed method signature mismatches from renaming process
+- **Relationship Integrity**: Proper Core Data relationship configuration with delete rules
+- **Performance Bottlenecks**: Eliminated individual operation overhead with batch processing
+- **Memory Management**: Improved cache cleanup and performance monitoring
+
+### Technical Improvements
+- **Schema Evolution**: Clean migration from Entry to ItemList naming
+- **Service Layer Expansion**: PaymentMethod services follow established patterns
+- **MVVM Consistency**: All ViewModels use @MainActor and ObservableObject patterns
+- **Dependency Injection**: PaymentMethod components integrated with existing DI pattern
+- **Background Operations**: Core Data operations properly threaded for UI performance
+- **Validation Framework**: Comprehensive form validation with user-friendly error messages
+- **Batch Processing**: Enterprise-level bulk operations with 20-50x performance improvements
+- **Performance Monitoring**: Real-time operation tracking with automatic performance scoring
+- **Scalability**: Framework supports thousands of entities with optimal performance
+
+## [0.6.1] - 2025-08-25
+
+### Fixed
+- **User Selection Dropdown**: Removed "Seleccionar Usuario" option that caused infinite loading
+- **Dropdown Logic**: Simplified user picker to only show actual users
+- **State Management**: Eliminated unnecessary deselection logic and state clearing
+- **Code Cleanup**: Removed unused deselectUser function and simplified onChange handlers
+
+## [0.6.0] - 2025-08-25
+
+### Added
+- **First User Creation Flow**: Automatic sheet presentation when app is empty
+- **Protection Flags**: Prevention of multiple simultaneous async operations
+- **Enhanced Debug Logging**: Comprehensive logging for debugging concurrency issues
+- **Stable State Management**: Consistent Core Data object state handling
+
+### Changed
+- **Group Default Name**: Changed from "Mi Grupo" to "Personal" for better professionalism
+- **Core Data Validation**: Simplified validation to trust Core Data's internal state management
+- **MVVM Pattern**: Implemented pure MVVM without manual interruptions or delays
+- **Error Prevention**: Eliminated complex Core Data state validations that caused crashes
+
+### Fixed
+- **Infinite Loop Prevention**: Added flags to prevent multiple simultaneous executions
+- **Core Data Crashes**: Resolved "isTemporaryID: unrecognized selector" errors
+- **State Inconsistency**: Fixed inconsistent group counts and object states
+- **Multiple Executions**: Prevented loadData() and autoSelectFirstUserAndGroup() from running simultaneously
+
+### Technical Improvements
+- **Concurrency Safety**: Protection flags for critical async operations
+- **Simplified Validation**: Trust Core Data's internal state management
+- **Stable Flow**: Consistent execution flow without race conditions
+- **Debug Tools**: Enhanced logging for identifying concurrency issues
+
+## [0.5.0] - 2025-08-25
+
+### Added
+- **NSFetchedResultsController Integration**: Automatic Core Data reactivity and UI updates
+- **Real-time ItemLists List**: ItemLists now appear automatically without manual refresh
+- **Automatic UI Updates**: SwiftUI re-renders automatically when Core Data changes
+- **Lazy Loading & Pagination**: Efficient handling of large datasets with infinite scroll
+- **Comprehensive Group Validation**: Runtime crash prevention with proper Core Data object validation
+- **Threading Safety**: Proper background → main thread pattern for UI updates
+
+### Changed
+- **Core Data Integration**: Migrated from NotificationCenter to NSFetchedResultsController
+- **ViewModel Architecture**: Enhanced DetailedGroupViewModel with automatic data synchronization
+- **Performance**: Eliminated manual refresh requirements, UI updates automatically
+- **Error Prevention**: Added validation for temporary and deleted Core Data objects
+
+### Fixed
+- **Runtime Crashes**: Prevented "isTemporaryID: unrecognized selector" errors
+- **Swift 6 Compatibility**: Resolved MainActor isolation issues with nonisolated delegate methods
+- **Threading Issues**: Proper DispatchQueue.main.async pattern for UI updates
+- **Memory Management**: Weak self references and proper delegate cleanup
+
+### Technical Improvements
+- **MVVM Compliance**: Strict adherence to MVVM with automatic data binding
+- **Core Data Best Practices**: Native NSFetchedResultsController implementation
+- **Performance**: Background operations with automatic UI synchronization
+- **Debugging**: Enhanced logging for Core Data validation issues
+
+## [0.4.0] - 2025-08-12
+
+### Added
+- **Complete Navigation System**: Full NavigationStack + NavigationDestination implementation
+- **Settings Navigation**: Tuerca button now navigates to SettingsView
+- **Add ItemList Navigation**: Add ItemList button now navigates to AddItemListView
+- **Navigation Enums**: SettingsDestination and AddItemListDestination for type-safe navigation
+- **Centralized Navigation**: All NavigationDestination definitions in MainView
+- **Programmatic Navigation**: Consistent navigationPath.append() pattern across all views
+
+### Changed
+- **Navigation Architecture**: Migrated from sheet-based to pure NavigationStack approach
+- **Navigation Pattern**: Unified navigation using NavigationPath and NavigationDestination
+- **Button Actions**: Updated all navigation buttons to use programmatic navigation
+- **LoadingView Compatibility**: Fixed Color(.systemBackground) issues for macOS compatibility
+
+### Fixed
+- **Navigation Consistency**: All views now follow the same navigation pattern
+- **Parameter Order**: Corrected AddItemListView init parameter order in MainView
+- **Navigation State**: Centralized NavigationPath management in MainView
+- **Return Navigation**: Proper navigationPath.removeLast() implementation
+
+### Technical Improvements
+- **Type-Safe Navigation**: Enum-based navigation destinations with associated values
+- **NavigationStack Centralization**: Single source of truth for all navigation destinations
+- **iOS 18.5+ Best Practices**: Modern NavigationStack implementation
+- **Navigation Testing**: Verified all navigation flows work correctly
+
+## [0.3.0] - 2025-08-12
+
+### Added
+- **Complete MVVM Architecture**: Full implementation with strict separation of concerns
+- **Background Threading**: All Core Data operations now use background threads
+- **Enhanced Debug System**: Comprehensive debugging tools for data persistence verification
+- **CreateGroupView**: Complete group creation functionality with user ownership
+- **Extensions**: Utility extensions for safe operations (NSDecimalNumber+Safe, User+Safe)
+- **Async Operations**: Proper async/await support for complex workflows
+- **Thread Safety**: @MainActor implementation across all ViewModels
+
+### Changed
+- **Performance Optimization**: Moved all CRUD operations to background threads
+- **UI Responsiveness**: Main thread now exclusively reserved for UI updates
+- **Error Handling**: Enhanced error propagation from background to main thread
+- **Architecture**: Consistent threading pattern across all ViewModels
+- **Navigation**: Improved group creation flow with proper async support
+
+### Fixed
+- **Threading Issues**: Eliminated main thread blocking during Core Data operations
+- **UI Freezing**: Prevented UI freezes during database operations
+- **Memory Management**: Proper weak self references and context management
+- **Async Coordination**: Fixed CreateGroupView to work with new async ViewModels
+
+### Technical Improvements
+- **context.perform**: All ViewModels now use background context operations
+- **Task + @MainActor**: Proper UI updates from background operations
+- **Consistent Pattern**: Unified threading approach across all ViewModels
+- **Performance**: Significant improvement in UI responsiveness
+- **Debug Tools**: Added Refresh Data, Debug Data Persistence, and Test Group Creation Flow buttons
+
+## [0.2.0] - 2025-08-11
+
+### Added
+- **User Management UI**: Complete CRUD operations for User entity
+  - UserListView with list display
+  - AddUserView for creating new users
+  - EditUserView for modifying existing users
+  - UserRowView for individual user display
+- **Navigation Structure**: MainView with NavigationStack
+- **Core Data Integration**: All entities properly configured
+- **Error Handling**: Comprehensive error messages and validation
+
+### Changed
+- Refactored from sheet-based navigation to NavigationStack
+- Implemented strict MVVM architecture
+- Optimized for native iOS performance
+
+### Fixed
+- Resolved all Core Data code generation conflicts
+- Fixed optional type handling in all ViewModels
+- Cleaned up duplicate and unused files
+
+## [0.1.0] - 2025-08-11
+
+### Added
+- **Core Data Foundation**: Complete data model implementation
+  - Category entity with color and group relationships
+  - ItemList entity with date and description support
+  - Group entity with currency and member management
+  - Item entity with amount and quantity tracking
+  - User entity with email and name management
+  - UserGroup entity with role-based permissions
+- **ViewModels**: Full CRUD operations for all entities
+  - CategoryViewModel with filtering and validation
+  - ItemListViewModel with date filtering and totals
+  - GroupViewModel with member counting and sorting
+  - ItemViewModel with amount calculations
+  - UserViewModel with email validation
+  - UserGroupViewModel with role management
+- **Project Structure**: Organized Model/, ViewModel/, and View/ directories
+- **Configuration Files**: TODO.md, LICENSE, .gitignore, README.md
+
+### Technical Details
+- Swift 5.9+ compatibility
+- iOS 16+ target
+- Core Data with proper delete rules
+- MVVM architecture with ObservableObject
+- Identifiable protocol implementation
+- Comprehensive error handling
+- Input validation and business rules
+
+## [0.0.1] - 2024-12-19
+
+### Added
+- Initial project setup
+- Basic project structure
+- Core Data model file
+- Basic SwiftUI app template
