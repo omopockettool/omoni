@@ -271,7 +271,10 @@ struct AboutOMOView: View {
 
 struct AppReleaseNotesView: View {
     let installedVersion: String
-    private let entries = AppReleaseNotesCatalog.entries
+
+    private var entries: [AppReleaseNoteEntry] {
+        AppReleaseNotesCatalog.entries(for: installedVersion)
+    }
 
     var body: some View {
         List {
@@ -355,18 +358,22 @@ private struct AppReleaseNoteEntry: Identifiable {
 }
 
 private enum AppReleaseNotesCatalog {
-    static let entries: [AppReleaseNoteEntry] = [
-        AppReleaseNoteEntry(
-            version: "2.0.0",
-            date: "2026-06-07",
-            titleKey: LocalizationKey.About.ReleaseNotes.v2_0_0Title,
-            highlightKeys: [
-                LocalizationKey.About.ReleaseNotes.v2_0_0Highlight1,
-                LocalizationKey.About.ReleaseNotes.v2_0_0Highlight2,
-                LocalizationKey.About.ReleaseNotes.v2_0_0Highlight3,
-                LocalizationKey.About.ReleaseNotes.v2_0_0Highlight4,
-                LocalizationKey.About.ReleaseNotes.v2_0_0Highlight5
-            ]
-        ),
-    ]
+    private static let productionLaunchDate = "2026-07-16"
+
+    static func entries(for marketingVersion: String) -> [AppReleaseNoteEntry] {
+        [
+            AppReleaseNoteEntry(
+                version: marketingVersion,
+                date: productionLaunchDate,
+                titleKey: LocalizationKey.About.ReleaseNotes.v2_0_0Title,
+                highlightKeys: [
+                    LocalizationKey.About.ReleaseNotes.v2_0_0Highlight1,
+                    LocalizationKey.About.ReleaseNotes.v2_0_0Highlight2,
+                    LocalizationKey.About.ReleaseNotes.v2_0_0Highlight3,
+                    LocalizationKey.About.ReleaseNotes.v2_0_0Highlight4,
+                    LocalizationKey.About.ReleaseNotes.v2_0_0Highlight5
+                ]
+            ),
+        ]
+    }
 }
