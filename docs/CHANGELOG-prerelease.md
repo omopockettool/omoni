@@ -4,6 +4,11 @@ This file preserves OMONI's internal release history before the public changelog
 
 It is a snapshot of the internal release stream kept for project history and reference.
 
+## [2.59.1] - 2026-07-04
+
+### Fixed
+- **About OMONI now keeps legal access available after onboarding** (`AboutOMOView`) — added direct rows for `Terms` and `Privacy Policy` alongside the official website and contact links, so the app no longer depends on onboarding as the only place where those legal pages remain reachable.
+
 ## [2.59.0] - 2026-07-04
 
 ### Added

@@ -6,6 +6,8 @@ struct AboutOMOView: View {
     private let appInfo = AppInfo.current
     private let donationsURL = URL(string: "https://buymeacoffee.com/omopockettool")!
     private let appStoreURL = URL(string: "https://omopockettool.com")!
+    private let termsURL = URL(string: "https://omopockettool.com/terms/")!
+    private let privacyURL = URL(string: "https://omopockettool.com/privacy/")!
     @State private var copiedFieldTitle: String?
 
     var body: some View {
@@ -121,6 +123,30 @@ struct AboutOMOView: View {
                     title: LocalizationKey.About.contact.localized,
                     value: "omopockettool@gmail.com",
                     destination: URL(string: "mailto:omopockettool@gmail.com")!
+                )
+                .padding(AppConstants.UserInterface.padding)
+
+                Divider()
+                    .padding(.leading, AppConstants.UserInterface.padding + 44)
+
+                copyableLinkRow(
+                    icon: "doc.text.fill",
+                    color: .blue,
+                    title: LocalizationKey.User.Welcome.terms.localized,
+                    value: "omopockettool.com/terms",
+                    destination: termsURL
+                )
+                .padding(AppConstants.UserInterface.padding)
+
+                Divider()
+                    .padding(.leading, AppConstants.UserInterface.padding + 44)
+
+                copyableLinkRow(
+                    icon: "hand.raised.fill",
+                    color: .teal,
+                    title: LocalizationKey.User.Welcome.privacy.localized,
+                    value: "omopockettool.com/privacy",
+                    destination: privacyURL
                 )
                 .padding(AppConstants.UserInterface.padding)
             }
