@@ -4,6 +4,11 @@ This file preserves OMONI's internal release history before the public changelog
 
 It is a snapshot of the internal release stream kept for project history and reference.
 
+## [2.59.2] - 2026-07-04
+
+### Fixed
+- **Dashboard amount labels now keep a consistent rounded numeric style across primary and supporting money surfaces** (`DashboardCategoryBoardComponents`, `DashboardComponents`, `ExpenseRowView`, `DashboardDateRowsComponents`, `CalendarGridComponents`, `QuickAddItemsView`) — category-box totals, the selected-category hero limit, pending secondary amounts, calendar day totals, and quick-add amount labels now all use the same rounded digit treatment instead of mixing rounded and straight number shapes depending on size or context.
+
 ## [2.59.1] - 2026-07-04
 
 ### Fixed

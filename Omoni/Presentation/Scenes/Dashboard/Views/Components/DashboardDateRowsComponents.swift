@@ -268,6 +268,7 @@ struct DashboardDateRowView: View {
         if let formattedUnpaidAmount {
             Text(formattedUnpaidAmount)
                 .font(.caption)
+                .fontDesign(.rounded)
                 .foregroundStyle(.orange)
                 .monospacedDigit()
                 .lineLimit(1)

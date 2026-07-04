@@ -112,6 +112,7 @@ struct QuickAddItemsView: View {
                 if suggestion.amount > 0 {
                     Text(formattedAmount(suggestion.amount))
                         .font(.subheadline.weight(.semibold))
+                        .fontDesign(.rounded)
                         .foregroundStyle(added ? .tertiary : .secondary)
                         .monospacedDigit()
                 }

@@ -122,7 +122,9 @@ struct DashboardHeroSection: View {
 
                     Text(budgetLimitText)
                         .font(.footnote.weight(.medium))
+                        .fontDesign(.rounded)
                         .foregroundStyle(.secondary)
+                        .monospacedDigit()
                         .lineLimit(1)
                         .minimumScaleFactor(0.85)
                 }

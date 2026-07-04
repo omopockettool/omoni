@@ -421,6 +421,7 @@ private struct DashboardCategoryBoxView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(displayedAmount)
                         .font(amountFont)
+                        .fontDesign(.rounded)
                         .foregroundStyle(Color.primary)
                         .monospacedDigit()
                         .lineLimit(1)
