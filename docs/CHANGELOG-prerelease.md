@@ -4,6 +4,11 @@ This file preserves OMONI's internal release history before the public changelog
 
 It is a snapshot of the internal release stream kept for project history and reference.
 
+## [2.59.0] - 2026-07-04
+
+### Added
+- **Production launch planning now has a clearer internal roadmap and progress board** (`docs/PRODUCTION_LAUNCH_ROADMAP.md`) — added a more actionable launch checklist with `Done`, `In progress`, and `Pending` sections, reflected the Apple Developer enrollment as paid but still processing, and made the missing App Store screenshots explicit so launch prep is easier to track while external Apple account steps are still blocked.
+
 ## [2.58.11] - 2026-07-04
 
 ### Fixed
