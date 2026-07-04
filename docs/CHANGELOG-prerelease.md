@@ -4,6 +4,11 @@ This file preserves OMONI's internal release history before the public changelog
 
 It is a snapshot of the internal release stream kept for project history and reference.
 
+## [2.58.11] - 2026-07-04
+
+### Fixed
+- **New Entry no longer steals focus into the hero amount field as soon as the form opens** (`AddItemListView`) — create mode now opens without an immediate keyboard jump so the user can first decide whether the entry should be `simple` or `list`, while the existing focus behavior during later structure changes stays intact.
+
 ## [2.58.10] - 2026-07-02
 
 ### Fixed

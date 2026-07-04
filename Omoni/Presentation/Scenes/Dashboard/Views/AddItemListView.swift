@@ -278,19 +278,9 @@ struct AddItemListView: View {
         }
     }
 
-    private var initialAutofocusField: AddItemListField? {
-        guard !viewModel.isEditMode else { return nil }
-        return viewModel.showsHeroAmountInput ? .price : .description
-    }
-
     private func applyInitialFocusIfNeeded() {
-        guard !hasAppliedInitialFocus, let field = initialAutofocusField else { return }
+        guard !hasAppliedInitialFocus, viewModel.isEditMode else { return }
         hasAppliedInitialFocus = true
-
-        Task { @MainActor in
-            await Task.yield()
-            focusedField = field
-        }
     }
 
     // MARK: - Top Card (Concept + Amount)
