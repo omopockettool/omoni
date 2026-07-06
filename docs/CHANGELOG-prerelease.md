@@ -4,6 +4,11 @@ This file preserves OMONI's internal release history before the public changelog
 
 It is a snapshot of the internal release stream kept for project history and reference.
 
+## [2.59.10] - 2026-07-07
+
+### Fixed
+- **New Entry now gives selected chips and the date row a more intentional visual hierarchy** (`AddItemListComponents`) — selected category and origin chips now read more clearly at a glance, overflow selections keep their expandable affordance, and the compact `Hoy` date row now feels less washed out and more like an active part of the form.
+
 ## [2.59.9] - 2026-07-07
 
 ### Fixed

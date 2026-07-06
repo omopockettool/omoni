@@ -689,8 +689,40 @@ struct AddItemListDateCard: View {
             : formattedDate
     }
 
-    private var activeDateTint: Color {
-        Color(.systemGray)
+    private var isTodayCompactState: Bool {
+        !showDatePicker && Calendar.current.isDateInToday(date)
+    }
+
+    private var iconTint: Color {
+        (showDatePicker || isTodayCompactState) ? .primary : .secondary
+    }
+
+    private var iconBadgeBackground: Color {
+        if showDatePicker {
+            return Color.primary.opacity(0.1)
+        }
+        if isTodayCompactState {
+            return Color.primary.opacity(0.08)
+        }
+        return .clear
+    }
+
+    private var dateTextColor: Color {
+        (showDatePicker || isTodayCompactState) ? .primary : .secondary
+    }
+
+    private var dateTextWeight: Font.Weight {
+        (showDatePicker || isTodayCompactState) ? .semibold : .medium
+    }
+
+    private var cardStrokeColor: Color {
+        if showDatePicker {
+            return Color.primary.opacity(0.12)
+        }
+        if isTodayCompactState {
+            return Color.primary.opacity(0.08)
+        }
+        return .clear
     }
 
     private func clearDateSelection() {
@@ -735,11 +767,14 @@ struct AddItemListDateCard: View {
                         HStack(spacing: 8) {
                             Image(systemName: "calendar")
                                 .font(.system(size: 14))
-                                .foregroundStyle(showDatePicker ? activeDateTint : Color.secondary)
+                                .foregroundStyle(iconTint)
+                                .frame(width: 28, height: 28)
+                                .background(iconBadgeBackground)
+                                .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
 
                             Text(dateLabel)
-                                .font(.subheadline)
-                                .foregroundStyle(showDatePicker ? Color.primary : Color.secondary)
+                                .font(.subheadline.weight(dateTextWeight))
+                                .foregroundStyle(dateTextColor)
                                 .contentTransition(.interpolate)
 
                             Spacer(minLength: 6)
@@ -784,6 +819,10 @@ struct AddItemListDateCard: View {
         }
         .background(Color(.secondarySystemGroupedBackground))
         .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius))
+        .overlay(
+            RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius)
+                .stroke(cardStrokeColor, lineWidth: 1)
+        )
         .animation(.spring(response: 0.45, dampingFraction: 0.88), value: calendarExpanded)
         .animation(.spring(response: 0.45, dampingFraction: 0.88), value: showDatePicker)
     }
