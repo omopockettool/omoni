@@ -163,6 +163,7 @@ enum LocalizationKey {
         static let tapToAdd = "entry.tapToAdd"
         static let addByDate = "entry.addByDate"
         static let more = "entry.more"
+        static let dashboardCategoryHintMessage = "entry.dashboardCategoryHintMessage"
     }
     
     // MARK: - Item

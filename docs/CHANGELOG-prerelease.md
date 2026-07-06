@@ -4,6 +4,11 @@ This file preserves OMONI's internal release history before the public changelog
 
 It is a snapshot of the internal release stream kept for project history and reference.
 
+## [2.59.4] - 2026-07-06
+
+### Fixed
+- **New Entry now explains the dashboard category flow the first time a reused category is hidden from the generic add sheet** (`AddItemListView`, `AddItemListComponents`, `Localizable.strings`) — when a category no longer appears in the generic dashboard add flow because it is already represented on the dashboard, the form now shows a one-time inline hint telling the user to select that category from the dashboard itself instead of leaving the behavior unexplained.
+
 ## [2.59.3] - 2026-07-04
 
 ### Fixed

@@ -176,6 +176,7 @@
 "entry.tapToAdd" = "Pulsa el + para agregar un registro";
 "entry.addByDate" = "Añadir en esta fecha";
 "entry.more" = "Más";
+"entry.dashboardCategoryHintMessage" = "Si no ves una categoría aquí, selecciónala en el dashboard para añadir en ella.";
 
 // MARK: - Item (extended)
 "item.newItem" = "Nuevo Artículo";

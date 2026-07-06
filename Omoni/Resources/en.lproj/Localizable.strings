@@ -176,6 +176,7 @@
 "entry.tapToAdd" = "Tap + to add an entry";
 "entry.addByDate" = "Add on this date";
 "entry.more" = "More";
+"entry.dashboardCategoryHintMessage" = "If you don't see a category here, select it in the dashboard to add to it.";
 
 // MARK: - Item (extended)
 "item.newItem" = "New Item";

@@ -239,6 +239,23 @@ struct AddItemListCategorySection: View {
 
 }
 
+struct AddItemListDashboardCategoryHintCard: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Text(LocalizationKey.Entry.dashboardCategoryHintMessage.localized)
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(.primary)
+        }
+        .padding(14)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(Color.black.opacity(0.08), lineWidth: 1)
+        )
+    }
+}
+
 private struct AddItemListCategoryChip: View {
     let category: SDCategory
     let isSelected: Bool

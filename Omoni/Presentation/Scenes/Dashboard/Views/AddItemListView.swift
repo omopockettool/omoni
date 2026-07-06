@@ -9,11 +9,13 @@ struct AddItemListView: View {
     let onCancel: () -> Void
 
     @State private var viewModel: AddItemListViewModel
+    @AppStorage("hasSeenDashboardCategoryFlowHint_v2") private var hasSeenDashboardCategoryFlowHint = false
     @FocusState private var focusedField: AddItemListField?
     @State private var showDatePicker = false
     @State private var calendarExpanded = false
     @State private var suppressCalendarExpand = false
     @State private var showDetails = false
+    @State private var didShowDashboardCategoryHintThisPresentation = false
     @State private var showCategoryOverflow = false
     @State private var showPaymentMethodOverflow = false
     @State private var scrollToPaymentMethods = false
@@ -66,6 +68,21 @@ struct AddItemListView: View {
     private var availableCategories: [SDCategory] {
         guard !excludedCategoryIds.isEmpty else { return viewModel.categories }
         return viewModel.categories.filter { !excludedCategoryIds.contains($0.id) }
+    }
+
+    private var hiddenDashboardCategories: [SDCategory] {
+        guard !excludedCategoryIds.isEmpty else { return [] }
+        return viewModel.categories.filter { excludedCategoryIds.contains($0.id) }
+    }
+
+    private var shouldShowDashboardCategoryHint: Bool {
+        !viewModel.hasPriorityCategory &&
+        !hasSeenDashboardCategoryFlowHint &&
+        !hiddenDashboardCategories.isEmpty
+    }
+
+    private var shouldShowCategorySection: Bool {
+        !viewModel.hasPriorityCategory && (!availableCategories.isEmpty || shouldShowDashboardCategoryHint)
     }
 
     private var gridCategories: [SDCategory] {
@@ -142,7 +159,7 @@ struct AddItemListView: View {
                     .id("formTop")
                 topCard
                     .id("heroAnchor")
-                if !availableCategories.isEmpty && !viewModel.hasPriorityCategory {
+                if shouldShowCategorySection {
                     categoryGridSection
                 }
                 moreDetailsSection
@@ -238,6 +255,11 @@ struct AddItemListView: View {
             await viewModel.loadOptionsForSelectedGroup()
             applyInitialFocusIfNeeded()
         }
+        .onDisappear {
+            if didShowDashboardCategoryHintThisPresentation {
+                hasSeenDashboardCategoryFlowHint = true
+            }
+        }
         .toast($viewModel.toast)
     }
 
@@ -323,18 +345,25 @@ struct AddItemListView: View {
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, 4)
 
-            AddItemListCategorySection(
-                displayedCategories: displayedCategories,
-                overflowCategories: overflowCategories,
-                showOverflow: $showCategoryOverflow,
-                compact: showDetails || showCategoryOverflow,
-                selectedCategoryID: viewModel.selectedCategory?.id,
-                chipMinHeight: categoryChipMinHeight,
-                chipCornerRadius: categoryChipCornerRadius
-            ) { category in
-                withAnimation(AnimationHelper.quickSpring) {
-                    viewModel.selectCategory(category)
-                    showCategoryOverflow = false
+            if shouldShowDashboardCategoryHint {
+                AddItemListDashboardCategoryHintCard()
+                    .onAppear { didShowDashboardCategoryHintThisPresentation = true }
+            }
+
+            if !availableCategories.isEmpty {
+                AddItemListCategorySection(
+                    displayedCategories: displayedCategories,
+                    overflowCategories: overflowCategories,
+                    showOverflow: $showCategoryOverflow,
+                    compact: showDetails || showCategoryOverflow,
+                    selectedCategoryID: viewModel.selectedCategory?.id,
+                    chipMinHeight: categoryChipMinHeight,
+                    chipCornerRadius: categoryChipCornerRadius
+                ) { category in
+                    withAnimation(AnimationHelper.quickSpring) {
+                        viewModel.selectCategory(category)
+                        showCategoryOverflow = false
+                    }
                 }
             }
         }
