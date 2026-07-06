@@ -4,6 +4,11 @@ This file preserves OMONI's internal release history before the public changelog
 
 It is a snapshot of the internal release stream kept for project history and reference.
 
+## [2.59.14] - 2026-07-07
+
+### Fixed
+- **Dashboard now treats the `Coste por categoría` section label with the same calmer sentence-case language as the rest of the surface** (`DashboardCategoryBoardComponents`) — the category board header no longer forces an all-caps treatment, so the monthly dashboard reads closer to the hero and less like a technical panel heading.
+
 ## [2.59.13] - 2026-07-07
 
 ### Fixed
