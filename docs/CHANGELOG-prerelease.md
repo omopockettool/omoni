@@ -4,6 +4,21 @@ This file preserves OMONI's internal release history before the public changelog
 
 It is a snapshot of the internal release stream kept for project history and reference.
 
+## [2.59.18] - 2026-07-07
+
+### Fixed
+- **Origins now use a single icon-driven visual language across creation, selection, dashboard, and detail surfaces** (`PaymentMethodAppearance`, `PaymentMethodFormView`, `PaymentMethodFormViewModel`, `PaymentMethodManagementView`, `PaymentMethodPickerView`, `AddItemListView`, `AddItemListComponents`, `ItemListDetailComponents`) — origin presentation no longer depends visually on the technical `type` field, so icon, tint, and saved color now stay aligned across the edit form, origin management, picker rows, dashboard chips, and item-list metadata while `type` remains only as legacy compatibility data when persisting broad icon choices.
+
+## [2.59.17] - 2026-07-07
+
+### Fixed
+- **Origin editing now keeps the same visual color language as the origin list for ambiguous icons like `Bizum`** (`PaymentMethodFormView`) — the edit form no longer reclassifies broad icons such as `qrcode` into a different internal type just because they could also represent another kind of origin, so the tinted preview shown while editing now stays aligned with the color users already saw in the origins list.
+
+## [2.59.16] - 2026-07-07
+
+### Fixed
+- **Origins now use a simpler and less repetitive presentation across creation and selection flows** (`PaymentMethodFormView`, `PaymentMethodManagementView`, `PaymentMethodPickerView`) — the origin form no longer asks the user to choose a technical `Tipo` field and instead infers it from the chosen icon, while the management list and picker stop repeating that same type label under the origin name when it only creates visual duplication like `Crédito` shown twice.
+
 ## [2.59.15] - 2026-07-07
 
 ### Fixed
