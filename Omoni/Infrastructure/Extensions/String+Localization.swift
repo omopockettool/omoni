@@ -243,6 +243,7 @@ enum LocalizationKey {
         static let markedAllPending = "dashboard.markedAllPending"
         static let changeUndone = "dashboard.changeUndone"
         static let undo = "dashboard.undo"
+        static let selectCategoryFromDashboard = "dashboard.selectCategoryFromDashboard"
         static let limitShort = "dashboard.limitShort"
         static let expensesByCategory = "dashboard.expensesByCategory"
         static let overLimit = "dashboard.overLimit"

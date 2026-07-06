@@ -175,6 +175,23 @@ class DashboardViewModel {
         showingFullMonth ? monthCategoryBoxes : todayCategoryBoxes
     }
 
+    func categoryBoxes(in range: DashboardCategoryRange) -> [DashboardCategoryBoxData] {
+        switch range {
+        case .today:
+            todayCategoryBoxes
+        case .month:
+            monthCategoryBoxes
+        }
+    }
+
+    func shouldShowGenericAddInfoState(in range: DashboardCategoryRange) -> Bool {
+        let allCategoryIds = Set(categories.keys)
+        guard !allCategoryIds.isEmpty else { return false }
+
+        let visibleCategoryIds = Set(categoryBoxes(in: range).map(\.categoryId))
+        return allCategoryIds.isSubset(of: visibleCategoryIds)
+    }
+
     var visibleDayBoxes: [DashboardDayBoxData] {
         makeDayBoxes(from: showingFullMonth ? filteredMonthItemLists : filteredTodayItemLists)
     }
@@ -521,6 +538,10 @@ class DashboardViewModel {
     
     func openSettings() {
         showingSettings = true
+    }
+
+    func showSelectCategoryFromDashboardToast() {
+        toast = ToastMessage(LocalizationKey.Dashboard.selectCategoryFromDashboard.localized, type: .info)
     }
 
     func updateCurrentUser(_ user: SDUser) {

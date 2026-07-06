@@ -622,11 +622,16 @@ struct DashboardView: View {
                             budgetFillRatio: activeCategoryBox.flatMap { viewModel.budgetFillRatio(for: $0) },
                             showsOverLimitBadge: activeCategoryBox.map { viewModel.isOverBudget(for: $0) } ?? false,
                             overrideActionColor: activeCategoryBox.flatMap { Color(hex: $0.categoryColorHex) },
+                            actionIconSystemName: showsHeroInfoAction ? "info.circle.fill" : "plus",
                             onAddExpense: {
-                                addItemListTrigger = AddItemListTrigger(
-                                    initialDate: resolvedInitialEntryDate,
-                                    preferredCategoryId: activeCategoryBox?.categoryId
-                                )
+                                if showsHeroInfoAction {
+                                    viewModel.showSelectCategoryFromDashboardToast()
+                                } else {
+                                    addItemListTrigger = AddItemListTrigger(
+                                        initialDate: resolvedInitialEntryDate,
+                                        preferredCategoryId: activeCategoryBox?.categoryId
+                                    )
+                                }
                             }
                         )
                     }
@@ -687,6 +692,17 @@ struct DashboardView: View {
             ?? activeAllDayContext?.date
             ?? activeCategoryDayContext?.date
             ?? Date()
+    }
+
+    private var heroActionRange: DashboardCategoryRange {
+        activeAllDayContext?.range
+            ?? activeCategoryDayContext?.range
+            ?? (viewModel.showingFullMonth ? .month : .today)
+    }
+
+    private var showsHeroInfoAction: Bool {
+        guard activeCategoryBox == nil else { return false }
+        return viewModel.shouldShowGenericAddInfoState(in: heroActionRange)
     }
 
     private var showsDateRows: Bool {

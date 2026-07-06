@@ -164,6 +164,7 @@
 "dashboard.markedAllPending" = "All pending";
 "dashboard.changeUndone" = "Change undone";
 "dashboard.undo" = "Undo";
+"dashboard.selectCategoryFromDashboard" = "Select a category in the dashboard";
 "dashboard.limitShort" = "Limit";
 "dashboard.expensesByCategory" = "Cost by category";
 "dashboard.overLimit" = "Over limit";

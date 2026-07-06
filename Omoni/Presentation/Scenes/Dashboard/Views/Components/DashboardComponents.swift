@@ -88,6 +88,7 @@ struct DashboardHeroSection: View {
     var budgetFillRatio: Double? = nil
     var showsOverLimitBadge = false
     var overrideActionColor: Color? = nil
+    var actionIconSystemName: String = "plus"
     let onAddExpense: () -> Void
 
     private var displayLabel: String {
@@ -110,6 +111,7 @@ struct DashboardHeroSection: View {
             totalAmount: displayTotal,
             onAddExpense: onAddExpense,
             actionColor: overrideActionColor ?? .accentColor,
+            actionIconSystemName: actionIconSystemName,
             budgetFillRatio: budgetFillRatio
         ) {
             if let budgetLimitText {

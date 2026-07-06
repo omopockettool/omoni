@@ -4,6 +4,11 @@ This file preserves OMONI's internal release history before the public changelog
 
 It is a snapshot of the internal release stream kept for project history and reference.
 
+## [2.59.7] - 2026-07-07
+
+### Fixed
+- **Dashboard New Entry now switches to an informative hero action when the generic add flow has no categories left to create** (`DashboardView`, `DashboardViewModel`, `DashboardComponents`, `TotalSpentCardView`, `Localizable.strings`) — when every category is already represented on the dashboard, the hero no longer keeps a misleading add affordance for the generic flow; it now shows an info action instead and explains via toast that the user should select a category from the dashboard first.
+
 ## [2.59.6] - 2026-07-07
 
 ### Fixed

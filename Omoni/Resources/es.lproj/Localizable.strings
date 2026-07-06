@@ -164,6 +164,7 @@
 "dashboard.markedAllPending" = "Todo pendiente";
 "dashboard.changeUndone" = "Cambio deshecho";
 "dashboard.undo" = "Deshacer";
+"dashboard.selectCategoryFromDashboard" = "Selecciona una categoría en el dashboard";
 "dashboard.limitShort" = "Límite";
 "dashboard.expensesByCategory" = "Coste por categoría";
 "dashboard.overLimit" = "Sobre límite";
