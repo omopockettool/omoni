@@ -239,20 +239,32 @@ struct AddItemListCategorySection: View {
 
 }
 
-struct AddItemListDashboardCategoryHintCard: View {
+struct AddItemListDashboardCategoryHintBanner: View {
+    let onDismiss: () -> Void
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 5) {
+        HStack(spacing: 10) {
+            Image(systemName: "square.grid.2x2.fill")
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(.accent)
+
             Text(LocalizationKey.Entry.dashboardCategoryHintMessage.localized)
                 .font(.subheadline.weight(.medium))
                 .foregroundStyle(.primary)
+
+            Spacer(minLength: 0)
+
+            Button(action: onDismiss) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.plain)
         }
-        .padding(14)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(Color.black.opacity(0.08), lineWidth: 1)
-        )
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 }
 

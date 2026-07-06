@@ -4,6 +4,11 @@ This file preserves OMONI's internal release history before the public changelog
 
 It is a snapshot of the internal release stream kept for project history and reference.
 
+## [2.59.5] - 2026-07-07
+
+### Fixed
+- **New Entry now surfaces hidden category guidance and secondary fields more clearly for first-time dashboard users** (`AddItemListView`, `AddItemListComponents`, `Localizable.strings`) — the generic dashboard add sheet now shows the “select it from the dashboard” category guidance using the same short-lived hint pattern as other OMONI onboarding cues, and the collapsed details trigger now explicitly says `Fecha y origen` instead of the vaguer `Más detalles`.
+
 ## [2.59.4] - 2026-07-06
 
 ### Fixed

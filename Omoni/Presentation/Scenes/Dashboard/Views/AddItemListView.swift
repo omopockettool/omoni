@@ -9,13 +9,13 @@ struct AddItemListView: View {
     let onCancel: () -> Void
 
     @State private var viewModel: AddItemListViewModel
-    @AppStorage("hasSeenDashboardCategoryFlowHint_v2") private var hasSeenDashboardCategoryFlowHint = false
+    @AppStorage("hasSeenDashboardCategoryFlowHint_v3") private var hasSeenDashboardCategoryFlowHint = false
     @FocusState private var focusedField: AddItemListField?
     @State private var showDatePicker = false
     @State private var calendarExpanded = false
     @State private var suppressCalendarExpand = false
     @State private var showDetails = false
-    @State private var didShowDashboardCategoryHintThisPresentation = false
+    @State private var showingDashboardCategoryHint = false
     @State private var showCategoryOverflow = false
     @State private var showPaymentMethodOverflow = false
     @State private var scrollToPaymentMethods = false
@@ -82,7 +82,7 @@ struct AddItemListView: View {
     }
 
     private var shouldShowCategorySection: Bool {
-        !viewModel.hasPriorityCategory && (!availableCategories.isEmpty || shouldShowDashboardCategoryHint)
+        !viewModel.hasPriorityCategory && !availableCategories.isEmpty
     }
 
     private var gridCategories: [SDCategory] {
@@ -205,6 +205,18 @@ struct AddItemListView: View {
         .background(Color(.systemGroupedBackground))
         .navigationTitle(viewModel.isEditMode ? LocalizationKey.Entry.edit.localized : LocalizationKey.Entry.newEntry.localized)
         .navigationBarTitleDisplayMode(.inline)
+        .safeAreaInset(edge: .top, spacing: 0) {
+            if showingDashboardCategoryHint {
+                AddItemListDashboardCategoryHintBanner {
+                    withAnimation(AnimationHelper.quickEase) {
+                        showingDashboardCategoryHint = false
+                    }
+                }
+                .padding(.horizontal, AppConstants.UserInterface.padding)
+                .padding(.top, AppConstants.UserInterface.smallPadding)
+                .transition(.move(edge: .top).combined(with: .opacity))
+            }
+        }
         .toolbar {
             if showsCancelButton {
                 ToolbarItem(placement: .cancellationAction) {
@@ -254,10 +266,15 @@ struct AddItemListView: View {
         .task(id: activeGroup.id) {
             await viewModel.loadOptionsForSelectedGroup()
             applyInitialFocusIfNeeded()
-        }
-        .onDisappear {
-            if didShowDashboardCategoryHintThisPresentation {
-                hasSeenDashboardCategoryFlowHint = true
+            guard shouldShowDashboardCategoryHint else { return }
+            hasSeenDashboardCategoryFlowHint = true
+            withAnimation(AnimationHelper.quickEase) {
+                showingDashboardCategoryHint = true
+            }
+            try? await Task.sleep(for: .seconds(9.0))
+            guard showingDashboardCategoryHint else { return }
+            withAnimation(AnimationHelper.quickEase) {
+                showingDashboardCategoryHint = false
             }
         }
         .toast($viewModel.toast)
@@ -344,11 +361,6 @@ struct AddItemListView: View {
                 .font(.footnote.weight(.semibold))
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, 4)
-
-            if shouldShowDashboardCategoryHint {
-                AddItemListDashboardCategoryHintCard()
-                    .onAppear { didShowDashboardCategoryHintThisPresentation = true }
-            }
 
             if !availableCategories.isEmpty {
                 AddItemListCategorySection(
