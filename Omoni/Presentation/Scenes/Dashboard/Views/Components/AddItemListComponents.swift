@@ -72,12 +72,25 @@ struct AddItemListStructureSection: View {
             .padding(.horizontal, 14)
             .padding(.vertical, 12)
             .foregroundStyle(segmentForegroundColor(isSelected: isSelected, isEnabled: isEnabled))
-            .background(
+            .background {
                 Capsule()
                     .fill(isSelected ? Color(.tertiarySystemGroupedBackground) : Color.clear)
+            }
+            .overlay {
+                Capsule()
+                    .stroke(
+                        isSelected ? Color.primary.opacity(0.08) : Color.clear,
+                        lineWidth: 1
+                    )
+            }
+            .shadow(
+                color: .black.opacity(isSelected ? 0.12 : 0),
+                radius: isSelected ? 10 : 0,
+                y: isSelected ? 3 : 0
             )
             .opacity(isEnabled ? 1 : 0.5)
             .contentShape(Capsule())
+            .animation(AnimationHelper.quickSpring, value: isSelected)
         }
         .buttonStyle(.plain)
     }

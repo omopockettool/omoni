@@ -4,6 +4,11 @@ This file preserves OMONI's internal release history before the public changelog
 
 It is a snapshot of the internal release stream kept for project history and reference.
 
+## [2.59.13] - 2026-07-07
+
+### Fixed
+- **New Entry now gives the `Simple / Lista` mode switcher a more settled selected state** (`AddItemListComponents`) — the active segment now feels more like an intentional control state and less like a flat fill, helping the top block read with a more polished, product-like hierarchy.
+
 ## [2.59.12] - 2026-07-07
 
 ### Fixed
