@@ -4,6 +4,11 @@ This file preserves OMONI's internal release history before the public changelog
 
 It is a snapshot of the internal release stream kept for project history and reference.
 
+## [2.59.6] - 2026-07-07
+
+### Fixed
+- **New Entry recommendations no longer reselect dashboard-hidden categories inside the generic add flow** (`AddItemListViewModel`) — concept suggestions shown from the generic dashboard add sheet now stay aligned with the categories that flow is actually allowed to use, so tapping a suggestion can no longer silently switch the entry back into a category that was intentionally hidden because it is already represented on the dashboard.
+
 ## [2.59.5] - 2026-07-07
 
 ### Fixed
