@@ -4,6 +4,11 @@ This file preserves OMONI's internal release history before the public changelog
 
 It is a snapshot of the internal release stream kept for project history and reference.
 
+## [2.59.11] - 2026-07-07
+
+### Fixed
+- **New Entry now tones down its primary action until the user starts the form** (`AddItemListView`) — the top-right confirmation button no longer dominates the sheet from the very first empty state, making the create flow feel calmer while still becoming fully available as soon as the user begins entering the new record.
+
 ## [2.59.10] - 2026-07-07
 
 ### Fixed

@@ -226,7 +226,7 @@ struct AddItemListView: View {
                 }
             }
             ToolbarItem(placement: .confirmationAction) {
-                PrimaryToolbarCheckButton {
+                PrimaryToolbarCheckButton(isDisabled: shouldMutePrimaryAction) {
                     if viewModel.canSave {
                         Task { await saveItemList() }
                     } else {
@@ -287,6 +287,16 @@ struct AddItemListView: View {
         default:
             return false
         }
+    }
+
+    private var shouldMutePrimaryAction: Bool {
+        guard !viewModel.isEditMode else { return false }
+
+        let hasTypedDescription = !viewModel.description
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .isEmpty
+
+        return !hasTypedDescription && viewModel.price.isEmpty
     }
 
     private var canMoveFocusForward: Bool {
