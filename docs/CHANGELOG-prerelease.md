@@ -4,6 +4,11 @@ This file preserves OMONI's internal release history before the public changelog
 
 It is a snapshot of the internal release stream kept for project history and reference.
 
+## [2.59.8] - 2026-07-07
+
+### Fixed
+- **New Entry and Edit Entry no longer expose an in-form group switcher that competes with the dashboard context** (`AddItemListView`, `AddItemListComponents`) — the entry sheet now stays anchored to the group the user already selected before opening it, removing the extra group field from both create and edit flows so the form feels cleaner and more step-by-step.
+
 ## [2.59.7] - 2026-07-07
 
 ### Fixed

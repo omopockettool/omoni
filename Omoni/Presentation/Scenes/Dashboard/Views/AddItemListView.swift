@@ -389,7 +389,6 @@ struct AddItemListView: View {
             showDetails: $showDetails
         ) {
             dateCard
-            groupCard
 
             if !viewModel.paymentMethods.isEmpty {
                 paymentMethodGridSection
@@ -456,16 +455,6 @@ struct AddItemListView: View {
                 }
             }
         }
-    }
-
-    // MARK: - Group Card
-
-    private var groupCard: some View {
-        AddItemListGroupCard(
-            activeGroup: activeGroup,
-            availableGroups: viewModel.availableGroups,
-            onSelect: { viewModel.selectedGroup = $0 }
-        )
     }
 
     // MARK: - Payment Method Helpers
