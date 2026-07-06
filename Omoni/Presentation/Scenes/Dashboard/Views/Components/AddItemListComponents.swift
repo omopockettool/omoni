@@ -293,6 +293,11 @@ private struct AddItemListCategoryChip: View {
                         .foregroundStyle(isSelected ? .white : .primary)
                         .lineLimit(1)
                     Spacer(minLength: 0)
+                    if isSelected {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(.white.opacity(0.96))
+                    }
                 }
                 .opacity(compact ? 1 : 0)
                 .scaleEffect(compact ? 1 : 0.85, anchor: .leading)
@@ -322,6 +327,14 @@ private struct AddItemListCategoryChip: View {
                 RoundedRectangle(cornerRadius: cornerRadius)
                     .stroke(chipColor.opacity(isSelected ? 0 : 0.3), lineWidth: 1)
             )
+            .overlay(alignment: .topTrailing) {
+                if isSelected && !compact {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(.white.opacity(0.96))
+                        .padding(10)
+                }
+            }
             .animation(AnimationHelper.expansionSpring, value: compact)
         }
         .buttonStyle(.plain)
@@ -350,6 +363,23 @@ private struct AddItemListCategoryOverflowChip: View {
 
     private var isActive: Bool { overflowSelected != nil }
 
+    private var trailingIndicatorColor: some ShapeStyle {
+        isActive ? .white.opacity(0.88) : Color(.tertiaryLabel)
+    }
+
+    private var trailingIndicator: some View {
+        HStack(spacing: 8) {
+            if isActive && !isExpanded {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.caption.weight(.bold))
+            }
+
+            Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                .font(.caption.weight(.semibold))
+        }
+        .foregroundStyle(trailingIndicatorColor)
+    }
+
     var body: some View {
         Button(action: onTap) {
             ZStack {
@@ -363,10 +393,7 @@ private struct AddItemListCategoryOverflowChip: View {
                         .foregroundStyle(isActive ? .white : .primary)
                         .lineLimit(1)
                     Spacer(minLength: 0)
-                    Image(systemName: "chevron.down")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(isActive ? .white.opacity(0.8) : Color(.tertiaryLabel))
-                        .rotationEffect(.degrees(isExpanded ? 180 : 0))
+                    trailingIndicator
                 }
                 .opacity(compact ? 1 : 0)
                 .scaleEffect(compact ? 1 : 0.85, anchor: .leading)
@@ -381,10 +408,7 @@ private struct AddItemListCategoryOverflowChip: View {
                             .fontWeight(isActive ? .semibold : .regular)
                             .foregroundStyle(isActive ? .white : .primary)
                             .lineLimit(1)
-                        Image(systemName: "chevron.down")
-                            .font(.caption2.weight(.semibold))
-                            .foregroundStyle(isActive ? .white.opacity(0.8) : Color(.tertiaryLabel))
-                            .rotationEffect(.degrees(isExpanded ? 180 : 0))
+                        trailingIndicator
                     }
                 }
                 .opacity(compact ? 0 : 1)
@@ -562,6 +586,11 @@ private struct AddItemListPaymentMethodChip: View {
                     .foregroundStyle(isSelected ? .white : .primary)
                     .lineLimit(1)
                 Spacer(minLength: 0)
+                if isSelected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(.white.opacity(0.96))
+                }
             }
             .frame(maxWidth: .infinity, minHeight: 44)
             .padding(.horizontal, 14)
@@ -598,6 +627,23 @@ private struct AddItemListPaymentMethodOverflowChip: View {
 
     private var isActive: Bool { overflowSelected != nil }
 
+    private var trailingIndicatorColor: some ShapeStyle {
+        isActive ? .white.opacity(0.88) : Color(.tertiaryLabel)
+    }
+
+    private var trailingIndicator: some View {
+        HStack(spacing: 8) {
+            if isActive && !isExpanded {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.caption.weight(.bold))
+            }
+
+            Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                .font(.caption.weight(.semibold))
+        }
+        .foregroundStyle(trailingIndicatorColor)
+    }
+
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: 8) {
@@ -610,10 +656,7 @@ private struct AddItemListPaymentMethodOverflowChip: View {
                     .foregroundStyle(isActive ? .white : .primary)
                     .lineLimit(1)
                 Spacer(minLength: 0)
-                Image(systemName: "chevron.down")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(isActive ? .white.opacity(0.8) : Color(.tertiaryLabel))
-                    .rotationEffect(.degrees(isExpanded ? 180 : 0))
+                trailingIndicator
             }
             .frame(maxWidth: .infinity, minHeight: 44)
             .padding(.horizontal, 14)

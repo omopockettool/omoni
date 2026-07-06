@@ -4,6 +4,11 @@ This file preserves OMONI's internal release history before the public changelog
 
 It is a snapshot of the internal release stream kept for project history and reference.
 
+## [2.59.9] - 2026-07-07
+
+### Fixed
+- **New Entry now keeps selected categories and origins clearer when they come from the `Más` overflow picker** (`AddItemListComponents`) — selected chips now anchor their confirmation mark more cleanly, and overflow selections keep showing an explicit expand affordance so users can still tell that the chosen value lives inside the `Más` menu instead of looking like a fixed final chip.
+
 ## [2.59.8] - 2026-07-07
 
 ### Fixed
