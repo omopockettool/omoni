@@ -8,6 +8,11 @@ struct CategoryFormView: View {
         var id: String { value }
     }
 
+    private enum Field: Hashable {
+        case name
+        case limit
+    }
+
     let group: SDGroup
     let categoryToEdit: SDCategory?
     let onSaved: (SDCategory) -> Void
@@ -20,9 +25,15 @@ struct CategoryFormView: View {
     @State private var selectedIcon = "tag.fill"
     @State private var limitText = ""
     @State private var selectedLimitFrequency = BudgetHelper.LimitFrequency.monthly.rawValue
-    @FocusState private var nameFocused: Bool?
+    @FocusState private var focusedField: Field?
 
     private var isEditMode: Bool { categoryToEdit != nil }
+    private var hasActiveLimit: Bool { normalizedLimit != nil }
+    private var selectedTint: Color { Color(hex: selectedColor) ?? .accentColor }
+    private var normalizedLimit: Decimal? {
+        Decimal(string: limitText.replacingOccurrences(of: ",", with: "."))
+            .flatMap { $0 > 0 ? $0 : nil }
+    }
 
     private let colorOptions = [
         "#FF453A", "#FF9F0A", "#FFD60A", "#30D158",
@@ -69,127 +80,69 @@ struct CategoryFormView: View {
         BudgetHelper.LimitFrequency.monthly.rawValue
     ]
 
+    private let colorGridColumns = Array(repeating: GridItem(.flexible(), spacing: 10), count: 6)
+    private let iconGridColumns = Array(repeating: GridItem(.flexible(), spacing: 10), count: 4)
+
     var body: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                CenteredEditorNameBlock(
-                    icon: "textformat",
-                    placeholder: LocalizationKey.Category.name.localized,
-                    text: $name,
-                    maxLength: 20,
-                    focusedField: $nameFocused,
-                    fieldValue: true
-                ) {
-                    ZStack {
-                        Circle()
-                            .fill((Color(hex: selectedColor) ?? .accentColor).opacity(0.15))
-                            .frame(width: 72, height: 72)
-                        Image(systemName: selectedIcon)
-                            .font(.system(size: 28, weight: .medium))
-                            .foregroundStyle(Color(hex: selectedColor) ?? .accentColor)
-                    }
-                    .animation(AnimationHelper.quickSpring, value: selectedColor)
-                    .animation(AnimationHelper.quickSpring, value: selectedIcon)
-                }
+        ScrollViewReader { proxy in
+            ScrollView {
+                VStack(spacing: 20) {
+                    LimitedTextField(
+                        icon: "textformat",
+                        placeholder: LocalizationKey.Category.name.localized,
+                        text: $name,
+                        maxLength: 20,
+                        focusedField: $focusedField,
+                        fieldValue: .name
+                    )
+                    .textInputAutocapitalization(.words)
 
-                // Color picker
-                VStack(alignment: .leading, spacing: 10) {
-                    Text(LocalizationKey.Category.color.localized)
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                        .padding(.horizontal, 4)
+                    appearanceCard
 
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 6), spacing: 10) {
-                        ForEach(colorOptions, id: \.self) { hex in
-                            Circle()
-                                .fill(Color(hex: hex) ?? .accentColor)
-                                .frame(height: 36)
-                                .overlay(
-                                    Circle().stroke(Color.white, lineWidth: selectedColor == hex ? 3 : 0)
-                                )
-                                .shadow(color: (Color(hex: hex) ?? .clear).opacity(0.4), radius: selectedColor == hex ? 4 : 0)
-                                .onTapGesture {
-                                    withAnimation(AnimationHelper.quickSpring) { selectedColor = hex }
-                                }
-                        }
-                    }
-                    .padding(AppConstants.UserInterface.padding)
-                    .background(Color(.secondarySystemGroupedBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius))
-                }
-
-                // Icon picker
-                VStack(alignment: .leading, spacing: 10) {
-                    Text(LocalizationKey.Category.icon.localized)
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                        .padding(.horizontal, 4)
-
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 6), spacing: 10) {
-                        ForEach(iconOptions, id: \.self) { icon in
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 10)
-                                    .fill(selectedIcon == icon ? (Color(hex: selectedColor) ?? .accentColor) : Color(.tertiarySystemGroupedBackground))
-                                    .frame(height: 44)
-                                Image(systemName: icon)
-                                    .font(.system(size: 16))
-                                    .foregroundStyle(selectedIcon == icon ? .white : .secondary)
-                            }
-                            .onTapGesture {
-                                withAnimation(AnimationHelper.quickSpring) { selectedIcon = icon }
-                            }
-                        }
-                    }
-                    .padding(AppConstants.UserInterface.padding)
-                    .background(Color(.secondarySystemGroupedBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius))
-                }
-
-                BudgetLimitField(
-                    text: $limitText,
-                    accentColor: Color(hex: selectedColor) ?? .accentColor
-                )
-
-                HStack(spacing: 12) {
-                    Text(LocalizationKey.Category.limitFrequency.localized)
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.secondary)
-
-                    Spacer(minLength: 12)
-
-                    Picker(LocalizationKey.Category.limitFrequency.localized, selection: $selectedLimitFrequency) {
-                        ForEach(limitFrequencyOptions) { option in
-                            Text(option.titleKey.localized)
-                                .tag(option.value)
-                        }
-                    }
-                    .pickerStyle(.menu)
-                    .tint(Color(hex: selectedColor) ?? .accentColor)
+                    limitCard
+                        .id(Field.limit)
                 }
                 .padding(AppConstants.UserInterface.padding)
-                .background(Color(.secondarySystemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius))
             }
-            .padding(AppConstants.UserInterface.padding)
-        }
-        .scrollDismissesKeyboard(.immediately)
-        .background(Color(.systemGroupedBackground))
-        .navigationTitle(isEditMode ? LocalizationKey.Category.edit.localized : LocalizationKey.Category.new.localized)
-        .navigationBarTitleDisplayMode(.inline)
-        .errorAlert(
-            isPresented: $viewModel.showError,
-            message: viewModel.errorMessage,
-            onDismiss: viewModel.clearError
-        )
-        .toolbar {
-            ToolbarItem(placement: .cancellationAction) {
-                Button { dismiss() } label: {
-                    Image(systemName: "xmark")
+            .scrollDismissesKeyboard(.interactively)
+            .background(Color(.systemGroupedBackground))
+            .navigationTitle(isEditMode ? LocalizationKey.Category.edit.localized : LocalizationKey.Category.new.localized)
+            .navigationBarTitleDisplayMode(.inline)
+            .errorAlert(
+                isPresented: $viewModel.showError,
+                message: viewModel.errorMessage,
+                onDismiss: viewModel.clearError
+            )
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button { dismiss() } label: {
+                        Image(systemName: "xmark")
+                    }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    PrimaryToolbarCheckButton(isDisabled: name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || viewModel.isLoading) {
+                        Task { await save() }
+                    }
+                }
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+
+                    Button(LocalizationKey.General.done.localized) {
+                        focusedField = nil
+                    }
                 }
             }
-            ToolbarItem(placement: .confirmationAction) {
-                PrimaryToolbarCheckButton(isDisabled: name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || viewModel.isLoading) {
-                    Task { await save() }
+            .animation(AnimationHelper.quickEase, value: hasActiveLimit)
+            .onAppear {
+                if !isEditMode {
+                    focusedField = .name
+                }
+            }
+            .onChange(of: focusedField) { _, newField in
+                guard newField == .limit else { return }
+
+                withAnimation(AnimationHelper.quickEase) {
+                    proxy.scrollTo(Field.limit, anchor: .center)
                 }
             }
         }
@@ -199,20 +152,159 @@ struct CategoryFormView: View {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
 
-        let limit: Decimal? = Decimal(string: limitText.replacingOccurrences(of: ",", with: "."))
-            .flatMap { $0 > 0 ? $0 : nil }
-
         if let saved = await viewModel.save(
             name: trimmed,
             color: selectedColor,
             icon: selectedIcon,
             groupId: group.id,
-            limit: limit,
+            limit: normalizedLimit,
             limitFrequency: selectedLimitFrequency,
             categoryToEdit: categoryToEdit
         ) {
             onSaved(saved)
             dismiss()
         }
+    }
+
+    private var appearanceCard: some View {
+        NativeSettingsCard {
+            VStack(spacing: 0) {
+                pickerSection(title: LocalizationKey.Category.color.localized) {
+                    LazyVGrid(columns: colorGridColumns, spacing: 10) {
+                        ForEach(colorOptions, id: \.self) { hex in
+                            Button {
+                                withAnimation(AnimationHelper.quickSpring) {
+                                    selectedColor = hex
+                                }
+                            } label: {
+                                Circle()
+                                    .fill(Color(hex: hex) ?? .accentColor)
+                                    .frame(height: 36)
+                                    .overlay {
+                                        if selectedColor == hex {
+                                            Circle()
+                                                .stroke(Color.white, lineWidth: 2.5)
+                                                .padding(2)
+                                                .overlay {
+                                                    Image(systemName: "checkmark")
+                                                        .font(.system(size: 12, weight: .bold))
+                                                        .foregroundStyle(.white)
+                                                }
+                                        }
+                                    }
+                                    .scaleEffect(selectedColor == hex ? 1.06 : 1)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+
+                Divider()
+                    .padding(.horizontal, AppConstants.UserInterface.padding)
+
+                pickerSection(title: LocalizationKey.Category.icon.localized) {
+                    LazyVGrid(columns: iconGridColumns, spacing: 10) {
+                        ForEach(iconOptions, id: \.self) { icon in
+                            Button {
+                                withAnimation(AnimationHelper.quickSpring) {
+                                    selectedIcon = icon
+                                }
+                            } label: {
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(selectedIcon == icon ? selectedTint : Color(.tertiarySystemGroupedBackground))
+                                    .frame(height: 52)
+                                    .overlay {
+                                        Image(systemName: icon)
+                                            .font(.system(size: 18, weight: .medium))
+                                            .foregroundStyle(selectedIcon == icon ? .white : .secondary)
+                                    }
+                                    .overlay {
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .stroke(selectedIcon == icon ? Color.white.opacity(0.18) : Color.clear, lineWidth: 1)
+                                    }
+                                    .scaleEffect(selectedIcon == icon ? 1.02 : 1)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private var limitCard: some View {
+        NativeSettingsCard {
+            VStack(spacing: 0) {
+                HStack(spacing: 12) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "chart.bar.fill")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundStyle(selectedTint)
+
+                        Text(LocalizationKey.Category.limit.localized)
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Spacer(minLength: 12)
+
+                    HStack(spacing: 8) {
+                        TextField(LocalizationKey.Category.noLimit.localized, text: $limitText)
+                            .multilineTextAlignment(.trailing)
+                            .keyboardType(.decimalPad)
+                            .focused($focusedField, equals: .limit)
+
+                        if !limitText.isEmpty {
+                            Button { limitText = "" } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundStyle(Color(.tertiaryLabel))
+                                    .font(.system(size: 16))
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .frame(maxWidth: 140, alignment: .trailing)
+                }
+                .padding(AppConstants.UserInterface.padding)
+
+                if hasActiveLimit {
+                    Divider()
+                        .padding(.leading, AppConstants.UserInterface.padding + 24)
+
+                    HStack(spacing: 12) {
+                        Text(LocalizationKey.Category.limitFrequency.localized)
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.secondary)
+
+                        Spacer(minLength: 12)
+
+                        Picker(LocalizationKey.Category.limitFrequency.localized, selection: $selectedLimitFrequency) {
+                            ForEach(limitFrequencyOptions) { option in
+                                Text(option.titleKey.localized)
+                                    .tag(option.value)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                        .tint(selectedTint)
+                    }
+                    .padding(AppConstants.UserInterface.padding)
+                    .transition(.opacity)
+                }
+            }
+        }
+    }
+
+    private func pickerSection<Content: View>(
+        title: String,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(title)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.secondary)
+
+            content()
+        }
+        .padding(AppConstants.UserInterface.padding)
     }
 }

@@ -4,6 +4,11 @@ This file preserves OMONI's internal release history before the public changelog
 
 It is a snapshot of the internal release stream kept for project history and reference.
 
+## [2.59.15] - 2026-07-07
+
+### Fixed
+- **New Category now presents a calmer and clearer creation form** (`CategoryFormView`) — the category editor now opens with the name field ready to type, groups color and icon choices into a more cohesive appearance block, keeps selection states visually cleaner, and only shows limit frequency once the user has actually entered a valid budget limit.
+
 ## [2.59.14] - 2026-07-07
 
 ### Fixed
