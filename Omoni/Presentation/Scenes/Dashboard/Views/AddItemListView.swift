@@ -127,7 +127,7 @@ struct AddItemListView: View {
 
     private var descriptionPlaceholder: String {
         if let concept = viewModel.lastUsedConcept {
-            return concept
+            return "\(LocalizationKey.General.eg.localized) \(concept)"
         }
         if let category = viewModel.selectedCategory {
             return "\(LocalizationKey.Entry.concept.localized) (\(LocalizationKey.General.eg.localized) \(category.name))"

@@ -4,6 +4,11 @@ This file preserves OMONI's internal release history before the public changelog
 
 It is a snapshot of the internal release stream kept for project history and reference.
 
+## [2.59.12] - 2026-07-07
+
+### Fixed
+- **New Entry now makes remembered concept placeholders read as examples instead of prefilled values** (`AddItemListView`) — when the form surfaces a concept from recent usage memory, the placeholder now presents it explicitly as an `ej.` / `e.g.` hint so first-time users are less likely to read it as text that was already entered for them.
+
 ## [2.59.11] - 2026-07-07
 
 ### Fixed
