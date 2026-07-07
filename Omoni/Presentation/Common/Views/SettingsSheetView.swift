@@ -41,9 +41,6 @@ struct SettingsSheetView: View {
                     profileSection
                     backupSection
                     omoSection
-#if DEBUG
-                    debugSection
-#endif
                 }
                 .padding(AppConstants.UserInterface.padding)
                 .padding(.bottom, AppConstants.UserInterface.largePadding)
@@ -181,30 +178,6 @@ struct SettingsSheetView: View {
             .buttonStyle(.plain)
         }
     }
-
-#if DEBUG
-    private var debugSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            sectionHeader("Debug")
-
-            NavigationLink {
-                CreateFirstUserView(
-                    onUserCreated: {},
-                    submissionMode: .simulate
-                )
-            } label: {
-                NativeSettingsCard {
-                    settingsNavigationRow(
-                        systemImage: "person.badge.plus",
-                        color: .orange,
-                        title: "Onboarding Preview"
-                    )
-                }
-            }
-            .buttonStyle(.plain)
-        }
-    }
-#endif
 
     private func sectionHeader(_ title: String) -> some View {
         Text(title)
