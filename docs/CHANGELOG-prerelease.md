@@ -4,6 +4,11 @@ This file preserves OMONI's internal release history before the public changelog
 
 It is a snapshot of the internal release stream kept for project history and reference.
 
+## [2.59.19] - 2026-07-07
+
+### Fixed
+- **Settings no longer exposes the internal onboarding preview shortcut to user-facing navigation** (`SettingsSheetView`) — removed the temporary `Onboarding Preview` entry from the visible Settings surface so the signup-preview access used during development no longer appears as part of the app's normal user settings flow.
+
 ## [2.59.18] - 2026-07-07
 
 ### Fixed
