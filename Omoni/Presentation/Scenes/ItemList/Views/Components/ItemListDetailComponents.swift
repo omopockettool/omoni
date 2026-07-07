@@ -53,9 +53,9 @@ struct ItemListDetailMetaRow: View {
             }
 
             if let paymentMethod = itemList.paymentMethod {
-                let color = paymentMethodColor(paymentMethod.type)
+                let color = PaymentMethodAppearance.tint(for: paymentMethod)
                 HStack(spacing: 4) {
-                    Image(systemName: paymentMethod.icon.isEmpty ? defaultPaymentMethodIcon(paymentMethod.type) : paymentMethod.icon)
+                    Image(systemName: PaymentMethodAppearance.icon(for: paymentMethod))
                         .foregroundStyle(color)
                     if showMetaLabels {
                         Text(paymentMethod.name)
@@ -117,23 +117,6 @@ struct ItemListDetailMetaRow: View {
             return "partial"
         case .completed:
             return "completed"
-        }
-    }
-
-    private func paymentMethodColor(_ type: String) -> Color {
-        switch type {
-        case "cash":          return .green
-        case "bank_transfer": return .orange
-        case "card_credit":   return .purple
-        default:              return .blue
-        }
-    }
-
-    private func defaultPaymentMethodIcon(_ type: String) -> String {
-        switch type {
-        case "cash":          return "banknote.fill"
-        case "bank_transfer": return "arrow.left.arrow.right"
-        default:              return "creditcard.fill"
         }
     }
 }

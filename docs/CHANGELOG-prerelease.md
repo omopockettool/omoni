@@ -4,6 +4,81 @@ This file preserves OMONI's internal release history before the public changelog
 
 It is a snapshot of the internal release stream kept for project history and reference.
 
+## [2.59.18] - 2026-07-07
+
+### Fixed
+- **Origins now use a single icon-driven visual language across creation, selection, dashboard, and detail surfaces** (`PaymentMethodAppearance`, `PaymentMethodFormView`, `PaymentMethodFormViewModel`, `PaymentMethodManagementView`, `PaymentMethodPickerView`, `AddItemListView`, `AddItemListComponents`, `ItemListDetailComponents`) — origin presentation no longer depends visually on the technical `type` field, so icon, tint, and saved color now stay aligned across the edit form, origin management, picker rows, dashboard chips, and item-list metadata while `type` remains only as legacy compatibility data when persisting broad icon choices.
+
+## [2.59.17] - 2026-07-07
+
+### Fixed
+- **Origin editing now keeps the same visual color language as the origin list for ambiguous icons like `Bizum`** (`PaymentMethodFormView`) — the edit form no longer reclassifies broad icons such as `qrcode` into a different internal type just because they could also represent another kind of origin, so the tinted preview shown while editing now stays aligned with the color users already saw in the origins list.
+
+## [2.59.16] - 2026-07-07
+
+### Fixed
+- **Origins now use a simpler and less repetitive presentation across creation and selection flows** (`PaymentMethodFormView`, `PaymentMethodManagementView`, `PaymentMethodPickerView`) — the origin form no longer asks the user to choose a technical `Tipo` field and instead infers it from the chosen icon, while the management list and picker stop repeating that same type label under the origin name when it only creates visual duplication like `Crédito` shown twice.
+
+## [2.59.15] - 2026-07-07
+
+### Fixed
+- **New Category now presents a calmer and clearer creation form** (`CategoryFormView`) — the category editor now opens with the name field ready to type, groups color and icon choices into a more cohesive appearance block, keeps selection states visually cleaner, and only shows limit frequency once the user has actually entered a valid budget limit.
+
+## [2.59.14] - 2026-07-07
+
+### Fixed
+- **Dashboard now treats the `Coste por categoría` section label with the same calmer sentence-case language as the rest of the surface** (`DashboardCategoryBoardComponents`) — the category board header no longer forces an all-caps treatment, so the monthly dashboard reads closer to the hero and less like a technical panel heading.
+
+## [2.59.13] - 2026-07-07
+
+### Fixed
+- **New Entry now gives the `Simple / Lista` mode switcher a more settled selected state** (`AddItemListComponents`) — the active segment now feels more like an intentional control state and less like a flat fill, helping the top block read with a more polished, product-like hierarchy.
+
+## [2.59.12] - 2026-07-07
+
+### Fixed
+- **New Entry now makes remembered concept placeholders read as examples instead of prefilled values** (`AddItemListView`) — when the form surfaces a concept from recent usage memory, the placeholder now presents it explicitly as an `ej.` / `e.g.` hint so first-time users are less likely to read it as text that was already entered for them.
+
+## [2.59.11] - 2026-07-07
+
+### Fixed
+- **New Entry now tones down its primary action until the user starts the form** (`AddItemListView`) — the top-right confirmation button no longer dominates the sheet from the very first empty state, making the create flow feel calmer while still becoming fully available as soon as the user begins entering the new record.
+
+## [2.59.10] - 2026-07-07
+
+### Fixed
+- **New Entry now gives selected chips and the date row a more intentional visual hierarchy** (`AddItemListComponents`) — selected category and origin chips now read more clearly at a glance, overflow selections keep their expandable affordance, and the compact `Hoy` date row now feels less washed out and more like an active part of the form.
+
+## [2.59.9] - 2026-07-07
+
+### Fixed
+- **New Entry now keeps selected categories and origins clearer when they come from the `Más` overflow picker** (`AddItemListComponents`) — selected chips now anchor their confirmation mark more cleanly, and overflow selections keep showing an explicit expand affordance so users can still tell that the chosen value lives inside the `Más` menu instead of looking like a fixed final chip.
+
+## [2.59.8] - 2026-07-07
+
+### Fixed
+- **New Entry and Edit Entry no longer expose an in-form group switcher that competes with the dashboard context** (`AddItemListView`, `AddItemListComponents`) — the entry sheet now stays anchored to the group the user already selected before opening it, removing the extra group field from both create and edit flows so the form feels cleaner and more step-by-step.
+
+## [2.59.7] - 2026-07-07
+
+### Fixed
+- **Dashboard New Entry now switches to an informative hero action when the generic add flow has no categories left to create** (`DashboardView`, `DashboardViewModel`, `DashboardComponents`, `TotalSpentCardView`, `Localizable.strings`) — when every category is already represented on the dashboard, the hero no longer keeps a misleading add affordance for the generic flow; it now shows an info action instead and explains via toast that the user should select a category from the dashboard first.
+
+## [2.59.6] - 2026-07-07
+
+### Fixed
+- **New Entry recommendations no longer reselect dashboard-hidden categories inside the generic add flow** (`AddItemListViewModel`) — concept suggestions shown from the generic dashboard add sheet now stay aligned with the categories that flow is actually allowed to use, so tapping a suggestion can no longer silently switch the entry back into a category that was intentionally hidden because it is already represented on the dashboard.
+
+## [2.59.5] - 2026-07-07
+
+### Fixed
+- **New Entry now surfaces hidden category guidance and secondary fields more clearly for first-time dashboard users** (`AddItemListView`, `AddItemListComponents`, `Localizable.strings`) — the generic dashboard add sheet now shows the “select it from the dashboard” category guidance using the same short-lived hint pattern as other OMONI onboarding cues, and the collapsed details trigger now explicitly says `Fecha y origen` instead of the vaguer `Más detalles`.
+
+## [2.59.4] - 2026-07-06
+
+### Fixed
+- **New Entry now explains the dashboard category flow the first time a reused category is hidden from the generic add sheet** (`AddItemListView`, `AddItemListComponents`, `Localizable.strings`) — when a category no longer appears in the generic dashboard add flow because it is already represented on the dashboard, the form now shows a one-time inline hint telling the user to select that category from the dashboard itself instead of leaving the behavior unexplained.
+
 ## [2.59.3] - 2026-07-04
 
 ### Fixed

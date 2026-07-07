@@ -164,6 +164,7 @@
 "dashboard.markedAllPending" = "All pending";
 "dashboard.changeUndone" = "Change undone";
 "dashboard.undo" = "Undo";
+"dashboard.selectCategoryFromDashboard" = "Select a category in the dashboard";
 "dashboard.limitShort" = "Limit";
 "dashboard.expensesByCategory" = "Cost by category";
 "dashboard.overLimit" = "Over limit";
@@ -172,10 +173,11 @@
 "entry.newEntry" = "New Entry";
 "entry.concept" = "Concept";
 "entry.viewLess" = "View less";
-"entry.moreDetails" = "More details";
+"entry.moreDetails" = "Date and origin";
 "entry.tapToAdd" = "Tap + to add an entry";
 "entry.addByDate" = "Add on this date";
 "entry.more" = "More";
+"entry.dashboardCategoryHintMessage" = "If you don't see a category here, select it in the dashboard to add to it.";
 
 // MARK: - Item (extended)
 "item.newItem" = "New Item";
