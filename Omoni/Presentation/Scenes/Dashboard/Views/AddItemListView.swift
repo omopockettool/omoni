@@ -424,7 +424,7 @@ struct AddItemListView: View {
                 overflowPaymentMethods: overflowPaymentMethods,
                 showOverflow: $showPaymentMethodOverflow,
                 selectedPaymentMethodID: viewModel.selectedPaymentMethod?.id,
-                colorForType: paymentMethodColor,
+                colorForMethod: paymentMethodColor,
                 iconForMethod: paymentMethodIcon,
                 onSelect: { method in
                     withAnimation(AnimationHelper.quickSpring) {
@@ -469,26 +469,12 @@ struct AddItemListView: View {
 
     // MARK: - Payment Method Helpers
 
-    private func paymentMethodColor(_ type: String) -> Color {
-        switch type {
-        case "cash":          return .green
-        case "bank_transfer": return .orange
-        case "card_credit":   return .purple
-        default:              return .blue
-        }
+    private func paymentMethodColor(_ method: SDPaymentMethod) -> Color {
+        PaymentMethodAppearance.tint(for: method)
     }
 
     private func paymentMethodIcon(_ method: SDPaymentMethod) -> String {
-        method.icon.isEmpty ? defaultIcon(for: method.type) : method.icon
-    }
-
-    private func defaultIcon(for type: String) -> String {
-        switch type {
-        case "cash":          return "banknote.fill"
-        case "bank_transfer": return "arrow.left.arrow.right"
-        case "card_credit":   return "creditcard.fill"
-        default:              return "creditcard.fill"
-        }
+        PaymentMethodAppearance.icon(for: method)
     }
 
     // MARK: - Actions

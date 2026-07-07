@@ -22,7 +22,7 @@ import Foundation
         )
     }
 
-    func save(name: String, type: String, icon: String, groupId: UUID, methodToEdit: SDPaymentMethod?) async -> Bool {
+    func save(name: String, type: String, icon: String, color: String, groupId: UUID, methodToEdit: SDPaymentMethod?) async -> Bool {
         isLoading = true
         errorMessage = nil
         showError = false
@@ -34,7 +34,7 @@ import Foundation
                     name: name,
                     type: type,
                     icon: icon,
-                    color: pm.color,
+                    color: color,
                     isActive: pm.isActive
                 )
                 try await updatePaymentMethodUseCase.execute(pm)
@@ -43,7 +43,7 @@ import Foundation
                     name: name,
                     type: type,
                     icon: icon,
-                    color: "#6C63FF",
+                    color: color,
                     isActive: true,
                     groupId: groupId
                 )

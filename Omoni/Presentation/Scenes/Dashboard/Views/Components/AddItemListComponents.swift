@@ -513,7 +513,7 @@ struct AddItemListPaymentMethodSection: View {
     let overflowPaymentMethods: [SDPaymentMethod]
     @Binding var showOverflow: Bool
     let selectedPaymentMethodID: UUID?
-    let colorForType: (String) -> Color
+    let colorForMethod: (SDPaymentMethod) -> Color
     let iconForMethod: (SDPaymentMethod) -> String
     let onSelect: (SDPaymentMethod) -> Void
     let onToggleOffSelected: () -> Void
@@ -526,7 +526,7 @@ struct AddItemListPaymentMethodSection: View {
                     AddItemListPaymentMethodChip(
                         method: method,
                         isSelected: selectedPaymentMethodID == method.id,
-                        color: colorForType(method.type),
+                        color: colorForMethod(method),
                         iconName: iconForMethod(method)
                     ) {
                         if selectedPaymentMethodID == method.id {
@@ -542,7 +542,7 @@ struct AddItemListPaymentMethodSection: View {
                     AddItemListPaymentMethodOverflowChip(
                         overflowSelected: overflowPaymentMethods.first { $0.id == selectedPaymentMethodID },
                         isExpanded: showOverflow,
-                        colorForType: colorForType,
+                        colorForMethod: colorForMethod,
                         iconForMethod: iconForMethod
                     ) {
                         withAnimation(AnimationHelper.quickSpring) {
@@ -622,12 +622,12 @@ private struct AddItemListPaymentMethodChip: View {
 private struct AddItemListPaymentMethodOverflowChip: View {
     let overflowSelected: SDPaymentMethod?
     let isExpanded: Bool
-    let colorForType: (String) -> Color
+    let colorForMethod: (SDPaymentMethod) -> Color
     let iconForMethod: (SDPaymentMethod) -> String
     let onTap: () -> Void
 
     private var chipColor: Color {
-        overflowSelected.map { colorForType($0.type) } ?? Color(.systemGray3)
+        overflowSelected.map(colorForMethod) ?? Color(.systemGray3)
     }
 
     private var iconName: String {

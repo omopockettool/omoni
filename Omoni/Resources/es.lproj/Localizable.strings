@@ -164,7 +164,7 @@
 "dashboard.markedAllPending" = "Todo pendiente";
 "dashboard.changeUndone" = "Cambio deshecho";
 "dashboard.undo" = "Deshacer";
-"dashboard.selectCategoryFromDashboard" = "Selecciona una categoría en el dashboard";
+"dashboard.selectCategoryFromDashboard" = "Selecciona una categoría en el panel";
 "dashboard.limitShort" = "Límite";
 "dashboard.expensesByCategory" = "Coste por categoría";
 "dashboard.overLimit" = "Sobre límite";
@@ -177,7 +177,7 @@
 "entry.tapToAdd" = "Pulsa el + para agregar un registro";
 "entry.addByDate" = "Añadir en esta fecha";
 "entry.more" = "Más";
-"entry.dashboardCategoryHintMessage" = "Si no ves una categoría aquí, selecciónala en el dashboard para añadir en ella.";
+"entry.dashboardCategoryHintMessage" = "Si no ves una categoría aquí, selecciónala en el panel para añadir en ella.";
 
 // MARK: - Item (extended)
 "item.newItem" = "Nuevo Artículo";
