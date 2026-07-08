@@ -14,6 +14,8 @@ struct ItemListDetailView: View {
     @State private var sheetMode: ItemSheetMode?
     @State private var showMetaLabels: Bool = true
     @State private var hasPendingParentTotalsRefresh = false
+    @State private var pendingRegistryUpdate: SDItemList? = nil
+    @State private var shouldDismissAfterRegistryUpdate = false
 
     enum ItemSheetMode: Identifiable {
         case create
@@ -104,7 +106,23 @@ struct ItemListDetailView: View {
                 onItemListItemsChanged?(itemList)
             }
         }
-        .sheet(item: $sheetMode) { mode in
+        .sheet(item: $sheetMode, onDismiss: {
+            guard let updated = pendingRegistryUpdate else { return }
+
+            let shouldDismissDetail = shouldDismissAfterRegistryUpdate
+            pendingRegistryUpdate = nil
+            shouldDismissAfterRegistryUpdate = false
+
+            Task {
+                // Notify the parent only after the nested editor is fully dismissed.
+                await Task.yield()
+                onItemListUpdated?(updated)
+
+                if shouldDismissDetail {
+                    dismiss()
+                }
+            }
+        }) { mode in
             let container = AppDIContainer.shared
             switch mode {
             case .create:
@@ -161,13 +179,15 @@ struct ItemListDetailView: View {
                         itemListToEdit: itemList,
                         onItemListCreated: { _ in },
                         onItemListUpdated: { updated in
-                            onItemListUpdated?(updated)
+                            pendingRegistryUpdate = updated
+                            shouldDismissAfterRegistryUpdate = updated.isSingleEntry
                             sheetMode = nil
-                            if updated.isSingleEntry {
-                                Task { dismiss() }
-                            }
                         },
-                        onCancel: { sheetMode = nil }
+                        onCancel: {
+                            pendingRegistryUpdate = nil
+                            shouldDismissAfterRegistryUpdate = false
+                            sheetMode = nil
+                        }
                     )
                 }
             }

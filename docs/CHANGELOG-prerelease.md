@@ -4,6 +4,11 @@ This file preserves OMONI's internal release history before the public changelog
 
 It is a snapshot of the internal release stream kept for project history and reference.
 
+## [2.59.20] - 2026-07-07
+
+### Fixed
+- **Editing an existing entry no longer risks crashing when its date change moves it across dashboard and detail contexts during save** (`DashboardView`, `ItemListDetailView`) — single-entry edit flows now finish dismissing their nested sheet/detail presentation before propagating the updated `SDItemList` back into the live dashboard navigation state, so changing a record from `today` to another day can no longer mutate the same observed route tree mid-dismiss and tear down the app.
+
 ## [2.59.19] - 2026-07-07
 
 ### Fixed

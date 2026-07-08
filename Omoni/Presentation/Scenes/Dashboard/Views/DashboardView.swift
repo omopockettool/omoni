@@ -15,13 +15,30 @@ private enum DashboardActiveFilter {
 }
 
 private struct DashboardItemListRoute: Hashable {
-    let itemListId: UUID
+    let itemList: SDItemList
+    let group: SDGroup
     let highlightedSearchQuery: String?
     let showsPendingItemsOnly: Bool
+
+    static func == (lhs: DashboardItemListRoute, rhs: DashboardItemListRoute) -> Bool {
+        lhs.itemList.id == rhs.itemList.id &&
+        lhs.group.id == rhs.group.id &&
+        lhs.highlightedSearchQuery == rhs.highlightedSearchQuery &&
+        lhs.showsPendingItemsOnly == rhs.showsPendingItemsOnly
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(itemList.id)
+        hasher.combine(group.id)
+        hasher.combine(highlightedSearchQuery)
+        hasher.combine(showsPendingItemsOnly)
+    }
 }
 
 private struct SingleEntryEditorSheet: Identifiable {
-    let id: UUID
+    let itemList: SDItemList
+
+    var id: UUID { itemList.id }
 }
 
 enum DashboardViewMode {
@@ -66,6 +83,7 @@ struct DashboardView: View {
     @State private var selectedCalendarDay: Date? = nil
     @State private var addItemListTrigger: AddItemListTrigger? = nil
     @State private var singleEntryEditorSheet: SingleEntryEditorSheet? = nil
+    @State private var pendingSingleEntryEditorUpdate: SDItemList? = nil
 
     private struct AddItemListTrigger: Identifiable {
         let id = UUID()
@@ -143,25 +161,19 @@ struct DashboardView: View {
                 }
             }
             .navigationDestination(for: DashboardItemListRoute.self) { route in
-                if let group = viewModel.currentGroup,
-                   let itemList = viewModel.itemLists.first(where: { $0.id == route.itemListId }) {
-                    ItemListDetailNavigationWrapper(
-                        itemList: itemList,
-                        currencyCode: group.currency,
-                        group: group,
-                        highlightedSearchQuery: route.highlightedSearchQuery,
-                        showsPendingItemsOnly: route.showsPendingItemsOnly,
-                        onItemListUpdated: { updated in
-                            Task { await viewModel.updateItemList(updated) }
-                        },
-                        onItemListItemsChanged: { updatedItemList in
-                            Task { await viewModel.refreshTotals(for: updatedItemList) }
-                        }
-                    )
-                } else {
-                    Color.clear
-                        .onAppear { navigationPath = NavigationPath() }
-                }
+                ItemListDetailNavigationWrapper(
+                    itemList: route.itemList,
+                    currencyCode: route.group.currency,
+                    group: route.group,
+                    highlightedSearchQuery: route.highlightedSearchQuery,
+                    showsPendingItemsOnly: route.showsPendingItemsOnly,
+                    onItemListUpdated: { updated in
+                        Task { await viewModel.updateItemList(updated) }
+                    },
+                    onItemListItemsChanged: { updatedItemList in
+                        Task { await viewModel.refreshTotals(for: updatedItemList) }
+                    }
+                )
             }
             .sheet(isPresented: $viewModel.showingSettings, onDismiss: {
                 Task { await viewModel.refreshCategories() }
@@ -210,21 +222,30 @@ struct DashboardView: View {
                     .presentationDragIndicator(.visible)
                 }
             }
-            .sheet(item: $singleEntryEditorSheet) { sheet in
-                if let group = viewModel.currentGroup,
-                   let itemList = viewModel.itemLists.first(where: { $0.id == sheet.id }) {
+            .sheet(item: $singleEntryEditorSheet, onDismiss: {
+                guard let updated = pendingSingleEntryEditorUpdate else { return }
+                pendingSingleEntryEditorUpdate = nil
+
+                Task {
+                    // Apply dashboard mutations after the editor is fully dismissed.
+                    await Task.yield()
+                    await viewModel.updateItemList(updated)
+                }
+            }) { sheet in
+                if let group = viewModel.currentGroup {
                     NavigationStack {
                         AddItemListView(
                             group: group,
                             availableGroups: viewModel.availableGroups,
-                            itemListToEdit: itemList,
+                            itemListToEdit: sheet.itemList,
                             showsCancelButton: true,
                             onItemListCreated: { _ in },
                             onItemListUpdated: { updated in
+                                pendingSingleEntryEditorUpdate = updated
                                 singleEntryEditorSheet = nil
-                                Task { await viewModel.updateItemList(updated) }
                             },
                             onCancel: {
+                                pendingSingleEntryEditorUpdate = nil
                                 singleEntryEditorSheet = nil
                             }
                         )
@@ -821,15 +842,20 @@ struct DashboardView: View {
 private extension DashboardView {
     func openItemList(_ itemList: SDItemList) {
         if viewModel.prefersSingleEntryEditor(for: itemList) {
-            singleEntryEditorSheet = SingleEntryEditorSheet(id: itemList.id)
+            pendingSingleEntryEditorUpdate = nil
+            singleEntryEditorSheet = SingleEntryEditorSheet(itemList: itemList)
         } else {
-            navigationPath.append(itemListRoute(for: itemList))
+            guard let route = itemListRoute(for: itemList) else { return }
+            navigationPath.append(route)
         }
     }
 
-    func itemListRoute(for itemList: SDItemList) -> DashboardItemListRoute {
-        DashboardItemListRoute(
-            itemListId: itemList.id,
+    func itemListRoute(for itemList: SDItemList) -> DashboardItemListRoute? {
+        guard let routeGroup = itemList.group ?? viewModel.currentGroup else { return nil }
+
+        return DashboardItemListRoute(
+            itemList: itemList,
+            group: routeGroup,
             highlightedSearchQuery: viewModel.hasActiveSearch ? viewModel.searchQuery : nil,
             showsPendingItemsOnly: viewModel.hasActivePendingFilter
         )
