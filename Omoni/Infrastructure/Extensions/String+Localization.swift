@@ -163,6 +163,7 @@ enum LocalizationKey {
         static let tapToAdd = "entry.tapToAdd"
         static let addByDate = "entry.addByDate"
         static let more = "entry.more"
+        static let dashboardCategoryHintMessage = "entry.dashboardCategoryHintMessage"
     }
     
     // MARK: - Item
@@ -242,6 +243,7 @@ enum LocalizationKey {
         static let markedAllPending = "dashboard.markedAllPending"
         static let changeUndone = "dashboard.changeUndone"
         static let undo = "dashboard.undo"
+        static let selectCategoryFromDashboard = "dashboard.selectCategoryFromDashboard"
         static let limitShort = "dashboard.limitShort"
         static let expensesByCategory = "dashboard.expensesByCategory"
         static let overLimit = "dashboard.overLimit"

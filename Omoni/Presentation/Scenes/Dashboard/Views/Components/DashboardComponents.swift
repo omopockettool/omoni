@@ -10,17 +10,11 @@ private extension AnyTransition {
     }
 
     static var dashboardTodayRangeSwap: AnyTransition {
-        .asymmetric(
-            insertion: .move(edge: .leading).combined(with: .opacity),
-            removal: .move(edge: .leading).combined(with: .opacity)
-        )
+        .opacity
     }
 
     static var dashboardMonthRangeSwap: AnyTransition {
-        .asymmetric(
-            insertion: .move(edge: .trailing).combined(with: .opacity),
-            removal: .move(edge: .trailing).combined(with: .opacity)
-        )
+        .opacity
     }
 }
 
@@ -94,6 +88,7 @@ struct DashboardHeroSection: View {
     var budgetFillRatio: Double? = nil
     var showsOverLimitBadge = false
     var overrideActionColor: Color? = nil
+    var actionIconSystemName: String = "plus"
     let onAddExpense: () -> Void
 
     private var displayLabel: String {
@@ -116,6 +111,7 @@ struct DashboardHeroSection: View {
             totalAmount: displayTotal,
             onAddExpense: onAddExpense,
             actionColor: overrideActionColor ?? .accentColor,
+            actionIconSystemName: actionIconSystemName,
             budgetFillRatio: budgetFillRatio
         ) {
             if let budgetLimitText {
@@ -128,7 +124,9 @@ struct DashboardHeroSection: View {
 
                     Text(budgetLimitText)
                         .font(.footnote.weight(.medium))
+                        .fontDesign(.rounded)
                         .foregroundStyle(.secondary)
+                        .monospacedDigit()
                         .lineLimit(1)
                         .minimumScaleFactor(0.85)
                 }
@@ -228,6 +226,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
     let dateRows: [DashboardDayBoxData]
     let getDateRowAmount: (DashboardDayBoxData) -> String
     let getDateRowUnpaidAmount: (DashboardDayBoxData) -> String?
+    let dateRowsRestorationRowID: String?
     let onDateRowTap: (DashboardDayBoxData) -> Void
     // Expense list (deepest level: day → expense rows)
     let filteredItemLists: [SDItemList]
@@ -254,6 +253,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
     let onDelete: (SDItemList) -> Void
     @Binding var showingFullMonth: Bool
     let transitionMode: DashboardContentTransitionMode
+    let contentRangeKey: String
     let hasItemsOutsideToday: Bool
     let onOpenSettings: () -> Void
     let toast: Binding<ToastMessage?>
@@ -279,7 +279,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
     private var filteredListContextID: String {
         return [
             selectedFilterTitle ?? "none",
-            showingFullMonth ? "month" : "today",
+            contentRangeKey,
             showsDateRows ? "daterows" : "expenselist"
         ].joined(separator: "#")
     }
@@ -293,6 +293,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
         dateRows: [DashboardDayBoxData],
         getDateRowAmount: @escaping (DashboardDayBoxData) -> String,
         getDateRowUnpaidAmount: @escaping (DashboardDayBoxData) -> String?,
+        dateRowsRestorationRowID: String?,
         onDateRowTap: @escaping (DashboardDayBoxData) -> Void,
         filteredItemLists: [SDItemList],
         getItemListCategoryContext: @escaping (SDItemList) -> String? = { _ in nil },
@@ -318,6 +319,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
         onDelete: @escaping (SDItemList) -> Void,
         showingFullMonth: Binding<Bool>,
         transitionMode: DashboardContentTransitionMode,
+        contentRangeKey: String,
         hasItemsOutsideToday: Bool,
         onOpenSettings: @escaping () -> Void,
         toast: Binding<ToastMessage?>,
@@ -331,6 +333,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
         self.dateRows = dateRows
         self.getDateRowAmount = getDateRowAmount
         self.getDateRowUnpaidAmount = getDateRowUnpaidAmount
+        self.dateRowsRestorationRowID = dateRowsRestorationRowID
         self.onDateRowTap = onDateRowTap
         self.filteredItemLists = filteredItemLists
         self.getItemListCategoryContext = getItemListCategoryContext
@@ -356,6 +359,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
         self.onDelete = onDelete
         self._showingFullMonth = showingFullMonth
         self.transitionMode = transitionMode
+        self.contentRangeKey = contentRangeKey
         self.hasItemsOutsideToday = hasItemsOutsideToday
         self.onOpenSettings = onOpenSettings
         self.toast = toast
@@ -373,6 +377,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
                         rows: dateRows,
                         getFormattedAmount: getDateRowAmount,
                         getFormattedUnpaidAmount: getDateRowUnpaidAmount,
+                        restorationRowID: dateRowsRestorationRowID,
                         onSelect: onDateRowTap,
                         onRefresh: onRefresh
                     )

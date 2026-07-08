@@ -12,6 +12,7 @@ struct TotalSpentCardView<BottomContent: View>: View {
     let totalAmount: String
     let onAddExpense: () -> Void
     var actionColor: Color = .accentColor
+    var actionIconSystemName: String = "plus"
     var budgetFillRatio: Double? = nil
     @ViewBuilder let bottomContent: () -> BottomContent
 
@@ -27,6 +28,7 @@ struct TotalSpentCardView<BottomContent: View>: View {
         totalAmount: String,
         onAddExpense: @escaping () -> Void,
         actionColor: Color = .accentColor,
+        actionIconSystemName: String = "plus",
         budgetFillRatio: Double? = nil,
         @ViewBuilder bottomContent: @escaping () -> BottomContent
     ) {
@@ -34,6 +36,7 @@ struct TotalSpentCardView<BottomContent: View>: View {
         self.totalAmount = totalAmount
         self.onAddExpense = onAddExpense
         self.actionColor = actionColor
+        self.actionIconSystemName = actionIconSystemName
         self.budgetFillRatio = budgetFillRatio
         self.bottomContent = bottomContent
     }
@@ -74,7 +77,7 @@ struct TotalSpentCardView<BottomContent: View>: View {
                         .fill(actionColor)
                         .frame(width: 48, height: 48)
                         .overlay {
-                            Image(systemName: "plus")
+                            Image(systemName: actionIconSystemName)
                                 .font(.system(size: 21, weight: .black))
                                 .foregroundColor(.white)
                         }
@@ -157,6 +160,7 @@ extension TotalSpentCardView where BottomContent == EmptyView {
         totalAmount: String,
         onAddExpense: @escaping () -> Void,
         actionColor: Color = .accentColor,
+        actionIconSystemName: String = "plus",
         budgetFillRatio: Double? = nil
     ) {
         self.init(
@@ -164,6 +168,7 @@ extension TotalSpentCardView where BottomContent == EmptyView {
             totalAmount: totalAmount,
             onAddExpense: onAddExpense,
             actionColor: actionColor,
+            actionIconSystemName: actionIconSystemName,
             budgetFillRatio: budgetFillRatio,
             bottomContent: { EmptyView() }
         )

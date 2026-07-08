@@ -6,33 +6,59 @@ struct DashboardDateRowsView: View {
     let rows: [DashboardDayBoxData]
     let getFormattedAmount: (DashboardDayBoxData) -> String
     let getFormattedUnpaidAmount: (DashboardDayBoxData) -> String?
+    let restorationRowID: String?
     let onSelect: (DashboardDayBoxData) -> Void
     let onRefresh: () async -> Void
 
     var body: some View {
-        List {
-            ForEach(rows) { row in
-                DashboardDateRowView(
-                    data: row,
-                    formattedAmount: getFormattedAmount(row),
-                    formattedUnpaidAmount: getFormattedUnpaidAmount(row),
-                    onTap: { onSelect(row) }
-                )
-                .padding(.vertical, 4)
-                .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
+        ScrollViewReader { proxy in
+            List {
+                ForEach(rows) { row in
+                    DashboardDateRowView(
+                        data: row,
+                        formattedAmount: getFormattedAmount(row),
+                        formattedUnpaidAmount: getFormattedUnpaidAmount(row),
+                        onTap: { onSelect(row) }
+                    )
+                    .id(row.id)
+                    .padding(.vertical, 4)
+                    .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+                }
+            }
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
+            .scrollIndicators(.hidden)
+            .contentMargins(.top, ExpenseListLayoutMetrics.topContentMargin, for: .scrollContent)
+            .refreshable {
+                await onRefresh()
+                try? await Task.sleep(for: .milliseconds(180))
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .onAppear {
+                restoreScrollPosition(using: proxy)
+            }
+            .onChange(of: restorationRowID) { _, _ in
+                restoreScrollPosition(using: proxy)
+            }
+            .onChange(of: rows.map(\.id)) { _, _ in
+                restoreScrollPosition(using: proxy)
             }
         }
-        .listStyle(.plain)
-        .scrollContentBackground(.hidden)
-        .scrollIndicators(.hidden)
-        .contentMargins(.top, ExpenseListLayoutMetrics.topContentMargin, for: .scrollContent)
-        .refreshable {
-            await onRefresh()
-            try? await Task.sleep(for: .milliseconds(180))
+    }
+
+    private func restoreScrollPosition(using proxy: ScrollViewProxy) {
+        guard let restorationRowID,
+              rows.contains(where: { $0.id == restorationRowID })
+        else { return }
+
+        Task { @MainActor in
+            await Task.yield()
+            withAnimation(nil) {
+                proxy.scrollTo(restorationRowID, anchor: .center)
+            }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 }
 
@@ -242,6 +268,7 @@ struct DashboardDateRowView: View {
         if let formattedUnpaidAmount {
             Text(formattedUnpaidAmount)
                 .font(.caption)
+                .fontDesign(.rounded)
                 .foregroundStyle(.orange)
                 .monospacedDigit()
                 .lineLimit(1)

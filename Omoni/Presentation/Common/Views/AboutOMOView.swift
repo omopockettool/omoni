@@ -2,9 +2,12 @@ import SwiftUI
 import UIKit
 
 struct AboutOMOView: View {
+    @Environment(\.openURL) private var openURL
     private let appInfo = AppInfo.current
     private let donationsURL = URL(string: "https://buymeacoffee.com/omopockettool")!
     private let appStoreURL = URL(string: "https://omopockettool.com")!
+    private let termsURL = URL(string: "https://omopockettool.com/terms/")!
+    private let privacyURL = URL(string: "https://omopockettool.com/privacy/")!
     @State private var copiedFieldTitle: String?
 
     var body: some View {
@@ -122,6 +125,30 @@ struct AboutOMOView: View {
                     destination: URL(string: "mailto:omopockettool@gmail.com")!
                 )
                 .padding(AppConstants.UserInterface.padding)
+
+                Divider()
+                    .padding(.leading, AppConstants.UserInterface.padding + 44)
+
+                copyableLinkRow(
+                    icon: "doc.text.fill",
+                    color: .blue,
+                    title: LocalizationKey.User.Welcome.terms.localized,
+                    value: "omopockettool.com/terms",
+                    destination: termsURL
+                )
+                .padding(AppConstants.UserInterface.padding)
+
+                Divider()
+                    .padding(.leading, AppConstants.UserInterface.padding + 44)
+
+                copyableLinkRow(
+                    icon: "hand.raised.fill",
+                    color: .teal,
+                    title: LocalizationKey.User.Welcome.privacy.localized,
+                    value: "omopockettool.com/privacy",
+                    destination: privacyURL
+                )
+                .padding(AppConstants.UserInterface.padding)
             }
         }
     }
@@ -151,6 +178,8 @@ struct AboutOMOView: View {
                         title: LocalizationKey.About.donate.localized,
                         value: "buymeacoffee.com/omopockettool"
                     )
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
                     .padding(AppConstants.UserInterface.padding)
                 }
                 .buttonStyle(.plain)
@@ -165,6 +194,8 @@ struct AboutOMOView: View {
                         title: LocalizationKey.About.shareApp.localized,
                         value: LocalizationKey.About.shareAppSubtitle.localized
                     )
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
                     .padding(AppConstants.UserInterface.padding)
                 }
                 .buttonStyle(.plain)
@@ -219,6 +250,8 @@ struct AboutOMOView: View {
                     .foregroundStyle(Color(.tertiaryLabel))
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(Rectangle())
     }
 
     private func copyableLinkRow(
@@ -229,10 +262,12 @@ struct AboutOMOView: View {
         destination: URL
     ) -> some View {
         HStack(spacing: 12) {
-            Link(destination: destination) {
-                infoRow(icon: icon, color: color, title: title, value: value)
-            }
-            .buttonStyle(.plain)
+            infoRow(icon: icon, color: color, title: title, value: value)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    openURL(destination)
+                }
 
             Button {
                 UIPasteboard.general.string = value
@@ -256,12 +291,16 @@ struct AboutOMOView: View {
             .buttonStyle(.plain)
             .accessibilityLabel("\(LocalizationKey.General.copy.localized) \(title)")
         }
+        .contentShape(Rectangle())
     }
 }
 
 struct AppReleaseNotesView: View {
     let installedVersion: String
-    private let entries = AppReleaseNotesCatalog.entries
+
+    private var entries: [AppReleaseNoteEntry] {
+        AppReleaseNotesCatalog.entries(for: installedVersion)
+    }
 
     var body: some View {
         List {
@@ -345,18 +384,22 @@ private struct AppReleaseNoteEntry: Identifiable {
 }
 
 private enum AppReleaseNotesCatalog {
-    static let entries: [AppReleaseNoteEntry] = [
-        AppReleaseNoteEntry(
-            version: "2.0.0",
-            date: "2026-06-07",
-            titleKey: LocalizationKey.About.ReleaseNotes.v2_0_0Title,
-            highlightKeys: [
-                LocalizationKey.About.ReleaseNotes.v2_0_0Highlight1,
-                LocalizationKey.About.ReleaseNotes.v2_0_0Highlight2,
-                LocalizationKey.About.ReleaseNotes.v2_0_0Highlight3,
-                LocalizationKey.About.ReleaseNotes.v2_0_0Highlight4,
-                LocalizationKey.About.ReleaseNotes.v2_0_0Highlight5
-            ]
-        ),
-    ]
+    private static let productionLaunchDate = "2026-07-16"
+
+    static func entries(for marketingVersion: String) -> [AppReleaseNoteEntry] {
+        [
+            AppReleaseNoteEntry(
+                version: marketingVersion,
+                date: productionLaunchDate,
+                titleKey: LocalizationKey.About.ReleaseNotes.v2_0_0Title,
+                highlightKeys: [
+                    LocalizationKey.About.ReleaseNotes.v2_0_0Highlight1,
+                    LocalizationKey.About.ReleaseNotes.v2_0_0Highlight2,
+                    LocalizationKey.About.ReleaseNotes.v2_0_0Highlight3,
+                    LocalizationKey.About.ReleaseNotes.v2_0_0Highlight4,
+                    LocalizationKey.About.ReleaseNotes.v2_0_0Highlight5
+                ]
+            ),
+        ]
+    }
 }

@@ -58,7 +58,6 @@ struct DashboardCategoryBoardView<EmptyState: View>: View {
                     Text(LocalizationKey.Dashboard.expensesByCategory.localized)
                         .font(.footnote.weight(.semibold))
                         .foregroundStyle(.secondary)
-                        .textCase(.uppercase)
                         .padding(.bottom, 2)
 
                     ForEach(rows, id: \.id) { row in
@@ -421,6 +420,7 @@ private struct DashboardCategoryBoxView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(displayedAmount)
                         .font(amountFont)
+                        .fontDesign(.rounded)
                         .foregroundStyle(Color.primary)
                         .monospacedDigit()
                         .lineLimit(1)

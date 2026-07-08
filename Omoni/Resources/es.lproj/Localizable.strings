@@ -164,6 +164,7 @@
 "dashboard.markedAllPending" = "Todo pendiente";
 "dashboard.changeUndone" = "Cambio deshecho";
 "dashboard.undo" = "Deshacer";
+"dashboard.selectCategoryFromDashboard" = "Selecciona una categoría en el panel";
 "dashboard.limitShort" = "Límite";
 "dashboard.expensesByCategory" = "Coste por categoría";
 "dashboard.overLimit" = "Sobre límite";
@@ -172,10 +173,11 @@
 "entry.newEntry" = "Nuevo Registro";
 "entry.concept" = "Concepto";
 "entry.viewLess" = "Ver menos";
-"entry.moreDetails" = "Más detalles";
+"entry.moreDetails" = "Fecha y origen";
 "entry.tapToAdd" = "Pulsa el + para agregar un registro";
 "entry.addByDate" = "Añadir en esta fecha";
 "entry.more" = "Más";
+"entry.dashboardCategoryHintMessage" = "Si no ves una categoría aquí, selecciónala en el panel para añadir en ella.";
 
 // MARK: - Item (extended)
 "item.newItem" = "Nuevo Artículo";
@@ -286,9 +288,9 @@
 "about.shareApp" = "Compartir OMONI";
 "about.shareAppSubtitle" = "Recomiéndala a un amigo";
 "about.releaseNotes.2_0_0.title" = "Tu vida financiera, clara y ordenada";
-"about.releaseNotes.2_0_0.highlight1" = "Organiza tus gastos por grupos — por ejemplo Casa, Trabajo o Viajes — cada uno con su propia moneda y color.";
-"about.releaseNotes.2_0_0.highlight2" = "Dentro de cada grupo crea registros del día a día: una compra, una cena, una factura. A cada registro le asignas una categoría y un origen.";
-"about.releaseNotes.2_0_0.highlight3" = "Cada registro puede tener uno o varios artículos, cada uno con su precio y cantidad. OMONI calcula el total automáticamente.";
-"about.releaseNotes.2_0_0.highlight4" = "El panel principal te muestra de un vistazo cuánto has gastado hoy, esta semana o este mes, filtrado por categoría o estado de pago.";
+"about.releaseNotes.2_0_0.highlight1" = "Puedes organizar toda tu vida financiera a tu manera. Un solo grupo puede ser suficiente, y crear otro aparte queda solo para casos concretos si a ti te encaja mejor.";
+"about.releaseNotes.2_0_0.highlight2" = "Dentro de cada grupo crea entradas del día a día y asigna a cada una su categoría y su origen de gasto.";
+"about.releaseNotes.2_0_0.highlight3" = "Cada entrada puede ser simple para un pago único o recurrente que no quieres desglosar, como internet, luz, agua, alquiler o incluso una compra completa; o en lista si prefieres detallar sus artículos. OMONI calcula el total automáticamente.";
+"about.releaseNotes.2_0_0.highlight4" = "El dashboard te muestra de un vistazo cuánto has gastado hoy o este mes, con foco por categorías y acceso al detalle por días.";
 "about.releaseNotes.2_0_0.highlight5" = "Marca registros como pagados o pendientes con un solo toque y ten siempre controlado qué queda por saldar.";
 "splash.tagline" = "tu vida. a tu manera.";

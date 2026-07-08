@@ -218,6 +218,7 @@ struct ExpenseRowView: View {
     private func secondaryAmountTextView(_ text: String) -> some View {
         Text(text)
             .font(.caption)
+            .fontDesign(.rounded)
             .foregroundStyle(secondaryAmountColor)
             .monospacedDigit()
             .lineLimit(1)

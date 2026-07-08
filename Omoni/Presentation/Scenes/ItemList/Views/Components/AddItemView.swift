@@ -20,6 +20,7 @@ struct AddItemView: View {
     @State private var displayedSubtotal: String = ""
     @State private var subtotalIsDecreasing: Bool = false
     @State private var selectedDetent: PresentationDetent = .fraction(0.58)
+    @State private var hasAppliedInitialFocus = false
 
     init(
         itemListId: UUID,
@@ -90,6 +91,10 @@ struct AddItemView: View {
             )
             .onAppear {
                 selectedDetent = viewModel.showsTotalPreview ? subtotalDetent : compactDetent
+
+                guard !viewModel.isEditMode, !hasAppliedInitialFocus else { return }
+                hasAppliedInitialFocus = true
+                focusedField = .description
             }
             .onChange(of: focusedField) { oldValue, newValue in
                 guard oldValue == .quantity, newValue != .quantity else { return }

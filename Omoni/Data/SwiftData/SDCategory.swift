@@ -143,7 +143,6 @@ extension SDCategory {
     }
 }
 
-#if DEBUG
 extension SDCategory {
     static func mock(
         id: UUID = UUID(),
@@ -167,4 +166,3 @@ extension SDCategory {
         )
     }
 }
-#endif

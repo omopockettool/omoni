@@ -122,7 +122,6 @@ extension SDGroup {
     
 }
 
-#if DEBUG
 extension SDGroup {
     static func mock(
         id: UUID = UUID(),
@@ -142,4 +141,3 @@ extension SDGroup {
         )
     }
 }
-#endif

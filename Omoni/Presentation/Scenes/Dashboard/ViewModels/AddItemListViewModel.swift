@@ -142,7 +142,7 @@ final class AddItemListViewModel {
     var formattedDate: String { DateFormatterHelper.formatDate(date) }
 
     var canSave: Bool {
-        return isPriceValid
+        isPriceValid && (!requiresExplicitCategorySelection || selectedCategory != nil)
     }
 
     var isPriceValid: Bool {
@@ -162,6 +162,8 @@ final class AddItemListViewModel {
     func showValidationToast() {
         if !isPriceValid {
             toast = ToastMessage("Precio no válido", type: .warning)
+        } else if requiresExplicitCategorySelection && selectedCategory == nil {
+            toast = ToastMessage(LocalizationKey.Category.selectCategory.localized, type: .info)
         }
     }
 
@@ -231,6 +233,11 @@ final class AddItemListViewModel {
                         .first { $0.categoryId.map { !excludedCategoryIds.contains($0) } ?? false }?
                         .categoryId
                 selectedCategory = categoryIdToSelect.flatMap { id in categories.first { $0.id == id } }
+                if selectedCategory == nil,
+                   requiresExplicitCategorySelection,
+                   visibleCategoriesForGenericFlow.count == 1 {
+                    selectedCategory = visibleCategoriesForGenericFlow.first
+                }
                 updateConceptAssists()
             }
         } catch {
@@ -602,6 +609,7 @@ final class AddItemListViewModel {
     }
 
     func selectCategory(_ category: SDCategory?) {
+        if let category, isCategoryExcludedFromGenericFlow(category.id) { return }
         guard selectedCategory?.id != category?.id else { return }
         selectedCategory = category
         updateConceptAssists()
@@ -612,7 +620,7 @@ final class AddItemListViewModel {
             query: description,
             amount: priceAsDecimal.map { Double(truncating: $0 as NSDecimalNumber) },
             forCategory: selectedCategory,
-            allCategories: categories
+            allCategories: categoriesAvailableForSuggestions
         )
         lastUsedConcept = ConceptSuggestionEngine.lastUsed(forCategory: selectedCategory)
     }
@@ -623,6 +631,11 @@ final class AddItemListViewModel {
     }
 
     func applySuggestion(_ suggestion: ConceptSuggestion, forGroupId groupId: UUID) {
+        guard !isCategoryExcludedFromGenericFlow(suggestion.category.id) || suggestion.category.id == selectedCategory?.id else {
+            updateConceptAssists()
+            return
+        }
+
         description = suggestion.description
         if suggestion.category.id != selectedCategory?.id {
             recordCategoryUsage(suggestion.category, forGroupId: groupId)
@@ -669,6 +682,24 @@ final class AddItemListViewModel {
         value
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
+    }
+
+    private var categoriesAvailableForSuggestions: [SDCategory] {
+        guard selectedCategory == nil else { return categories }
+        return categories.filter { !isCategoryExcludedFromGenericFlow($0.id) }
+    }
+
+    private var visibleCategoriesForGenericFlow: [SDCategory] {
+        categories.filter { !isCategoryExcludedFromGenericFlow($0.id) }
+    }
+
+    private var requiresExplicitCategorySelection: Bool {
+        !hasPriorityCategory && !isEditMode
+    }
+
+    private func isCategoryExcludedFromGenericFlow(_ categoryId: UUID) -> Bool {
+        guard requiresExplicitCategorySelection else { return false }
+        return excludedCategoryIds.contains(categoryId)
     }
 
     func clearError() {
