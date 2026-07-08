@@ -158,7 +158,6 @@ extension SDPaymentMethod {
     }
 }
 
-#if DEBUG
 extension SDPaymentMethod {
     static func mock(
         id: UUID = UUID(),
@@ -182,4 +181,3 @@ extension SDPaymentMethod {
         )
     }
 }
-#endif

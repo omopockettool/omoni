@@ -237,7 +237,6 @@ extension SDItemList {
     }
 }
 
-#if DEBUG
 extension SDItemList {
     static func mock(
         id: UUID = UUID(),
@@ -264,4 +263,3 @@ extension SDItemList {
         return itemList
     }
 }
-#endif

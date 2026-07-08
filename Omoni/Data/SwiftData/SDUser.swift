@@ -77,7 +77,6 @@ extension SDUser {
     }
 }
 
-#if DEBUG
 extension SDUser {
     static func mock(
         id: UUID = UUID(),
@@ -95,4 +94,3 @@ extension SDUser {
         )
     }
 }
-#endif

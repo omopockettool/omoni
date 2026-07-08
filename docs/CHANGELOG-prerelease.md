@@ -4,6 +4,12 @@ This file preserves OMONI's internal release history before the public changelog
 
 It is a snapshot of the internal release stream kept for project history and reference.
 
+## [2.59.21] - 2026-07-08
+
+### Fixed
+- **Archive builds no longer fail because preview helpers disappear outside debug compilation** (`SDUser`, `SDGroup`, `SDItemList`, `SDCategory`, `SDPaymentMethod`, `SDUserGroup`, `SDItem`) — the shared preview/test mock factories are now available to release/archive compilation too, so `ModelContainer.preview` and view previews that rely on those seeded models no longer break the App Store upload path.
+- **Item list detail previews now compile cleanly under the stricter result-builder rules used during archive validation** (`ItemListDetailView`) — removed the explicit `return` from the `#Preview` navigation wrapper so the detail preview no longer trips `ViewBuilder` compilation while preparing a release build.
+
 ## [2.59.20] - 2026-07-07
 
 ### Fixed

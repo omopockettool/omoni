@@ -361,7 +361,7 @@ struct ItemRowView: View {
 #Preview {
     let itemList = SDItemList.mock(itemListDescription: "Compras del supermercado")
     let group = SDGroup.mock(name: "Casa", currency: "EUR")
-    return NavigationStack {
+    NavigationStack {
         ItemListDetailView(itemList: itemList, currencyCode: "EUR", group: group)
     }
 }
