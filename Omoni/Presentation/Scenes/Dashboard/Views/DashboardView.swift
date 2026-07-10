@@ -41,6 +41,17 @@ private struct SingleEntryEditorSheet: Identifiable {
     var id: UUID { itemList.id }
 }
 
+private struct ActiveCategoryDayContext {
+    let categoryId: UUID
+    let range: DashboardCategoryRange
+    let date: Date
+}
+
+private enum PendingCreatedItemListAction {
+    case addOnly(SDItemList)
+    case addAndOpen(DashboardItemListRoute)
+}
+
 enum DashboardViewMode {
     case calendar, list
 
@@ -80,10 +91,11 @@ struct DashboardView: View {
     @State private var navigationPath = NavigationPath()
     @State private var contentOpacity: Double = 0.0
     @State private var hasLoadedInitialData = false
-    @State private var selectedCalendarDay: Date? = nil
-    @State private var addItemListTrigger: AddItemListTrigger? = nil
-    @State private var singleEntryEditorSheet: SingleEntryEditorSheet? = nil
-    @State private var pendingSingleEntryEditorUpdate: SDItemList? = nil
+    @State private var selectedCalendarDay: Date?
+    @State private var addItemListTrigger: AddItemListTrigger?
+    @State private var singleEntryEditorSheet: SingleEntryEditorSheet?
+    @State private var pendingSingleEntryEditorUpdate: SDItemList?
+    @State private var pendingCreatedItemListAction: PendingCreatedItemListAction?
 
     private struct AddItemListTrigger: Identifiable {
         let id = UUID()
@@ -97,10 +109,10 @@ struct DashboardView: View {
     @State private var showingFiltersSheet = false
     @State private var isSearchActive = false
     @State private var dismissSearchKeyboardToken = 0
-    @State private var activeFilter: DashboardActiveFilter? = nil
+    @State private var activeFilter: DashboardActiveFilter?
     @State private var dateRowsRestorationByContext: [String: String] = [:]
     @State private var contentTransitionMode: DashboardContentTransitionMode = .drillForward
-    @State private var pendingContentTransitionTask: Task<Void, Never>? = nil
+    @State private var pendingContentTransitionTask: Task<Void, Never>?
 
     init() {
         // ✅ Clean Architecture: Use DI Container for all dependencies
@@ -141,7 +153,7 @@ struct DashboardView: View {
                 }
             }
             .background(Color(.systemBackground))
-            .onChange(of: navigationPath) { _, path in
+            .onChange(of: navigationPath) { _, _ in
                 viewModel.toast = nil
                 dismissSearchKeyboardToken += 1
             }
@@ -175,85 +187,111 @@ struct DashboardView: View {
                     }
                 )
             }
-            .sheet(isPresented: $viewModel.showingSettings, onDismiss: {
-                Task { await viewModel.refreshCategories() }
-            }) {
-                if let user = viewModel.currentUser {
-                    SettingsSheetView(
-                        user: user,
-                        onUserUpdated: { updated in
-                            viewModel.updateCurrentUser(updated)
-                        },
-                        onBackupImported: {
-                            await viewModel.loadDashboardData()
-                            viewModel.toast = ToastMessage("Backup imported successfully.", type: .info)
-                        }
-                    )
-                }
-            }
-            .sheet(item: $addItemListTrigger) { trigger in
-                if let group = viewModel.currentGroup {
-                    NavigationStack {
-                        AddItemListView(
-                            group: group,
-                            availableGroups: viewModel.availableGroups,
-                            initialDate: trigger.initialDate,
-                            preferredCategoryId: trigger.preferredCategoryId,
-                            excludedCategoryIds: viewModel.visibleCategoryBoxes.map(\.categoryId),
-                            onItemListCreated: { createdItemList in
-                                addItemListTrigger = nil
-                                Task {
-                                    if createdItemList.structure == .itemizedList {
-                                        await viewModel.addItemList(createdItemList)
-                                        try? await Task.sleep(for: .milliseconds(400))
-                                        navigationPath.append(itemListRoute(for: createdItemList))
-                                    } else {
-                                        try? await Task.sleep(for: .milliseconds(320))
-                                        await viewModel.addItemList(createdItemList)
-                                    }
-                                }
+            .sheet(
+                isPresented: $viewModel.showingSettings,
+                onDismiss: {
+                    Task { await viewModel.refreshCategories() }
+                },
+                content: {
+                    if let user = viewModel.currentUser {
+                        SettingsSheetView(
+                            user: user,
+                            onUserUpdated: { updated in
+                                viewModel.updateCurrentUser(updated)
                             },
-                            onCancel: {
-                                addItemListTrigger = nil
+                            onBackupImported: {
+                                await viewModel.loadDashboardData()
+                                viewModel.toast = ToastMessage("Backup imported successfully.", type: .info)
                             }
                         )
                     }
-                    .presentationDetents([.large])
-                    .presentationDragIndicator(.visible)
                 }
-            }
-            .sheet(item: $singleEntryEditorSheet, onDismiss: {
-                guard let updated = pendingSingleEntryEditorUpdate else { return }
-                pendingSingleEntryEditorUpdate = nil
+            )
+            .sheet(
+                item: $addItemListTrigger,
+                onDismiss: {
+                    guard let pendingAction = pendingCreatedItemListAction else { return }
+                    pendingCreatedItemListAction = nil
 
-                Task {
-                    // Apply dashboard mutations after the editor is fully dismissed.
-                    await Task.yield()
-                    await viewModel.updateItemList(updated)
-                }
-            }) { sheet in
-                if let group = viewModel.currentGroup {
-                    NavigationStack {
-                        AddItemListView(
-                            group: group,
-                            availableGroups: viewModel.availableGroups,
-                            itemListToEdit: sheet.itemList,
-                            showsCancelButton: true,
-                            onItemListCreated: { _ in },
-                            onItemListUpdated: { updated in
-                                pendingSingleEntryEditorUpdate = updated
-                                singleEntryEditorSheet = nil
-                            },
-                            onCancel: {
-                                pendingSingleEntryEditorUpdate = nil
-                                singleEntryEditorSheet = nil
-                            }
-                        )
+                    Task {
+                        // Wait until the creation sheet is fully dismissed before mutating
+                        // dashboard state or pushing a detail route.
+                        await Task.yield()
+
+                        switch pendingAction {
+                        case let .addOnly(itemList):
+                            await viewModel.addItemList(itemList)
+                        case let .addAndOpen(route):
+                            await viewModel.addItemList(route.itemList)
+                            navigationPath.append(route)
+                        }
                     }
-                    .presentationDetents([.large])
-                    .presentationDragIndicator(.visible)
+                },
+                content: { trigger in
+                    if let group = viewModel.currentGroup {
+                        NavigationStack {
+                            AddItemListView(
+                                group: group,
+                                availableGroups: viewModel.availableGroups,
+                                initialDate: trigger.initialDate,
+                                preferredCategoryId: trigger.preferredCategoryId,
+                                excludedCategoryIds: viewModel.visibleCategoryBoxes.map(\.categoryId),
+                                onItemListCreated: { createdItemList in
+                                    if createdItemList.structure == .itemizedList,
+                                       let route = itemListRoute(for: createdItemList) {
+                                        pendingCreatedItemListAction = .addAndOpen(route)
+                                    } else {
+                                        pendingCreatedItemListAction = .addOnly(createdItemList)
+                                    }
+                                    addItemListTrigger = nil
+                                },
+                                onCancel: {
+                                    pendingCreatedItemListAction = nil
+                                    addItemListTrigger = nil
+                                }
+                            )
+                        }
+                        .presentationDetents([.large])
+                        .presentationDragIndicator(.visible)
+                    }
                 }
-            }
+            )
+            .sheet(
+                item: $singleEntryEditorSheet,
+                onDismiss: {
+                    guard let updated = pendingSingleEntryEditorUpdate else { return }
+                    pendingSingleEntryEditorUpdate = nil
+
+                    Task {
+                        // Apply dashboard mutations after the editor is fully dismissed.
+                        await Task.yield()
+                        await viewModel.updateItemList(updated)
+                    }
+                },
+                content: { sheet in
+                    if let group = viewModel.currentGroup {
+                        NavigationStack {
+                            AddItemListView(
+                                group: group,
+                                availableGroups: viewModel.availableGroups,
+                                itemListToEdit: sheet.itemList,
+                                showsCancelButton: true,
+                                onItemListCreated: { _ in },
+                                onItemListUpdated: { updated in
+                                    pendingSingleEntryEditorUpdate = updated
+                                    singleEntryEditorSheet = nil
+                                },
+                                onCancel: {
+                                    pendingSingleEntryEditorUpdate = nil
+                                    singleEntryEditorSheet = nil
+                                }
+                            )
+                        }
+                        .presentationDetents([.large])
+                        .presentationDragIndicator(.visible)
+                    }
+                }
+            )
             .sheet(isPresented: $showingFiltersSheet) {
                 NavigationStack {
                     DashboardMonthFilterSheet(
@@ -320,9 +358,9 @@ struct DashboardView: View {
                 }
                 performDashboardTransition(.drillForward) {
                     switch resolvedActiveFilter {
-                    case .all(let range):
+                    case let .all(range):
                         activeFilter = .allDay(range: range, date: box.date)
-                    case .category(let categoryId, let range):
+                    case let .category(categoryId, range):
                         activeFilter = .categoryDay(categoryId: categoryId, range: range, date: box.date)
                     default:
                         break
@@ -395,14 +433,14 @@ struct DashboardView: View {
                     activeFilter = targetRange == .today ? .allDay(range: .today, date: Date()) : .all(.month)
                 case .allDay:
                     activeFilter = targetRange == .today ? .allDay(range: .today, date: Date()) : .all(.month)
-                case .category(let categoryId, _):
+                case let .category(categoryId, _):
                     guard viewModel.categoryBox(forCategoryId: categoryId, in: targetRange) != nil else {
                         activeFilter = nil; break
                     }
                     activeFilter = targetRange == .today
                         ? .categoryDay(categoryId: categoryId, range: .today, date: Date())
                         : .category(categoryId: categoryId, range: .month)
-                case .categoryDay(let categoryId, _, _):
+                case let .categoryDay(categoryId, _, _):
                     guard viewModel.categoryBox(forCategoryId: categoryId, in: targetRange) != nil else {
                         activeFilter = nil; break
                     }
@@ -474,18 +512,18 @@ struct DashboardView: View {
         switch resolvedActiveFilter {
         case .all:
             break
-        case .allDay(let range, let date):
+        case let .allDay(range, date):
             if viewModel.filteredItemLists(in: range, day: date).isEmpty {
                 performDashboardTransition(.drillBackward) {
                     activeFilter = range == .today ? nil : .all(range)
                 }
             }
-        case .category(let categoryId, let range):
+        case let .category(categoryId, range):
             guard !viewModel.hasCategoryContext(forCategoryId: categoryId, in: range) else { return }
             performDashboardTransition(.drillBackward) {
                 activeFilter = nil
             }
-        case .categoryDay(let categoryId, let range, let date):
+        case let .categoryDay(categoryId, range, date):
             if viewModel.filteredItemLists(forCategoryId: categoryId, in: range, day: date).isEmpty {
                 performDashboardTransition(.drillBackward) {
                     if range != .today,
@@ -505,11 +543,11 @@ struct DashboardView: View {
         switch resolvedActiveFilter {
         case .all:
             return []
-        case .allDay(let range, let date):
+        case let .allDay(range, date):
             return viewModel.filteredItemLists(in: range, day: date)
         case .category:
             return []  // category shows date rows, not expense rows directly
-        case .categoryDay(let categoryId, let range, let date):
+        case let .categoryDay(categoryId, range, date):
             return viewModel.filteredItemLists(forCategoryId: categoryId, in: range, day: date)
         case nil:
             return []
@@ -522,9 +560,9 @@ struct DashboardView: View {
             return LocalizationKey.General.all.localized
         case .allDay:
             return LocalizationKey.General.all.localized
-        case .category(let categoryId, let range):
+        case let .category(categoryId, range):
             return activeCategoryBox?.categoryName ?? viewModel.categoryDisplayName(forCategoryId: categoryId, in: range)
-        case .categoryDay(let categoryId, let range, _):
+        case let .categoryDay(categoryId, range, _):
             return activeCategoryBox?.categoryName ?? viewModel.categoryDisplayName(forCategoryId: categoryId, in: range)
         case nil:
             return nil
@@ -537,7 +575,7 @@ struct DashboardView: View {
             return "square.grid.2x2.fill"
         case .allDay:
             return "square.grid.2x2.fill"
-        case .category(let categoryId, let range), .categoryDay(let categoryId, let range, _):
+        case let .category(categoryId, range), let .categoryDay(categoryId, range, _):
             return activeCategoryBox?.categoryIcon ?? viewModel.categoryDisplayIcon(forCategoryId: categoryId, in: range)
         case nil:
             return nil
@@ -550,7 +588,7 @@ struct DashboardView: View {
             return nil
         case .allDay:
             return nil
-        case .category(let categoryId, let range), .categoryDay(let categoryId, let range, _):
+        case let .category(categoryId, range), let .categoryDay(categoryId, range, _):
             return activeCategoryBox?.categoryColorHex ?? viewModel.categoryDisplayColorHex(forCategoryId: categoryId, in: range)
         case nil:
             return nil
@@ -562,9 +600,9 @@ struct DashboardView: View {
         switch activeFilter {
         case .all:
             return LocalizationKey.General.all.localized
-        case .allDay(_, let date):
+        case let .allDay(_, date):
             return viewModel.dayFilterLabel(for: date)
-        case .category(let categoryId, let range), .categoryDay(let categoryId, let range, _):
+        case let .category(categoryId, range), let .categoryDay(categoryId, range, _):
             return activeCategoryBox?.categoryName ?? viewModel.categoryDisplayName(forCategoryId: categoryId, in: range)
         }
     }
@@ -576,7 +614,7 @@ struct DashboardView: View {
             return "square.grid.2x2.fill"
         case .allDay:
             return "calendar"
-        case .category(let categoryId, let range), .categoryDay(let categoryId, let range, _):
+        case let .category(categoryId, range), let .categoryDay(categoryId, range, _):
             return activeCategoryBox?.categoryIcon ?? viewModel.categoryDisplayIcon(forCategoryId: categoryId, in: range)
         }
     }
@@ -588,7 +626,7 @@ struct DashboardView: View {
             return nil
         case .allDay:
             return nil
-        case .category(let categoryId, let range), .categoryDay(let categoryId, let range, _):
+        case let .category(categoryId, range), let .categoryDay(categoryId, range, _):
             return activeCategoryBox?.categoryColorHex ?? viewModel.categoryDisplayColorHex(forCategoryId: categoryId, in: range)
         }
     }
@@ -611,9 +649,9 @@ struct DashboardView: View {
 
     private func navigateBack() {
         performDashboardTransition(.drillBackward) {
-            if case .allDay(let range, _) = activeFilter {
+            if case let .allDay(range, _) = activeFilter {
                 activeFilter = range == .today ? nil : .all(range)
-            } else if case .categoryDay(let categoryId, let range, _) = activeFilter {
+            } else if case let .categoryDay(categoryId, range, _) = activeFilter {
                 activeFilter = range == .today ? nil : .category(categoryId: categoryId, range: range)
             } else {
                 activeFilter = nil
@@ -683,7 +721,7 @@ struct DashboardView: View {
 
     private var activeCategoryBox: DashboardCategoryBoxData? {
         switch resolvedActiveFilter {
-        case .category(let categoryId, let range), .categoryDay(let categoryId, let range, _):
+        case let .category(categoryId, range), let .categoryDay(categoryId, range, _):
             return viewModel.categoryBox(forCategoryId: categoryId, in: range)
         default:
             return nil
@@ -691,14 +729,14 @@ struct DashboardView: View {
     }
 
     private var activeAllDayContext: (range: DashboardCategoryRange, date: Date)? {
-        guard case .allDay(let range, let date) = resolvedActiveFilter else { return nil }
+        guard case let .allDay(range, date) = resolvedActiveFilter else { return nil }
         return (range, date)
     }
 
     // Non-nil when drill down to a specific day within a category
-    private var activeCategoryDayContext: (categoryId: UUID, range: DashboardCategoryRange, date: Date)? {
-        guard case .categoryDay(let categoryId, let range, let date) = resolvedActiveFilter else { return nil }
-        return (categoryId, range, date)
+    private var activeCategoryDayContext: ActiveCategoryDayContext? {
+        guard case let .categoryDay(categoryId, range, date) = resolvedActiveFilter else { return nil }
+        return ActiveCategoryDayContext(categoryId: categoryId, range: range, date: date)
     }
 
     private var activeDayHeroLabel: String? {
@@ -737,9 +775,9 @@ struct DashboardView: View {
 
     private var activeDateRows: [DashboardDayBoxData] {
         switch resolvedActiveFilter {
-        case .all(let range):
+        case let .all(range):
             return viewModel.dayBoxes(in: range)
-        case .category(let categoryId, let range):
+        case let .category(categoryId, range):
             return viewModel.dayBoxes(forCategoryId: categoryId, in: range)
         default:
             return []
@@ -748,13 +786,13 @@ struct DashboardView: View {
 
     private var activeContentRangeKey: String {
         let range: DashboardCategoryRange? = switch resolvedActiveFilter {
-        case .all(let range):
+        case let .all(range):
             range
-        case .allDay(let range, _):
+        case let .allDay(range, _):
             range
-        case .category(_, let range):
+        case let .category(_, range):
             range
-        case .categoryDay(_, let range, _):
+        case let .categoryDay(_, range, _):
             range
         case nil:
             nil
@@ -766,9 +804,9 @@ struct DashboardView: View {
 
     private var activeDateRowsContextID: String? {
         switch resolvedActiveFilter {
-        case .all(let range):
+        case let .all(range):
             return "all#\(range.rawValue)"
-        case .category(let categoryId, let range):
+        case let .category(categoryId, range):
             return "category#\(categoryId.uuidString)#\(range.rawValue)"
         default:
             return nil
@@ -865,7 +903,7 @@ private extension DashboardView {
 private extension DashboardActiveFilter {
     var categoryId: UUID? {
         switch self {
-        case .category(let categoryId, _), .categoryDay(let categoryId, _, _):
+        case let .category(categoryId, _), let .categoryDay(categoryId, _, _):
             return categoryId
         default:
             return nil
