@@ -4,6 +4,12 @@ This file preserves OMONI's internal release history before the public changelog
 
 It is a snapshot of the internal release stream kept for project history and reference.
 
+## [2.59.22] - 2026-07-10
+
+### Fixed
+- **Creating a new itemized list from the dashboard no longer risks a hard navigation crash while the creation sheet is closing** (`DashboardView`) — the dashboard now defers both the list insertion and the push into detail until the `New Entry` sheet has fully dismissed, avoiding the SwiftUI lifecycle race that could leave the app on a broken black screen when a category was chosen during the flow.
+- **The dashboard routing fix now also respects the repository's SwiftLint rules so CI no longer fails on the develop PR pipeline** (`DashboardView`) — the same change was normalized to the codebase lint style by removing explicit `= nil` optional initialization, replacing multi-closure trailing syntax, and reshaping the temporary day drill-down context away from a 3-member tuple, so GitHub Actions accepts the patch instead of rejecting it on style rules.
+
 ## [2.59.21] - 2026-07-08
 
 ### Fixed
