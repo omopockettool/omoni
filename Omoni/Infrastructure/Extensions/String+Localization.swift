@@ -13,14 +13,14 @@ extension String {
     var localized: String {
         return NSLocalizedString(self, comment: "")
     }
-    
+
     /// Returns the localized string with format arguments
     /// - Parameter arguments: Format arguments to be inserted into the localized string
     /// - Returns: Formatted localized string
     func localized(with arguments: CVarArg...) -> String {
         return String(format: self.localized, arguments: arguments)
     }
-    
+
     /// Returns the localized string with a specific comment
     /// - Parameter comment: Comment describing the string's usage
     /// - Returns: Localized string
@@ -32,11 +32,11 @@ extension String {
 // MARK: - Localization Keys
 /// Centralized localization keys to avoid string literals
 enum LocalizationKey {
-    
+
     // MARK: - General
     enum General {
         static let appName = "app.name"
-        static let ok = "general.ok"
+        static let okay = "general.ok"
         static let cancel = "general.cancel"
         static let save = "general.save"
         static let delete = "general.delete"
@@ -44,7 +44,7 @@ enum LocalizationKey {
         static let add = "general.add"
         static let back = "general.back"
         static let done = "general.done"
-        static let eg = "general.eg"
+        static let example = "general.eg"
         static let error = "general.error"
         static let unknownError = "general.unknownError"
         static let loading = "general.loading"
@@ -60,7 +60,7 @@ enum LocalizationKey {
         static let weekly = "general.weekly"
         static let monthly = "general.monthly"
     }
-    
+
     // MARK: - Navigation
     enum Navigation {
         static let dashboard = "nav.dashboard"
@@ -70,7 +70,7 @@ enum LocalizationKey {
         static let settings = "nav.settings"
         static let users = "nav.users"
     }
-    
+
     // MARK: - User
     enum User {
         static let title = "user.title"
@@ -88,16 +88,14 @@ enum LocalizationKey {
         static let details = "user.details"
         static let createdAt = "user.createdAt"
         static let updatedAt = "user.updatedAt"
-        enum Welcome {
-            static let title = "user.welcome.title"
-            static let subtitle = "user.welcome.subtitle"
-            static let legalIntro = "user.welcome.legalIntro"
-            static let terms = "user.welcome.terms"
-            static let privacy = "user.welcome.privacy"
-            static let consent = "user.welcome.consent"
-        }
+        static let welcomeTitle = "user.welcome.title"
+        static let welcomeSubtitle = "user.welcome.subtitle"
+        static let welcomeLegalIntro = "user.welcome.legalIntro"
+        static let welcomeTerms = "user.welcome.terms"
+        static let welcomePrivacy = "user.welcome.privacy"
+        static let welcomeConsent = "user.welcome.consent"
     }
-    
+
     // MARK: - Group
     enum Group {
         static let title = "group.title"
@@ -165,7 +163,7 @@ enum LocalizationKey {
         static let more = "entry.more"
         static let dashboardCategoryHintMessage = "entry.dashboardCategoryHintMessage"
     }
-    
+
     // MARK: - Item
     enum Item {
         static let description = "item.description"
@@ -184,7 +182,7 @@ enum LocalizationKey {
         static let items = "item.items"
         static let unpaid = "item.unpaid"
     }
-    
+
     // MARK: - Payment Method
     enum Payment {
         static let title = "payment.title"
@@ -213,7 +211,7 @@ enum LocalizationKey {
         static let newMethod = "payment.newMethod"
         static let editMethod = "payment.editMethod"
     }
-    
+
     // MARK: - Dashboard
     enum Dashboard {
         static let title = "dashboard.title"
@@ -248,7 +246,7 @@ enum LocalizationKey {
         static let expensesByCategory = "dashboard.expensesByCategory"
         static let overLimit = "dashboard.overLimit"
     }
-    
+
     // MARK: - Settings
     enum Settings {
         static let title = "settings.title"
@@ -273,7 +271,7 @@ enum LocalizationKey {
         static let replaceDataMessage = "settings.replaceDataMessage"
         static let replaceDataConfirm = "settings.replaceDataConfirm"
     }
-    
+
     // MARK: - Validation Errors
     enum ValidationError {
         static let emptyName = "error.validation.emptyName"
@@ -285,7 +283,7 @@ enum LocalizationKey {
         static let emptyCategoryName = "error.validation.emptyCategoryName"
         static let emptyPaymentMethodName = "error.validation.emptyPaymentMethodName"
     }
-    
+
     // MARK: - Repository Errors
     enum RepositoryError {
         static let notFound = "error.repository.notFound"
@@ -293,7 +291,7 @@ enum LocalizationKey {
         static let saveFailed = "error.repository.saveFailed"
         static let deleteFailed = "error.repository.deleteFailed"
     }
-    
+
     // MARK: - Success Messages
     enum Success {
         static let created = "success.created"
@@ -302,7 +300,6 @@ enum LocalizationKey {
         static let saved = "success.saved"
     }
 
-    // MARK: - About
     enum Splash {
         static let tagline = "splash.tagline"
     }
@@ -321,7 +318,6 @@ enum LocalizationKey {
         static let support = "about.support"
         static let supportQuestion = "about.supportQuestion"
         static let supportDescription = "about.supportDescription"
-        static let donate = "about.donate"
         static let developedBy = "about.developedBy"
         static let team = "about.team"
         static let motto = "about.motto"
@@ -330,15 +326,12 @@ enum LocalizationKey {
         static let news = "about.news"
         static let shareApp = "about.shareApp"
         static let shareAppSubtitle = "about.shareAppSubtitle"
-
-        enum ReleaseNotes {
-            static let v2_0_0Title = "about.releaseNotes.2_0_0.title"
-            static let v2_0_0Highlight1 = "about.releaseNotes.2_0_0.highlight1"
-            static let v2_0_0Highlight2 = "about.releaseNotes.2_0_0.highlight2"
-            static let v2_0_0Highlight3 = "about.releaseNotes.2_0_0.highlight3"
-            static let v2_0_0Highlight4 = "about.releaseNotes.2_0_0.highlight4"
-            static let v2_0_0Highlight5 = "about.releaseNotes.2_0_0.highlight5"
-        }
+        static let releaseNotesVersion200Title = "about.releaseNotes.2_0_0.title"
+        static let releaseNotesVersion200Highlight1 = "about.releaseNotes.2_0_0.highlight1"
+        static let releaseNotesVersion200Highlight2 = "about.releaseNotes.2_0_0.highlight2"
+        static let releaseNotesVersion200Highlight3 = "about.releaseNotes.2_0_0.highlight3"
+        static let releaseNotesVersion200Highlight4 = "about.releaseNotes.2_0_0.highlight4"
+        static let releaseNotesVersion200Highlight5 = "about.releaseNotes.2_0_0.highlight5"
     }
 }
 
