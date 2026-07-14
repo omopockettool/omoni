@@ -277,8 +277,7 @@
 "about.contact" = "Contact";
 "about.support" = "Support OMO";
 "about.supportQuestion" = "Is OMONI helping you?";
-"about.supportDescription" = "If the app brings you value, you can support its development with a donation and help it keep growing.";
-"about.donate" = "Support with a donation";
+"about.supportDescription" = "If the app brings you value, you can share it with your friends to help grow the community.";
 "about.developedBy" = "Developed by";
 "about.team" = "OMO Team";
 "about.motto" = "Towards a better life 🌿";

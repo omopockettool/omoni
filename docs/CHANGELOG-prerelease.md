@@ -4,6 +4,12 @@ This file preserves OMONI's internal release history before the public changelog
 
 It is a snapshot of the internal release stream kept for project history and reference.
 
+## [2.59.23] - 2026-07-14
+
+### Fixed
+- **About OMO no longer exposes an in-app donation path that conflicts with App Review payment rules** (`AboutOMOView`, `Localizable.strings`, `String+Localization`) — removed the external donation row and its copy from the user-facing support section, so the screen now only invites people to share OMONI and no longer suggests supporting the app financially outside of Apple's allowed purchase flows.
+- **The About OMO App Review follow-up now also respects the repository SwiftLint rules so the GitHub Actions PR pipeline stops failing on style compliance** (`AboutOMOView`, `String+Localization`, `ErrorAlertModifier`, `AddItemListView`) — replaced force-unwrapped static URLs with safe optionals, flattened release-note localization keys to avoid over-nesting and invalid identifiers, removed the trailing collection comma, and renamed short localization accessors like `ok` / `eg` to lint-compliant identifiers without changing the user-facing copy.
+
 ## [2.59.22] - 2026-07-10
 
 ### Fixed

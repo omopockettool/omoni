@@ -4,10 +4,11 @@ import UIKit
 struct AboutOMOView: View {
     @Environment(\.openURL) private var openURL
     private let appInfo = AppInfo.current
-    private let donationsURL = URL(string: "https://buymeacoffee.com/omopockettool")!
-    private let appStoreURL = URL(string: "https://omopockettool.com")!
-    private let termsURL = URL(string: "https://omopockettool.com/terms/")!
-    private let privacyURL = URL(string: "https://omopockettool.com/privacy/")!
+    private let appStoreURL = URL(string: "https://omopockettool.com")
+    private let websiteURL = URL(string: "https://omopockettool.com/")
+    private let supportEmailURL = URL(string: "mailto:omopockettool@gmail.com")
+    private let termsURL = URL(string: "https://omopockettool.com/terms/")
+    private let privacyURL = URL(string: "https://omopockettool.com/privacy/")
     @State private var copiedFieldTitle: String?
 
     var body: some View {
@@ -45,7 +46,7 @@ struct AboutOMOView: View {
                             endPoint: .trailing
                         )
                     )
-                Text(LocalizationKey.User.Welcome.subtitle.localized)
+                Text(LocalizationKey.User.welcomeSubtitle.localized)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
@@ -105,50 +106,58 @@ struct AboutOMOView: View {
                 Divider()
                     .padding(.leading, AppConstants.UserInterface.padding)
 
-                copyableLinkRow(
-                    icon: "globe",
-                    color: .indigo,
-                    title: LocalizationKey.About.officialWeb.localized,
-                    value: "omopockettool.com",
-                    destination: URL(string: "https://omopockettool.com/")!
-                )
-                .padding(AppConstants.UserInterface.padding)
+                if let websiteURL {
+                    copyableLinkRow(
+                        icon: "globe",
+                        color: .indigo,
+                        title: LocalizationKey.About.officialWeb.localized,
+                        value: "omopockettool.com",
+                        destination: websiteURL
+                    )
+                    .padding(AppConstants.UserInterface.padding)
+                }
 
                 Divider()
                     .padding(.leading, AppConstants.UserInterface.padding + 44)
 
-                copyableLinkRow(
-                    icon: "envelope.fill",
-                    color: .green,
-                    title: LocalizationKey.About.contact.localized,
-                    value: "omopockettool@gmail.com",
-                    destination: URL(string: "mailto:omopockettool@gmail.com")!
-                )
-                .padding(AppConstants.UserInterface.padding)
+                if let supportEmailURL {
+                    copyableLinkRow(
+                        icon: "envelope.fill",
+                        color: .green,
+                        title: LocalizationKey.About.contact.localized,
+                        value: "omopockettool@gmail.com",
+                        destination: supportEmailURL
+                    )
+                    .padding(AppConstants.UserInterface.padding)
+                }
 
                 Divider()
                     .padding(.leading, AppConstants.UserInterface.padding + 44)
 
-                copyableLinkRow(
-                    icon: "doc.text.fill",
-                    color: .blue,
-                    title: LocalizationKey.User.Welcome.terms.localized,
-                    value: "omopockettool.com/terms",
-                    destination: termsURL
-                )
-                .padding(AppConstants.UserInterface.padding)
+                if let termsURL {
+                    copyableLinkRow(
+                        icon: "doc.text.fill",
+                        color: .blue,
+                        title: LocalizationKey.User.welcomeTerms.localized,
+                        value: "omopockettool.com/terms",
+                        destination: termsURL
+                    )
+                    .padding(AppConstants.UserInterface.padding)
+                }
 
                 Divider()
                     .padding(.leading, AppConstants.UserInterface.padding + 44)
 
-                copyableLinkRow(
-                    icon: "hand.raised.fill",
-                    color: .teal,
-                    title: LocalizationKey.User.Welcome.privacy.localized,
-                    value: "omopockettool.com/privacy",
-                    destination: privacyURL
-                )
-                .padding(AppConstants.UserInterface.padding)
+                if let privacyURL {
+                    copyableLinkRow(
+                        icon: "hand.raised.fill",
+                        color: .teal,
+                        title: LocalizationKey.User.welcomePrivacy.localized,
+                        value: "omopockettool.com/privacy",
+                        destination: privacyURL
+                    )
+                    .padding(AppConstants.UserInterface.padding)
+                }
             }
         }
     }
@@ -171,34 +180,20 @@ struct AboutOMOView: View {
                 Divider()
                     .padding(.leading, AppConstants.UserInterface.padding)
 
-                Link(destination: donationsURL) {
-                    infoRow(
-                        icon: "cup.and.saucer.fill",
-                        color: .brown,
-                        title: LocalizationKey.About.donate.localized,
-                        value: "buymeacoffee.com/omopockettool"
-                    )
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .contentShape(Rectangle())
-                    .padding(AppConstants.UserInterface.padding)
+                if let appStoreURL {
+                    ShareLink(item: appStoreURL) {
+                        infoRow(
+                            icon: "square.and.arrow.up",
+                            color: .blue,
+                            title: LocalizationKey.About.shareApp.localized,
+                            value: LocalizationKey.About.shareAppSubtitle.localized
+                        )
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(Rectangle())
+                        .padding(AppConstants.UserInterface.padding)
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
-
-                Divider()
-                    .padding(.leading, AppConstants.UserInterface.padding + 44)
-
-                ShareLink(item: appStoreURL) {
-                    infoRow(
-                        icon: "square.and.arrow.up",
-                        color: .blue,
-                        title: LocalizationKey.About.shareApp.localized,
-                        value: LocalizationKey.About.shareAppSubtitle.localized
-                    )
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .contentShape(Rectangle())
-                    .padding(AppConstants.UserInterface.padding)
-                }
-                .buttonStyle(.plain)
             }
         }
     }
@@ -391,15 +386,15 @@ private enum AppReleaseNotesCatalog {
             AppReleaseNoteEntry(
                 version: marketingVersion,
                 date: productionLaunchDate,
-                titleKey: LocalizationKey.About.ReleaseNotes.v2_0_0Title,
+                titleKey: LocalizationKey.About.releaseNotesVersion200Title,
                 highlightKeys: [
-                    LocalizationKey.About.ReleaseNotes.v2_0_0Highlight1,
-                    LocalizationKey.About.ReleaseNotes.v2_0_0Highlight2,
-                    LocalizationKey.About.ReleaseNotes.v2_0_0Highlight3,
-                    LocalizationKey.About.ReleaseNotes.v2_0_0Highlight4,
-                    LocalizationKey.About.ReleaseNotes.v2_0_0Highlight5
+                    LocalizationKey.About.releaseNotesVersion200Highlight1,
+                    LocalizationKey.About.releaseNotesVersion200Highlight2,
+                    LocalizationKey.About.releaseNotesVersion200Highlight3,
+                    LocalizationKey.About.releaseNotesVersion200Highlight4,
+                    LocalizationKey.About.releaseNotesVersion200Highlight5
                 ]
-            ),
+            )
         ]
     }
 }

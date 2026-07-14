@@ -7,7 +7,7 @@ private struct ErrorAlertModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content.alert(LocalizationKey.General.error.localized, isPresented: $isPresented) {
-            Button(LocalizationKey.General.ok.localized, role: .cancel) {
+            Button(LocalizationKey.General.okay.localized, role: .cancel) {
                 onDismiss()
             }
         } message: {

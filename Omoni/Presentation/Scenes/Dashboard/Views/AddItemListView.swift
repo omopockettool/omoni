@@ -86,7 +86,7 @@ struct AddItemListView: View {
     }
 
     private var gridCategories: [SDCategory] {
-        availableCategories.prefix(Self.gridCategoryLimit).map { $0 }
+        Array(availableCategories.prefix(Self.gridCategoryLimit))
     }
 
     private var overflowCategories: [SDCategory] {
@@ -98,7 +98,7 @@ struct AddItemListView: View {
     }
 
     private var gridPaymentMethods: [SDPaymentMethod] {
-        viewModel.paymentMethods.prefix(Self.gridPaymentMethodLimit).map { $0 }
+        Array(viewModel.paymentMethods.prefix(Self.gridPaymentMethodLimit))
     }
 
     private var overflowPaymentMethods: [SDPaymentMethod] {
@@ -127,10 +127,10 @@ struct AddItemListView: View {
 
     private var descriptionPlaceholder: String {
         if let concept = viewModel.lastUsedConcept {
-            return "\(LocalizationKey.General.eg.localized) \(concept)"
+            return "\(LocalizationKey.General.example.localized) \(concept)"
         }
         if let category = viewModel.selectedCategory {
-            return "\(LocalizationKey.Entry.concept.localized) (\(LocalizationKey.General.eg.localized) \(category.name))"
+            return "\(LocalizationKey.Entry.concept.localized) (\(LocalizationKey.General.example.localized) \(category.name))"
         }
         return LocalizationKey.Entry.concept.localized
     }
@@ -454,8 +454,8 @@ struct AddItemListView: View {
             date: $viewModel.date,
             formattedDate: viewModel.formattedDate,
             focusedField: $focusedField
-        ) { on in
-            if on {
+        ) { isExpanded in
+            if isExpanded {
                 if suppressCalendarExpand {
                     suppressCalendarExpand = false
                 } else {
@@ -524,7 +524,6 @@ struct AddItemListView: View {
         }
     }
 }
-
 
 #Preview {
     let group = SDGroup.mock(name: "Casa", currency: "EUR")
