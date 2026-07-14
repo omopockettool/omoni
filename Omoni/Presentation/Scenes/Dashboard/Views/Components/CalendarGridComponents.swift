@@ -85,6 +85,7 @@ struct CalendarDayCell: View {
                 if hasItemLists {
                     Text(formattedAmount(dayTotal))
                         .font(.system(size: 13, weight: .semibold))
+                        .fontDesign(.rounded)
                         .foregroundColor(amountColor)
                         .lineLimit(1)
                         .minimumScaleFactor(0.75)

@@ -5,6 +5,7 @@ protocol ItemListRepository {
     func fetchItemLists(forGroupId groupId: UUID) async throws -> [SDItemList]
     func createItemList(
         description: String,
+        isList: Bool,
         date: Date,
         categoryId: UUID?,
         paymentMethodId: UUID?,

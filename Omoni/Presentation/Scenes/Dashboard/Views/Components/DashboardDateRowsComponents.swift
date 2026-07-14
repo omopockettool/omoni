@@ -6,38 +6,145 @@ struct DashboardDateRowsView: View {
     let rows: [DashboardDayBoxData]
     let getFormattedAmount: (DashboardDayBoxData) -> String
     let getFormattedUnpaidAmount: (DashboardDayBoxData) -> String?
+    let restorationRowID: String?
     let onSelect: (DashboardDayBoxData) -> Void
     let onRefresh: () async -> Void
 
     var body: some View {
-        List {
-            ForEach(rows) { row in
-                DashboardDateRowView(
-                    data: row,
-                    formattedAmount: getFormattedAmount(row),
-                    formattedUnpaidAmount: getFormattedUnpaidAmount(row),
-                    onTap: { onSelect(row) }
-                )
-                .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
+        ScrollViewReader { proxy in
+            List {
+                ForEach(rows) { row in
+                    DashboardDateRowView(
+                        data: row,
+                        formattedAmount: getFormattedAmount(row),
+                        formattedUnpaidAmount: getFormattedUnpaidAmount(row),
+                        onTap: { onSelect(row) }
+                    )
+                    .id(row.id)
+                    .padding(.vertical, 4)
+                    .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+                }
+            }
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
+            .scrollIndicators(.hidden)
+            .contentMargins(.top, ExpenseListLayoutMetrics.topContentMargin, for: .scrollContent)
+            .refreshable {
+                await onRefresh()
+                try? await Task.sleep(for: .milliseconds(180))
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .onAppear {
+                restoreScrollPosition(using: proxy)
+            }
+            .onChange(of: restorationRowID) { _, _ in
+                restoreScrollPosition(using: proxy)
+            }
+            .onChange(of: rows.map(\.id)) { _, _ in
+                restoreScrollPosition(using: proxy)
             }
         }
-        .listStyle(.plain)
-        .scrollContentBackground(.hidden)
-        .scrollIndicators(.hidden)
-        .contentMargins(.top, ExpenseListLayoutMetrics.topContentMargin, for: .scrollContent)
-        .refreshable {
-            await onRefresh()
-            try? await Task.sleep(for: .milliseconds(180))
+    }
+
+    private func restoreScrollPosition(using proxy: ScrollViewProxy) {
+        guard let restorationRowID,
+              rows.contains(where: { $0.id == restorationRowID })
+        else { return }
+
+        Task { @MainActor in
+            await Task.yield()
+            withAnimation(nil) {
+                proxy.scrollTo(restorationRowID, anchor: .center)
+            }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 }
 
 // MARK: - Single Date Row
 
+private enum DashboardDateRowLayoutMetrics {
+    static let cardCornerRadius: CGFloat = AppConstants.UserInterface.rowCornerRadius
+    static let leadingColumnWidth: CGFloat = 66
+    static let amountColumnHeight: CGFloat = 38
+    static let borderLineWidth: CGFloat = 4
+}
+
+private enum DashboardDateRowTone {
+    case neutral
+    case pending
+    case today
+
+    private var baseColor: Color {
+        switch self {
+        case .neutral:
+            return Color(.systemGray3)
+        case .pending:
+            return .orange
+        case .today:
+            return .accentColor
+        }
+    }
+
+    var leadingFill: Color {
+        switch self {
+        case .neutral:
+            return baseColor.opacity(0.22)
+        case .pending:
+            return baseColor.opacity(0.24)
+        case .today:
+            return baseColor.opacity(0.22)
+        }
+    }
+
+    var borderColor: Color {
+        switch self {
+        case .neutral:
+            return baseColor
+        case .pending:
+            return baseColor.opacity(0.82)
+        case .today:
+            return baseColor.opacity(0.82)
+        }
+    }
+
+    var amountColor: Color {
+        switch self {
+        case .neutral:
+            return Color.primary.opacity(0.76)
+        case .pending:
+            return .primary
+        case .today:
+            return .accentColor
+        }
+    }
+
+    var titleColor: Color {
+        switch self {
+        case .neutral, .pending:
+            return Color.primary.opacity(0.92)
+        case .today:
+            return .accentColor
+        }
+    }
+
+    var secondaryColor: Color {
+        switch self {
+        case .neutral:
+            return .secondary
+        case .pending:
+            return .orange.opacity(0.85)
+        case .today:
+            return .accentColor.opacity(0.82)
+        }
+    }
+}
+
 struct DashboardDateRowView: View {
+    @State private var displayedPrimaryAmount = ""
+    @State private var primaryAmountIsDecreasing = false
+
     let data: DashboardDayBoxData
     let formattedAmount: String
     let formattedUnpaidAmount: String?
@@ -45,74 +152,162 @@ struct DashboardDateRowView: View {
 
     private var isToday: Bool { data.isToday }
 
+    private var rowTone: DashboardDateRowTone {
+        if isToday {
+            return .today
+        }
+        if formattedUnpaidAmount != nil {
+            return .pending
+        }
+        return .neutral
+    }
+
+    private var primaryAmountText: String {
+        formattedAmount
+    }
+
+    private var showsSecondaryAmount: Bool {
+        formattedUnpaidAmount != nil
+    }
+
     var body: some View {
         Button(action: onTap) {
-            HStack(alignment: .center, spacing: 0) {
-                // Left: day number + weekday label
-                HStack(alignment: .firstTextBaseline, spacing: 7) {
-                    if isToday {
-                        Text(LocalizationKey.Dashboard.today.localized.uppercased())
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundStyle(Color.accentColor)
-                            .tracking(1.5)
-                    } else {
-                        Text(dayNumber)
-                            .font(.system(size: 26, weight: .light, design: .default))
-                            .foregroundStyle(Color.primary.opacity(0.88))
-                            .monospacedDigit()
+            HStack(spacing: 0) {
+                leadingDateColumn
 
-                        Text(weekday)
-                            .font(.system(size: 10, weight: .medium))
-                            .foregroundStyle(Color.secondary)
-                            .tracking(1.2)
-                            .textCase(.uppercase)
-                            .offset(y: -1)
-                    }
+                HStack(alignment: .center, spacing: 12) {
+                    contentColumn
+                    trailingAmountColumn
                 }
-                .frame(minWidth: 64, alignment: .leading)
-
-                Spacer()
-
-                // Right: amounts + nav chevron
-                HStack(alignment: .center, spacing: 10) {
-                    VStack(alignment: .trailing, spacing: 2) {
-                        Text(formattedAmount)
-                            .font(.system(size: 16, weight: isToday ? .medium : .light))
-                            .foregroundStyle(isToday ? Color.accentColor : Color.primary.opacity(0.75))
-                            .monospacedDigit()
-
-                        if let unpaid = formattedUnpaidAmount {
-                            Text("\(unpaid) \(LocalizationKey.Item.unpaid.localized)")
-                                .font(.system(size: 11, weight: .regular))
-                                .foregroundStyle(.orange.opacity(0.85))
-                                .transition(.opacity.combined(with: .move(edge: .top)))
-                        }
-                    }
-                    .animation(AnimationHelper.quickEase, value: formattedUnpaidAmount)
-
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundStyle(Color(.tertiaryLabel))
-                }
+                .padding(.horizontal, 15)
+                .padding(.vertical, 15)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding(.vertical, 20)
-            .overlay(alignment: .bottom) {
-                Rectangle()
-                    .fill(Color(.separator).opacity(0.5))
-                    .frame(height: 1)
+            .background(cardBackground)
+            .clipShape(cardShape)
+            .overlay {
+                cardShape
+                    .stroke(rowTone.borderColor, lineWidth: DashboardDateRowLayoutMetrics.borderLineWidth)
             }
-            .contentShape(Rectangle())
+            .contentShape(cardShape)
         }
         .buttonStyle(PressHapticButtonStyle())
+        .onAppear {
+            displayedPrimaryAmount = primaryAmountText
+        }
+        .onChange(of: primaryAmountText) { oldValue, newValue in
+            let oldDigits = extractDigits(from: oldValue)
+            let newDigits = extractDigits(from: newValue)
+            primaryAmountIsDecreasing = newDigits < oldDigits
+            withAnimation(.spring(response: 0.45, dampingFraction: 0.78, blendDuration: 0.15)) {
+                displayedPrimaryAmount = newValue
+            }
+        }
+        .animation(AnimationHelper.quickEase, value: formattedUnpaidAmount)
+    }
+
+    private var leadingDateColumn: some View {
+        ZStack {
+            Rectangle()
+                .fill(rowTone.leadingFill)
+
+            Text(dayNumber)
+                .font(.system(size: 22, weight: .bold, design: .rounded))
+                .foregroundStyle(rowTone.titleColor)
+                .monospacedDigit()
+                .padding(.vertical, 14)
+        }
+        .frame(width: DashboardDateRowLayoutMetrics.leadingColumnWidth)
+        .frame(maxHeight: .infinity)
+    }
+
+    private var contentColumn: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(primaryTitleLabel)
+                .font(.system(size: 15, weight: .medium))
+                .foregroundStyle(rowTone.titleColor)
+                .lineLimit(1)
+
+            if let secondaryTitleLabel {
+                Text(secondaryTitleLabel)
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(rowTone.secondaryColor)
+                    .lineLimit(1)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    @ViewBuilder
+    private var trailingAmountColumn: some View {
+        ZStack(alignment: .trailing) {
+            primaryAmountView
+                .frame(height: DashboardDateRowLayoutMetrics.amountColumnHeight, alignment: .trailing)
+                .offset(y: showsSecondaryAmount ? -7 : 0)
+
+            secondaryAmountView
+                .frame(height: DashboardDateRowLayoutMetrics.amountColumnHeight, alignment: .bottomTrailing)
+                .opacity(showsSecondaryAmount ? 1 : 0)
+                .offset(y: showsSecondaryAmount ? 0 : -10)
+        }
+        .fixedSize(horizontal: true, vertical: false)
+        .frame(height: DashboardDateRowLayoutMetrics.amountColumnHeight, alignment: .topTrailing)
+    }
+
+    private var primaryAmountView: some View {
+        Text(displayedPrimaryAmount)
+            .font(.system(size: 15, weight: .semibold, design: .rounded))
+            .foregroundStyle(rowTone.amountColor)
+            .monospacedDigit()
+            .lineLimit(1)
+            .contentTransition(.numericText(countsDown: primaryAmountIsDecreasing))
+    }
+
+    @ViewBuilder
+    private var secondaryAmountView: some View {
+        if let formattedUnpaidAmount {
+            Text(formattedUnpaidAmount)
+                .font(.caption)
+                .fontDesign(.rounded)
+                .foregroundStyle(.orange)
+                .monospacedDigit()
+                .lineLimit(1)
+        } else {
+            Text("")
+                .font(.caption)
+        }
+    }
+
+    private var cardBackground: some View {
+        RoundedRectangle(cornerRadius: DashboardDateRowLayoutMetrics.cardCornerRadius, style: .continuous)
+            .fill(Color(.secondarySystemGroupedBackground))
+    }
+
+    private var cardShape: RoundedRectangle {
+        RoundedRectangle(cornerRadius: DashboardDateRowLayoutMetrics.cardCornerRadius, style: .continuous)
+    }
+
+    private var primaryTitleLabel: String {
+        isToday ? LocalizationKey.Dashboard.today.localized : weekday
+    }
+
+    private var secondaryTitleLabel: String? {
+        isToday ? weekday : nil
+    }
+
+    private var weekday: String {
+        let formatter = DateFormatter()
+        formatter.locale = .autoupdatingCurrent
+        formatter.dateFormat = "EEEE"
+        let value = formatter.string(from: data.date)
+        return value.prefix(1).uppercased() + value.dropFirst()
+    }
+
+    private func extractDigits(from string: String) -> Int {
+        Int(string.filter(\.isNumber)) ?? 0
     }
 
     private var dayNumber: String {
         String(Calendar.current.component(.day, from: data.date))
-    }
-
-    private var weekday: String {
-        let f = DateFormatter()
-        f.dateFormat = "EEE"
-        return f.string(from: data.date)
     }
 }

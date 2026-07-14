@@ -34,13 +34,14 @@ struct DashboardTopBarView: View {
                 .labelsHidden()
                 .frame(maxWidth: 220)
                 .animation(AnimationHelper.quickSpring, value: showingFullMonth)
+                .sensoryFeedback(.selection, trigger: showingFullMonth)
             }
 
             Spacer()
 
             Button(action: onOpenSettings) {
                 OMOBrandIconView(size: 36)
-                    .opacity(0.79)
+                    .opacity(0.92)
             }
             .buttonStyle(.plain)
         }

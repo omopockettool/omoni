@@ -9,17 +9,19 @@ struct PaymentMethodFormView: View {
     @State private var viewModel = PaymentMethodFormViewModel()
 
     @State private var name = ""
-    @State private var selectedType = "card_debit"
+    @State private var legacyType = "card_debit"
     @State private var selectedIcon = "creditcard.fill"
     @FocusState private var nameFocused: Bool?
 
-    private let types = ["cash", "card_debit", "card_credit", "bank_transfer"]
     private let iconOptions = [
         "creditcard.fill", "banknote.fill", "arrow.left.arrow.right", "iphone",
         "dollarsign.circle.fill", "eurosign.circle.fill", "bag.fill", "gift.fill",
         "building.columns.fill", "qrcode", "wallet.pass.fill", "checkmark.seal.fill"
     ]
     private var isEditMode: Bool { methodToEdit != nil }
+    private var resolvedType: String { inferredType(for: selectedIcon) ?? legacyType }
+    private var selectedTint: Color { PaymentMethodAppearance.tint(for: selectedIcon) }
+    private var selectedTintHex: String { PaymentMethodAppearance.tintHex(for: selectedIcon) }
 
     init(group: SDGroup, methodToEdit: SDPaymentMethod?, onSaved: @escaping () -> Void) {
         self.group = group
@@ -27,11 +29,11 @@ struct PaymentMethodFormView: View {
         self.onSaved = onSaved
 
         _name = State(wrappedValue: methodToEdit?.name ?? "")
-        _selectedType = State(wrappedValue: methodToEdit?.type ?? "card_debit")
+        _legacyType = State(wrappedValue: methodToEdit?.type ?? "card_debit")
         _selectedIcon = State(
             wrappedValue: {
                 guard let methodToEdit else { return "creditcard.fill" }
-                return methodToEdit.icon.isEmpty ? Self.defaultTypeIcon(for: methodToEdit.type) : methodToEdit.icon
+                return PaymentMethodAppearance.icon(for: methodToEdit)
             }()
         )
     }
@@ -49,51 +51,13 @@ struct PaymentMethodFormView: View {
                 ) {
                     ZStack {
                         Circle()
-                            .fill(typeColor(selectedType).opacity(0.15))
+                            .fill(selectedTint.opacity(0.15))
                             .frame(width: 72, height: 72)
                         Image(systemName: selectedIcon)
                             .font(.system(size: 28, weight: .medium))
-                            .foregroundStyle(typeColor(selectedType))
+                            .foregroundStyle(selectedTint)
                     }
-                    .animation(AnimationHelper.quickSpring, value: selectedType)
                     .animation(AnimationHelper.quickSpring, value: selectedIcon)
-                }
-
-                VStack(alignment: .leading, spacing: 10) {
-                    Text(LocalizationKey.Payment.type.localized)
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                        .padding(.horizontal, 4)
-
-                    VStack(spacing: 0) {
-                        ForEach(Array(types.enumerated()), id: \.element) { index, type in
-                            Button {
-                                withAnimation(AnimationHelper.quickSpring) { selectedType = type }
-                            } label: {
-                                NativeSettingsRow(
-                                    systemImage: typeIcon(type),
-                                    color: typeColor(type),
-                                    title: typeName(type)
-                                ) {
-                                    if selectedType == type {
-                                        Image(systemName: "checkmark")
-                                            .font(.body.weight(.semibold))
-                                            .foregroundStyle(Color.accentColor)
-                                    }
-                                }
-                                .padding(AppConstants.UserInterface.padding)
-                                .background(Color.clear)
-                            }
-                            .buttonStyle(.plain)
-
-                            if index < types.count - 1 {
-                                Divider()
-                                    .padding(.leading, AppConstants.UserInterface.padding + 42)
-                            }
-                        }
-                    }
-                    .background(Color(.secondarySystemGroupedBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
                 }
 
                 VStack(alignment: .leading, spacing: 10) {
@@ -109,7 +73,7 @@ struct PaymentMethodFormView: View {
                             } label: {
                                 ZStack {
                                     RoundedRectangle(cornerRadius: 10)
-                                        .fill(selectedIcon == icon ? typeColor(selectedType) : Color(.tertiarySystemGroupedBackground))
+                                        .fill(selectedIcon == icon ? selectedTint : Color(.tertiarySystemGroupedBackground))
                                         .frame(height: 44)
                                     Image(systemName: icon)
                                         .font(.system(size: 16, weight: .medium))
@@ -121,11 +85,12 @@ struct PaymentMethodFormView: View {
                     }
                     .padding(AppConstants.UserInterface.padding)
                     .background(Color(.secondarySystemGroupedBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
+                    .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius))
                 }
             }
             .padding(AppConstants.UserInterface.padding)
         }
+        .scrollDismissesKeyboard(.immediately)
         .background(Color(.systemGroupedBackground))
         .navigationTitle(isEditMode ? LocalizationKey.Payment.editMethod.localized : LocalizationKey.Payment.newMethod.localized)
         .navigationBarTitleDisplayMode(.inline)
@@ -152,41 +117,32 @@ struct PaymentMethodFormView: View {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
 
-        if await viewModel.save(name: trimmed, type: selectedType, icon: selectedIcon, groupId: group.id, methodToEdit: methodToEdit) {
+        if await viewModel.save(
+            name: trimmed,
+            type: resolvedType,
+            icon: selectedIcon,
+            color: selectedTintHex,
+            groupId: group.id,
+            methodToEdit: methodToEdit
+        ) {
             onSaved()
             dismiss()
         }
     }
 
-    private func typeIcon(_ type: String) -> String {
-        Self.defaultTypeIcon(for: type)
-    }
-
-    private static func defaultTypeIcon(for type: String) -> String {
-        switch type {
-        case "cash":          return "banknote.fill"
-        case "bank_transfer": return "arrow.left.arrow.right"
-        case "card_credit":   return "creditcard.fill"
-        default:              return "creditcard.fill"
-        }
-    }
-
-    private func typeColor(_ type: String) -> Color {
-        switch type {
-        case "cash":          return .green
-        case "bank_transfer": return .orange
-        case "card_credit":   return .purple
-        default:              return .blue
-        }
-    }
-
-    private func typeName(_ type: String) -> String {
-        switch type {
-        case "cash":          return LocalizationKey.Payment.cash.localized
-        case "card_debit":    return LocalizationKey.Payment.debit.localized
-        case "card_credit":   return LocalizationKey.Payment.credit.localized
-        case "bank_transfer": return LocalizationKey.Payment.transfer.localized
-        default:              return type
+    private func inferredType(for icon: String) -> String? {
+        switch icon {
+        case "banknote.fill", "dollarsign.circle.fill", "eurosign.circle.fill":
+            return "cash"
+        case "arrow.left.arrow.right":
+            return "bank_transfer"
+        case "iphone", "wallet.pass.fill":
+            return "card_credit"
+        case "creditcard.fill":
+            return "card_debit"
+        default:
+            // Keep the stored type for icons that can belong to many real-world origins.
+            return nil
         }
     }
 }

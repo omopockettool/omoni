@@ -5,16 +5,16 @@ struct CreateFirstUserView: View {
     @State private var backupViewModel: SettingsBackupViewModel
     @State private var acceptedLegal = false
     @FocusState private var focusedField: Field?
-    
+
     var onUserCreated: (() async -> Void)?
     private let showsSimulationBadge: Bool
-    private let termsURL = URL(string: "https://omopockettool.com/terms/")!
-    private let privacyURL = URL(string: "https://omopockettool.com/privacy/")!
-    
-    enum Field: Hashable { 
+    private let termsURL = URL(string: "https://omopockettool.com/terms/")
+    private let privacyURL = URL(string: "https://omopockettool.com/privacy/")
+
+    enum Field: Hashable {
         case name
     }
-    
+
     init(
         onUserCreated: (() async -> Void)? = nil,
         submissionMode: CreateFirstUserViewModel.SubmissionMode = .persist
@@ -24,18 +24,18 @@ struct CreateFirstUserView: View {
         self.onUserCreated = onUserCreated
         self.showsSimulationBadge = submissionMode == .simulate
     }
-    
+
     var body: some View {
         ZStack {
             Color(.systemGroupedBackground)
                 .ignoresSafeArea()
-            
+
             VStack(spacing: 0) {
                 Spacer(minLength: 0)
 
                 VStack(spacing: 32) {
                     header
-                    
+
                     formContent
                         .padding(.horizontal, AppConstants.UserInterface.largePadding)
                 }
@@ -91,9 +91,9 @@ struct CreateFirstUserView: View {
         )
         .toast($backupViewModel.toast)
     }
-    
+
     // MARK: - Header
-    
+
     private var header: some View {
         VStack(spacing: 20) {
             if showsSimulationBadge {
@@ -108,12 +108,12 @@ struct CreateFirstUserView: View {
 
             OMOBrandIconView(size: 112)
                 .padding(.bottom, 4)
-            
+
             VStack(spacing: 8) {
                 wordmark
                     .multilineTextAlignment(.center)
 
-                Text(LocalizationKey.User.Welcome.subtitle.localized)
+                Text(LocalizationKey.User.welcomeSubtitle.localized)
                     .font(.body)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -121,36 +121,32 @@ struct CreateFirstUserView: View {
             }
         }
     }
-    
     private var wordmark: some View {
         HStack(alignment: .lastTextBaseline, spacing: 0) {
             Text("omo")
                 .font(.system(size: 34, weight: .bold, design: .rounded))
                 .foregroundStyle(.primary)
-            
+
             Text("ni")
                 .font(.system(size: 34, weight: .semibold, design: .rounded))
                 .foregroundStyle(Color.omoniBrandRed)
         }
         .tracking(0.6)
     }
-    
+
     // MARK: - Form Content
-    
+
     private var formContent: some View {
         VStack(spacing: 16) {
             inputField(
                 icon: "person.fill",
                 placeholder: LocalizationKey.User.namePlaceholder.localized,
                 text: $viewModel.name,
-                field: .name,
-                contentType: .name,
-                keyboardType: .default,
-                capitalization: .words
+                field: .name
             )
 
             legalDisclosure
-            
+
             createButton
                 .padding(.top, 8)
 
@@ -190,24 +186,25 @@ struct CreateFirstUserView: View {
     }
 
     private var legalConsentMarkdown: AttributedString {
-        let intro = LocalizationKey.User.Welcome.legalIntro.localized
-        let terms = LocalizationKey.User.Welcome.terms.localized
-        let connector = LocalizationKey.User.Welcome.consent.localized
-        let privacy = LocalizationKey.User.Welcome.privacy.localized
+        let intro = LocalizationKey.User.welcomeLegalIntro.localized
+        let terms = LocalizationKey.User.welcomeTerms.localized
+        let connector = LocalizationKey.User.welcomeConsent.localized
+        let privacy = LocalizationKey.User.welcomePrivacy.localized
+
+        guard let termsURL, let privacyURL else {
+            return AttributedString("\(intro) \(terms) \(connector) \(privacy)")
+        }
 
         return (try? AttributedString(
             markdown: "\(intro) [\(terms)](\(termsURL.absoluteString)) \(connector) [\(privacy)](\(privacyURL.absoluteString))"
         )) ?? AttributedString("\(intro) \(terms) \(connector) \(privacy)")
     }
-    
+
     private func inputField(
         icon: String,
         placeholder: String,
         text: Binding<String>,
-        field: Field,
-        contentType: UITextContentType?,
-        keyboardType: UIKeyboardType,
-        capitalization: TextInputAutocapitalization
+        field: Field
     ) -> some View {
         HStack(spacing: 14) {
             Image(systemName: icon)
@@ -218,25 +215,29 @@ struct CreateFirstUserView: View {
 
             configuredTextField(
                 placeholder: placeholder,
-                text: text,
-                contentType: contentType
+                text: text
             )
-                .keyboardType(keyboardType)
-                .textInputAutocapitalization(capitalization)
+                .keyboardType(.default)
+                .textInputAutocapitalization(.words)
                 .autocorrectionDisabled()
                 .focused($focusedField, equals: field)
                 .submitLabel(.done)
                 .onSubmit {
                     focusedField = nil
                 }
+                .onChange(of: text.wrappedValue) { _, newValue in
+                    if newValue.count > AppConstants.Validation.maxUserNameLength {
+                        text.wrappedValue = String(newValue.prefix(AppConstants.Validation.maxUserNameLength))
+                    }
+                }
         }
         .padding(.horizontal, 18)
         .padding(.vertical, 16)
         .background(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius)
                 .fill(Color(.secondarySystemGroupedBackground))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 16)
+                    RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius)
                         .strokeBorder(
                             focusedField == field ? Color(.systemGray3) : Color.clear,
                             lineWidth: 2
@@ -248,19 +249,14 @@ struct CreateFirstUserView: View {
     @ViewBuilder
     private func configuredTextField(
         placeholder: String,
-        text: Binding<String>,
-        contentType: UITextContentType?
+        text: Binding<String>
     ) -> some View {
-        if let contentType {
-            TextField(placeholder, text: text)
-                .textContentType(contentType)
-        } else {
-            TextField(placeholder, text: text)
-        }
+        TextField(placeholder, text: text)
+            .textContentType(.name)
     }
-    
+
     // MARK: - Create Button
-    
+
     private var createButton: some View {
         Button {
             focusedField = nil
@@ -278,8 +274,7 @@ struct CreateFirstUserView: View {
             HStack(spacing: 12) {
                 Image(systemName: "person.badge.plus")
                     .font(.system(size: 17, weight: .semibold))
-                    .symbolEffect(.bounce, value: viewModel.isFormValid)
-                
+
                 Text(LocalizationKey.User.create.localized)
                     .font(.headline)
             }
@@ -288,7 +283,7 @@ struct CreateFirstUserView: View {
             .padding(.vertical, 18)
             .background(
                 Group {
-                    if viewModel.isFormValid {
+                    if viewModel.isFormValid && acceptedLegal {
                         LinearGradient(
                             colors: [
                                 Color.omoniInteractiveRed,
@@ -309,9 +304,9 @@ struct CreateFirstUserView: View {
                     }
                 }
             )
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius))
             .shadow(
-                color: viewModel.isFormValid ? Color.omoniInteractiveRed.opacity(0.28) : .clear,
+                color: viewModel.isFormValid && acceptedLegal ? Color.omoniInteractiveRed.opacity(0.28) : .clear,
                 radius: 8,
                 y: 4
             )
@@ -360,10 +355,10 @@ struct CreateFirstUserView: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 18)
             .background(
-                RoundedRectangle(cornerRadius: 16)
+                RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius)
                     .fill(Color(.secondarySystemGroupedBackground))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 16)
+                        RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius)
                             .stroke(Color(.separator).opacity(0.35), lineWidth: 1)
                     )
             )

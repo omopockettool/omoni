@@ -24,14 +24,6 @@ struct LimitedTextField<F: Hashable>: View {
     private var isMultiline: Bool { axis == .vertical }
     private var usesGroupedCardChrome: Bool { style == .groupedCard }
     private var usesEmbeddedChrome: Bool { style == .embedded }
-    private var limitedText: Binding<String> {
-        Binding(
-            get: { text },
-            set: { newValue in
-                text = String(newValue.prefix(maxLength))
-            }
-        )
-    }
 
     var body: some View {
         HStack(alignment: isMultiline ? .top : .center, spacing: 12) {
@@ -41,7 +33,7 @@ struct LimitedTextField<F: Hashable>: View {
                 .frame(width: 26, alignment: .leading)
                 .padding(.top, isMultiline ? 1 : 0)
 
-            TextField(placeholder, text: limitedText, axis: axis)
+            TextField(placeholder, text: $text, axis: axis)
                 .foregroundStyle(.secondary)
                 .font(.subheadline)
                 .fontWeight(.semibold)
@@ -49,6 +41,11 @@ struct LimitedTextField<F: Hashable>: View {
                 .submitLabel(submitLabel)
                 .onSubmit {
                     onSubmit?()
+                }
+                .onChange(of: text) { _, newValue in
+                    if newValue.count > maxLength {
+                        text = String(newValue.prefix(maxLength))
+                    }
                 }
 
             if !text.isEmpty {
@@ -81,13 +78,13 @@ struct LimitedTextField<F: Hashable>: View {
     }
 
     private var clipShape: RoundedRectangle {
-        RoundedRectangle(cornerRadius: usesGroupedCardChrome ? AppConstants.UserInterface.cornerRadius : 12)
+        RoundedRectangle(cornerRadius: usesGroupedCardChrome ? AppConstants.UserInterface.rowCornerRadius : 12)
     }
 
     @ViewBuilder
     private var overlayView: some View {
         if usesGroupedCardChrome {
-            RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius)
+            RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius)
                 .stroke(isFocused ? Color(.systemGray3) : Color.clear, lineWidth: 1.5)
                 .animation(AnimationHelper.formFocus, value: isFocused)
         } else if usesEmbeddedChrome {

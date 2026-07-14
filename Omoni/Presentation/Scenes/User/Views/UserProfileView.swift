@@ -33,7 +33,7 @@ struct UserProfileView: View {
                     icon: "person.fill",
                     placeholder: LocalizationKey.User.name.localized,
                     text: $viewModel.name,
-                    maxLength: 40,
+                    maxLength: AppConstants.Validation.maxUserNameLength,
                     focusedField: $nameFocused,
                     fieldValue: true
                 )
@@ -50,7 +50,7 @@ struct UserProfileView: View {
                 }
                 .padding(AppConstants.UserInterface.padding)
                 .background(Color(.secondarySystemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
+                .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius))
             }
             .padding(AppConstants.UserInterface.padding)
         }

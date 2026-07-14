@@ -2,21 +2,26 @@ import SwiftUI
 
 struct AddItemListView: View {
     let group: SDGroup
-    var onRequestExpandSheet: (() -> Void)? = nil
+    let excludedCategoryIds: [UUID]
+    let showsCancelButton: Bool
     let onItemListCreated: (SDItemList) -> Void
     let onItemListUpdated: ((SDItemList) -> Void)?
     let onCancel: () -> Void
 
     @State private var viewModel: AddItemListViewModel
+    @AppStorage("hasSeenDashboardCategoryFlowHint_v3") private var hasSeenDashboardCategoryFlowHint = false
     @FocusState private var focusedField: AddItemListField?
     @State private var showDatePicker = false
     @State private var calendarExpanded = false
     @State private var suppressCalendarExpand = false
     @State private var showDetails = false
+    @State private var showingDashboardCategoryHint = false
     @State private var showCategoryOverflow = false
     @State private var showPaymentMethodOverflow = false
     @State private var scrollToPaymentMethods = false
     @State private var scrollToHero = false
+    @State private var scrollToTop = false
+    @State private var hasAppliedInitialFocus = false
 
     init(
         group: SDGroup,
@@ -24,24 +29,27 @@ struct AddItemListView: View {
         itemListToEdit: SDItemList? = nil,
         initialDate: Date? = nil,
         preferredCategoryId: UUID? = nil,
-        onRequestExpandSheet: (() -> Void)? = nil,
+        excludedCategoryIds: [UUID] = [],
+        showsCancelButton: Bool = true,
         onItemListCreated: @escaping (SDItemList) -> Void,
         onItemListUpdated: ((SDItemList) -> Void)? = nil,
         onCancel: @escaping () -> Void
     ) {
-        self.onRequestExpandSheet = onRequestExpandSheet
+        self.showsCancelButton = showsCancelButton
         self.group = group
+        self.excludedCategoryIds = excludedCategoryIds
         self.onItemListCreated = onItemListCreated
         self.onItemListUpdated = onItemListUpdated
         self.onCancel = onCancel
         let initialViewModel = AddItemListViewModel(
             itemListToEdit: itemListToEdit,
             initialDate: initialDate,
-            preferredCategoryId: preferredCategoryId
+            preferredCategoryId: preferredCategoryId,
+            excludedCategoryIds: excludedCategoryIds
         )
         initialViewModel.configure(defaultGroup: group, availableGroups: availableGroups)
         let startsExpandedForEdit = initialViewModel.isEditMode
-        let startsWithDatePicker = startsExpandedForEdit && !Calendar.current.isDateInToday(initialViewModel.date)
+        let startsWithDatePicker = !Calendar.current.isDateInToday(initialViewModel.date)
         self._viewModel = State(
             wrappedValue: initialViewModel
         )
@@ -57,20 +65,40 @@ struct AddItemListView: View {
     private static let gridCategoryLimit = 3
     private static let gridPaymentMethodLimit = 3
 
+    private var availableCategories: [SDCategory] {
+        guard !excludedCategoryIds.isEmpty else { return viewModel.categories }
+        return viewModel.categories.filter { !excludedCategoryIds.contains($0.id) }
+    }
+
+    private var hiddenDashboardCategories: [SDCategory] {
+        guard !excludedCategoryIds.isEmpty else { return [] }
+        return viewModel.categories.filter { excludedCategoryIds.contains($0.id) }
+    }
+
+    private var shouldShowDashboardCategoryHint: Bool {
+        !viewModel.hasPriorityCategory &&
+        !hasSeenDashboardCategoryFlowHint &&
+        !hiddenDashboardCategories.isEmpty
+    }
+
+    private var shouldShowCategorySection: Bool {
+        !viewModel.hasPriorityCategory && !availableCategories.isEmpty
+    }
+
     private var gridCategories: [SDCategory] {
-        viewModel.categories.prefix(Self.gridCategoryLimit).map { $0 }
+        Array(availableCategories.prefix(Self.gridCategoryLimit))
     }
 
     private var overflowCategories: [SDCategory] {
-        Array(viewModel.categories.dropFirst(Self.gridCategoryLimit))
+        Array(availableCategories.dropFirst(Self.gridCategoryLimit))
     }
 
     private var displayedCategories: [SDCategory] {
-        showCategoryOverflow ? viewModel.categories : gridCategories
+        showCategoryOverflow ? availableCategories : gridCategories
     }
 
     private var gridPaymentMethods: [SDPaymentMethod] {
-        viewModel.paymentMethods.prefix(Self.gridPaymentMethodLimit).map { $0 }
+        Array(viewModel.paymentMethods.prefix(Self.gridPaymentMethodLimit))
     }
 
     private var overflowPaymentMethods: [SDPaymentMethod] {
@@ -99,12 +127,26 @@ struct AddItemListView: View {
 
     private var descriptionPlaceholder: String {
         if let concept = viewModel.lastUsedConcept {
-            return concept
+            return "\(LocalizationKey.General.example.localized) \(concept)"
         }
         if let category = viewModel.selectedCategory {
-            return "\(LocalizationKey.Entry.concept.localized) (\(LocalizationKey.General.eg.localized) \(category.name))"
+            return "\(LocalizationKey.Entry.concept.localized) (\(LocalizationKey.General.example.localized) \(category.name))"
         }
         return LocalizationKey.Entry.concept.localized
+    }
+
+    private var descriptionBinding: Binding<String> {
+        Binding(
+            get: { viewModel.description },
+            set: { viewModel.setDescription($0) }
+        )
+    }
+
+    private var priceBinding: Binding<String> {
+        Binding(
+            get: { viewModel.price },
+            set: { viewModel.setPrice($0) }
+        )
     }
 
     // MARK: - Body
@@ -113,9 +155,11 @@ struct AddItemListView: View {
         ScrollViewReader { proxy in
         ScrollView {
             VStack(spacing: 20) {
+                entryStructureSection
+                    .id("formTop")
                 topCard
                     .id("heroAnchor")
-                if !viewModel.categories.isEmpty {
+                if shouldShowCategorySection {
                     categoryGridSection
                 }
                 moreDetailsSection
@@ -123,13 +167,20 @@ struct AddItemListView: View {
             .padding(AppConstants.UserInterface.padding)
             .padding(.bottom, 8)
         }
+        .scrollDismissesKeyboard(.immediately)
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 12)
+                .onChanged { _ in
+                    dismissKeyboardForScrollIfNeeded()
+                }
+        )
 
         .onChange(of: scrollToPaymentMethods) { _, fire in
             guard fire else { return }
             scrollToPaymentMethods = false
             Task {
                 try? await Task.sleep(for: .milliseconds(350))
-                withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) {
+                withAnimation(AnimationHelper.expansionSpring) {
                     proxy.scrollTo("paymentMethodAnchor", anchor: .top)
                 }
             }
@@ -137,8 +188,15 @@ struct AddItemListView: View {
         .onChange(of: scrollToHero) { _, fire in
             guard fire else { return }
             scrollToHero = false
-            withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) {
+            withAnimation(AnimationHelper.expansionSpring) {
                 proxy.scrollTo("heroAnchor", anchor: .top)
+            }
+        }
+        .onChange(of: scrollToTop) { _, fire in
+            guard fire else { return }
+            scrollToTop = false
+            withAnimation(AnimationHelper.expansionSpring) {
+                proxy.scrollTo("formTop", anchor: .top)
             }
         }
 
@@ -147,14 +205,28 @@ struct AddItemListView: View {
         .background(Color(.systemGroupedBackground))
         .navigationTitle(viewModel.isEditMode ? LocalizationKey.Entry.edit.localized : LocalizationKey.Entry.newEntry.localized)
         .navigationBarTitleDisplayMode(.inline)
+        .safeAreaInset(edge: .top, spacing: 0) {
+            if showingDashboardCategoryHint {
+                AddItemListDashboardCategoryHintBanner {
+                    withAnimation(AnimationHelper.quickEase) {
+                        showingDashboardCategoryHint = false
+                    }
+                }
+                .padding(.horizontal, AppConstants.UserInterface.padding)
+                .padding(.top, AppConstants.UserInterface.smallPadding)
+                .transition(.move(edge: .top).combined(with: .opacity))
+            }
+        }
         .toolbar {
-            ToolbarItem(placement: .cancellationAction) {
-                Button { onCancel() } label: {
-                    Image(systemName: "xmark")
+            if showsCancelButton {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button { onCancel() } label: {
+                        Image(systemName: "xmark")
+                    }
                 }
             }
             ToolbarItem(placement: .confirmationAction) {
-                PrimaryToolbarCheckButton {
+                PrimaryToolbarCheckButton(isDisabled: shouldMutePrimaryAction) {
                     if viewModel.canSave {
                         Task { await saveItemList() }
                     } else {
@@ -181,11 +253,10 @@ struct AddItemListView: View {
             }
         }
         .onChange(of: focusedField) { _, newField in
-            if newField != nil { onRequestExpandSheet?() }
             if newField == .price { scrollToHero = true }
         }
-        .onChange(of: showDetails) { _, isShowing in
-            if isShowing { onRequestExpandSheet?() }
+        .onChange(of: viewModel.entryStructure) { _, structure in
+            handleStructureChange(structure)
         }
         .errorAlert(
             isPresented: $viewModel.showError,
@@ -194,6 +265,17 @@ struct AddItemListView: View {
         )
         .task(id: activeGroup.id) {
             await viewModel.loadOptionsForSelectedGroup()
+            applyInitialFocusIfNeeded()
+            guard shouldShowDashboardCategoryHint else { return }
+            hasSeenDashboardCategoryFlowHint = true
+            withAnimation(AnimationHelper.quickEase) {
+                showingDashboardCategoryHint = true
+            }
+            try? await Task.sleep(for: .seconds(9.0))
+            guard showingDashboardCategoryHint else { return }
+            withAnimation(AnimationHelper.quickEase) {
+                showingDashboardCategoryHint = false
+            }
         }
         .toast($viewModel.toast)
     }
@@ -201,16 +283,26 @@ struct AddItemListView: View {
     private var canMoveFocusBackward: Bool {
         switch focusedField {
         case .description:
-            return !viewModel.isEditMode
+            return viewModel.showsHeroAmountInput
         default:
             return false
         }
     }
 
+    private var shouldMutePrimaryAction: Bool {
+        guard !viewModel.isEditMode else { return false }
+
+        let hasTypedDescription = !viewModel.description
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .isEmpty
+
+        return !hasTypedDescription && viewModel.price.isEmpty
+    }
+
     private var canMoveFocusForward: Bool {
         switch focusedField {
         case .price:
-            return true
+            return viewModel.showsHeroAmountInput
         default:
             return false
         }
@@ -219,7 +311,7 @@ struct AddItemListView: View {
     private func moveFocusBackward() {
         switch focusedField {
         case .description:
-            guard !viewModel.isEditMode else { return }
+            guard viewModel.showsHeroAmountInput else { return }
             focusedField = .price
         default:
             break
@@ -235,15 +327,34 @@ struct AddItemListView: View {
         }
     }
 
+    private func applyInitialFocusIfNeeded() {
+        guard !hasAppliedInitialFocus, viewModel.isEditMode else { return }
+        hasAppliedInitialFocus = true
+    }
+
     // MARK: - Top Card (Concept + Amount)
+
+    private var entryStructureSection: some View {
+        AddItemListStructureSection(
+            selection: viewModel.entryStructure,
+            canConvertToSingleEntry: viewModel.canConvertToSingleEntry,
+            helperText: viewModel.structureHelperText,
+            onSelect: { structure in
+                withAnimation(AnimationHelper.quickSpring) {
+                    viewModel.updateEntryStructure(to: structure)
+                }
+            }
+        )
+    }
 
     private var topCard: some View {
         AddItemListTopCard(
-            isEditMode: viewModel.isEditMode,
-            price: $viewModel.price,
+            showsHeroAmountInput: viewModel.showsHeroAmountInput,
+            usesExpandedDescriptionLayout: viewModel.usesExpandedDescriptionLayout,
+            price: priceBinding,
             currencySymbol: currencySymbol,
             descriptionPlaceholder: descriptionPlaceholder,
-            description: $viewModel.description,
+            description: descriptionBinding,
             suggestions: viewModel.suggestions,
             focusedField: $focusedField,
             onValidate: viewModel.validateAndCorrectPrice,
@@ -255,18 +366,27 @@ struct AddItemListView: View {
     // MARK: - Category Grid
 
     private var categoryGridSection: some View {
-        AddItemListCategorySection(
-            displayedCategories: displayedCategories,
-            overflowCategories: overflowCategories,
-            showOverflow: $showCategoryOverflow,
-            compact: showDetails || showCategoryOverflow,
-            selectedCategoryID: viewModel.selectedCategory?.id,
-            chipMinHeight: categoryChipMinHeight,
-            chipCornerRadius: categoryChipCornerRadius
-        ) { category in
-            withAnimation(AnimationHelper.quickSpring) {
-                viewModel.selectedCategory = category
-                showCategoryOverflow = false
+        VStack(alignment: .leading, spacing: 8) {
+            Text(LocalizationKey.Entry.category.localized)
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 4)
+
+            if !availableCategories.isEmpty {
+                AddItemListCategorySection(
+                    displayedCategories: displayedCategories,
+                    overflowCategories: overflowCategories,
+                    showOverflow: $showCategoryOverflow,
+                    compact: showDetails || showCategoryOverflow,
+                    selectedCategoryID: viewModel.selectedCategory?.id,
+                    chipMinHeight: categoryChipMinHeight,
+                    chipCornerRadius: categoryChipCornerRadius
+                ) { category in
+                    withAnimation(AnimationHelper.quickSpring) {
+                        viewModel.selectCategory(category)
+                        showCategoryOverflow = false
+                    }
+                }
             }
         }
     }
@@ -276,14 +396,9 @@ struct AddItemListView: View {
     private var moreDetailsSection: some View {
         AddItemListMoreDetailsSection(
             isEditMode: viewModel.isEditMode,
-            showDetails: $showDetails,
-            onCollapse: {
-                showDatePicker = false
-                calendarExpanded = false
-            }
+            showDetails: $showDetails
         ) {
             dateCard
-            groupCard
 
             if !viewModel.paymentMethods.isEmpty {
                 paymentMethodGridSection
@@ -298,29 +413,36 @@ struct AddItemListView: View {
     // MARK: - Payment Method Grid
 
     private var paymentMethodGridSection: some View {
-        AddItemListPaymentMethodSection(
-            displayedPaymentMethods: displayedPaymentMethods,
-            overflowPaymentMethods: overflowPaymentMethods,
-            showOverflow: $showPaymentMethodOverflow,
-            selectedPaymentMethodID: viewModel.selectedPaymentMethod?.id,
-            colorForType: paymentMethodColor,
-            iconForMethod: paymentMethodIcon,
-            onSelect: { method in
-                withAnimation(AnimationHelper.quickSpring) {
-                    viewModel.selectedPaymentMethod = method
-                    showPaymentMethodOverflow = false
-                    scrollToPaymentMethods = true
-                }
-            },
-            onToggleOffSelected: {
-                withAnimation(AnimationHelper.quickSpring) {
-                    viewModel.deselectPaymentMethodManually()
-                    showPaymentMethodOverflow = false
-                    scrollToPaymentMethods = true
-                }
-            },
-            onCollapseOverflow: { scrollToPaymentMethods = true }
-        )
+        VStack(alignment: .leading, spacing: 8) {
+            Text(LocalizationKey.Entry.paymentMethod.localized)
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 4)
+
+            AddItemListPaymentMethodSection(
+                displayedPaymentMethods: displayedPaymentMethods,
+                overflowPaymentMethods: overflowPaymentMethods,
+                showOverflow: $showPaymentMethodOverflow,
+                selectedPaymentMethodID: viewModel.selectedPaymentMethod?.id,
+                colorForMethod: paymentMethodColor,
+                iconForMethod: paymentMethodIcon,
+                onSelect: { method in
+                    withAnimation(AnimationHelper.quickSpring) {
+                        viewModel.selectedPaymentMethod = method
+                        showPaymentMethodOverflow = false
+                        scrollToPaymentMethods = true
+                    }
+                },
+                onToggleOffSelected: {
+                    withAnimation(AnimationHelper.quickSpring) {
+                        viewModel.deselectPaymentMethodManually()
+                        showPaymentMethodOverflow = false
+                        scrollToPaymentMethods = true
+                    }
+                },
+                onCollapseOverflow: { scrollToPaymentMethods = true }
+            )
+        }
     }
 
     // MARK: - Date Card
@@ -332,8 +454,8 @@ struct AddItemListView: View {
             date: $viewModel.date,
             formattedDate: viewModel.formattedDate,
             focusedField: $focusedField
-        ) { on in
-            if on {
+        ) { isExpanded in
+            if isExpanded {
                 if suppressCalendarExpand {
                     suppressCalendarExpand = false
                 } else {
@@ -341,53 +463,46 @@ struct AddItemListView: View {
                         calendarExpanded = true
                     }
                 }
-            } else {
-                withAnimation(.spring(response: 0.45, dampingFraction: 0.88)) {
-                    calendarExpanded = false
-                }
-                Task {
-                    try? await Task.sleep(for: .milliseconds(400))
-                    viewModel.date = Date()
-                }
             }
         }
     }
 
-    // MARK: - Group Card
-
-    private var groupCard: some View {
-        AddItemListGroupCard(
-            activeGroup: activeGroup,
-            availableGroups: viewModel.availableGroups,
-            onSelect: { viewModel.selectedGroup = $0 }
-        )
-    }
-
     // MARK: - Payment Method Helpers
 
-    private func paymentMethodColor(_ type: String) -> Color {
-        switch type {
-        case "cash":          return .green
-        case "bank_transfer": return .orange
-        case "card_credit":   return .purple
-        default:              return .blue
-        }
+    private func paymentMethodColor(_ method: SDPaymentMethod) -> Color {
+        PaymentMethodAppearance.tint(for: method)
     }
 
     private func paymentMethodIcon(_ method: SDPaymentMethod) -> String {
-        method.icon.isEmpty ? defaultIcon(for: method.type) : method.icon
-    }
-
-    private func defaultIcon(for type: String) -> String {
-        switch type {
-        case "cash":          return "banknote.fill"
-        case "bank_transfer": return "arrow.left.arrow.right"
-        case "card_credit":   return "creditcard.fill"
-        default:              return "creditcard.fill"
-        }
+        PaymentMethodAppearance.icon(for: method)
     }
 
     // MARK: - Actions
+
+    private func handleStructureChange(_ structure: ItemListStructure) {
+        guard !viewModel.isEditMode else {
+            focusedField = nil
+            if structure == .singleEntry {
+                scrollToTop = true
+            }
+            return
+        }
+
+        if structure == .singleEntry {
+            if focusedField == .description {
+                focusedField = .price
+            } else {
+                scrollToTop = true
+            }
+        } else {
+            focusedField = .description
+        }
+    }
+
+    private func dismissKeyboardForScrollIfNeeded() {
+        guard focusedField != nil else { return }
+        focusedField = nil
+    }
 
     private func saveItemList() async {
         let finalDescription = viewModel.resolvedDescriptionForSave()
@@ -400,7 +515,7 @@ struct AddItemListView: View {
             if let created = await viewModel.createItemList(
                 description: finalDescription,
                 date: viewModel.date,
-                categoryId: viewModel.selectedCategory?.id ?? UUID(),
+                categoryId: viewModel.selectedCategory?.id,
                 groupId: activeGroup.id,
                 paymentMethodId: viewModel.selectedPaymentMethod?.id
             ) {
@@ -409,7 +524,6 @@ struct AddItemListView: View {
         }
     }
 }
-
 
 #Preview {
     let group = SDGroup.mock(name: "Casa", currency: "EUR")

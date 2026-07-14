@@ -86,7 +86,6 @@ extension SDUserGroup {
     }
 }
 
-#if DEBUG
 extension SDUserGroup {
     static func mock(
         id: UUID = UUID(),
@@ -105,4 +104,3 @@ extension SDUserGroup {
         return userGroup
     }
 }
-#endif

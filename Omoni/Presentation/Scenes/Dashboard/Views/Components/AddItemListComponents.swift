@@ -5,10 +5,112 @@ enum AddItemListField {
     case price
 }
 
+struct AddItemListStructureSection: View {
+    let selection: ItemListStructure
+    let canConvertToSingleEntry: Bool
+    let helperText: String?
+    let onSelect: (ItemListStructure) -> Void
+
+    private var singleEntryEnabled: Bool {
+        canConvertToSingleEntry || selection == .singleEntry
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 6) {
+                structureSegment(
+                    title: LocalizationKey.Entry.singleEntry.localized,
+                    systemImage: "bolt.fill",
+                    structure: .singleEntry,
+                    isEnabled: singleEntryEnabled
+                )
+
+                structureSegment(
+                    title: LocalizationKey.Entry.itemizedList.localized,
+                    systemImage: "list.bullet",
+                    structure: .itemizedList,
+                    isEnabled: true
+                )
+            }
+            .padding(4)
+            .background(Color(.secondarySystemGroupedBackground))
+            .clipShape(Capsule())
+            .sensoryFeedback(.selection, trigger: selection)
+
+            if let helperText {
+                Text(helperText)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 4)
+            }
+        }
+    }
+
+    private func structureSegment(
+        title: String,
+        systemImage: String,
+        structure: ItemListStructure,
+        isEnabled: Bool
+    ) -> some View {
+        let isSelected = selection == structure
+
+        return Button {
+            guard isEnabled else { return }
+            withAnimation(AnimationHelper.quickSpring) {
+                onSelect(structure)
+            }
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: systemImage)
+                    .font(.subheadline.weight(.semibold))
+
+                Text(title)
+                    .font(.subheadline.weight(.semibold))
+                    .lineLimit(1)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 12)
+            .foregroundStyle(segmentForegroundColor(isSelected: isSelected, isEnabled: isEnabled))
+            .background {
+                Capsule()
+                    .fill(isSelected ? Color(.tertiarySystemGroupedBackground) : Color.clear)
+            }
+            .overlay {
+                Capsule()
+                    .stroke(
+                        isSelected ? Color.primary.opacity(0.08) : Color.clear,
+                        lineWidth: 1
+                    )
+            }
+            .shadow(
+                color: .black.opacity(isSelected ? 0.12 : 0),
+                radius: isSelected ? 10 : 0,
+                y: isSelected ? 3 : 0
+            )
+            .opacity(isEnabled ? 1 : 0.5)
+            .contentShape(Capsule())
+            .animation(AnimationHelper.quickSpring, value: isSelected)
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func segmentForegroundColor(isSelected: Bool, isEnabled: Bool) -> Color {
+        if isSelected {
+            return .primary
+        }
+        if isEnabled {
+            return Color.primary.opacity(0.92)
+        }
+        return .secondary
+    }
+}
+
 // MARK: - Top Card (Amount + Description)
 
 struct AddItemListTopCard: View {
-    let isEditMode: Bool
+    let showsHeroAmountInput: Bool
+    let usesExpandedDescriptionLayout: Bool
     @Binding var price: String
     let currencySymbol: String
     let descriptionPlaceholder: String
@@ -21,7 +123,7 @@ struct AddItemListTopCard: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            if !isEditMode {
+            if showsHeroAmountInput {
                 HeroAmountInputView(
                     text: $price,
                     currencySymbol: currencySymbol,
@@ -39,7 +141,7 @@ struct AddItemListTopCard: View {
             }
 
             AddItemListDescriptionField(
-                isEditMode: isEditMode,
+                usesExpandedLayout: usesExpandedDescriptionLayout,
                 description: $description,
                 placeholder: descriptionPlaceholder,
                 focusedField: focusedField
@@ -54,12 +156,12 @@ struct AddItemListTopCard: View {
             }
         }
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
+        .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius))
     }
 }
 
 struct AddItemListDescriptionField: View {
-    let isEditMode: Bool
+    let usesExpandedLayout: Bool
     @Binding var description: String
     let placeholder: String
     let focusedField: FocusState<AddItemListField?>.Binding
@@ -69,7 +171,7 @@ struct AddItemListDescriptionField: View {
             icon: "textformat",
             placeholder: placeholder,
             text: $description,
-            maxLength: 200,
+            maxLength: AppConstants.Validation.maxItemDescriptionLength,
             axis: .horizontal,
             style: .embedded,
             submitLabel: .done,
@@ -77,7 +179,7 @@ struct AddItemListDescriptionField: View {
             focusedField: focusedField,
             fieldValue: .description
         )
-        .padding(isEditMode ? AppConstants.UserInterface.largePadding : AppConstants.UserInterface.padding)
+        .padding(usesExpandedLayout ? AppConstants.UserInterface.largePadding : AppConstants.UserInterface.padding)
     }
 }
 
@@ -116,17 +218,17 @@ struct AddItemListCategorySection: View {
                         cornerRadius: chipCornerRadius,
                         isExpanded: showOverflow
                     ) {
-                        withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) {
+                        withAnimation(AnimationHelper.expansionSpring) {
                             showOverflow.toggle()
                         }
                     }
                 }
             }
-            .animation(.spring(response: 0.45, dampingFraction: 0.82), value: showOverflow)
+            .animation(AnimationHelper.expansionSpring, value: showOverflow)
 
             if showOverflow {
                 Button {
-                    withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) {
+                    withAnimation(AnimationHelper.expansionSpring) {
                         showOverflow = false
                     }
                 } label: {
@@ -146,6 +248,36 @@ struct AddItemListCategorySection: View {
                 .transition(.opacity)
             }
         }
+    }
+
+}
+
+struct AddItemListDashboardCategoryHintBanner: View {
+    let onDismiss: () -> Void
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "square.grid.2x2.fill")
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(.accent)
+
+            Text(LocalizationKey.Entry.dashboardCategoryHintMessage.localized)
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(.primary)
+
+            Spacer(minLength: 0)
+
+            Button(action: onDismiss) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 }
 
@@ -174,6 +306,11 @@ private struct AddItemListCategoryChip: View {
                         .foregroundStyle(isSelected ? .white : .primary)
                         .lineLimit(1)
                     Spacer(minLength: 0)
+                    if isSelected {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(.white.opacity(0.96))
+                    }
                 }
                 .opacity(compact ? 1 : 0)
                 .scaleEffect(compact ? 1 : 0.85, anchor: .leading)
@@ -203,7 +340,15 @@ private struct AddItemListCategoryChip: View {
                 RoundedRectangle(cornerRadius: cornerRadius)
                     .stroke(chipColor.opacity(isSelected ? 0 : 0.3), lineWidth: 1)
             )
-            .animation(.spring(response: 0.45, dampingFraction: 0.82), value: compact)
+            .overlay(alignment: .topTrailing) {
+                if isSelected && !compact {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(.white.opacity(0.96))
+                        .padding(10)
+                }
+            }
+            .animation(AnimationHelper.expansionSpring, value: compact)
         }
         .buttonStyle(.plain)
     }
@@ -231,6 +376,23 @@ private struct AddItemListCategoryOverflowChip: View {
 
     private var isActive: Bool { overflowSelected != nil }
 
+    private var trailingIndicatorColor: some ShapeStyle {
+        isActive ? .white.opacity(0.88) : Color(.tertiaryLabel)
+    }
+
+    private var trailingIndicator: some View {
+        HStack(spacing: 8) {
+            if isActive && !isExpanded {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.caption.weight(.bold))
+            }
+
+            Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                .font(.caption.weight(.semibold))
+        }
+        .foregroundStyle(trailingIndicatorColor)
+    }
+
     var body: some View {
         Button(action: onTap) {
             ZStack {
@@ -244,10 +406,7 @@ private struct AddItemListCategoryOverflowChip: View {
                         .foregroundStyle(isActive ? .white : .primary)
                         .lineLimit(1)
                     Spacer(minLength: 0)
-                    Image(systemName: "chevron.down")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(isActive ? .white.opacity(0.8) : Color(.tertiaryLabel))
-                        .rotationEffect(.degrees(isExpanded ? 180 : 0))
+                    trailingIndicator
                 }
                 .opacity(compact ? 1 : 0)
                 .scaleEffect(compact ? 1 : 0.85, anchor: .leading)
@@ -262,10 +421,7 @@ private struct AddItemListCategoryOverflowChip: View {
                             .fontWeight(isActive ? .semibold : .regular)
                             .foregroundStyle(isActive ? .white : .primary)
                             .lineLimit(1)
-                        Image(systemName: "chevron.down")
-                            .font(.caption2.weight(.semibold))
-                            .foregroundStyle(isActive ? .white.opacity(0.8) : Color(.tertiaryLabel))
-                            .rotationEffect(.degrees(isExpanded ? 180 : 0))
+                        trailingIndicator
                     }
                 }
                 .opacity(compact ? 0 : 1)
@@ -282,8 +438,8 @@ private struct AddItemListCategoryOverflowChip: View {
                 RoundedRectangle(cornerRadius: cornerRadius)
                     .stroke(chipColor.opacity(isActive ? 0 : 0.3), lineWidth: 1)
             )
-            .animation(.spring(response: 0.45, dampingFraction: 0.82), value: compact)
-            .animation(.spring(response: 0.45, dampingFraction: 0.82), value: isExpanded)
+            .animation(AnimationHelper.expansionSpring, value: compact)
+            .animation(AnimationHelper.expansionSpring, value: isExpanded)
         }
         .buttonStyle(.plain)
     }
@@ -294,20 +450,32 @@ private struct AddItemListCategoryOverflowChip: View {
 struct AddItemListMoreDetailsSection<Content: View>: View {
     let isEditMode: Bool
     @Binding var showDetails: Bool
-    let onCollapse: () -> Void
     @ViewBuilder let content: () -> Content
+
+    private var triggerTransition: AnyTransition {
+        .asymmetric(
+            insertion: .move(edge: .top).combined(with: .opacity),
+            removal: .move(edge: .top).combined(with: .opacity)
+        )
+    }
+
+    private var detailsTransition: AnyTransition {
+        .asymmetric(
+            insertion: .move(edge: .bottom).combined(with: .opacity),
+            removal: .move(edge: .bottom).combined(with: .opacity)
+        )
+    }
 
     var body: some View {
         VStack(spacing: 16) {
-            if !isEditMode {
+            if !isEditMode && !showDetails {
                 Button {
-                    withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) {
-                        showDetails.toggle()
+                    withAnimation(AnimationHelper.expansionSpring) {
+                        showDetails = true
                     }
-                    if !showDetails { onCollapse() }
                 } label: {
                     HStack(spacing: 6) {
-                        Image(systemName: showDetails ? "chevron.up" : "chevron.down")
+                        Image(systemName: "chevron.down")
                             .font(.system(size: 11, weight: .semibold))
                         Text(LocalizationKey.Entry.moreDetails.localized)
                             .font(.subheadline)
@@ -321,14 +489,18 @@ struct AddItemListMoreDetailsSection<Content: View>: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(PressHapticButtonStyle())
+                .zIndex(1)
+                .transition(triggerTransition)
             }
 
             if isEditMode || showDetails {
                 VStack(spacing: 16) {
                     content()
                 }
-                .transition(isEditMode ? .identity : .opacity.combined(with: .scale(scale: 0.97, anchor: .top)))
-                .animation(isEditMode ? nil : .spring(response: 0.45, dampingFraction: 0.82), value: showDetails)
+                .zIndex(0)
+                .clipped()
+                .transition(isEditMode ? .identity : detailsTransition)
+                .animation(isEditMode ? nil : AnimationHelper.expansionSpring, value: showDetails)
             }
         }
     }
@@ -341,7 +513,7 @@ struct AddItemListPaymentMethodSection: View {
     let overflowPaymentMethods: [SDPaymentMethod]
     @Binding var showOverflow: Bool
     let selectedPaymentMethodID: UUID?
-    let colorForType: (String) -> Color
+    let colorForMethod: (SDPaymentMethod) -> Color
     let iconForMethod: (SDPaymentMethod) -> String
     let onSelect: (SDPaymentMethod) -> Void
     let onToggleOffSelected: () -> Void
@@ -354,7 +526,7 @@ struct AddItemListPaymentMethodSection: View {
                     AddItemListPaymentMethodChip(
                         method: method,
                         isSelected: selectedPaymentMethodID == method.id,
-                        color: colorForType(method.type),
+                        color: colorForMethod(method),
                         iconName: iconForMethod(method)
                     ) {
                         if selectedPaymentMethodID == method.id {
@@ -370,7 +542,7 @@ struct AddItemListPaymentMethodSection: View {
                     AddItemListPaymentMethodOverflowChip(
                         overflowSelected: overflowPaymentMethods.first { $0.id == selectedPaymentMethodID },
                         isExpanded: showOverflow,
-                        colorForType: colorForType,
+                        colorForMethod: colorForMethod,
                         iconForMethod: iconForMethod
                     ) {
                         withAnimation(AnimationHelper.quickSpring) {
@@ -379,12 +551,12 @@ struct AddItemListPaymentMethodSection: View {
                     }
                 }
             }
-            .animation(.spring(response: 0.45, dampingFraction: 0.82), value: showOverflow)
+            .animation(AnimationHelper.expansionSpring, value: showOverflow)
             .id("paymentMethodAnchor")
 
             if showOverflow {
                 Button {
-                    withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) {
+                    withAnimation(AnimationHelper.expansionSpring) {
                         showOverflow = false
                     }
                     onCollapseOverflow()
@@ -427,6 +599,11 @@ private struct AddItemListPaymentMethodChip: View {
                     .foregroundStyle(isSelected ? .white : .primary)
                     .lineLimit(1)
                 Spacer(minLength: 0)
+                if isSelected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(.white.opacity(0.96))
+                }
             }
             .frame(maxWidth: .infinity, minHeight: 44)
             .padding(.horizontal, 14)
@@ -445,12 +622,12 @@ private struct AddItemListPaymentMethodChip: View {
 private struct AddItemListPaymentMethodOverflowChip: View {
     let overflowSelected: SDPaymentMethod?
     let isExpanded: Bool
-    let colorForType: (String) -> Color
+    let colorForMethod: (SDPaymentMethod) -> Color
     let iconForMethod: (SDPaymentMethod) -> String
     let onTap: () -> Void
 
     private var chipColor: Color {
-        overflowSelected.map { colorForType($0.type) } ?? Color(.systemGray3)
+        overflowSelected.map(colorForMethod) ?? Color(.systemGray3)
     }
 
     private var iconName: String {
@@ -462,6 +639,23 @@ private struct AddItemListPaymentMethodOverflowChip: View {
     }
 
     private var isActive: Bool { overflowSelected != nil }
+
+    private var trailingIndicatorColor: some ShapeStyle {
+        isActive ? .white.opacity(0.88) : Color(.tertiaryLabel)
+    }
+
+    private var trailingIndicator: some View {
+        HStack(spacing: 8) {
+            if isActive && !isExpanded {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.caption.weight(.bold))
+            }
+
+            Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                .font(.caption.weight(.semibold))
+        }
+        .foregroundStyle(trailingIndicatorColor)
+    }
 
     var body: some View {
         Button(action: onTap) {
@@ -475,10 +669,7 @@ private struct AddItemListPaymentMethodOverflowChip: View {
                     .foregroundStyle(isActive ? .white : .primary)
                     .lineLimit(1)
                 Spacer(minLength: 0)
-                Image(systemName: "chevron.down")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(isActive ? .white.opacity(0.8) : Color(.tertiaryLabel))
-                    .rotationEffect(.degrees(isExpanded ? 180 : 0))
+                trailingIndicator
             }
             .frame(maxWidth: .infinity, minHeight: 44)
             .padding(.horizontal, 14)
@@ -506,67 +697,120 @@ struct AddItemListDateCard: View {
     let onToggleChanged: (Bool) -> Void
 
     private var dateLabel: String {
-        showDatePicker
-            ? formattedDate
-            : LocalizationKey.Dashboard.today.localized.capitalized
+        !showDatePicker && Calendar.current.isDateInToday(date)
+            ? LocalizationKey.Dashboard.today.localized.capitalized
+            : formattedDate
+    }
+
+    private var isTodayCompactState: Bool {
+        !showDatePicker && Calendar.current.isDateInToday(date)
+    }
+
+    private var iconTint: Color {
+        (showDatePicker || isTodayCompactState) ? .primary : .secondary
+    }
+
+    private var iconBadgeBackground: Color {
+        if showDatePicker {
+            return Color.primary.opacity(0.1)
+        }
+        if isTodayCompactState {
+            return Color.primary.opacity(0.08)
+        }
+        return .clear
+    }
+
+    private var dateTextColor: Color {
+        (showDatePicker || isTodayCompactState) ? .primary : .secondary
+    }
+
+    private var dateTextWeight: Font.Weight {
+        (showDatePicker || isTodayCompactState) ? .semibold : .medium
+    }
+
+    private var cardStrokeColor: Color {
+        if showDatePicker {
+            return Color.primary.opacity(0.12)
+        }
+        if isTodayCompactState {
+            return Color.primary.opacity(0.08)
+        }
+        return .clear
+    }
+
+    private func clearDateSelection() {
+        focusedField.wrappedValue = nil
+
+        let finishReset = {
+            date = Date()
+            showDatePicker = false
+            onToggleChanged(false)
+        }
+
+        if calendarExpanded {
+            withAnimation(.spring(response: 0.45, dampingFraction: 0.88)) {
+                calendarExpanded = false
+            }
+
+            Task {
+                try? await Task.sleep(for: .milliseconds(320))
+                finishReset()
+            }
+        } else {
+            finishReset()
+        }
     }
 
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 12) {
-                // Tappable date area — full width minus reset button
-                Button {
-                    focusedField.wrappedValue = nil
-                    if !showDatePicker {
-                        showDatePicker = true
-                        onToggleChanged(true)
-                    } else {
-                        withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
-                            calendarExpanded.toggle()
-                        }
-                    }
-                } label: {
-                    HStack(spacing: 8) {
-                        Image(systemName: "calendar")
-                            .font(.system(size: 14))
-                            .foregroundStyle(showDatePicker ? Color.accentColor : Color.secondary)
-
-                        Text(dateLabel)
-                            .font(.subheadline)
-                            .foregroundStyle(showDatePicker ? Color.primary : Color.secondary)
-                            .contentTransition(.interpolate)
-
-                        if showDatePicker {
-                            Image(systemName: calendarExpanded ? "chevron.up" : "chevron.down")
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(Color(.tertiaryLabel))
-                                .transition(.opacity)
-                        }
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-
-                // Reset to today
-                if showDatePicker {
+                ZStack(alignment: .trailing) {
+                    // Tappable date area — full width
                     Button {
                         focusedField.wrappedValue = nil
-                        withAnimation(.spring(response: 0.45, dampingFraction: 0.88)) {
-                            calendarExpanded = false
-                        }
-                        Task {
-                            try? await Task.sleep(for: .milliseconds(320))
-                            showDatePicker = false
-                            onToggleChanged(false)
+                        if !showDatePicker {
+                            showDatePicker = true
+                            onToggleChanged(true)
+                        } else {
+                            withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
+                                calendarExpanded.toggle()
+                            }
                         }
                     } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.system(size: 18))
-                            .foregroundStyle(Color(.tertiaryLabel))
+                        HStack(spacing: 8) {
+                            Image(systemName: "calendar")
+                                .font(.system(size: 14))
+                                .foregroundStyle(iconTint)
+                                .frame(width: 28, height: 28)
+                                .background(iconBadgeBackground)
+                                .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
+
+                            Text(dateLabel)
+                                .font(.subheadline.weight(dateTextWeight))
+                                .foregroundStyle(dateTextColor)
+                                .contentTransition(.interpolate)
+
+                            Spacer(minLength: 6)
+
+                            Image(systemName: showDatePicker ? (calendarExpanded ? "chevron.up" : "chevron.down") : "chevron.right")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(Color(.tertiaryLabel))
+                                .padding(.trailing, showDatePicker ? 32 : 0)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
-                    .transition(.opacity.combined(with: .scale(scale: 0.75)))
+
+                    if showDatePicker {
+                        Button(action: clearDateSelection) {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.system(size: 18))
+                                .foregroundStyle(Color(.tertiaryLabel))
+                        }
+                        .buttonStyle(.plain)
+                        .transition(.opacity.combined(with: .scale(scale: 0.85)))
+                    }
                 }
             }
             .padding(AppConstants.UserInterface.padding)
@@ -587,61 +831,12 @@ struct AddItemListDateCard: View {
             .opacity((showDatePicker && calendarExpanded) ? 1 : 0)
         }
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
+        .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius))
+        .overlay(
+            RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius)
+                .stroke(cardStrokeColor, lineWidth: 1)
+        )
         .animation(.spring(response: 0.45, dampingFraction: 0.88), value: calendarExpanded)
         .animation(.spring(response: 0.45, dampingFraction: 0.88), value: showDatePicker)
-    }
-}
-
-// MARK: - Group Card (hidden when single group)
-
-struct AddItemListGroupCard: View {
-    let activeGroup: SDGroup
-    let availableGroups: [SDGroup]
-    let onSelect: (SDGroup) -> Void
-
-    var body: some View {
-        if availableGroups.count > 1 {
-            HStack(spacing: 12) {
-                Image(systemName: "person.2.fill")
-                    .foregroundStyle(Color.accentColor)
-                    .frame(width: 20)
-
-                Text(LocalizationKey.Group.singularTitle.localized)
-                    .foregroundStyle(.secondary)
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-
-                Spacer()
-
-                Menu {
-                    ForEach(availableGroups, id: \.id) { group in
-                        Button {
-                            onSelect(group)
-                        } label: {
-                            if group.id == activeGroup.id {
-                                Label(group.name, systemImage: "checkmark")
-                            } else {
-                                Text(group.name)
-                            }
-                        }
-                    }
-                } label: {
-                    HStack(spacing: 4) {
-                        Text(activeGroup.name)
-                            .font(.subheadline)
-                            .foregroundStyle(.primary)
-                        Image(systemName: "chevron.up.chevron.down")
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(.tertiary)
-                    }
-                    .contentShape(Rectangle())
-                }
-            }
-            .padding(AppConstants.UserInterface.padding)
-            .background(Color(.secondarySystemGroupedBackground))
-            .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
-            .buttonStyle(.plain)
-        }
     }
 }

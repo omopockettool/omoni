@@ -12,6 +12,7 @@ struct AppContentView: View {
     @State private var navigationPath = NavigationPath()
     @State private var viewModel: AppContentViewModel
     @State private var hasLoadedInitialData = false
+    @State private var isShowingCreateGroup = false
 
     private static let logger = Logger(subsystem: "Omoni", category: "Lifecycle.AppContentView")
 
@@ -24,6 +25,8 @@ struct AppContentView: View {
         NavigationStack(path: $navigationPath) {
             if viewModel.isLoading {
                 loadingView
+            } else if let errorMessage = viewModel.errorMessage {
+                errorView(errorMessage)
             } else if viewModel.isSetupComplete {
                 DashboardView()
                     .navigationBarHidden(true)
@@ -33,6 +36,16 @@ struct AppContentView: View {
         }
         .navigationTitle("OMONI")
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $isShowingCreateGroup) {
+            if let userId = viewModel.currentUser?.id {
+                CreateGroupView(
+                    userId: userId,
+                    onGroupCreated: { _ in
+                        Task { await viewModel.loadInitialData() }
+                    }
+                )
+            }
+        }
         .task {
             guard !hasLoadedInitialData else {
                 Self.logger.debug("task skipped because initial content load already ran")
@@ -49,6 +62,28 @@ struct AppContentView: View {
     // MARK: - Loading View
     private var loadingView: some View {
         Color(.systemBackground).ignoresSafeArea()
+    }
+
+    private func errorView(_ message: String) -> some View {
+        VStack(spacing: 20) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(.largeTitle)
+                .foregroundColor(.orange)
+
+            Text(LocalizationKey.General.error.localized)
+                .font(.title)
+
+            Text(message)
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+
+            Button(LocalizationKey.General.retry.localized) {
+                Task { await viewModel.loadInitialData() }
+            }
+            .buttonStyle(.borderedProminent)
+        }
+        .padding()
     }
     
     // MARK: - Setup Required View
@@ -67,9 +102,10 @@ struct AppContentView: View {
                 .multilineTextAlignment(.center)
 
             Button(LocalizationKey.Settings.goToSettings.localized) {
-                // TODO: Navigate to settings or user management
+                isShowingCreateGroup = true
             }
             .buttonStyle(.borderedProminent)
+            .disabled(viewModel.currentUser == nil)
         }
         .padding()
     }

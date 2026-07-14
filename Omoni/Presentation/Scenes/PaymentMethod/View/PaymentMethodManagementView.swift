@@ -65,19 +65,16 @@ struct PaymentMethodManagementView: View {
             HStack(spacing: 14) {
                 ZStack {
                     Circle()
-                        .fill(typeColor(pm.type).opacity(0.15))
+                        .fill(PaymentMethodAppearance.tint(for: pm).opacity(0.15))
                         .frame(width: 40, height: 40)
-                    Image(systemName: pm.icon.isEmpty ? typeIcon(pm.type) : pm.icon)
+                    Image(systemName: PaymentMethodAppearance.icon(for: pm))
                         .font(.system(size: 16, weight: .medium))
-                        .foregroundStyle(typeColor(pm.type))
+                        .foregroundStyle(PaymentMethodAppearance.tint(for: pm))
                 }
                 VStack(alignment: .leading, spacing: 2) {
                     Text(pm.name)
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(.primary)
-                    Text(typeName(pm.type))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
                 }
                 Spacer()
                 Image(systemName: "chevron.right")
@@ -86,36 +83,9 @@ struct PaymentMethodManagementView: View {
             }
             .padding(AppConstants.UserInterface.padding)
             .background(Color(.secondarySystemGroupedBackground))
-            .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.cornerRadius))
+            .clipShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius))
+            .contentShape(RoundedRectangle(cornerRadius: AppConstants.UserInterface.rowCornerRadius))
         }
         .buttonStyle(.plain)
-    }
-
-    private func typeIcon(_ type: String) -> String {
-        switch type {
-        case "cash":          return "banknote.fill"
-        case "bank_transfer": return "arrow.left.arrow.right"
-        case "card_credit":   return "creditcard.fill"
-        default:              return "creditcard.fill"
-        }
-    }
-
-    private func typeColor(_ type: String) -> Color {
-        switch type {
-        case "cash":          return .green
-        case "bank_transfer": return .orange
-        case "card_credit":   return .purple
-        default:              return .blue
-        }
-    }
-
-    private func typeName(_ type: String) -> String {
-        switch type {
-        case "cash":          return LocalizationKey.Payment.cash.localized
-        case "card_debit":    return LocalizationKey.Payment.debit.localized
-        case "card_credit":   return LocalizationKey.Payment.credit.localized
-        case "bank_transfer": return LocalizationKey.Payment.transfer.localized
-        default:              return type
-        }
     }
 }

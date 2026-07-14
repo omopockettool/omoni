@@ -31,6 +31,10 @@ struct ToastMessage: Equatable {
 // MARK: - Toast View
 
 struct ToastView: View {
+    private enum Metrics {
+        static let dismissDuration: Double = 0.18
+    }
+
     let toast: ToastMessage
     let onDismiss: () -> Void
 
@@ -51,27 +55,31 @@ struct ToastView: View {
 
             Spacer(minLength: 0)
 
-            if let actionTitle = toast.actionTitle, let action = toast.action {
+            HStack(spacing: 12) {
+                if let actionTitle = toast.actionTitle, let action = toast.action {
+                    Button {
+                        dismiss(perform: action)
+                    } label: {
+                        Text(actionTitle)
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.accent)
+                    }
+                    .buttonStyle(PressHapticButtonStyle())
+
+                    Capsule()
+                        .fill(Color.secondary.opacity(0.18))
+                        .frame(width: 1, height: 18)
+                }
+
                 Button {
-                    dismissTask?.cancel()
-                    onDismiss()
-                    action()
+                    dismiss()
                 } label: {
-                    Text(actionTitle)
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.accent)
+                    Image(systemName: "xmark")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundStyle(.secondary)
                 }
                 .buttonStyle(PressHapticButtonStyle())
             }
-
-            Button {
-                dismiss()
-            } label: {
-                Image(systemName: "xmark")
-                    .font(.system(size: 12, weight: .bold))
-                    .foregroundStyle(.secondary)
-            }
-            .buttonStyle(PressHapticButtonStyle())
         }
         .padding(.horizontal, AppConstants.UserInterface.padding)
         .padding(.vertical, 12)
@@ -122,14 +130,39 @@ struct ToastView: View {
     }
 
     private func dismiss() {
+        dismiss(perform: nil)
+    }
+
+    private func dismiss(perform action: (() -> Void)?) {
         dismissTask?.cancel()
-        withAnimation(.easeOut(duration: 0.25)) {
+        withAnimation(.easeOut(duration: Metrics.dismissDuration)) {
             isVisible = false
         }
         Task { @MainActor in
-            try? await Task.sleep(for: .seconds(0.25))
+            try? await Task.sleep(for: .seconds(Metrics.dismissDuration))
             onDismiss()
+            action?()
         }
+    }
+}
+
+struct ToastHost: View {
+    @Binding var toast: ToastMessage?
+    var horizontalPadding: CGFloat = AppConstants.UserInterface.padding
+    var topPadding: CGFloat = 0
+    var bottomPadding: CGFloat = 0
+
+    var body: some View {
+        Group {
+            if let message = toast {
+                ToastView(toast: message, onDismiss: { toast = nil })
+                    .id(message.id)
+                    .padding(.horizontal, horizontalPadding)
+                    .padding(.top, topPadding)
+                    .padding(.bottom, bottomPadding)
+            }
+        }
+        .animation(.spring(response: 0.35, dampingFraction: 0.75), value: toast)
     }
 }
 
@@ -138,12 +171,10 @@ struct ToastView: View {
 extension View {
     func toast(_ toast: Binding<ToastMessage?>) -> some View {
         overlay(alignment: .top) {
-            if let message = toast.wrappedValue {
-                ToastView(toast: message, onDismiss: { toast.wrappedValue = nil })
-                    .id(message.id)
-                    .padding(.horizontal, AppConstants.UserInterface.padding)
-                    .padding(.top, AppConstants.UserInterface.smallPadding)
-            }
+            ToastHost(
+                toast: toast,
+                topPadding: AppConstants.UserInterface.smallPadding
+            )
         }
         .animation(.spring(response: 0.35, dampingFraction: 0.75), value: toast.wrappedValue)
     }

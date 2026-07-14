@@ -36,73 +36,16 @@ struct SettingsSheetView: View {
 
     var body: some View {
         NavigationStack {
-            List {
-                Section {
-                    NavigationLink {
-                        UserProfileView(user: user, onUserUpdated: onUserUpdated)
-                    } label: {
-                        NativeSettingsRow(systemImage: "person.fill", color: .purple, title: user.name)
-                            .font(.body)
-                            .padding(.vertical, 2)
-                    }
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    profileSection
+                    backupSection
+                    omoSection
                 }
-
-                Section(LocalizationKey.Settings.backup.localized) {
-                    Text(LocalizationKey.Settings.backupDescription.localized)
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                        .textCase(nil)
-
-                    Button {
-                        backupViewModel.beginManualExport()
-                    } label: {
-                        NativeSettingsRow(
-                            systemImage: "square.and.arrow.up",
-                            color: .green,
-                            title: LocalizationKey.Settings.exportBackup.localized
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    Button {
-                        backupViewModel.beginImport()
-                    } label: {
-                        NativeSettingsRow(
-                            systemImage: "square.and.arrow.down",
-                            color: .orange,
-                            title: LocalizationKey.Settings.importBackup.localized
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
-
-                Section("OMO") {
-                    NavigationLink {
-                        AboutOMOView()
-                    } label: {
-                        NativeSettingsRow(systemImage: "info.circle.fill", color: .blue, title: LocalizationKey.Settings.aboutOMO.localized)
-                    }
-                }
-
-#if DEBUG
-                Section("Debug") {
-                    NavigationLink {
-                        CreateFirstUserView(
-                            onUserCreated: {},
-                            submissionMode: .simulate
-                        )
-                    } label: {
-                        NativeSettingsRow(
-                            systemImage: "person.badge.plus",
-                            color: .orange,
-                            title: "Onboarding Preview"
-                        )
-                    }
-                }
-#endif
+                .padding(AppConstants.UserInterface.padding)
+                .padding(.bottom, AppConstants.UserInterface.largePadding)
             }
-            .listStyle(.insetGrouped)
-            .listSectionSpacing(.compact)
+            .background(Color(.systemGroupedBackground))
             .navigationTitle(LocalizationKey.Settings.title.localized)
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
@@ -162,5 +105,100 @@ struct SettingsSheetView: View {
             onDismiss: backupViewModel.clearError
         )
         .toast($backupViewModel.toast)
+    }
+
+    private var profileSection: some View {
+        NavigationLink {
+            UserProfileView(user: user, onUserUpdated: onUserUpdated)
+        } label: {
+            NativeSettingsCard {
+                settingsNavigationRow(systemImage: "person.fill", color: .purple, title: user.name)
+            }
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var backupSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            sectionHeader(LocalizationKey.Settings.backup.localized)
+
+            NativeSettingsCard {
+                Text(LocalizationKey.Settings.backupDescription.localized)
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .padding(AppConstants.UserInterface.padding)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                Divider()
+                    .padding(.leading, AppConstants.UserInterface.padding)
+
+                Button {
+                    backupViewModel.beginManualExport()
+                } label: {
+                    settingsActionRow(
+                        systemImage: "square.and.arrow.up",
+                        color: .green,
+                        title: LocalizationKey.Settings.exportBackup.localized
+                    )
+                }
+                .buttonStyle(.plain)
+
+                Divider()
+                    .padding(.leading, AppConstants.UserInterface.padding + 42)
+
+                Button {
+                    backupViewModel.beginImport()
+                } label: {
+                    settingsActionRow(
+                        systemImage: "square.and.arrow.down",
+                        color: .orange,
+                        title: LocalizationKey.Settings.importBackup.localized
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
+    private var omoSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            sectionHeader("OMO")
+
+            NavigationLink {
+                AboutOMOView()
+            } label: {
+                NativeSettingsCard {
+                    settingsNavigationRow(
+                        systemImage: "info.circle.fill",
+                        color: .blue,
+                        title: LocalizationKey.Settings.aboutOMO.localized
+                    )
+                }
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    private func sectionHeader(_ title: String) -> some View {
+        Text(title)
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 4)
+    }
+
+    private func settingsNavigationRow(systemImage: String, color: Color, title: String) -> some View {
+        NativeSettingsRow(systemImage: systemImage, color: color, title: title) {
+            Image(systemName: "chevron.right")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(Color(.tertiaryLabel))
+        }
+        .font(.body)
+        .padding(AppConstants.UserInterface.padding)
+    }
+
+    private func settingsActionRow(systemImage: String, color: Color, title: String) -> some View {
+        NativeSettingsRow(systemImage: systemImage, color: color, title: title)
+            .font(.body)
+            .padding(AppConstants.UserInterface.padding)
     }
 }

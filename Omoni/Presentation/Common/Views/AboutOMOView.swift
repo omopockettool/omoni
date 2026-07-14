@@ -2,22 +2,74 @@ import SwiftUI
 import UIKit
 
 struct AboutOMOView: View {
+    @Environment(\.openURL) private var openURL
     private let appInfo = AppInfo.current
-    private let donationsURL = URL(string: "https://buymeacoffee.com/omopockettool")!
-    private let appStoreURL = URL(string: "https://omopockettool.com")!
+    private let appStoreURL = URL(string: "https://omopockettool.com")
+    private let websiteURL = URL(string: "https://omopockettool.com/")
+    private let supportEmailURL = URL(string: "mailto:omopockettool@gmail.com")
+    private let termsURL = URL(string: "https://omopockettool.com/terms/")
+    private let privacyURL = URL(string: "https://omopockettool.com/privacy/")
     @State private var copiedFieldTitle: String?
 
     var body: some View {
-        List {
-            heroSection
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
+                heroSection
+                applicationSection
+                omoniSection
+                supportSection
+                developedBySection
+            }
+            .padding(AppConstants.UserInterface.padding)
+            .padding(.bottom, AppConstants.UserInterface.largePadding)
+        }
+        .background(Color(.systemGroupedBackground))
+        .navigationTitle(LocalizationKey.About.title.localized)
+        .navigationBarTitleDisplayMode(.inline)
+    }
 
-            Section(LocalizationKey.About.application.localized) {
+    private var heroSection: some View {
+        VStack(spacing: 14) {
+            OMOBrandIconView(size: 100)
+
+            VStack(spacing: 4) {
+                Text("OMONI")
+                    .font(.system(size: 30, weight: .bold, design: .rounded))
+                    .tracking(1.2)
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [
+                                Color.primary,
+                                Color.primary.opacity(0.78)
+                            ],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                Text(LocalizationKey.User.welcomeSubtitle.localized)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 18)
+    }
+
+    private var applicationSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            sectionHeader(LocalizationKey.About.application.localized)
+
+            NativeSettingsCard {
                 infoRow(
                     icon: "app.badge.fill",
                     color: .red,
                     title: LocalizationKey.About.currentVersion.localized,
                     value: appInfo.fullVersionLabel
                 )
+                .padding(AppConstants.UserInterface.padding)
+
+                Divider()
+                    .padding(.leading, AppConstants.UserInterface.padding + 44)
 
                 NavigationLink {
                     AppReleaseNotesView(installedVersion: appInfo.version)
@@ -26,12 +78,21 @@ struct AboutOMOView: View {
                         icon: "clock.arrow.circlepath",
                         color: .orange,
                         title: LocalizationKey.About.whatsNew.localized,
-                        value: LocalizationKey.About.viewHistory.localized
+                        value: LocalizationKey.About.viewHistory.localized,
+                        showsChevron: true
                     )
+                    .padding(AppConstants.UserInterface.padding)
                 }
+                .buttonStyle(.plain)
             }
+        }
+    }
 
-            Section("OMONI") {
+    private var omoniSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            sectionHeader("OMONI")
+
+            NativeSettingsCard {
                 VStack(alignment: .leading, spacing: 10) {
                     Text(LocalizationKey.About.descriptionLabel.localized)
                         .font(.headline)
@@ -40,26 +101,72 @@ struct AboutOMOView: View {
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
-                .padding(.vertical, 4)
+                .padding(AppConstants.UserInterface.padding)
 
-                copyableLinkRow(
-                    icon: "globe",
-                    color: .indigo,
-                    title: LocalizationKey.About.officialWeb.localized,
-                    value: "omopockettool.com",
-                    destination: URL(string: "https://omopockettool.com/")!
-                )
+                Divider()
+                    .padding(.leading, AppConstants.UserInterface.padding)
 
-                copyableLinkRow(
-                    icon: "envelope.fill",
-                    color: .green,
-                    title: LocalizationKey.About.contact.localized,
-                    value: "omopockettool@gmail.com",
-                    destination: URL(string: "mailto:omopockettool@gmail.com")!
-                )
+                if let websiteURL {
+                    copyableLinkRow(
+                        icon: "globe",
+                        color: .indigo,
+                        title: LocalizationKey.About.officialWeb.localized,
+                        value: "omopockettool.com",
+                        destination: websiteURL
+                    )
+                    .padding(AppConstants.UserInterface.padding)
+                }
+
+                Divider()
+                    .padding(.leading, AppConstants.UserInterface.padding + 44)
+
+                if let supportEmailURL {
+                    copyableLinkRow(
+                        icon: "envelope.fill",
+                        color: .green,
+                        title: LocalizationKey.About.contact.localized,
+                        value: "omopockettool@gmail.com",
+                        destination: supportEmailURL
+                    )
+                    .padding(AppConstants.UserInterface.padding)
+                }
+
+                Divider()
+                    .padding(.leading, AppConstants.UserInterface.padding + 44)
+
+                if let termsURL {
+                    copyableLinkRow(
+                        icon: "doc.text.fill",
+                        color: .blue,
+                        title: LocalizationKey.User.welcomeTerms.localized,
+                        value: "omopockettool.com/terms",
+                        destination: termsURL
+                    )
+                    .padding(AppConstants.UserInterface.padding)
+                }
+
+                Divider()
+                    .padding(.leading, AppConstants.UserInterface.padding + 44)
+
+                if let privacyURL {
+                    copyableLinkRow(
+                        icon: "hand.raised.fill",
+                        color: .teal,
+                        title: LocalizationKey.User.welcomePrivacy.localized,
+                        value: "omopockettool.com/privacy",
+                        destination: privacyURL
+                    )
+                    .padding(AppConstants.UserInterface.padding)
+                }
             }
+        }
+    }
 
-            Section(LocalizationKey.About.support.localized) {
+    private var supportSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            sectionHeader(LocalizationKey.About.support.localized)
+
+            NativeSettingsCard {
                 VStack(alignment: .leading, spacing: 10) {
                     Text(LocalizationKey.About.supportQuestion.localized)
                         .font(.headline)
@@ -68,60 +175,34 @@ struct AboutOMOView: View {
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
-                .padding(.vertical, 4)
+                .padding(AppConstants.UserInterface.padding)
 
-                Link(destination: donationsURL) {
-                    HStack(spacing: 12) {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(.brown)
-                                .frame(width: 36, height: 36)
+                Divider()
+                    .padding(.leading, AppConstants.UserInterface.padding)
 
-                            Image(systemName: "cup.and.saucer.fill")
-                                .font(.system(size: 16, weight: .medium))
-                                .foregroundStyle(.white)
-                        }
-
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(LocalizationKey.About.donate.localized)
-                                .font(.subheadline)
-                                .foregroundStyle(.primary)
-                            Text("buymeacoffee.com/omopockettool")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-
-                        Spacer()
+                if let appStoreURL {
+                    ShareLink(item: appStoreURL) {
+                        infoRow(
+                            icon: "square.and.arrow.up",
+                            color: .blue,
+                            title: LocalizationKey.About.shareApp.localized,
+                            value: LocalizationKey.About.shareAppSubtitle.localized
+                        )
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(Rectangle())
+                        .padding(AppConstants.UserInterface.padding)
                     }
-                }
-
-                ShareLink(item: appStoreURL) {
-                    HStack(spacing: 12) {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(.blue)
-                                .frame(width: 36, height: 36)
-
-                            Image(systemName: "square.and.arrow.up")
-                                .font(.system(size: 16, weight: .medium))
-                                .foregroundStyle(.white)
-                        }
-
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(LocalizationKey.About.shareApp.localized)
-                                .font(.subheadline)
-                                .foregroundStyle(.primary)
-                            Text(LocalizationKey.About.shareAppSubtitle.localized)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-
-                        Spacer()
-                    }
+                    .buttonStyle(.plain)
                 }
             }
+        }
+    }
 
-            Section(LocalizationKey.About.developedBy.localized) {
+    private var developedBySection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            sectionHeader(LocalizationKey.About.developedBy.localized)
+
+            NativeSettingsCard {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(LocalizationKey.About.team.localized)
                         .font(.headline)
@@ -129,56 +210,22 @@ struct AboutOMOView: View {
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
-                .padding(.vertical, 4)
+                .padding(AppConstants.UserInterface.padding)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-        }
-        .listStyle(.insetGrouped)
-        .navigationTitle(LocalizationKey.About.title.localized)
-        .navigationBarTitleDisplayMode(.inline)
-    }
-
-    private var heroSection: some View {
-        Section {
-            VStack(spacing: 14) {
-                OMOBrandIconView(size: 100)
-
-                VStack(spacing: 4) {
-                    Text("OMONI")
-                        .font(.system(size: 30, weight: .bold, design: .rounded))
-                        .tracking(1.2)
-                        .foregroundStyle(
-                            LinearGradient(
-                                colors: [
-                                    Color.primary,
-                                    Color.primary.opacity(0.78)
-                                ],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
-                    Text(LocalizationKey.User.Welcome.subtitle.localized)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 18)
-            .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
-            .listRowBackground(Color.clear)
         }
     }
 
-    private func infoRow(icon: String, color: Color, title: String, value: String) -> some View {
+    private func sectionHeader(_ title: String) -> some View {
+        Text(title)
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 4)
+    }
+
+    private func infoRow(icon: String, color: Color, title: String, value: String, showsChevron: Bool = false) -> some View {
         HStack(spacing: 12) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(color)
-                    .frame(width: 32, height: 32)
-
-                Image(systemName: icon)
-                    .font(.system(size: 15, weight: .medium))
-                    .foregroundStyle(.white)
-            }
+            NativeSettingsRowIcon(systemName: icon, color: color)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
@@ -191,7 +238,15 @@ struct AboutOMOView: View {
             }
 
             Spacer(minLength: 8)
+
+            if showsChevron {
+                Image(systemName: "chevron.right")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(Color(.tertiaryLabel))
+            }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(Rectangle())
     }
 
     private func copyableLinkRow(
@@ -202,10 +257,12 @@ struct AboutOMOView: View {
         destination: URL
     ) -> some View {
         HStack(spacing: 12) {
-            Link(destination: destination) {
-                infoRow(icon: icon, color: color, title: title, value: value)
-            }
-            .buttonStyle(.plain)
+            infoRow(icon: icon, color: color, title: title, value: value)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    openURL(destination)
+                }
 
             Button {
                 UIPasteboard.general.string = value
@@ -224,17 +281,21 @@ struct AboutOMOView: View {
                     .background(
                         (copiedFieldTitle == title ? Color.green.opacity(0.14) : Color(.tertiarySystemGroupedBackground))
                     )
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             }
             .buttonStyle(.plain)
             .accessibilityLabel("\(LocalizationKey.General.copy.localized) \(title)")
         }
+        .contentShape(Rectangle())
     }
 }
 
 struct AppReleaseNotesView: View {
     let installedVersion: String
-    private let entries = AppReleaseNotesCatalog.entries
+
+    private var entries: [AppReleaseNoteEntry] {
+        AppReleaseNotesCatalog.entries(for: installedVersion)
+    }
 
     var body: some View {
         List {
@@ -318,18 +379,22 @@ private struct AppReleaseNoteEntry: Identifiable {
 }
 
 private enum AppReleaseNotesCatalog {
-    static let entries: [AppReleaseNoteEntry] = [
-        AppReleaseNoteEntry(
-            version: "2.0.0",
-            date: "2026-06-07",
-            titleKey: LocalizationKey.About.ReleaseNotes.v2_0_0Title,
-            highlightKeys: [
-                LocalizationKey.About.ReleaseNotes.v2_0_0Highlight1,
-                LocalizationKey.About.ReleaseNotes.v2_0_0Highlight2,
-                LocalizationKey.About.ReleaseNotes.v2_0_0Highlight3,
-                LocalizationKey.About.ReleaseNotes.v2_0_0Highlight4,
-                LocalizationKey.About.ReleaseNotes.v2_0_0Highlight5
-            ]
-        ),
-    ]
+    private static let productionLaunchDate = "2026-07-16"
+
+    static func entries(for marketingVersion: String) -> [AppReleaseNoteEntry] {
+        [
+            AppReleaseNoteEntry(
+                version: marketingVersion,
+                date: productionLaunchDate,
+                titleKey: LocalizationKey.About.releaseNotesVersion200Title,
+                highlightKeys: [
+                    LocalizationKey.About.releaseNotesVersion200Highlight1,
+                    LocalizationKey.About.releaseNotesVersion200Highlight2,
+                    LocalizationKey.About.releaseNotesVersion200Highlight3,
+                    LocalizationKey.About.releaseNotesVersion200Highlight4,
+                    LocalizationKey.About.releaseNotesVersion200Highlight5
+                ]
+            )
+        ]
+    }
 }

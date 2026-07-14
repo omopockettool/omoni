@@ -20,37 +20,62 @@ final class DefaultItemListRepository: ItemListRepository {
 
     func createItemList(
         description: String,
+        isList: Bool,
         date: Date,
         categoryId: UUID?,
         paymentMethodId: UUID?,
         groupId: UUID?
     ) async throws -> SDItemList {
-        let itemList = SDItemList(itemListDescription: description, date: date)
+        let itemList = SDItemList(
+            itemListDescription: description,
+            isList: isList,
+            date: date
+        )
 
         if let groupId {
             let targetId = groupId
             let descriptor = FetchDescriptor<SDGroup>(predicate: #Predicate { $0.id == targetId })
-            itemList.group = try context.fetch(descriptor).first
+            guard let group = try context.fetch(descriptor).first else {
+                throw RepositoryError.notFound
+            }
+            itemList.group = group
         }
         if let categoryId {
             let targetId = categoryId
             let descriptor = FetchDescriptor<SDCategory>(predicate: #Predicate { $0.id == targetId })
-            itemList.category = try context.fetch(descriptor).first
+            guard let category = try context.fetch(descriptor).first else {
+                throw RepositoryError.notFound
+            }
+            itemList.category = category
         }
         if let paymentMethodId {
             let targetId = paymentMethodId
             let descriptor = FetchDescriptor<SDPaymentMethod>(predicate: #Predicate { $0.id == targetId })
-            itemList.paymentMethod = try context.fetch(descriptor).first
+            guard let paymentMethod = try context.fetch(descriptor).first else {
+                throw RepositoryError.notFound
+            }
+            itemList.paymentMethod = paymentMethod
         }
 
         context.insert(itemList)
-        try context.save()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
         return itemList
     }
 
     func updateItemList(_ itemList: SDItemList) async throws {
-        itemList.lastModifiedAt = Date()
-        try context.save()
+        guard context.hasChanges else { return }
+        itemList.touch()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
     }
 
     func deleteItemList(id: UUID) async throws {
@@ -60,6 +85,11 @@ final class DefaultItemListRepository: ItemListRepository {
             throw RepositoryError.notFound
         }
         context.delete(itemList)
-        try context.save()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
     }
 }

@@ -69,11 +69,14 @@
 "entry.date" = "Date";
 "entry.amount" = "Amount";
 "entry.category" = "Category";
-"entry.paymentMethod" = "Payment Method";
+"entry.paymentMethod" = "Origin";
 "entry.create" = "Add Entry";
 "entry.edit" = "Edit Entry";
 "entry.delete.confirm" = "Are you sure you want to delete this entry?";
 "entry.empty.message" = "No entries found";
+"entry.singleEntry" = "Simple";
+"entry.itemizedList" = "List";
+"entry.singleEntryDisabledHint" = "Lists with several items can't be converted into a single entry.";
 
 // MARK: - Item
 "item.description" = "Item Description";
@@ -83,14 +86,14 @@
 "item.add" = "Add Item";
 
 // MARK: - Payment Method
-"payment.title" = "Payment Methods";
-"payment.name" = "Payment Method Name";
+"payment.title" = "Origins";
+"payment.name" = "Origin Name";
 "payment.type" = "Type";
 "payment.active" = "Active";
-"payment.create" = "Create Payment Method";
-"payment.edit" = "Edit Payment Method";
-"payment.delete.confirm" = "Are you sure you want to delete this payment method?";
-"payment.empty.message" = "No payment methods found";
+"payment.create" = "Create Origin";
+"payment.edit" = "Edit Origin";
+"payment.delete.confirm" = "Are you sure you want to delete this origin?";
+"payment.empty.message" = "No origins found";
 
 // MARK: - Dashboard
 "dashboard.title" = "Dashboard";
@@ -116,7 +119,7 @@
 "error.validation.invalidAmount" = "Amount must be greater than zero";
 "error.validation.emptyItemDescription" = "Item description cannot be empty";
 "error.validation.emptyCategoryName" = "Category name cannot be empty";
-"error.validation.emptyPaymentMethodName" = "Payment method name cannot be empty";
+"error.validation.emptyPaymentMethodName" = "Origin name cannot be empty";
 
 // MARK: - Repository Errors
 "error.repository.notFound" = "The requested item was not found";
@@ -145,6 +148,7 @@
 "dashboard.yesterday" = "Yesterday";
 "dashboard.costThisMonth" = "Cost this month";
 "dashboard.costToday" = "Cost today";
+"dashboard.costOnDay" = "Cost on %@";
 "dashboard.added" = "Added!";
 "dashboard.filters" = "Filters";
 "dashboard.itemStatus" = "Item Status";
@@ -156,20 +160,24 @@
 "dashboard.searchItemSummary.single" = "%d matching item";
 "dashboard.searchItemSummary.multiple" = "%d matching items";
 "dashboard.emptyEntryToast" = "Empty entry";
-"dashboard.markedAllPaid" = "Everything marked as paid";
-"dashboard.markedAllPending" = "Everything marked as pending";
+"dashboard.markedAllPaid" = "All paid";
+"dashboard.markedAllPending" = "All pending";
 "dashboard.changeUndone" = "Change undone";
 "dashboard.undo" = "Undo";
+"dashboard.selectCategoryFromDashboard" = "Select a category in the dashboard";
 "dashboard.limitShort" = "Limit";
+"dashboard.expensesByCategory" = "Cost by category";
+"dashboard.overLimit" = "Over limit";
 
 // MARK: - Entry (extended)
 "entry.newEntry" = "New Entry";
 "entry.concept" = "Concept";
 "entry.viewLess" = "View less";
-"entry.moreDetails" = "More details";
+"entry.moreDetails" = "Date and origin";
 "entry.tapToAdd" = "Tap + to add an entry";
 "entry.addByDate" = "Add on this date";
 "entry.more" = "More";
+"entry.dashboardCategoryHintMessage" = "If you don't see a category here, select it in the dashboard to add to it.";
 
 // MARK: - Item (extended)
 "item.newItem" = "New Item";
@@ -205,8 +213,8 @@
 "category.limitFrequency" = "Budget Frequency";
 
 // MARK: - Payment (extended)
-"payment.selectPayment" = "Select Payment Method";
-"payment.emptyHint" = "Create a payment method in the group settings";
+"payment.selectPayment" = "Select Origin";
+"payment.emptyHint" = "Create an origin in the group settings";
 "payment.none" = "None";
 "payment.cards" = "Cards";
 "payment.cash" = "Cash";
@@ -220,12 +228,12 @@
 "payment.credit" = "Credit";
 "payment.transfer" = "Transfer";
 "payment.icon" = "Icon";
-"payment.newMethod" = "New method";
-"payment.editMethod" = "Edit method";
+"payment.newMethod" = "New origin";
+"payment.editMethod" = "Edit origin";
 
 // MARK: - Settings (extended)
 "settings.account" = "Account";
-"settings.aboutOMO" = "About OMO";
+"settings.aboutOMO" = "About OMONI";
 "settings.requiredConfig" = "Required configuration";
 "settings.requiredConfigMsg" = "Please create a user and group to continue";
 "settings.goToSettings" = "Go to Settings";
@@ -261,16 +269,15 @@
 "about.currentVersion" = "Current version";
 "about.whatsNew" = "What's new";
 "about.viewHistory" = "View history";
-"about.title" = "About OMO";
+"about.title" = "OMONI";
 "about.descriptionLabel" = "Description";
-"about.tagline" = "Pocket tool. Financial consciousness in your pocket. No friction.";
+"about.tagline" = "Pocket tool. Financial consciousness in your pocket.";
 "about.heroTagline" = "How much did it cost you to live today?";
 "about.officialWeb" = "Official website";
 "about.contact" = "Contact";
 "about.support" = "Support OMO";
 "about.supportQuestion" = "Is OMONI helping you?";
-"about.supportDescription" = "If the app brings you value, you can support its development with a donation and help it keep growing.";
-"about.donate" = "Support with a donation";
+"about.supportDescription" = "If the app brings you value, you can share it with your friends to help grow the community.";
 "about.developedBy" = "Developed by";
 "about.team" = "OMO Team";
 "about.motto" = "Towards a better life 🌿";
@@ -280,9 +287,9 @@
 "about.shareApp" = "Share OMONI";
 "about.shareAppSubtitle" = "Recommend it to a friend";
 "about.releaseNotes.2_0_0.title" = "Your financial life, clear and organized";
-"about.releaseNotes.2_0_0.highlight1" = "Organize your spending by groups — for example Home, Work, or Trips — each with its own currency and color.";
-"about.releaseNotes.2_0_0.highlight2" = "Inside each group, create everyday entries: a purchase, a dinner, a bill. Assign each entry a category and a payment method.";
-"about.releaseNotes.2_0_0.highlight3" = "Each entry can contain one or more items, each with its own price and quantity. OMONI calculates the total automatically.";
-"about.releaseNotes.2_0_0.highlight4" = "The main dashboard shows at a glance how much you've spent today, this week, or this month, filtered by category or payment status.";
+"about.releaseNotes.2_0_0.highlight1" = "You can organize your financial life your own way. A single group may be enough, and creating another one is only there for specific cases if it fits you better.";
+"about.releaseNotes.2_0_0.highlight2" = "Inside each group, create everyday entries and assign each one its category and spending source.";
+"about.releaseNotes.2_0_0.highlight3" = "Each entry can be simple for a one-off or recurring payment you do not want to break down, like internet, electricity, water, rent, or even a full purchase; or a list if you prefer to detail its items. OMONI calculates the total automatically.";
+"about.releaseNotes.2_0_0.highlight4" = "The dashboard shows at a glance how much you've spent today or this month, with category focus and drill-down by day.";
 "about.releaseNotes.2_0_0.highlight5" = "Mark entries as paid or pending with a single tap and always know what still needs to be settled.";
 "splash.tagline" = "your life. your way.";

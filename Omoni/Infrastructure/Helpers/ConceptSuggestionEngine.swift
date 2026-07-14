@@ -79,9 +79,16 @@ struct ConceptSuggestionEngine {
         amount: Double?
     ) -> [Candidate] {
         var seen: [String: Candidate] = [:]
+        let categoriesToSearch: [SDCategory]
 
-        for cat in allCategories {
-            let isSelected = cat.id == forCategory?.id
+        if let forCategory {
+            categoriesToSearch = allCategories.filter { $0.id == forCategory.id }
+        } else {
+            categoriesToSearch = allCategories
+        }
+
+        for cat in categoriesToSearch {
+            let isSelected = forCategory != nil
             for list in cat.itemLists {
                 let raw = list.itemListDescription.trimmingCharacters(in: .whitespaces)
                 guard !raw.isEmpty else { continue }

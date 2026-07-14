@@ -18,10 +18,50 @@ final class DefaultItemRepository: ItemRepository {
         return try context.fetch(descriptor)
     }
 
+    func fetchItems(forCategoryId categoryId: UUID) async throws -> [SDItem] {
+        let targetId = categoryId
+        let listDescriptor = FetchDescriptor<SDItemList>(
+            predicate: #Predicate { $0.category?.id == targetId }
+        )
+        let itemLists = try context.fetch(listDescriptor)
+        let itemListIds = Set(itemLists.map(\.id))
+        guard !itemListIds.isEmpty else { return [] }
+
+        let itemDescriptor = FetchDescriptor<SDItem>(
+            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+        )
+        let allItems = try context.fetch(itemDescriptor)
+        return allItems.filter { item in
+            guard let listId = item.itemList?.id else { return false }
+            return itemListIds.contains(listId)
+        }
+    }
+
+    func fetchItems(forGroupId groupId: UUID) async throws -> [SDItem] {
+        let targetId = groupId
+        // Two-hop optional predicates (itemList?.group?.id) are not supported by SwiftData.
+        // Resolve in two steps: one-hop fetch of item lists, then in-memory filter on items.
+        let listDescriptor = FetchDescriptor<SDItemList>(
+            predicate: #Predicate { $0.group?.id == targetId }
+        )
+        let itemLists = try context.fetch(listDescriptor)
+        let itemListIds = Set(itemLists.map(\.id))
+        guard !itemListIds.isEmpty else { return [] }
+
+        let itemDescriptor = FetchDescriptor<SDItem>(
+            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+        )
+        let allItems = try context.fetch(itemDescriptor)
+        return allItems.filter { item in
+            guard let listId = item.itemList?.id else { return false }
+            return itemListIds.contains(listId)
+        }
+    }
+
     func createItem(
         description: String,
         amount: Decimal,
-        quantity: Int32,
+        quantity: Int,
         itemListId: UUID?,
         isPaid: Bool
     ) async throws -> SDItem {
@@ -30,23 +70,37 @@ final class DefaultItemRepository: ItemRepository {
         let item = SDItem(
             itemDescription: description,
             amount: Double(truncating: amount as NSDecimalNumber),
-            quantity: Int(quantity),
+            quantity: quantity,
             isPaid: isPaid
         )
         let targetId = itemListId
         let descriptor = FetchDescriptor<SDItemList>(predicate: #Predicate { $0.id == targetId })
-        item.itemList = try context.fetch(descriptor).first
-        item.itemList?.lastModifiedAt = Date()
+        guard let itemList = try context.fetch(descriptor).first else {
+            throw RepositoryError.notFound
+        }
+        item.itemList = itemList
+        item.itemList?.touch()
         context.insert(item)
-        try context.save()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
         return item
     }
 
     func updateItem(_ item: SDItem) async throws {
+        guard context.hasChanges else { return }
         let modifiedAt = Date()
-        item.lastModifiedAt = modifiedAt
-        item.itemList?.lastModifiedAt = modifiedAt
-        try context.save()
+        item.touch(modifiedAt)
+        item.itemList?.touch(modifiedAt)
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
     }
 
     func deleteItem(id: UUID) async throws {
@@ -55,9 +109,14 @@ final class DefaultItemRepository: ItemRepository {
         guard let item = try context.fetch(descriptor).first else {
             throw RepositoryError.notFound
         }
-        item.itemList?.lastModifiedAt = Date()
+        item.itemList?.touch()
         context.delete(item)
-        try context.save()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
     }
 
     func setAllItemsPaid(forItemListId itemListId: UUID, isPaid: Bool) async throws {
@@ -65,12 +124,28 @@ final class DefaultItemRepository: ItemRepository {
         let descriptor = FetchDescriptor<SDItem>(predicate: #Predicate { $0.itemList?.id == targetId })
         let items = try context.fetch(descriptor)
         let modifiedAt = Date()
+        var didChange = false
         items.forEach {
-            $0.isPaid = isPaid
-            $0.lastModifiedAt = modifiedAt
-            $0.itemList?.lastModifiedAt = modifiedAt
+            let previousStatus = $0.isPaid
+            $0.setPaidStatus(isPaid, modifiedAt: modifiedAt)
+            if previousStatus != $0.isPaid {
+                didChange = true
+            }
         }
-        try context.save()
+
+        if didChange {
+            items.first?.itemList?.touch(modifiedAt)
+        }
+
+        guard context.hasChanges else {
+            return
+        }
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
     }
 
     func toggleItemPaid(id: UUID, isPaid: Bool) async throws {
@@ -79,10 +154,19 @@ final class DefaultItemRepository: ItemRepository {
         guard let item = try context.fetch(descriptor).first else {
             throw RepositoryError.notFound
         }
-        let modifiedAt = Date()
-        item.isPaid = isPaid
-        item.lastModifiedAt = modifiedAt
-        item.itemList?.lastModifiedAt = modifiedAt
-        try context.save()
+
+        if item.isPaid != isPaid {
+            let modifiedAt = Date()
+            item.setPaidStatus(isPaid, modifiedAt: modifiedAt)
+            item.itemList?.touch(modifiedAt)
+        }
+
+        guard context.hasChanges else { return }
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
     }
 }

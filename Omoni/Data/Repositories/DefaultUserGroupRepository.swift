@@ -41,19 +41,35 @@ final class DefaultUserGroupRepository: UserGroupRepository {
 
         let targetUserId = userId
         let userDescriptor = FetchDescriptor<SDUser>(predicate: #Predicate { $0.id == targetUserId })
-        userGroup.user = try context.fetch(userDescriptor).first
+        guard let user = try context.fetch(userDescriptor).first else {
+            throw RepositoryError.notFound
+        }
+        userGroup.user = user
 
         let targetGroupId = groupId
         let groupDescriptor = FetchDescriptor<SDGroup>(predicate: #Predicate { $0.id == targetGroupId })
-        userGroup.group = try context.fetch(groupDescriptor).first
+        guard let group = try context.fetch(groupDescriptor).first else {
+            throw RepositoryError.notFound
+        }
+        userGroup.group = group
 
         context.insert(userGroup)
-        try context.save()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
         return userGroup
     }
 
     func updateUserGroup(_ userGroup: SDUserGroup) async throws {
-        try context.save()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
     }
 
     func deleteUserGroup(id: UUID) async throws {
@@ -63,7 +79,12 @@ final class DefaultUserGroupRepository: UserGroupRepository {
             throw RepositoryError.notFound
         }
         context.delete(userGroup)
-        try context.save()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
     }
 
     func removeUser(_ userId: UUID, fromGroup groupId: UUID) async throws {
@@ -76,6 +97,11 @@ final class DefaultUserGroupRepository: UserGroupRepository {
             throw RepositoryError.notFound
         }
         context.delete(userGroup)
-        try context.save()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
     }
 }

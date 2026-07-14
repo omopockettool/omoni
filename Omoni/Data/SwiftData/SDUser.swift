@@ -30,6 +30,28 @@ final class SDUser {
 extension SDUser: Identifiable {}
 
 extension SDUser {
+    func applyEdits(name: String, email: String) {
+        var didChange = false
+
+        if self.name != name {
+            self.name = name
+            didChange = true
+        }
+
+        if self.email != email {
+            self.email = email
+            didChange = true
+        }
+
+        if didChange {
+            touch()
+        }
+    }
+
+    func touch(_ modifiedAt: Date = Date()) {
+        lastModifiedAt = modifiedAt
+    }
+
     var isValid: Bool {
         !name.isEmpty && ValidationHelper.isValidEmail(email)
     }
@@ -55,7 +77,6 @@ extension SDUser {
     }
 }
 
-#if DEBUG
 extension SDUser {
     static func mock(
         id: UUID = UUID(),
@@ -73,4 +94,3 @@ extension SDUser {
         )
     }
 }
-#endif

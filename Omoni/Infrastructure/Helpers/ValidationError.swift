@@ -27,7 +27,7 @@ enum ValidationError: LocalizedError {
         case .emptyPaymentMethodName:  return "Payment method name cannot be empty"
         case .invalidRole:             return "Role cannot be empty"
         case .invalidDescription:      return "Description cannot be empty"
-        case .invalidQuantity:         return "Quantity must be greater than zero"
+        case .invalidQuantity:         return "Quantity must be between 1 and 9999999999"
         case .invalidItemList:         return "Invalid item list"
         case .invalidGroup:            return "Invalid group"
         }

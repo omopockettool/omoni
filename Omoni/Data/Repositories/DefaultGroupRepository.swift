@@ -17,6 +17,7 @@ final class DefaultGroupRepository: GroupRepository {
 
     func createGroup(name: String, currency: String) async throws -> SDGroup {
         let group = SDGroup(name: name, currency: currency)
+        group.setGroupKind(.expense)
         context.insert(group)
 
         let defaultPaymentMethods: [(String, String, String, String)] = [
@@ -35,9 +36,9 @@ final class DefaultGroupRepository: GroupRepository {
             ("Alimentación", "#FF6B6B", "cart.fill",            0, 300, "monthly"),
             ("Movilidad",    "#4ECDC4", "car.fill",             0, 100, "monthly"),
             ("Hogar",        "#45B7D1", "house.fill",           0, 700, "monthly"),
-            ("Ocio",         "#96CEB4", "theatermasks.fill",    0, 200, "monthly"),
             ("Salud",        "#FFEAA7", "heart.fill",           0, 50, "monthly"),
-            ("Moda",         "#ffa7ed", "tshirt.fill",          0, 100, "monthly"),
+            ("Ocio",         "#96CEB4", "theatermasks.fill",    0, 200, "monthly"),
+            ("Ropa",         "#ffa7ed", "tshirt.fill",          0, 150, "monthly"),
         ]
         for (catName, catColor, catIcon, catSortOrder, catLimit, catLimitFrequency) in defaultCategories {
             let cat = SDCategory(
@@ -52,13 +53,24 @@ final class DefaultGroupRepository: GroupRepository {
             context.insert(cat)
         }
 
-        try context.save()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
         return group
     }
 
     func updateGroup(_ group: SDGroup) async throws {
-        group.lastModifiedAt = Date()
-        try context.save()
+        guard context.hasChanges else { return }
+        group.touch()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
     }
 
     func deleteGroup(id: UUID) async throws {
@@ -68,7 +80,12 @@ final class DefaultGroupRepository: GroupRepository {
             throw RepositoryError.notFound
         }
         context.delete(group)
-        try context.save()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
     }
 
     func fetchGroups(forUserId userId: UUID) async throws -> [SDGroup] {

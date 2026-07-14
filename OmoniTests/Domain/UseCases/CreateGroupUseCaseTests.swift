@@ -35,6 +35,22 @@ final class CreateGroupUseCaseTests: XCTestCase {
         XCTAssertEqual(group.currency, "EUR")
     }
 
+    func testCreateGroup_DefaultsGroupKindToExpense() async throws {
+        let group = try await useCase.execute(name: "Personal", currency: "EUR")
+        XCTAssertEqual(group.groupKind, SDGroupKind.expense.rawValue)
+        XCTAssertEqual(group.resolvedGroupKind, .expense)
+    }
+
+    func testApplyEdits_WithSameValues_DoesNotTouchLastModifiedAt() async throws {
+        let group = try await useCase.execute(name: "Personal", currency: "EUR")
+        let originalDate = Date(timeIntervalSince1970: 1_700_000_000)
+        group.lastModifiedAt = originalDate
+
+        group.applyEdits(name: "Personal", currency: "EUR", kind: .expense)
+
+        XCTAssertEqual(group.lastModifiedAt, originalDate)
+    }
+
     // MARK: - Validation
 
     func testCreateGroup_EmptyName_ThrowsEmptyGroupName() async {

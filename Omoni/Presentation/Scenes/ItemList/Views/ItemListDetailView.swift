@@ -1,24 +1,5 @@
 import SwiftUI
 
-
-private struct ItemRowToggleButton: View {
-    let isPaid: Bool
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            Image(systemName: isPaid ? "checkmark.circle.fill" : "circle")
-                .font(.system(size: 24, weight: isPaid ? .regular : .light))
-                .foregroundStyle(isPaid ? Color.paidGreen : Color(.systemGray3))
-                .frame(width: 34, height: 34)
-                .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .animation(.spring(response: 0.3, dampingFraction: 0.75), value: isPaid)
-        .toggleHaptic(trigger: isPaid)
-    }
-}
-
 struct ItemListDetailView: View {
     let itemList: SDItemList
     let currencyCode: String
@@ -26,28 +7,31 @@ struct ItemListDetailView: View {
     let highlightedSearchQuery: String?
     let showsPendingItemsOnly: Bool
     let onItemListUpdated: ((SDItemList) -> Void)?
+    let onItemListItemsChanged: ((SDItemList) -> Void)?
 
+    @Environment(\.dismiss) private var dismiss
     @State private var viewModel: ItemListDetailViewModel
     @State private var sheetMode: ItemSheetMode?
-    @State private var heroIsSuccess: Bool = false
     @State private var showMetaLabels: Bool = true
-    @State private var lastAddedDescription: String = ""
+    @State private var hasPendingParentTotalsRefresh = false
+    @State private var pendingRegistryUpdate: SDItemList? = nil
+    @State private var shouldDismissAfterRegistryUpdate = false
 
     enum ItemSheetMode: Identifiable {
         case create
         case edit(SDItem)
         case editRegistry
+        case quickAdd
 
         var id: String {
             switch self {
             case .create:       return "create"
             case .edit(let i):  return "edit-\(i.id)"
             case .editRegistry: return "editRegistry"
+            case .quickAdd:     return "quickAdd"
             }
         }
     }
-
-    let onPaidStatusChanged: (() -> Void)?
 
     init(
         itemList: SDItemList,
@@ -56,7 +40,7 @@ struct ItemListDetailView: View {
         highlightedSearchQuery: String? = nil,
         showsPendingItemsOnly: Bool = false,
         onItemListUpdated: ((SDItemList) -> Void)? = nil,
-        onPaidStatusChanged: (() -> Void)? = nil
+        onItemListItemsChanged: ((SDItemList) -> Void)? = nil
     ) {
         self.itemList = itemList
         self.currencyCode = currencyCode
@@ -64,7 +48,7 @@ struct ItemListDetailView: View {
         self.highlightedSearchQuery = highlightedSearchQuery
         self.showsPendingItemsOnly = showsPendingItemsOnly
         self.onItemListUpdated = onItemListUpdated
-        self.onPaidStatusChanged = onPaidStatusChanged
+        self.onItemListItemsChanged = onItemListItemsChanged
 
         let container = AppDIContainer.shared
         self._viewModel = State(wrappedValue: ItemListDetailViewModel(
@@ -90,16 +74,19 @@ struct ItemListDetailView: View {
                 mainContentView
             }
         }
-        .navigationTitle(itemList.itemListDescription)
-        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    Button(LocalizationKey.Entry.edit.localized, systemImage: "pencil") {
-                        sheetMode = .editRegistry
-                    }
+                Button {
+                    sheetMode = .editRegistry
                 } label: {
-                    Image(systemName: "ellipsis")
+                    Image(systemName: "square.and.pencil")
+                }
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    sheetMode = .quickAdd
+                } label: {
+                    Image(systemName: "clock.arrow.circlepath")
                 }
             }
         }
@@ -110,7 +97,32 @@ struct ItemListDetailView: View {
             try? await Task.sleep(for: .seconds(3))
             withAnimation(.easeInOut(duration: 0.5)) { showMetaLabels = false }
         }
-        .sheet(item: $sheetMode) { mode in
+        .onDisappear {
+            guard hasPendingParentTotalsRefresh else { return }
+            hasPendingParentTotalsRefresh = false
+
+            Task {
+                await viewModel.waitForPendingMutations()
+                onItemListItemsChanged?(itemList)
+            }
+        }
+        .sheet(item: $sheetMode, onDismiss: {
+            guard let updated = pendingRegistryUpdate else { return }
+
+            let shouldDismissDetail = shouldDismissAfterRegistryUpdate
+            pendingRegistryUpdate = nil
+            shouldDismissAfterRegistryUpdate = false
+
+            Task {
+                // Notify the parent only after the nested editor is fully dismissed.
+                await Task.yield()
+                onItemListUpdated?(updated)
+
+                if shouldDismissDetail {
+                    dismiss()
+                }
+            }
+        }) { mode in
             let container = AppDIContainer.shared
             switch mode {
             case .create:
@@ -120,12 +132,9 @@ struct ItemListDetailView: View {
                     itemListDescription: itemList.itemListDescription,
                     currencyCode: currencyCode,
                     onItemSaved: { item in
-                        Task { await viewModel.addItem(item) }
-                        lastAddedDescription = item.itemDescription
-                        withAnimation(AnimationHelper.smoothSpring) { heroIsSuccess = true }
                         Task {
-                            try? await Task.sleep(for: .milliseconds(900))
-                            withAnimation(AnimationHelper.smoothSpring) { heroIsSuccess = false }
+                            await viewModel.addItem(item)
+                            hasPendingParentTotalsRefresh = true
                         }
                     },
                     createItemUseCase: container.makeCreateItemUseCase(),
@@ -137,9 +146,30 @@ struct ItemListDetailView: View {
                     itemToEdit: item,
                     itemListDescription: itemList.itemListDescription,
                     currencyCode: currencyCode,
-                    onItemSaved: { item in Task { await viewModel.updateItem(item) } },
+                    onItemSaved: { item in
+                        Task {
+                            await viewModel.updateItem(item)
+                            hasPendingParentTotalsRefresh = true
+                        }
+                    },
                     createItemUseCase: container.makeCreateItemUseCase(),
                     updateItemUseCase: container.makeUpdateItemUseCase()
+                )
+            case .quickAdd:
+                let container = AppDIContainer.shared
+                QuickAddItemsView(
+                    itemListId: itemList.id,
+                    groupId: group.id,
+                    categoryId: itemList.category?.id,
+                    currencyCode: currencyCode,
+                    onItemAdded: { item in
+                        Task {
+                            await viewModel.addItem(item)
+                            hasPendingParentTotalsRefresh = true
+                        }
+                    },
+                    fetchFrequentItemsUseCase: container.makeFetchFrequentItemsUseCase(),
+                    createItemUseCase: container.makeCreateItemUseCase()
                 )
             case .editRegistry:
                 NavigationStack {
@@ -149,10 +179,15 @@ struct ItemListDetailView: View {
                         itemListToEdit: itemList,
                         onItemListCreated: { _ in },
                         onItemListUpdated: { updated in
-                            onItemListUpdated?(updated)
+                            pendingRegistryUpdate = updated
+                            shouldDismissAfterRegistryUpdate = updated.isSingleEntry
                             sheetMode = nil
                         },
-                        onCancel: { sheetMode = nil }
+                        onCancel: {
+                            pendingRegistryUpdate = nil
+                            shouldDismissAfterRegistryUpdate = false
+                            sheetMode = nil
+                        }
                     )
                 }
             }
@@ -193,8 +228,6 @@ struct ItemListDetailView: View {
     private var heroCard: some View {
         ItemListDetailHeroCard(
             itemList: itemList,
-            heroIsSuccess: heroIsSuccess,
-            lastAddedDescription: lastAddedDescription,
             totalAmount: viewModel.getFormattedTotal(),
             heroStatus: viewModel.getHeroStatus(),
             showMetaLabels: showMetaLabels,
@@ -207,19 +240,22 @@ struct ItemListDetailView: View {
     private var itemsList: some View {
         ItemListItemsSection(
             items: viewModel.visibleItems,
-            currencyCode: currencyCode,
             formattedAmount: viewModel.getFormattedAmount,
-            isSearchMatch: { item in
-                viewModel.itemMatchesSearch(item, query: highlightedSearchQuery)
+            quantityBreakdown: viewModel.getQuantityBreakdown,
+            highlightedQuery: { item in
+                viewModel.itemMatchesSearch(item, query: highlightedSearchQuery) ? highlightedSearchQuery : nil
             },
             onItemTap: { sheetMode = .edit($0) },
             onTogglePaid: { item in
                 Task {
                     await viewModel.toggleItemPaid(item)
-                    onPaidStatusChanged?()
+                    hasPendingParentTotalsRefresh = true
                 }
             },
-            onDelete: { viewModel.deleteItem($0) },
+            onDelete: { item in
+                hasPendingParentTotalsRefresh = true
+                Task { await viewModel.deleteItem(item) }
+            },
             onRefresh: { await viewModel.loadItems() }
         )
     }
@@ -243,68 +279,81 @@ struct ItemListDetailView: View {
 struct ItemRowView: View {
     let item: SDItem
     let formattedAmount: String
-    let currencyCode: String
-    let isSearchMatch: Bool
+    let quantityBreakdown: String?
+    let highlightedQuery: String?
     let onTap: () -> Void
     let onTogglePaid: () -> Void
 
-    private var showsBreakdown: Bool { item.quantity > 1 }
-    private var showsZeroAmountStyle: Bool { abs(item.totalAmount) < 0.000_001 }
-
-    private var amountColor: Color {
-        if showsZeroAmountStyle { return .secondary }
-        return item.isPaid ? .paidGreen : Color.primary.opacity(0.75)
+    private var rowTone: StatusFramedRowTone {
+        item.isPaid ? .completed : .neutral
     }
 
-    private var formattedUnitPrice: String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = currencyCode
-        formatter.locale = Locale(identifier: "es_ES")
-        return formatter.string(from: NSNumber(value: item.amount)) ?? "\(item.amount)"
+    private var statusIconName: String {
+        item.isPaid ? "checkmark" : "circle"
+    }
+
+    private var statusIconColor: Color? {
+        item.isPaid ? nil : Color(.systemGray2)
+    }
+
+    private func buildHighlightedDescription() -> Text {
+        let description = item.itemDescription
+        guard let query = highlightedQuery,
+              !query.isEmpty,
+              let range = description.range(of: query, options: .caseInsensitive) else {
+            return Text(description)
+                .font(.system(size: 15, weight: .medium))
+                .foregroundColor(Color.primary.opacity(0.92))
+        }
+        let before = String(description[description.startIndex..<range.lowerBound])
+        let match  = String(description[range])
+        let after  = String(description[range.upperBound...])
+        let beforeText = Text(verbatim: before)
+            .font(.system(size: 15, weight: .medium))
+            .foregroundColor(Color.primary.opacity(0.92))
+        let matchText = Text(verbatim: match)
+            .font(.system(size: 15, weight: .semibold))
+            .foregroundColor(.accentColor)
+        let afterText = Text(verbatim: after)
+            .font(.system(size: 15, weight: .medium))
+            .foregroundColor(Color.primary.opacity(0.92))
+        return Text("\(beforeText)\(matchText)\(afterText)")
     }
 
     var body: some View {
-        HStack(alignment: .center, spacing: 10) {
-            ItemRowToggleButton(isPaid: item.isPaid, action: onTogglePaid)
-
-            VStack(alignment: .leading, spacing: 2) {
-                HStack(spacing: 6) {
-                    Text(item.itemDescription)
-                        .font(.system(size: 15, weight: .regular))
-                        .foregroundStyle(Color.primary.opacity(0.9))
-                        .lineLimit(1)
-
-                    if isSearchMatch {
-                        Image(systemName: "magnifyingglass.circle.fill")
-                            .font(.caption)
-                            .foregroundStyle(.tint)
+        StatusFramedRow(
+            tone: rowTone,
+            statusIconName: statusIconName,
+            statusIconColor: statusIconColor,
+            onTap: onTap,
+            onToggle: onTogglePaid
+        ) {
+            HStack(alignment: .center, spacing: 12) {
+                VStack(alignment: .leading, spacing: 1) {
+                    buildHighlightedDescription()
+                        .lineLimit(2)
+                        .truncationMode(.tail)
+                        .fixedSize(horizontal: false, vertical: true)
+                    if let breakdown = quantityBreakdown {
+                        Text(breakdown)
+                            .font(.system(size: 12, weight: .regular, design: .rounded))
+                            .foregroundStyle(Color.secondary)
+                            .monospacedDigit()
+                            .lineLimit(1)
                     }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
 
-                if showsBreakdown {
-                    Text("\(formattedUnitPrice) × \(item.quantity) \(LocalizationKey.Item.units.localized)")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
+                Text(formattedAmount)
+                    .font(.system(size: 15, weight: .semibold, design: .rounded))
+                    .foregroundStyle(rowTone.amountColor)
+                    .monospacedDigit()
+                    .lineLimit(1)
+                    .fixedSize(horizontal: true, vertical: false)
+                    .contentTransition(.numericText())
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-
-            Text(formattedAmount)
-                .font(.system(size: 15, weight: .light))
-                .foregroundStyle(amountColor)
-                .monospacedDigit()
-                .lineLimit(1)
-                .contentTransition(.numericText())
         }
-        .padding(.vertical, 17)
-        .overlay(alignment: .bottom) {
-            Rectangle()
-                .fill(Color(.separator).opacity(0.3))
-                .frame(height: 0.5)
-        }
-        .contentShape(Rectangle())
-        .onTapGesture { onTap() }
+        .padding(.vertical, 6)
     }
 }
 
@@ -312,7 +361,7 @@ struct ItemRowView: View {
 #Preview {
     let itemList = SDItemList.mock(itemListDescription: "Compras del supermercado")
     let group = SDGroup.mock(name: "Casa", currency: "EUR")
-    return NavigationStack {
+    NavigationStack {
         ItemListDetailView(itemList: itemList, currencyCode: "EUR", group: group)
     }
 }
