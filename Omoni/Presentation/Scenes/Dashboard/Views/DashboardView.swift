@@ -35,10 +35,22 @@ private struct DashboardItemListRoute: Hashable {
     }
 }
 
-private struct SingleEntryEditorSheet: Identifiable {
-    let itemList: SDItemList
+private struct ItemListFormSheet: Identifiable {
+    // A presentation owns one form draft, even when reopening the same registry.
+    let id = UUID()
+    let itemListToEdit: SDItemList?
+    let initialDate: Date?
+    let preferredCategoryId: UUID?
 
-    var id: UUID { itemList.id }
+    init(
+        itemListToEdit: SDItemList? = nil,
+        initialDate: Date? = nil,
+        preferredCategoryId: UUID? = nil
+    ) {
+        self.itemListToEdit = itemListToEdit
+        self.initialDate = initialDate
+        self.preferredCategoryId = preferredCategoryId
+    }
 }
 
 private struct ActiveCategoryDayContext {
@@ -47,9 +59,10 @@ private struct ActiveCategoryDayContext {
     let date: Date
 }
 
-private enum PendingCreatedItemListAction {
+private enum PendingItemListFormAction {
     case addOnly(SDItemList)
     case addAndOpen(DashboardItemListRoute)
+    case update(SDItemList)
 }
 
 enum DashboardViewMode {
@@ -92,16 +105,9 @@ struct DashboardView: View {
     @State private var contentOpacity: Double = 0.0
     @State private var hasLoadedInitialData = false
     @State private var selectedCalendarDay: Date?
-    @State private var addItemListTrigger: AddItemListTrigger?
-    @State private var singleEntryEditorSheet: SingleEntryEditorSheet?
-    @State private var pendingSingleEntryEditorUpdate: SDItemList?
-    @State private var pendingCreatedItemListAction: PendingCreatedItemListAction?
+    @State private var itemListFormSheet: ItemListFormSheet?
+    @State private var pendingItemListFormAction: PendingItemListFormAction?
 
-    private struct AddItemListTrigger: Identifiable {
-        let id = UUID()
-        let initialDate: Date?
-        let preferredCategoryId: UUID?
-    }
     @State private var listDragOffset: CGFloat = 0
     @State private var displayedCalendarMonth: Date = Calendar.current.startOfMonth(for: Date())
     @State private var viewMode: DashboardViewMode = .list
@@ -208,14 +214,14 @@ struct DashboardView: View {
                 }
             )
             .sheet(
-                item: $addItemListTrigger,
+                item: $itemListFormSheet,
                 onDismiss: {
-                    guard let pendingAction = pendingCreatedItemListAction else { return }
-                    pendingCreatedItemListAction = nil
+                    guard let pendingAction = pendingItemListFormAction else { return }
+                    pendingItemListFormAction = nil
 
                     Task {
-                        // Wait until the creation sheet is fully dismissed before mutating
-                        // dashboard state or pushing a detail route.
+                        // Apply changes after the form is fully dismissed before
+                        // updating the dashboard or pushing a detail route.
                         await Task.yield()
 
                         switch pendingAction {
@@ -224,48 +230,9 @@ struct DashboardView: View {
                         case let .addAndOpen(route):
                             await viewModel.addItemList(route.itemList)
                             navigationPath.append(route)
+                        case let .update(itemList):
+                            await viewModel.updateItemList(itemList)
                         }
-                    }
-                },
-                content: { trigger in
-                    if let group = viewModel.currentGroup {
-                        NavigationStack {
-                            AddItemListView(
-                                group: group,
-                                availableGroups: viewModel.availableGroups,
-                                initialDate: trigger.initialDate,
-                                preferredCategoryId: trigger.preferredCategoryId,
-                                excludedCategoryIds: viewModel.visibleCategoryBoxes.map(\.categoryId),
-                                onItemListCreated: { createdItemList in
-                                    if createdItemList.structure == .itemizedList,
-                                       let route = itemListRoute(for: createdItemList) {
-                                        pendingCreatedItemListAction = .addAndOpen(route)
-                                    } else {
-                                        pendingCreatedItemListAction = .addOnly(createdItemList)
-                                    }
-                                    addItemListTrigger = nil
-                                },
-                                onCancel: {
-                                    pendingCreatedItemListAction = nil
-                                    addItemListTrigger = nil
-                                }
-                            )
-                        }
-                        .presentationDetents([.large])
-                        .presentationDragIndicator(.visible)
-                    }
-                }
-            )
-            .sheet(
-                item: $singleEntryEditorSheet,
-                onDismiss: {
-                    guard let updated = pendingSingleEntryEditorUpdate else { return }
-                    pendingSingleEntryEditorUpdate = nil
-
-                    Task {
-                        // Apply dashboard mutations after the editor is fully dismissed.
-                        await Task.yield()
-                        await viewModel.updateItemList(updated)
                     }
                 },
                 content: { sheet in
@@ -274,19 +241,32 @@ struct DashboardView: View {
                             AddItemListView(
                                 group: group,
                                 availableGroups: viewModel.availableGroups,
-                                itemListToEdit: sheet.itemList,
-                                showsCancelButton: true,
-                                onItemListCreated: { _ in },
+                                itemListToEdit: sheet.itemListToEdit,
+                                initialDate: sheet.initialDate,
+                                preferredCategoryId: sheet.preferredCategoryId,
+                                excludedCategoryIds: sheet.itemListToEdit == nil
+                                    ? viewModel.visibleCategoryBoxes.map(\.categoryId)
+                                    : [],
+                                onItemListCreated: { createdItemList in
+                                    if createdItemList.structure == .itemizedList,
+                                       let route = itemListRoute(for: createdItemList) {
+                                        pendingItemListFormAction = .addAndOpen(route)
+                                    } else {
+                                        pendingItemListFormAction = .addOnly(createdItemList)
+                                    }
+                                    itemListFormSheet = nil
+                                },
                                 onItemListUpdated: { updated in
-                                    pendingSingleEntryEditorUpdate = updated
-                                    singleEntryEditorSheet = nil
+                                    pendingItemListFormAction = .update(updated)
+                                    itemListFormSheet = nil
                                 },
                                 onCancel: {
-                                    pendingSingleEntryEditorUpdate = nil
-                                    singleEntryEditorSheet = nil
+                                    pendingItemListFormAction = nil
+                                    itemListFormSheet = nil
                                 }
                             )
                         }
+                        .id(sheet.id)
                         .presentationDetents([.large])
                         .presentationDragIndicator(.visible)
                     }
@@ -686,7 +666,7 @@ struct DashboardView: View {
                                 if showsHeroInfoAction {
                                     viewModel.showSelectCategoryFromDashboardToast()
                                 } else {
-                                    addItemListTrigger = AddItemListTrigger(
+                                    itemListFormSheet = ItemListFormSheet(
                                         initialDate: resolvedInitialEntryDate,
                                         preferredCategoryId: activeCategoryBox?.categoryId
                                     )
@@ -880,8 +860,7 @@ struct DashboardView: View {
 private extension DashboardView {
     func openItemList(_ itemList: SDItemList) {
         if viewModel.prefersSingleEntryEditor(for: itemList) {
-            pendingSingleEntryEditorUpdate = nil
-            singleEntryEditorSheet = SingleEntryEditorSheet(itemList: itemList)
+            itemListFormSheet = ItemListFormSheet(itemListToEdit: itemList)
         } else {
             guard let route = itemListRoute(for: itemList) else { return }
             navigationPath.append(route)
