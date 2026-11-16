@@ -290,6 +290,10 @@ class DashboardViewModel {
         monthTitleFormatter.string(from: selectedMonthAnchor).capitalized(with: Locale.current)
     }
 
+    var monthTabTitle: String {
+        isCustomMonthFilterActive ? selectedMonthTitle : LocalizationKey.Dashboard.thisMonth.localized
+    }
+
     var monthHeroLabel: String {
         isCustomMonthFilterActive ? selectedMonthTitle : LocalizationKey.Dashboard.costThisMonth.localized
     }

@@ -185,6 +185,7 @@ struct DashboardTopChromeView: View {
 
     @Binding var showingFullMonth: Bool
     let hasItemsOutsideToday: Bool
+    let monthTabTitle: String
     let onOpenSettings: () -> Void
     let toast: Binding<ToastMessage?>
 
@@ -196,6 +197,7 @@ struct DashboardTopChromeView: View {
         DashboardTopBarView(
             showingFullMonth: $showingFullMonth,
             hasItemsOutsideToday: hasItemsOutsideToday,
+            monthTabTitle: monthTabTitle,
             onOpenSettings: onOpenSettings
         )
         .opacity(showsToast ? 0 : 1)
@@ -255,6 +257,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
     let transitionMode: DashboardContentTransitionMode
     let contentRangeKey: String
     let hasItemsOutsideToday: Bool
+    let monthTabTitle: String
     let onOpenSettings: () -> Void
     let toast: Binding<ToastMessage?>
     let bottomInset: BottomInset
@@ -321,6 +324,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
         transitionMode: DashboardContentTransitionMode,
         contentRangeKey: String,
         hasItemsOutsideToday: Bool,
+        monthTabTitle: String,
         onOpenSettings: @escaping () -> Void,
         toast: Binding<ToastMessage?>,
         @ViewBuilder bottomInset: () -> BottomInset
@@ -361,6 +365,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
         self.transitionMode = transitionMode
         self.contentRangeKey = contentRangeKey
         self.hasItemsOutsideToday = hasItemsOutsideToday
+        self.monthTabTitle = monthTabTitle
         self.onOpenSettings = onOpenSettings
         self.toast = toast
         self.bottomInset = bottomInset()
@@ -463,6 +468,7 @@ struct DashboardMainContent<EmptyState: View, BottomInset: View>: View {
             DashboardTopChromeView(
                 showingFullMonth: $showingFullMonth,
                 hasItemsOutsideToday: hasItemsOutsideToday,
+                monthTabTitle: monthTabTitle,
                 onOpenSettings: onOpenSettings,
                 toast: toast
             )

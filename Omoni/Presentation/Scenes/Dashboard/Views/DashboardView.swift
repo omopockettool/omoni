@@ -414,6 +414,7 @@ struct DashboardView: View {
             transitionMode: contentTransitionMode,
             contentRangeKey: activeContentRangeKey,
             hasItemsOutsideToday: viewModel.hasItemsOutsideToday,
+            monthTabTitle: viewModel.monthTabTitle,
             onOpenSettings: { viewModel.openSettings() },
             toast: $viewModel.toast,
             bottomInset: { bottomInset }
