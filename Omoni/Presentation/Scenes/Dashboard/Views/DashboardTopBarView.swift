@@ -8,6 +8,7 @@ struct DashboardTopBarView: View {
 
     @Binding var showingFullMonth: Bool
     let hasItemsOutsideToday: Bool
+    let monthTabTitle: String
     let onOpenSettings: () -> Void
 
     private var selectedRange: Binding<DashboardRange> {
@@ -27,7 +28,7 @@ struct DashboardTopBarView: View {
                 Picker("Dashboard Range", selection: selectedRange) {
                     Text(LocalizationKey.Dashboard.today.localized)
                         .tag(DashboardRange.today)
-                    Text(LocalizationKey.Dashboard.thisMonth.localized)
+                    Text(monthTabTitle)
                         .tag(DashboardRange.month)
                 }
                 .pickerStyle(.segmented)
